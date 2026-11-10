@@ -7,6 +7,7 @@ import { catalog, type HardwareItem } from '@/hardware/catalog';
 import { formatFraction } from '@/lib/fraction';
 import { Modal } from './Modal';
 import { PrimaryButton, Select, TextInput } from './form';
+import { HardwarePreview } from './HardwarePreview';
 
 /** The two or three numbers a buyer checks first, in shop notation. */
 export function keySize(item: HardwareItem): string {
@@ -93,7 +94,7 @@ export function HardwareDialog(props: {
     return (
         <Modal onClose={props.onClose} testId="hardware-dialog" className="max-w-2xl">
             <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="text-base font-semibold">Add hardware</h2>
+                <h2 className="text-base font-semibold whitespace-nowrap">Add hardware</h2>
                 <TextInput
                     h="md"
                     className="w-56"
@@ -148,11 +149,25 @@ export function HardwareDialog(props: {
                 </ul>
             </div>
 
-            <p className="text-muted mt-3 min-h-8 text-xs" data-testid="hardware-description">
-                {pickedItem === null
-                    ? 'Pick a piece to mount it on a part. Hinges, slides and pulls for a door or drawer are chosen on the door or drawer itself.'
-                    : (pickedItem.description ?? `${pickedItem.name}. ${keySize(pickedItem)}.`)}
-            </p>
+            <div className="mt-3 flex gap-3">
+                <HardwarePreview item={pickedItem} className="h-28 w-40 flex-none" />
+                <div className="min-w-0 text-xs" data-testid="hardware-description">
+                    {pickedItem === null ? (
+                        <p className="text-muted">
+                            Pick a piece to mount it on a part. Hinges, slides and pulls for a door or drawer
+                            are chosen on the door or drawer itself.
+                        </p>
+                    ) : (
+                        <>
+                            <p className="text-fg-strong text-[13px] font-semibold">{pickedItem.name}</p>
+                            <p className="text-muted mt-0.5">{keySize(pickedItem)}</p>
+                            {pickedItem.description && (
+                                <p className="text-muted mt-1.5">{pickedItem.description}</p>
+                            )}
+                        </>
+                    )}
+                </div>
+            </div>
 
             <div className="mt-3 flex items-end gap-2">
                 <label className="min-w-0 flex-1">

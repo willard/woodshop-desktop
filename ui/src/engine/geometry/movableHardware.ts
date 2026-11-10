@@ -50,7 +50,10 @@ export function slideRailGeometry(length: number): THREE.BufferGeometry {
     return new THREE.BoxGeometry(0.1, 0.75, Math.max(length, 0.5));
 }
 
-/** Dull steel — bright metal has nothing to reflect in this scene and reads as a dark smudge. */
+/**
+ * Brushed nickel. Kept light and only slightly metallic: the scene has no environment to reflect,
+ * so a truly metallic surface renders near black and disappears against wood.
+ */
 export function createHardwareMaterial(): THREE.MeshStandardMaterial {
-    return new THREE.MeshStandardMaterial({ color: 0x8a8f96, metalness: 0.5, roughness: 0.45 });
+    return new THREE.MeshStandardMaterial({ color: 0xc4c8ce, metalness: 0.25, roughness: 0.42 });
 }

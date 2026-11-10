@@ -42,7 +42,6 @@ function merge(parts: THREE.BufferGeometry[]): THREE.BufferGeometry {
     const merged = mergeGeometries(flat, false) ?? new THREE.BoxGeometry(0.5, 0.5, 0.5);
     for (const p of parts) p.dispose();
     for (const f of flat) f.dispose();
-    merged.computeVertexNormals();
     return merged;
 }
 
@@ -89,10 +88,10 @@ const BUILDERS: Record<string, Builder> = {
         const w = num(m, 'width', 3.75);
         const h = num(m, 'height', 1.4);
         const p = num(m, 'projection', 0.9);
-        // A quarter-sphere hood: closed at the top, open underneath for fingers.
-        const hood = new THREE.SphereGeometry(1, 20, 10, 0, Math.PI, 0, Math.PI / 2);
-        hood.rotateX(Math.PI / 2).scale(w / 2, h, p);
-        return [hood.translate(0, -h / 2, 0), box(w, h * 0.12, PLATE, 0, h / 2, PLATE / 2)];
+        // A quarter-sphere hood: domed at the top and front, open underneath for fingers and
+        // at the back where it meets the wood. (theta 0..90° keeps y >= 0; phi 0..180° keeps z >= 0.)
+        const hood = new THREE.SphereGeometry(1, 24, 12, 0, Math.PI, 0, Math.PI / 2).scale(w / 2, h, p);
+        return [hood.translate(0, -h / 2, 0), box(w + 0.3, 0.22, PLATE, 0, h / 2, PLATE / 2)];
     },
 
     buttHinge: (m, length) => {
@@ -137,7 +136,7 @@ const BUILDERS: Record<string, Builder> = {
         const wheel = num(m, 'wheel', 2);
         const height = num(m, 'height', wheel * 1.3);
         const plate = num(m, 'plate', wheel * 1.25);
-        const tread = wheel * 0.42;
+        const tread = wheel * 0.3;
         const axleZ = height - wheel / 2;
         // A swivel caster trails its wheel behind the kingpin.
         const offset = m.swivel === true ? wheel * 0.28 : 0;

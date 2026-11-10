@@ -73,21 +73,26 @@ backend (`ui/src/test/mockBackend.ts`); every new Tauri command needs a mock the
 ## Current state
 
 Committed on `main` (not pushed, no remote yet): the full app, the MCP server, CI and release
-workflows, crash logging, and the macOS fixes.
+workflows, crash logging, the macOS fixes, and **most of Phase 1**.
 
-**Uncommitted work in progress: the first half of Phase 1.** The Rust core side of the hardware
-library is written and `cargo test --workspace` passes, but the TypeScript side has not caught up,
-so **the UI tests and the app do not work from this tree until tasks 1.1 and 1.2 are done.**
-
-| Done (uncommitted) | File |
+| Phase 1 task | State |
 |---|---|
-| Catalog: 70 items, 10 categories, 20 model shapes | `resources/hardware.json` |
-| Catalog loading, lookup, mount frame math | `crates/woodshop-core/src/hardware.rs` |
-| Spec 1.15: `hardware[]`, movable `hinge` / `slide` / `pull` | `resources/spec.schema.json`, `spec/types.rs`, `spec/migrate.rs`, `spec/parse.rs` |
-| Hardware list rows for mounts and chosen fittings | `crates/woodshop-core/src/cutlist/hardware.rs` |
-| Linter rules `hardware.*`, `movable.hardware-unknown` | `crates/woodshop-core/src/lint/checks.rs` |
+| 1.1 TypeScript side on spec 1.15 | Done |
+| 1.2 Catalog through WASM | Done |
+| 1.3 3D models for all 20 shapes; mounted and movable hardware in the scene | Done. Reviewed by eye on a contact sheet. |
+| 1.4 Commands; hardware follows delete, duplicate, extract | Done |
+| 1.5 Hardware browser with search and a 3D preview | Done. **Click-to-place is not built**: a new piece lands at the centre of the part's front face and is moved from the inspector. |
+| 1.6 Inspector: per-part hardware list; hinge, slide and pull pickers | Done |
+| 1.7 Click a hardware mesh to select it | Not started |
+| 1.8 MCP tools, conventions, server instructions | Done, except `explain_part` does not report mounts yet |
+| 1.9 Templates with real hardware; help article | Not started |
+| 1.10 Verify in the real window; exports | Partly: 3D view and hardware list seen in the real window. PDF, CSV and HTML viewer with hardware not yet checked there. |
 
-First action: finish 1.1 and 1.2, get every check green, then commit the lot as one commit.
+Known rough edges in what is done:
+- Hardware is one flat metal colour. Pulls and knobs want finishes (black, brass); see 5b.1.
+- The T-hinge strap and the shelf pin are crude; fine at furniture zoom, weak in the preview.
+- An undermount slide is drawn in the side-mount position.
+- At default zoom hardware is only a few pixels; the editor has no "zoom to selection".
 
 ---
 
