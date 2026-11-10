@@ -137,3 +137,31 @@ test('a group becomes a project of its own', async ({ page }) => {
     await expect(page.getByTestId('project-row')).toHaveCount(2);
     await expect(page.getByTestId('project-row').filter({ hasText: 'Record stand' })).toHaveCount(1);
 });
+
+test('hardware from the catalog mounts on a part and joins the hardware list', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-group-row').filter({ hasText: 'Back Panel' }).click();
+    await page.getByTestId('inspector-tab').click();
+
+    await page.getByTestId('add-hardware').click();
+    const dialog = page.getByTestId('hardware-dialog');
+    await dialog.getByTestId('hardware-search').fill('96 mm');
+    await dialog.locator('[data-item="pull.bar-96mm"]').click();
+    await dialog.getByTestId('hardware-add').click();
+
+    const row = page.getByTestId('hardware-row');
+    await expect(row).toContainText('Bar pull, 96 mm centers');
+    await expect(page.getByTestId('save-state')).toHaveText('Saved');
+
+    // It can be moved, and it shows up in what to buy.
+    await row.getByTestId('hardware-x').fill('4 1/2');
+    await row.getByTestId('hardware-x').blur();
+    await expect(row.getByTestId('hardware-x')).toHaveValue('4 1/2');
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('cutlist-hardware')).toContainText('bar pulls, 96 mm centers');
+
+    await page.getByTestId('undo').click();
+    await page.getByTestId('undo').click();
+    await expect(page.getByTestId('cutlist-hardware')).not.toContainText('bar pulls');
+});

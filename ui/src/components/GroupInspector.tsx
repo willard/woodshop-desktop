@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Group, Movable, Part } from '@/spec';
 import { formatFraction } from '@/lib/fraction';
 import { Field, SectionLabel, Select } from './form';
+import { MovableFittings } from './HardwareFittings';
 
 type Axis3 = 0 | 1 | 2;
 const ROTATIONS: { axis: Axis3; label: string }[] = [
@@ -185,6 +186,7 @@ export function GroupInspector(p: GroupInspectorProps) {
                                     </Select>
                                 </Field>
                             </div>
+                            <MovableFittings movable={p.movable} onChange={p.onUpdateMovable} />
                         </div>
                     </div>
                 )

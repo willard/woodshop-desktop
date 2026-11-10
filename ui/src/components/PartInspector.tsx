@@ -3,8 +3,9 @@
  * reported through a callback and the workspace executes the Command.
  */
 import { useEffect, useRef, useState } from 'react';
-import type { Movable, Op, Part, Species } from '@/spec';
-import type { PlacementRequest } from '@/engine';
+import type { HardwareMount, Movable, Op, Part, Species } from '@/spec';
+import type { HardwarePatch, PlacementRequest } from '@/engine';
+import { MovableFittings, PartHardware } from './HardwareFittings';
 import { DEFAULT_EASE_CONFIG, WORKSPACE_POS_BOUND } from '@/engine';
 import { formatFraction, parseFraction, parseSignedFraction } from '@/lib/fraction';
 import { opSummary } from '@/spec/opLabel';
@@ -52,6 +53,11 @@ export interface PartInspectorProps {
     onMakeMovable(kind: 'door' | 'drawer'): void;
     onUpdateMovable(patch: Record<string, unknown>): void;
     onDissolveMovable(): void;
+    /** Catalog hardware mounted on this part (spec 1.15). */
+    hardware: HardwareMount[];
+    onAddHardware(): void;
+    onUpdateHardware(id: string, patch: HardwarePatch): void;
+    onRemoveHardware(id: string): void;
 }
 
 const SPECIES_OPTIONS: { value: Species; label: string }[] = [
@@ -717,8 +723,19 @@ export function PartInspector(p: PartInspectorProps) {
                             </Field>
                         )}
                     </div>
+                    <MovableFittings movable={p.movable} onChange={p.onUpdateMovable} />
                 </div>
             )}
+
+            <SectionLabel>Hardware</SectionLabel>
+            <PartHardware
+                part={p.part}
+                thickness={p.thickness ?? 0.75}
+                mounts={p.hardware}
+                onAdd={p.onAddHardware}
+                onUpdate={p.onUpdateHardware}
+                onRemove={p.onRemoveHardware}
+            />
 
             <SectionLabel>Ops</SectionLabel>
             {hasOps && (

@@ -57,6 +57,10 @@ import {
     SetPartStock,
     UngroupParts,
     UpdateMovable,
+    AddHardware,
+    UpdateHardware,
+    RemoveHardware,
+    uniqueHardwareId,
     WORKSPACE_POS_BOUND,
     aabbFromPart,
     clampToWorkspace,
@@ -108,6 +112,7 @@ import { AddMovableDialog } from './AddMovableDialog';
 import { AddPartDialog } from './AddPartDialog';
 import { CutListPanel } from './CutListPanel';
 import { GroupInspector } from './GroupInspector';
+import { HardwareDialog } from './HardwareDialog';
 import { PartInspector } from './PartInspector';
 import { Popover } from './Popover';
 import { SnapSettings } from './SnapSettings';
@@ -197,6 +202,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             detected: boolean;
         } | null>(null);
         const [toolsOpen, setToolsOpen] = useState(false);
+        const [hardwareDialog, setHardwareDialog] = useState<{ partId: string | null } | null>(null);
         const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
         const [opError, setOpError] = useState<string | null>(null);
         const [placing, setPlacing] = useState<PlacementRequest | null>(null);
@@ -445,6 +451,25 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                     : measuring
                       ? { reason: 'Measuring.', action: 'Done measuring', fix: toggleMeasure }
                       : null;
+
+        /** Mounts a catalog item on a part, centred on its front face, and shows it in the inspector. */
+        function addHardware(itemId: string, partId: string): void {
+            const part = spec.parts.find((p) => p.id === partId);
+            if (part === undefined) return;
+            doc.execute(
+                new AddHardware({
+                    id: uniqueHardwareId(spec, itemId),
+                    item: itemId,
+                    partId,
+                    side: 'front',
+                    x: part.size.l / 2,
+                    y: part.size.w / 2,
+                    rot: 0,
+                }),
+            );
+            setHardwareDialog(null);
+            revealAndSelect(partId);
+        }
 
         function recenter(): void {
             if (focus === null) doc.execute(new RecenterAssembly());
@@ -1032,6 +1057,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         onUpdateMovable={(patch) =>
                             selectedMovable && doc.execute(new UpdateMovable(selectedMovable.id, patch))
                         }
+                        hardware={(spec.hardware ?? []).filter((h) => h.partId === selected.id)}
+                        onAddHardware={() => setHardwareDialog({ partId: selected.id })}
+                        onUpdateHardware={(id, patch) => doc.execute(new UpdateHardware(id, patch))}
+                        onRemoveHardware={(id) => doc.execute(new RemoveHardware(id))}
                         onDissolveMovable={() =>
                             selectedMovable && doc.execute(new DissolveMovable(selectedMovable.id))
                         }
@@ -1331,6 +1360,18 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                                 <span className="text-faint">…</span>
                                             </button>
                                         ))}
+                                        <div className="bg-fg/[0.08] my-1 h-px" />
+                                        <button
+                                            className="hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[12.5px]"
+                                            data-testid="add-hardware-menu"
+                                            title="Pulls, hinges, casters, brackets, latches and more"
+                                            onClick={() => {
+                                                setHardwareDialog({ partId: selected?.id ?? null });
+                                                close();
+                                            }}
+                                        >
+                                            Hardware<span className="text-faint">…</span>
+                                        </button>
                                     </>
                                 )}
                             </Popover>
@@ -1721,6 +1762,14 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         detected={movableDialog.detected}
                         onAdd={confirmMovableDialog}
                         onClose={() => setMovableDialog(null)}
+                    />
+                )}
+                {hardwareDialog && (
+                    <HardwareDialog
+                        parts={spec.parts.map((p) => ({ id: p.id, name: p.name }))}
+                        partId={hardwareDialog.partId}
+                        onAdd={addHardware}
+                        onClose={() => setHardwareDialog(null)}
                     />
                 )}
                 {toolsOpen && <ToolsOverlay onClose={() => setToolsOpen(false)} />}
