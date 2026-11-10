@@ -73,6 +73,10 @@ export function HardwareDialog(props: {
     /** The part to mount on by default (the selection), if any. */
     partId: string | null;
     onAdd(itemId: string, partId: string): void;
+    /** Start click-to-place with this item. */
+    onPlace(itemId: string): void;
+    /** False while exploded or open, when clicking on the model would mislead. */
+    canPlace: boolean;
     onClose(): void;
 }) {
     const { categories, items } = catalog();
@@ -134,7 +138,11 @@ export function HardwareDialog(props: {
                                 data-testid="hardware-item"
                                 data-item={item.id}
                                 onClick={() => setPicked(item.id)}
-                                onDoubleClick={() => partId !== '' && props.onAdd(item.id, partId)}
+                                onDoubleClick={() =>
+                                    props.canPlace
+                                        ? props.onPlace(item.id)
+                                        : partId !== '' && props.onAdd(item.id, partId)
+                                }
                             >
                                 <div className="text-[13px] font-medium">{item.name}</div>
                                 <div className="text-muted text-[11.5px]">{keySize(item)}</div>
@@ -171,19 +179,30 @@ export function HardwareDialog(props: {
 
             <div className="mt-3 flex items-end gap-2">
                 <label className="min-w-0 flex-1">
-                    <span className="text-muted mb-1 block text-[11.5px]">Mount on</span>
-                    <Select
-                        h="md"
-                        value={partId}
-                        data-testid="hardware-part"
-                        onChange={(e) => setPartId(e.target.value)}
-                    >
-                        {props.parts.map((part) => (
-                            <option key={part.id} value={part.id}>
-                                {part.name}
-                            </option>
-                        ))}
-                    </Select>
+                    <span className="text-muted mb-1 block text-[11.5px]">Or add to the centre of</span>
+                    <span className="flex gap-2">
+                        <Select
+                            h="md"
+                            value={partId}
+                            data-testid="hardware-part"
+                            onChange={(e) => setPartId(e.target.value)}
+                        >
+                            {props.parts.map((part) => (
+                                <option key={part.id} value={part.id}>
+                                    {part.name}
+                                </option>
+                            ))}
+                        </Select>
+                        <button
+                            type="button"
+                            className="border-fg/12 enabled:hover:bg-surface-2 h-9 flex-none rounded-lg border px-3 text-sm disabled:opacity-50"
+                            disabled={pickedItem === null || partId === ''}
+                            data-testid="hardware-add"
+                            onClick={() => pickedItem && props.onAdd(pickedItem.id, partId)}
+                        >
+                            Add
+                        </button>
+                    </span>
                 </label>
                 <button
                     className="border-fg/12 hover:bg-surface-2 h-9 rounded-lg border px-3 text-sm"
@@ -193,11 +212,16 @@ export function HardwareDialog(props: {
                 </button>
                 <PrimaryButton
                     className="h-9 px-4 text-sm"
-                    disabled={pickedItem === null || partId === ''}
-                    data-testid="hardware-add"
-                    onClick={() => pickedItem && props.onAdd(pickedItem.id, partId)}
+                    disabled={pickedItem === null || !props.canPlace}
+                    title={
+                        props.canPlace
+                            ? 'Then click where it goes on a part'
+                            : 'Close the doors and reassemble the view to place by clicking'
+                    }
+                    data-testid="hardware-place"
+                    onClick={() => pickedItem && props.onPlace(pickedItem.id)}
                 >
-                    Add
+                    Place on the model
                 </PrimaryButton>
             </div>
         </Modal>

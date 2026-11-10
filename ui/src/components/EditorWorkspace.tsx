@@ -113,6 +113,7 @@ import { AddPartDialog } from './AddPartDialog';
 import { CutListPanel } from './CutListPanel';
 import { GroupInspector } from './GroupInspector';
 import { HardwareDialog } from './HardwareDialog';
+import { findItem } from '@/hardware/catalog';
 import { PartInspector } from './PartInspector';
 import { Popover } from './Popover';
 import { SnapSettings } from './SnapSettings';
@@ -773,6 +774,13 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             setPlacementPreview(null);
         }
 
+        /** Quarter-turns the hardware being placed (the R key, or the chip's button). */
+        function turnPlacing(): void {
+            const request = placingRef.current;
+            if (request === null || request.kind !== 'hardware') return;
+            placeOp({ ...request, rot: ((request.rot + 90) % 360) as 0 | 90 | 180 | 270 });
+        }
+
         function stopPlacing(): void {
             engineRef.current?.cancelPlacement();
             setPlacing(null);
@@ -783,6 +791,22 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         commitPlacementRef.current = (preview: PlacementPreview) => {
             const request = placingRef.current;
             if (request === null) return;
+            if (request.kind === 'hardware') {
+                // Stays in placement mode: casters and pulls go on in runs.
+                const d = docRef.current;
+                d.execute(
+                    new AddHardware({
+                        id: uniqueHardwareId(d.spec, request.item),
+                        item: request.item,
+                        partId: preview.partId,
+                        side: preview.face,
+                        x: preview.x,
+                        y: preview.y,
+                        rot: request.rot,
+                    }),
+                );
+                return;
+            }
             let op: Op;
             if (request.kind === 'hole') {
                 op = {
@@ -817,6 +841,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 return `offset ${formatFraction(preview.offset ?? 0)}" · ${preview.face}`;
             if (placing.kind === 'pocket')
                 return preview.edge === null ? null : `edge ${preview.edge} · ${placing.count} screws`;
+            if (placing.kind === 'hardware') {
+                const on = spec.parts.find((p) => p.id === preview.partId)?.name ?? '';
+                return `${on} · ${preview.face} · (${formatFraction(preview.x)}", ${formatFraction(preview.y)}")`;
+            }
             return `(${formatFraction(preview.x)}", ${formatFraction(preview.y)}") · ${preview.face}`;
         })();
 
@@ -868,6 +896,16 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         // --- Keyboard ---
         const keyHandler = useRef<(e: KeyboardEvent) => void>(() => undefined);
         keyHandler.current = (event: KeyboardEvent) => {
+            if (
+                (event.key === 'r' || event.key === 'R') &&
+                placingRef.current?.kind === 'hardware' &&
+                !event.metaKey &&
+                !event.ctrlKey
+            ) {
+                event.preventDefault();
+                turnPlacing();
+                return;
+            }
             if (event.key === 'Escape' && placingRef.current !== null) {
                 event.preventDefault();
                 stopPlacing();
@@ -1527,16 +1565,36 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         {placing && (
                             <Chip testId="placement-chip">
                                 <span className="text-fg/80">
-                                    Placing {placing.kind} —{' '}
-                                    {placing.kind === 'dado'
-                                        ? 'click a face to set the offset'
-                                        : 'click a face to drill'}
-                                    <span className="text-muted"> · Esc to finish</span>
+                                    {placing.kind === 'hardware' ? (
+                                        <>
+                                            Placing {findItem(placing.item)?.name ?? 'hardware'} — click a
+                                            face of a part
+                                        </>
+                                    ) : (
+                                        <>
+                                            Placing {placing.kind} —{' '}
+                                            {placing.kind === 'dado'
+                                                ? 'click a face to set the offset'
+                                                : 'click a face to drill'}
+                                        </>
+                                    )}
+                                    <span className="text-muted">
+                                        {placing.kind === 'hardware' ? ' · R to turn' : ''} · Esc to finish
+                                    </span>
                                 </span>
                                 {placementLabel && (
                                     <span className="text-accent font-semibold whitespace-nowrap">
                                         {placementLabel}
                                     </span>
+                                )}
+                                {placing.kind === 'hardware' && (
+                                    <button
+                                        className="border-fg/15 text-fg/75 hover:bg-fg/5 rounded-md border px-2 py-0.5 text-[11.5px]"
+                                        data-testid="placement-turn"
+                                        onClick={turnPlacing}
+                                    >
+                                        Turn 90°
+                                    </button>
                                 )}
                                 <button
                                     className="border-fg/15 text-fg/75 hover:bg-fg/5 min-h-6 rounded-lg border px-2 py-0.5"
@@ -1769,6 +1827,11 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         parts={spec.parts.map((p) => ({ id: p.id, name: p.name }))}
                         partId={hardwareDialog.partId}
                         onAdd={addHardware}
+                        canPlace={explode === 0 && doorsOpen === 0}
+                        onPlace={(itemId) => {
+                            setHardwareDialog(null);
+                            placeOp({ kind: 'hardware', item: itemId, rot: 0 });
+                        }}
                         onClose={() => setHardwareDialog(null)}
                     />
                 )}

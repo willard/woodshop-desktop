@@ -5,6 +5,8 @@
  * battery (CLAUDE.md). Phase 1a scope: render & orbit only — commands/snapping come later.
  */
 import * as THREE from 'three';
+import { buildHardwareGeometry } from './geometry/hardwareModels';
+import { findItem } from '@/hardware/catalog';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { Spec, Part, Material } from '../spec/types';
 import { buildSpecGroup } from './buildScene';
@@ -77,7 +79,9 @@ export type PlacementRequest =
           purpose: 'dowel' | 'shelfPin' | 'hardware' | 'other';
       }
     | { kind: 'dado'; axis: 'l' | 'w'; width: number; depth: number }
-    | { kind: 'pocket'; count: number };
+    | { kind: 'pocket'; count: number }
+    /** A piece of catalog hardware (spec 1.15), turned `rot` degrees about the face normal. */
+    | { kind: 'hardware'; item: string; rot: 0 | 90 | 180 | 270 };
 
 /** A live (or committed) placement position in §3.1 op coordinates. */
 export interface PlacementPreview {
@@ -536,7 +540,26 @@ export class EditorEngine {
         const front = preview.face === 'front';
         let geometry: THREE.BufferGeometry;
         const local = new THREE.Vector3();
-        if (request.kind === 'hole') {
+        // The ghost's turn within the part's frame; only hardware has one.
+        const turn = new THREE.Quaternion();
+        if (request.kind === 'hardware') {
+            // The piece itself, standing on the face where the pointer is: origin on the surface,
+            // +Z out of it (so flipped over on the back face), then its quarter turns.
+            geometry = buildHardwareGeometry(findItem(request.item)?.model);
+            local.set(
+                preview.x - dims.l / 2,
+                preview.y - dims.w / 2,
+                (front ? 1 : -1) * (dims.thickness / 2),
+            );
+            if (!front) turn.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI);
+            turn.multiply(
+                new THREE.Quaternion().setFromAxisAngle(
+                    new THREE.Vector3(0, 0, 1),
+                    (request.rot * Math.PI) / 180,
+                ),
+            );
+            material.opacity = 0.8;
+        } else if (request.kind === 'hole') {
             const depth = Math.min(request.depth ?? dims.thickness, dims.thickness);
             geometry = new THREE.CylinderGeometry(request.diameter / 2, request.diameter / 2, depth, 24);
             geometry.rotateX(Math.PI / 2); // cylinder axis Y → local Z (§3.1 thickness)
@@ -575,7 +598,7 @@ export class EditorEngine {
         const ghost = new THREE.Mesh(geometry, material);
         mesh.updateMatrixWorld(true);
         ghost.position.copy(mesh.localToWorld(local));
-        ghost.quaternion.copy(mesh.quaternion);
+        ghost.quaternion.copy(mesh.quaternion).multiply(turn);
         ghost.name = 'placement-ghost';
         this.placementGhost = ghost;
         this.scene.add(ghost);

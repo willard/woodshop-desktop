@@ -81,7 +81,7 @@ workflows, crash logging, the macOS fixes, and **most of Phase 1**.
 | 1.2 Catalog through WASM | Done |
 | 1.3 3D models for all 20 shapes; mounted and movable hardware in the scene | Done. Reviewed by eye on a contact sheet. |
 | 1.4 Commands; hardware follows delete, duplicate, extract | Done |
-| 1.5 Hardware browser with search and a 3D preview | Done. **Click-to-place is not built**: a new piece lands at the centre of the part's front face and is moved from the inspector. |
+| 1.5 Hardware browser with search and a 3D preview; click-to-place | Done. Click-to-place covers the front and back faces, with a live ghost, R to turn, and repeat placing. Edges and ends are still set from the inspector. |
 | 1.6 Inspector: per-part hardware list; hinge, slide and pull pickers | Done |
 | 1.7 Click a hardware mesh to select it | Not started |
 | 1.8 MCP tools, conventions, server instructions | Done, except `explain_part` does not report mounts yet |

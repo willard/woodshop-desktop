@@ -165,3 +165,43 @@ test('hardware from the catalog mounts on a part and joins the hardware list', a
     await page.getByTestId('undo').click();
     await expect(page.getByTestId('cutlist-hardware')).not.toContainText('bar pulls');
 });
+
+test('hardware is placed by clicking on the model', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    const canvas = page.getByTestId('editor-shell').locator('canvas').first();
+    await expect(canvas).toBeVisible();
+
+    await page.getByTestId('add-menu-toggle').click();
+    await page.getByTestId('add-hardware-menu').click();
+    await page.locator('[data-item="knob.round-1-1-4"]').click();
+    await page.getByTestId('hardware-place').click();
+
+    // Placement mode: a chip says what is being placed and how to turn it.
+    const chip = page.getByTestId('placement-chip');
+    await expect(chip).toContainText('Placing Round knob');
+    await page.getByTestId('placement-turn').click();
+
+    // Click the middle of the model twice, a little apart: two knobs, still in placement mode.
+    const box = (await canvas.boundingBox())!;
+    const cx = box.x + box.width / 2;
+    const cy = box.y + box.height / 2;
+    await page.mouse.move(cx, cy);
+    await page.mouse.click(cx, cy);
+    await page.mouse.move(cx + 12, cy + 30);
+    await page.mouse.click(cx + 12, cy + 30);
+    await expect(chip).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(chip).toHaveCount(0);
+
+    await page.getByTestId('cutlist-toggle').click();
+    const row = page
+        .getByTestId('cutlist-hardware')
+        .locator('div', { hasText: '1 1/4" round cabinet knobs' })
+        .last();
+    await expect(row).toContainText('×2');
+
+    // Each placement is its own undo step.
+    await page.getByTestId('undo').click();
+    await expect(row).toContainText('×1');
+});
