@@ -1,0 +1,631 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Writing Desk",
+    "materials": [
+        {
+            "id": "mat_sheet",
+            "type": "sheet",
+            "name": "Birch Plywood 3/4\"",
+            "thickness": 0.75,
+            "sheetSize": {
+                "l": 96,
+                "w": 48
+            },
+            "grain": true,
+            "costPerSheet": 78
+        },
+        {
+            "id": "mat_leg",
+            "type": "lumber",
+            "name": "Pine 2x2 (1.5\" square)",
+            "thickness": 1.5,
+            "stockWidth": 1.5,
+            "stockLengths": [
+                96
+            ],
+            "grain": true,
+            "species": "pine",
+            "costPerBoardFoot": 3.5
+        },
+        {
+            "id": "mat_apron",
+            "type": "lumber",
+            "name": "Pine 1x4 (0.75\u00d73.5)",
+            "thickness": 1.5,
+            "stockWidth": 3.5,
+            "stockLengths": [
+                96
+            ],
+            "grain": true,
+            "species": "pine",
+            "costPerBoardFoot": 3.5
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_top",
+            "name": "Top",
+            "materialId": "mat_sheet",
+            "size": {
+                "l": 48,
+                "w": 24
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    28.875,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 21.5,
+                    "count": 2,
+                    "from": 2.125,
+                    "to": 2.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 21.5,
+                    "count": 2,
+                    "from": 45.125,
+                    "to": 45.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2.5,
+                    "count": 2,
+                    "from": 2.125,
+                    "to": 2.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2.5,
+                    "count": 2,
+                    "from": 45.125,
+                    "to": 45.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 21.5,
+                    "count": 7,
+                    "from": 4.25,
+                    "to": 43.75,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2.5,
+                    "count": 7,
+                    "from": 4.25,
+                    "to": 43.75,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 2.5,
+                    "count": 3,
+                    "from": 4.25,
+                    "to": 19.75,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 45.5,
+                    "count": 3,
+                    "from": 4.25,
+                    "to": 19.75,
+                    "gauge": "#8",
+                    "length": 1.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_fl",
+            "name": "Leg FL",
+            "materialId": "mat_leg",
+            "size": {
+                "l": 28.5,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -21.5,
+                    14.25,
+                    9.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 2,
+                    "from": 25.875,
+                    "to": 27.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_fr",
+            "name": "Leg FR",
+            "materialId": "mat_leg",
+            "size": {
+                "l": 28.5,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    21.5,
+                    14.25,
+                    9.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 25.875,
+                    "to": 27.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_bl",
+            "name": "Leg BL",
+            "materialId": "mat_leg",
+            "size": {
+                "l": 28.5,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -21.5,
+                    14.25,
+                    -9.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 2,
+                    "from": 25.875,
+                    "to": 27.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_br",
+            "name": "Leg BR",
+            "materialId": "mat_leg",
+            "size": {
+                "l": 28.5,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    21.5,
+                    14.25,
+                    -9.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 25.875,
+                    "to": 27.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_apron_front",
+            "name": "Front Apron",
+            "materialId": "mat_apron",
+            "size": {
+                "l": 41.5,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    26.75,
+                    9.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_apron_back",
+            "name": "Back Apron",
+            "materialId": "mat_apron",
+            "size": {
+                "l": 41.5,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    26.75,
+                    -9.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_apron_left",
+            "name": "Left Apron",
+            "materialId": "mat_apron",
+            "size": {
+                "l": 17.5,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -21.5,
+                    26.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 0,
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 17.5,
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_apron_right",
+            "name": "Right Apron",
+            "materialId": "mat_apron",
+            "size": {
+                "l": 17.5,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    21.5,
+                    26.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 0,
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 17.5,
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j2",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_bl",
+            "opRef": 2
+        },
+        {
+            "id": "j3",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_br",
+            "opRef": 3
+        },
+        {
+            "id": "j4",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_apron_front",
+            "opRef": 4
+        },
+        {
+            "id": "j5",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_apron_back",
+            "opRef": 5
+        },
+        {
+            "id": "j6",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_apron_left",
+            "opRef": 6
+        },
+        {
+            "id": "j7",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_apron_right",
+            "opRef": 7
+        },
+        {
+            "id": "j8",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_fl",
+            "insertPartId": "p_apron_front",
+            "opRef": 0
+        },
+        {
+            "id": "j9",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_left",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j10",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_fr",
+            "insertPartId": "p_apron_front",
+            "opRef": 0
+        },
+        {
+            "id": "j11",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_right",
+            "insertPartId": "p_leg_fr",
+            "opRef": 0
+        },
+        {
+            "id": "j12",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_bl",
+            "insertPartId": "p_apron_back",
+            "opRef": 0
+        },
+        {
+            "id": "j13",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_left",
+            "insertPartId": "p_leg_bl",
+            "opRef": 1
+        },
+        {
+            "id": "j14",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_br",
+            "insertPartId": "p_apron_back",
+            "opRef": 0
+        },
+        {
+            "id": "j15",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_right",
+            "insertPartId": "p_leg_br",
+            "opRef": 1
+        },
+        {
+            "id": "j16",
+            "type": "screw",
+            "hostPartId": "p_apron_left",
+            "insertPartId": "p_apron_front",
+            "opRef": 2
+        },
+        {
+            "id": "j17",
+            "type": "screw",
+            "hostPartId": "p_apron_right",
+            "insertPartId": "p_apron_front",
+            "opRef": 2
+        },
+        {
+            "id": "j18",
+            "type": "screw",
+            "hostPartId": "p_apron_left",
+            "insertPartId": "p_apron_back",
+            "opRef": 3
+        },
+        {
+            "id": "j19",
+            "type": "screw",
+            "hostPartId": "p_apron_right",
+            "insertPartId": "p_apron_back",
+            "opRef": 3
+        }
+    ],
+    "meta": {
+        "difficulty": "intermediate",
+        "notes": "A simple four-leg writing desk: plywood top on solid legs braced by aprons, open underneath for legroom.",
+        "tags": [
+            "desk",
+            "office",
+            "table"
+        ]
+    }
+}

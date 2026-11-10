@@ -1,0 +1,36 @@
+[package]
+name = "woodshop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Woodshop — design furniture in 3D, get a buildable cut list. Standalone desktop app."
+default-run = "woodshop"
+
+[lib]
+name = "woodshop_app"
+# Desktop only: the mobile targets would need "staticlib" and "cdylib" too (a 1.4 GB .a per build).
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6", features = [] }
+
+[dependencies]
+woodshop-core = { workspace = true, features = ["validate"] }
+woodshop-store.workspace = true
+woodshop-export.workspace = true
+woodshop-mcp.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+log = "0.4"
+dirs = "6"
+tauri = { version = "2.11", features = ["protocol-asset"] }
+tauri-plugin-dialog = "2.7"
+tauri-plugin-opener = "2.5"
+tauri-plugin-process = "2.3"
+tauri-plugin-log = "2.9"
+tauri-plugin-window-state = "2.4"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2.4"
+tauri-plugin-updater = "2.12"

@@ -1,0 +1,215 @@
+@import 'tailwindcss';
+
+/* Editor theming (D74). The utilities are semantic — `surface-0..3` (backdrop, panel, card,
+   raised), `fg` (the alpha ladder base), `fg-strong` (opaque body text), `accent*` — so a theme
+   is a value swap here rather than a `dark:` variant on every element. `@theme inline` below is
+   what makes that work: it emits `var(--…)` into the generated utilities instead of baking in
+   the resolved colour, so overriding these custom properties retints the whole shell at runtime.
+
+   The whole app uses these tokens.
+
+   Do not write a Tailwind class glob like "stone-<star>/amber" in a comment in this file: the
+   embedded star-slash closes the comment early, and the stray text that follows swallows the
+   next rule. That deleted this whole block once, and an undefined var() is invalid at
+   computed-value time — panels went transparent over the body's dark stone and text fell back
+   to the inherited body colour, which looks near enough to the intended dark theme to survive a
+   screenshot. The Playwright spec asserts the computed values instead. */
+:root {
+    --surface-0: #101114;
+    --surface-1: #16171b;
+    --surface-2: #1c1d21;
+    --surface-3: #24262b;
+    --fg: #ffffff;
+    --fg-strong: #f2f0ec;
+    /* Opaque, because an alpha ladder does not survive a theme flip: white at 50% over near-black
+       is 5.3:1, but black at 50% over near-white is only 3.5:1. Both tuned against the *worst*
+       surface they sit on. `muted` clears AA (4.5:1) for body text; `faint` clears 3:1 for
+       disabled and placeholder text. */
+    --muted: #9a9892;
+    --faint: #707074;
+    --accent: #e8933a;
+    --accent-strong: #f4a44e;
+    --accent-ink: #1a1206;
+
+    /* Status. Each has a `-fg` text tone and a saturated fill base the alpha modifiers tint
+       with (`bg-danger/10`) — a fill built from the light text tone washes out to nothing. */
+    --danger: #ef4444;
+    --danger-fg: #fca5a5;
+    --warn: #f59e0b;
+    --warn-fg: #fcd34d;
+    --ok: #10b981;
+    --ok-fg: #34d399;
+    --info: #0ea5e9;
+    --info-fg: #7dd3fc;
+}
+
+/* Light: re-picked for contrast, not mirrored. #e8933a on white is 2.3:1 and fails AA, so the
+   accent darkens and `accent-ink` (text *on* an accent fill) flips to warm white. */
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) {
+        --surface-0: #eeebe4;
+        --surface-1: #fbfaf7;
+        --surface-2: #f4f1ea;
+        --surface-3: #e7e3d9;
+        --fg: #141210;
+        --fg-strong: #1b1815;
+        --muted: #5d574c;
+        --faint: #857f71;
+        --accent: #98500f;
+        --accent-strong: #7d4109;
+        --accent-ink: #fff8ef;
+        --danger: #dc2626;
+        --danger-fg: #b91c1c;
+        --warn: #d97706;
+        --warn-fg: #92400e;
+        --ok: #059669;
+        --ok-fg: #03684b;
+        --info: #0284c7;
+        --info-fg: #0369a1;
+    }
+}
+
+:root[data-theme='light'] {
+    --surface-0: #eeebe4;
+    --surface-1: #fbfaf7;
+    --surface-2: #f4f1ea;
+    --surface-3: #e7e3d9;
+    --fg: #141210;
+    --fg-strong: #1b1815;
+    --muted: #5d574c;
+    --faint: #857f71;
+    --accent: #98500f;
+    --accent-strong: #7d4109;
+    --accent-ink: #fff8ef;
+    --danger: #dc2626;
+    --danger-fg: #b91c1c;
+    --warn: #d97706;
+    --warn-fg: #92400e;
+    --ok: #059669;
+    --ok-fg: #03684b;
+    --info: #0284c7;
+    --info-fg: #0369a1;
+}
+
+/* Dark workshop palette (devlocal.ca) — amber accents on warm stone. */
+@theme {
+    --font-sans:
+        ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+    --color-workshop-bg: oklch(0.18 0.01 60);
+    --color-workshop-panel: oklch(0.24 0.012 60);
+    --color-workshop-amber: oklch(0.78 0.16 70);
+}
+
+/* Touch targets (D75). The editor chrome is sized for a mouse — 28-30px controls — which is well
+   under the 44px both platform guidelines ask for, on a build-plan target that is mobile-first.
+   Applied as one scoped rule rather than a coarse: variant on every control, because the sizes
+   live in ~100 class attributes and the correction is uniform.
+
+   `pointer: coarse` rather than a width breakpoint: it tracks the input device, so a small window
+   on a laptop keeps its compact toolbar and a large tablet still gets thumb-sized controls.
+
+   D86 added `tools-page`. The calculator components size themselves at h-11 unconditionally the
+   way AddPartDialog does, so this is a safety net rather than the mechanism — but it makes the
+   floor structural instead of dependent on every future panel remembering. */
+@media (pointer: coarse) {
+    :is([data-testid='editor-shell'], [data-testid='tools-page']) :is(button, select, a[href], summary) {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Text fields need the height but not the width — a 44px floor would blow up narrow
+       dimension inputs that are deliberately sized to their content. */
+    :is([data-testid='editor-shell'], [data-testid='tools-page'])
+        :is(input:not([type='checkbox']):not([type='range']), textarea) {
+        min-height: 44px;
+    }
+
+    /* A 13px checkbox cannot be hit reliably. Grow the control and let its label carry the
+       rest of the target. */
+    :is([data-testid='editor-shell'], [data-testid='tools-page']) input[type='checkbox'] {
+        width: 22px;
+        height: 22px;
+    }
+
+    :is([data-testid='editor-shell'], [data-testid='tools-page']) label:has(input[type='checkbox']) {
+        min-height: 44px;
+    }
+
+    /* The toolbar wraps on a mouse, which is fine at 30px a row. At 44px it wrapped to 603px on a
+       375x812 device and left the canvas 209px — the controls got reachable by eating the thing
+       they operate on. One scrolling row instead: the height is bounded, and every control stays
+       reachable by swiping the strip. */
+    [data-testid='editor-toolbar'] {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        overscroll-behavior-x: contain;
+    }
+
+    [data-testid='editor-toolbar']::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Without this the row shrinks its children to fit instead of scrolling, which truncated the
+       project selector to "Re". Overflow is the point here — nothing in the strip may compress. */
+    [data-testid='editor-toolbar'] > * {
+        flex-shrink: 0;
+    }
+}
+
+/* The editor toolbar's middle zone scrolls when the tools outrun the space (D81). The bar stays
+   one row at every width; hiding the scrollbar keeps a 52px strip from growing a gutter. */
+.toolbar-scroll {
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+}
+
+.toolbar-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* The fade needs no JavaScript to know whether it applies. The zone is `flex-1` with its tools
+   left-aligned, so when everything fits, the masked strip falls on empty space and nothing dims;
+   only once the tools overflow does it land on a control, which is exactly when a cue is wanted.
+   An earlier version tracked overflow with a ResizeObserver and a watcher on eight reactive
+   values to toggle this class — all of it to say something the layout already knew. */
+.toolbar-scroll {
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+}
+
+@theme inline {
+    --color-surface-0: var(--surface-0);
+    --color-surface-1: var(--surface-1);
+    --color-surface-2: var(--surface-2);
+    --color-surface-3: var(--surface-3);
+    --color-fg: var(--fg);
+    --color-fg-strong: var(--fg-strong);
+    --color-muted: var(--muted);
+    --color-faint: var(--faint);
+    --color-accent: var(--accent);
+    --color-accent-strong: var(--accent-strong);
+    --color-accent-ink: var(--accent-ink);
+    --color-danger: var(--danger);
+    --color-danger-fg: var(--danger-fg);
+    --color-warn: var(--warn);
+    --color-warn-fg: var(--warn-fg);
+    --color-ok: var(--ok);
+    --color-ok-fg: var(--ok-fg);
+    --color-info: var(--info);
+    --color-info-fg: var(--info-fg);
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    background: var(--surface-0);
+    color: var(--fg-strong);
+    /* A desktop app: no rubber-band bounce, no accidental text selection on chrome. */
+    overscroll-behavior: none;
+}

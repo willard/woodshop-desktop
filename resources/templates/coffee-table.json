@@ -1,0 +1,327 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Coffee Table",
+    "materials": [
+        {
+            "id": "mat_sheet",
+            "type": "sheet",
+            "name": "Birch Plywood 3/4\"",
+            "thickness": 0.75,
+            "sheetSize": {
+                "l": 96,
+                "w": 48
+            },
+            "grain": true,
+            "costPerSheet": 78
+        },
+        {
+            "id": "mat_leg",
+            "type": "lumber",
+            "name": "Pine 2x2 (1.5\" square)",
+            "thickness": 1.5,
+            "stockWidth": 1.5,
+            "stockLengths": [
+                96
+            ],
+            "grain": true,
+            "species": "pine",
+            "costPerBoardFoot": 3.5
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_top",
+            "name": "Top",
+            "materialId": "mat_sheet",
+            "size": {
+                "l": 44,
+                "w": 22
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    16.625,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 20,
+                    "count": 2,
+                    "from": 1.625,
+                    "to": 2.375,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 20,
+                    "count": 2,
+                    "from": 41.625,
+                    "to": 42.375,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2,
+                    "count": 2,
+                    "from": 1.625,
+                    "to": 2.375,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2,
+                    "count": 2,
+                    "from": 41.625,
+                    "to": 42.375,
+                    "gauge": "#8",
+                    "length": 1.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_fl",
+            "name": "Leg FL",
+            "materialId": "mat_leg",
+            "size": {
+                "l": 16.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -20,
+                    8.125,
+                    9
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_leg_fr",
+            "name": "Leg FR",
+            "materialId": "mat_leg",
+            "size": {
+                "l": 16.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    20,
+                    8.125,
+                    9
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_leg_bl",
+            "name": "Leg BL",
+            "materialId": "mat_leg",
+            "size": {
+                "l": 16.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -20,
+                    8.125,
+                    -9
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_leg_br",
+            "name": "Leg BR",
+            "materialId": "mat_leg",
+            "size": {
+                "l": 16.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    20,
+                    8.125,
+                    -9
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_shelf",
+            "name": "Lower Shelf",
+            "materialId": "mat_sheet",
+            "size": {
+                "l": 40,
+                "w": 18
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    4,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 17.625,
+                    "to": 17.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 17.625,
+                    "to": 17.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.375,
+                    "to": 0.375,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.375,
+                    "to": 0.375,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j2",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_bl",
+            "opRef": 2
+        },
+        {
+            "id": "j3",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_br",
+            "opRef": 3
+        },
+        {
+            "id": "j4",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j5",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf",
+            "insertPartId": "p_leg_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j6",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf",
+            "insertPartId": "p_leg_bl",
+            "opRef": 2
+        },
+        {
+            "id": "j7",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf",
+            "insertPartId": "p_leg_br",
+            "opRef": 3
+        }
+    ],
+    "meta": {
+        "difficulty": "beginner",
+        "notes": "A low coffee table with a plywood top and a lower display shelf on solid legs.",
+        "tags": [
+            "table",
+            "living-room",
+            "coffee-table"
+        ]
+    }
+}

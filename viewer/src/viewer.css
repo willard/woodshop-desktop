@@ -1,0 +1,125 @@
+/**
+ * Stylesheet for the standalone plan viewer (D85), inlined whole into the exported .html.
+ *
+ * It re-imports the app stylesheet rather than redeclaring a viewer subset: the export reuses
+ * CutListPanel.vue, so a class added there must resolve in both places or it would work on
+ * screen and silently vanish in the export, with no test able to see the difference. Nothing
+ * here reaches the network — app.css declares --font-sans as system fonts with no @font-face,
+ * and the wood grain is a procedural canvas texture.
+ */
+@import '../../ui/src/app.css';
+
+/* The viewer reuses app components (CutListPanel); scan them for classes too. */
+@source '../../ui/src';
+
+/**
+ * Paper. A theme is a value swap in this codebase (D74), so print is one too — overriding the
+ * tokens beats sprinkling `print:` variants over every element, and it reaches the utility
+ * classes inside CutListPanel that this file never names.
+ */
+@media print {
+    :root,
+    :root[data-theme='dark'],
+    :root[data-theme='light'] {
+        --surface-0: #ffffff;
+        --surface-1: #ffffff;
+        --surface-2: #f7f6f3;
+        --surface-3: #ebe9e4;
+        --fg: #000000;
+        --fg-strong: #111111;
+        --muted: #4b4741;
+        --faint: #6b665d;
+        --accent: #7d4109;
+        --accent-strong: #5c2f06;
+        --accent-ink: #ffffff;
+        --danger: #b91c1c;
+        --danger-fg: #991b1b;
+    }
+
+    @page {
+        margin: 12mm;
+    }
+
+    /* Controls print as nothing: a slider on paper is furniture. */
+    [data-print='hide'] {
+        display: none !important;
+    }
+
+    /*
+        On screen the layout is two panes that scroll independently, sized for a viewport; on
+        paper it is one column that runs as long as it needs to. Width has to be forced too — the
+        panel's md: width would otherwise leave two thirds of every sheet blank.
+    */
+    [data-print='flow'] {
+        display: block !important;
+        width: 100% !important;
+        max-width: none !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        border: 0 !important;
+    }
+
+    /* Both tabs print regardless of which one is open — the whole plan goes to the shop. */
+    [data-print='always'] {
+        display: block !important;
+    }
+
+    /*
+        The live canvas is not printed: rendering is on-demand, so its buffer may hold a stale or
+        mis-sized frame. ViewerCanvas swaps in a synchronously-rendered PNG instead.
+    */
+    canvas {
+        display: none !important;
+    }
+
+    #print-shot {
+        display: block !important;
+        max-height: 4in;
+        margin: 0 auto;
+    }
+
+    /*
+        The sheet diagrams carry their colours as SVG fill attributes (dark by design on screen).
+        On paper that is a solid black rectangle and a wasted cartridge. The bare sheet is the
+        svg's own direct-child rect; the parts laid on it are the rects inside the <g>.
+    */
+    [data-testid='cutlist-sheet'] > rect {
+        fill: #ffffff !important;
+        stroke: #999999 !important;
+    }
+    [data-testid='cutlist-sheet'] g rect {
+        fill: #e8e2d6 !important;
+        stroke: #4a4a4a !important;
+    }
+    [data-testid='cutlist-sheet'] text {
+        fill: #111111 !important;
+    }
+    /* A sheet diagram is a drawing, not a wall of colour — keep it to a readable block. */
+    [data-testid='cutlist-sheet'] {
+        max-width: 5.5in;
+    }
+
+    /* An instruction to click something is noise on paper, and so is a control to click it with. */
+    [data-testid='part-empty'],
+    [data-testid='viewer-tab-cutlist'],
+    [data-testid='viewer-tab-part'],
+    [data-testid='cutlist-group-expand'],
+    [data-testid^='cutlist-eye-'] {
+        display: none !important;
+    }
+
+    table,
+    svg,
+    [data-testid='cutlist-section'],
+    [data-testid='cutlist-group-row'],
+    [data-print='keep'] {
+        break-inside: avoid;
+    }
+
+    h1,
+    h2,
+    h3 {
+        break-after: avoid;
+    }
+}

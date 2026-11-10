@@ -1,0 +1,15 @@
+[package]
+name = "woodshop-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Woodshop's local MCP server (stdio): design tools over the project library."
+
+[dependencies]
+woodshop-core = { workspace = true, features = ["validate"] }
+woodshop-store.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+rmcp = { version = "3.4", features = ["server", "transport-io"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std", "sync"] }

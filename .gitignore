@@ -1,0 +1,16 @@
+target/
+node_modules/
+dist/
+ui/src/domain/wasm/
+viewer/src/wasm/
+*.db
+.DS_Store
+viewer/dist/
+
+# Playwright
+test-results/
+playwright-report/
+
+# IDE and generated files
+.idea/
+src-tauri/gen/schemas/

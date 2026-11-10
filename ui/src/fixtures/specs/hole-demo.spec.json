@@ -1,0 +1,37 @@
+{
+    "specVersion": "1.0",
+    "units": "in",
+    "name": "Hole Demo",
+    "materials": [
+        {
+            "id": "mat_ply34",
+            "type": "sheet",
+            "name": "Birch Plywood 3/4\"",
+            "thickness": 0.75,
+            "sheetSize": { "l": 96, "w": 48 },
+            "grain": true
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_panel",
+            "name": "Drilled Panel",
+            "materialId": "mat_ply34",
+            "size": { "l": 24, "w": 12 },
+            "grainAxis": "l",
+            "transform": { "pos": [0, 6, 0], "rot": [0, 0, 0] },
+            "ops": [
+                { "type": "hole", "face": "front", "x": 4, "y": 6, "diameter": 0.75 },
+                { "type": "hole", "face": "front", "x": 9, "y": 6, "diameter": 0.75 },
+                { "type": "hole", "face": "front", "x": 14, "y": 6, "diameter": 0.75 },
+                { "type": "hole", "face": "front", "x": 19, "y": 6, "diameter": 0.75 },
+                { "type": "hole", "face": "front", "x": 3, "y": 2, "diameter": 0.25, "depth": 0.4, "purpose": "shelfPin" },
+                { "type": "hole", "face": "front", "x": 3, "y": 10, "diameter": 0.25, "depth": 0.4, "purpose": "shelfPin" },
+                { "type": "pocketHoles", "edge": "w1", "count": 3 }
+            ],
+            "qty": 1
+        }
+    ],
+    "joints": [],
+    "meta": { "difficulty": "beginner", "notes": "Demo of drilled holes + pocket-hole markers." }
+}

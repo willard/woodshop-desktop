@@ -1,0 +1,7195 @@
+{
+    "material-missing": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "material-missing",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_ghost",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "oversized-grain": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "oversized-grain",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 61,
+                    "w": 61
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "oversized-lumber": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "oversized-lumber",
+        "materials": [
+            {
+                "id": "mat_l",
+                "type": "lumber",
+                "name": "2x4",
+                "thickness": 1.5,
+                "stockWidth": 3.5,
+                "stockLengths": [
+                    96
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_l",
+                "size": {
+                    "l": 10,
+                    "w": 5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "oversized-lumber-unlisted": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "oversized-lumber-unlisted",
+        "materials": [
+            {
+                "id": "mat_l",
+                "type": "lumber",
+                "name": "2x4",
+                "thickness": 1.5,
+                "stockWidth": 3.5,
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_l",
+                "size": {
+                    "l": 120,
+                    "w": 3.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "dado-depth": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "dado-depth",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 15,
+                        "width": 0.75,
+                        "depth": 2
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "dado-offset": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "dado-offset",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 40,
+                        "width": 0.75,
+                        "depth": 0.25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "stopped-past-run": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "stopped-past-run",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 15,
+                        "width": 0.75,
+                        "depth": 0.25,
+                        "from": 0,
+                        "to": 25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "stopped-inverted": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "stopped-inverted",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 15,
+                        "width": 0.75,
+                        "depth": 0.25,
+                        "from": 10,
+                        "to": 5
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "hole-off-face": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "hole-off-face",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "hole",
+                        "face": "front",
+                        "x": 100,
+                        "y": 6,
+                        "diameter": 0.75
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "overlap-warn": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "overlap-warn",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 15,
+                        "width": 1,
+                        "depth": 0.25
+                    },
+                    {
+                        "type": "groove",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 15.2,
+                        "width": 1,
+                        "depth": 0.25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "joint-ref-missing": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "joint-ref-missing",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_b",
+                "name": "B",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_a",
+                "insertPartId": "p_ghost"
+            }
+        ]
+    },
+    "joint-op-missing": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "joint-op-missing",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_b",
+                "name": "B",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_a",
+                "insertPartId": "p_b",
+                "opRef": 5
+            }
+        ]
+    },
+    "joint-width-mismatch": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "joint-width-mismatch",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 15,
+                        "width": 0.5,
+                        "depth": 0.25
+                    }
+                ],
+                "qty": 1
+            },
+            {
+                "id": "p_b",
+                "name": "B",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_a",
+                "insertPartId": "p_b",
+                "opRef": 0
+            }
+        ]
+    },
+    "floating-mixed": {
+        "specVersion": "1.1",
+        "units": "in",
+        "name": "floating-mixed",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_b",
+                "name": "B",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_c",
+                "name": "C",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        100,
+                        6,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "curve-arc-too-tall": {
+        "specVersion": "1.4",
+        "units": "in",
+        "name": "curve-arc-too-tall",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "arc",
+                        "height": 30
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "curve-round-too-big": {
+        "specVersion": "1.4",
+        "units": "in",
+        "name": "curve-round-too-big",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "round",
+                        "radius": 12
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "curve-with-dado": {
+        "specVersion": "1.4",
+        "units": "in",
+        "name": "curve-with-dado",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "arc",
+                        "height": 5
+                    },
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 15,
+                        "width": 0.75,
+                        "depth": 0.25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "curve-miter-same-edge": {
+        "specVersion": "1.4",
+        "units": "in",
+        "name": "curve-miter-same-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "arc",
+                        "height": 5
+                    },
+                    {
+                        "type": "miter",
+                        "edge": "l1",
+                        "angle": 45
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "curve-valid-headboard": {
+        "specVersion": "1.4",
+        "units": "in",
+        "name": "curve-valid-headboard",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "arc",
+                        "height": 6
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ramp-valid": {
+        "specVersion": "1.5",
+        "units": "in",
+        "name": "ramp-valid",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "ramp",
+                        "height": 8,
+                        "low": "w1"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ramp-too-tall": {
+        "specVersion": "1.5",
+        "units": "in",
+        "name": "ramp-too-tall",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "ramp",
+                        "height": 30,
+                        "low": "w1"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ramp-parallel-low": {
+        "specVersion": "1.5",
+        "units": "in",
+        "name": "ramp-parallel-low",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "ramp",
+                        "height": 8,
+                        "low": "l0"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "round-single-corner-valid": {
+        "specVersion": "1.5",
+        "units": "in",
+        "name": "round-single-corner-valid",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "round",
+                        "radius": 12,
+                        "corner": "w1"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "round-parallel-corner": {
+        "specVersion": "1.5",
+        "units": "in",
+        "name": "round-parallel-corner",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "round",
+                        "radius": 4,
+                        "corner": "l0"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "round-both-corners-too-big": {
+        "specVersion": "1.5",
+        "units": "in",
+        "name": "round-both-corners-too-big",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "round",
+                        "radius": 12
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "group-valid": {
+        "specVersion": "1.6",
+        "units": "in",
+        "name": "group-valid",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [],
+                "qty": 1
+            },
+            {
+                "id": "p_b",
+                "name": "B",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        19,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [],
+                "qty": 1
+            }
+        ],
+        "joints": [],
+        "groups": [
+            {
+                "id": "g_frame",
+                "name": "Frame",
+                "partIds": [
+                    "p_a",
+                    "p_b"
+                ]
+            }
+        ]
+    },
+    "group-ref-missing": {
+        "specVersion": "1.6",
+        "units": "in",
+        "name": "group-ref-missing",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [],
+                "qty": 1
+            },
+            {
+                "id": "p_b",
+                "name": "B",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        19,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [],
+                "qty": 1
+            }
+        ],
+        "joints": [],
+        "groups": [
+            {
+                "id": "g_frame",
+                "partIds": [
+                    "p_a",
+                    "p_ghost"
+                ]
+            }
+        ]
+    },
+    "group-member-overlap": {
+        "specVersion": "1.6",
+        "units": "in",
+        "name": "group-member-overlap",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [],
+                "qty": 1
+            },
+            {
+                "id": "p_b",
+                "name": "B",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        19,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [],
+                "qty": 1
+            }
+        ],
+        "joints": [],
+        "groups": [
+            {
+                "id": "g_one",
+                "partIds": [
+                    "p_a",
+                    "p_b"
+                ]
+            },
+            {
+                "id": "g_two",
+                "partIds": [
+                    "p_a",
+                    "p_b"
+                ]
+            }
+        ]
+    },
+    "notch-valid-corner": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "notch-valid-corner",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 0,
+                        "to": 3.5,
+                        "depth": 1.5
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "notch-past-edge": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "notch-past-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 20,
+                        "to": 26,
+                        "depth": 1.5
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "notch-inverted": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "notch-inverted",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 5,
+                        "to": 5,
+                        "depth": 1.5
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "notch-depth-span": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "notch-depth-span",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 0,
+                        "to": 3.5,
+                        "depth": 12
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "notch-overlap-warn": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "notch-overlap-warn",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 2,
+                        "to": 8,
+                        "depth": 1.5
+                    },
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 6,
+                        "to": 10,
+                        "depth": 2
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "notch-with-dado": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "notch-with-dado",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 0,
+                        "to": 3.5,
+                        "depth": 1.5
+                    },
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 6,
+                        "width": 0.75,
+                        "depth": 0.25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "notch-miter-same-edge": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "notch-miter-same-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 0,
+                        "to": 3.5,
+                        "depth": 1.5
+                    },
+                    {
+                        "type": "miter",
+                        "edge": "l1",
+                        "angle": 45
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "notch-curve-same-edge": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "notch-curve-same-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "arc",
+                        "height": 3
+                    },
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 0,
+                        "to": 3.5,
+                        "depth": 1.5
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "joint-not-seated": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "seating",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 22.5,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ]
+    },
+    "joint-seated-valid": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "seating",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ]
+    },
+    "pierce-through-panel": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "pierce",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            },
+            {
+                "id": "mat_l",
+                "type": "lumber",
+                "name": "2x2",
+                "thickness": 1.5,
+                "stockWidth": 1.5,
+                "stockLengths": [
+                    96
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        23.625,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_leg",
+                "name": "Leg",
+                "materialId": "mat_l",
+                "size": {
+                    "l": 25,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        8,
+                        12.5,
+                        4
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "pierce-butt-allowed": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "pierce",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            },
+            {
+                "id": "mat_l",
+                "type": "lumber",
+                "name": "2x2",
+                "thickness": 1.5,
+                "stockWidth": 1.5,
+                "stockLengths": [
+                    96
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side",
+                "name": "Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_back",
+                "name": "Back",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        -7.625
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "pierce-corner-lap-allowed": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "pierce",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            },
+            {
+                "id": "mat_l",
+                "type": "lumber",
+                "name": "2x2",
+                "thickness": 1.5,
+                "stockWidth": 1.5,
+                "stockLengths": [
+                    96
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_rail_a",
+                "name": "Rail A",
+                "materialId": "mat_l",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_rail_b",
+                "name": "Rail B",
+                "materialId": "mat_l",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.25,
+                        11.25,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "pierce-notch-exempt": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "pierce",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            },
+            {
+                "id": "mat_l",
+                "type": "lumber",
+                "name": "2x2",
+                "thickness": 1.5,
+                "stockWidth": 1.5,
+                "stockLengths": [
+                    96
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        23.625,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l0",
+                        "from": 10,
+                        "to": 13,
+                        "depth": 6
+                    }
+                ]
+            },
+            {
+                "id": "p_leg",
+                "name": "Leg",
+                "materialId": "mat_l",
+                "size": {
+                    "l": 25,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        8,
+                        12.5,
+                        4
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "pierce-tilted-face-mount": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "tilted face mount",
+        "materials": [
+            {
+                "id": "mat_2x2",
+                "type": "lumber",
+                "name": "2x2",
+                "thickness": 1.5,
+                "stockWidth": 1.5,
+                "stockLengths": [
+                    96
+                ],
+                "grain": true
+            },
+            {
+                "id": "mat_2x4",
+                "type": "lumber",
+                "name": "2x4",
+                "thickness": 1.5,
+                "stockWidth": 3.5,
+                "stockLengths": [
+                    96
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_post",
+                "name": "Post",
+                "materialId": "mat_2x2",
+                "size": {
+                    "l": 14,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        12.5,
+                        21.610833,
+                        -23.25
+                    ],
+                    "rot": [
+                        -90,
+                        -75,
+                        -180
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_slat",
+                "name": "Slat",
+                "materialId": "mat_2x4",
+                "size": {
+                    "l": 48,
+                    "w": 3.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.394398,
+                        23.28023,
+                        0
+                    ],
+                    "rot": [
+                        -90,
+                        -75,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "fasten-unfastened-shelf": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "unfastened",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        24.375,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "fasten-pocket-screws-valid": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "pocketed",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 22.5,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "pocketHoles",
+                        "edge": "w0",
+                        "count": 3,
+                        "thread": "coarse",
+                        "length": 1.25
+                    },
+                    {
+                        "type": "pocketHoles",
+                        "edge": "w1",
+                        "count": 3,
+                        "thread": "coarse",
+                        "length": 1.25
+                    }
+                ]
+            }
+        ],
+        "joints": [
+            {
+                "type": "pocketScrew",
+                "hostPartId": "p_shelf",
+                "insertPartId": "p_side_l",
+                "opRef": 0
+            },
+            {
+                "type": "pocketScrew",
+                "hostPartId": "p_shelf",
+                "insertPartId": "p_side_r",
+                "opRef": 1
+            }
+        ]
+    },
+    "fasten-screws-valid": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "screwed",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        24.375,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "screws",
+                        "face": "back",
+                        "axis": "l",
+                        "offset": 8,
+                        "count": 2,
+                        "from": 2,
+                        "to": 22,
+                        "gauge": "#8",
+                        "length": 1.25
+                    }
+                ]
+            },
+            {
+                "id": "p_leg",
+                "name": "Leg",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -10,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_leg_r",
+                "name": "Leg Right",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        10,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "screw",
+                "hostPartId": "p_top",
+                "insertPartId": "p_leg",
+                "opRef": 0
+            }
+        ]
+    },
+    "fasten-screws-no-mate": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "screws into air",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        24.375,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "screws",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 8,
+                        "count": 2,
+                        "from": 2,
+                        "to": 22,
+                        "gauge": "#8",
+                        "length": 1.25
+                    }
+                ]
+            },
+            {
+                "id": "p_leg",
+                "name": "Leg",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -10,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "screw",
+                "hostPartId": "p_top",
+                "insertPartId": "p_leg",
+                "opRef": 0
+            }
+        ]
+    },
+    "fasten-screw-blowout": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "blowout",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        24.375,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "screws",
+                        "face": "back",
+                        "axis": "l",
+                        "offset": 8,
+                        "count": 2,
+                        "from": 2,
+                        "to": 22,
+                        "gauge": "#8",
+                        "length": 3
+                    }
+                ]
+            },
+            {
+                "id": "p_leg",
+                "name": "Leg",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -10,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_leg_r",
+                "name": "Leg Right",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        10,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "screw",
+                "hostPartId": "p_top",
+                "insertPartId": "p_leg",
+                "opRef": 0
+            }
+        ]
+    },
+    "fasten-glue-only-butt": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "glue only",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        24.375,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_leg",
+                "name": "Leg",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -10,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "butt",
+                "hostPartId": "p_top",
+                "insertPartId": "p_leg"
+            }
+        ]
+    },
+    "fasten-joint-op-mismatch": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "mismatch",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "pocketScrew",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ]
+    },
+    "fasten-screws-off-part": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "screws off part",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        24.375,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "screws",
+                        "face": "back",
+                        "axis": "l",
+                        "offset": 20,
+                        "count": 2,
+                        "from": 2,
+                        "to": 30,
+                        "gauge": "#8",
+                        "length": 1.25
+                    }
+                ]
+            },
+            {
+                "id": "p_leg",
+                "name": "Leg",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -10,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        90
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "fasten-pocket-face-front": {
+        "specVersion": "1.8",
+        "units": "in",
+        "name": "pocketed from the front",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 22.5,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "pocketHoles",
+                        "edge": "w0",
+                        "count": 3,
+                        "thread": "coarse",
+                        "length": 1.25,
+                        "face": "front"
+                    },
+                    {
+                        "type": "pocketHoles",
+                        "edge": "w1",
+                        "count": 3,
+                        "thread": "coarse",
+                        "length": 1.25,
+                        "face": "front"
+                    }
+                ]
+            }
+        ],
+        "joints": [
+            {
+                "type": "pocketScrew",
+                "hostPartId": "p_shelf",
+                "insertPartId": "p_side_l",
+                "opRef": 0
+            },
+            {
+                "type": "pocketScrew",
+                "hostPartId": "p_shelf",
+                "insertPartId": "p_side_r",
+                "opRef": 1
+            }
+        ]
+    },
+    "ease-valid-roundover": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-valid-roundover",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "l0",
+                        "profile": "chamfer",
+                        "width": 0.125,
+                        "face": "front"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-bullnose-valid": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-bullnose-valid",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "w1",
+                        "profile": "bullnose"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-radius-past-half-thickness": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-radius-past-half-thickness",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "w1",
+                        "profile": "roundover",
+                        "radius": 0.5
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-single-face-may-use-full-thickness": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-single-face-may-use-full-thickness",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "w1",
+                        "profile": "roundover",
+                        "radius": 0.5,
+                        "face": "front"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-chamfer-past-thickness": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-chamfer-past-thickness",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l0",
+                        "profile": "chamfer",
+                        "width": 1.0,
+                        "face": "back"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-with-curve": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-with-curve",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "arc",
+                        "height": 2
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "w1",
+                        "profile": "roundover",
+                        "radius": 0.25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-with-notch": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-with-notch",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "notch",
+                        "edge": "l1",
+                        "from": 0,
+                        "to": 3.5,
+                        "depth": 1.5
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "w1",
+                        "profile": "roundover",
+                        "radius": 0.25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-miter-same-edge": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-miter-same-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "miter",
+                        "edge": "w1",
+                        "angle": 45
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "w1",
+                        "profile": "roundover",
+                        "radius": 0.25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-miter-other-edge": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-miter-other-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "miter",
+                        "edge": "w1",
+                        "angle": 45
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-overlap-same-arris": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-overlap-same-arris",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25,
+                        "face": "front"
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "chamfer",
+                        "width": 0.125
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-opposite-arrises-ok": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-opposite-arrises-ok",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25,
+                        "face": "front"
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "chamfer",
+                        "width": 0.125,
+                        "face": "back"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-seated-edge": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-seated-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "w1",
+                        "profile": "roundover",
+                        "radius": 0.125
+                    }
+                ]
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ]
+    },
+    "ease-show-edge-ok": {
+        "specVersion": "1.10",
+        "units": "in",
+        "name": "ease-show-edge-ok",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.125
+                    }
+                ]
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ]
+    },
+    "ease-stopped-valid-leg": {
+        "specVersion": "1.11",
+        "units": "in",
+        "name": "ease-stopped-valid-leg",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25,
+                        "to": 20
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-stopped-both-ends": {
+        "specVersion": "1.11",
+        "units": "in",
+        "name": "ease-stopped-both-ends",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l0",
+                        "profile": "chamfer",
+                        "width": 0.125,
+                        "from": 4,
+                        "to": 20
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-stopped-past-edge": {
+        "specVersion": "1.11",
+        "units": "in",
+        "name": "ease-stopped-past-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25,
+                        "from": 2,
+                        "to": 30
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-stopped-inverted": {
+        "specVersion": "1.11",
+        "units": "in",
+        "name": "ease-stopped-inverted",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25,
+                        "from": 12,
+                        "to": 6
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-two-runs-no-overlap": {
+        "specVersion": "1.11",
+        "units": "in",
+        "name": "ease-two-runs-no-overlap",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25,
+                        "from": 0,
+                        "to": 10
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "chamfer",
+                        "width": 0.125,
+                        "from": 14,
+                        "to": 24
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "ease-two-runs-overlapping": {
+        "specVersion": "1.11",
+        "units": "in",
+        "name": "ease-two-runs-overlapping",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "roundover",
+                        "radius": 0.25,
+                        "from": 0,
+                        "to": 16
+                    },
+                    {
+                        "type": "ease",
+                        "edge": "l1",
+                        "profile": "chamfer",
+                        "width": 0.125,
+                        "from": 12,
+                        "to": 24
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "movable-door-valid": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-door-valid",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_door",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.5,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        8.5
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_door",
+                "kind": "door",
+                "partIds": [
+                    "p_door"
+                ],
+                "panelPartId": "p_door",
+                "hingeEdge": "w0",
+                "style": "overlay"
+            }
+        ]
+    },
+    "movable-drawer-valid": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-drawer-valid",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_drawer_front",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 22,
+                    "w": 6
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        4,
+                        8.875
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_drawer_bottom",
+                "name": "Drawer Bottom",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 20,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        1.5,
+                        2.5
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "screw",
+                "hostPartId": "p_drawer_front",
+                "insertPartId": "p_drawer_bottom"
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_drawer",
+                "kind": "drawer",
+                "partIds": [
+                    "p_drawer_front",
+                    "p_drawer_bottom"
+                ],
+                "frontPartId": "p_drawer_front",
+                "style": "overlay"
+            }
+        ]
+    },
+    "movable-member-loose": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-member-loose",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_drawer_front",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 22,
+                    "w": 6
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        4,
+                        8.875
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_drawer_bottom",
+                "name": "Drawer Bottom",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 20,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        1.5,
+                        2.5
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_drawer",
+                "kind": "drawer",
+                "partIds": [
+                    "p_drawer_front",
+                    "p_drawer_bottom"
+                ],
+                "frontPartId": "p_drawer_front",
+                "style": "overlay"
+            }
+        ]
+    },
+    "movable-ref-missing": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-ref-missing",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_door",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.5,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        8.5
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_door",
+                "kind": "door",
+                "partIds": [
+                    "p_door",
+                    "p_ghost"
+                ],
+                "panelPartId": "p_door",
+                "hingeEdge": "w0",
+                "style": "overlay"
+            }
+        ]
+    },
+    "movable-anchor-missing": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-anchor-missing",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_door",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.5,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        8.5
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_door",
+                "kind": "door",
+                "partIds": [
+                    "p_door"
+                ],
+                "panelPartId": "p_side_l",
+                "hingeEdge": "w0",
+                "style": "overlay"
+            }
+        ]
+    },
+    "movable-member-overlap": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-member-overlap",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_door",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.5,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        8.5
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_a",
+                "kind": "door",
+                "partIds": [
+                    "p_door"
+                ],
+                "panelPartId": "p_door",
+                "hingeEdge": "w0",
+                "style": "overlay"
+            },
+            {
+                "id": "mv_b",
+                "kind": "door",
+                "partIds": [
+                    "p_door"
+                ],
+                "panelPartId": "p_door",
+                "hingeEdge": "w1",
+                "style": "inset"
+            }
+        ]
+    },
+    "movable-adrift": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-adrift",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_door",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.5,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        20
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_door",
+                "kind": "door",
+                "partIds": [
+                    "p_door"
+                ],
+                "panelPartId": "p_door",
+                "hingeEdge": "w0",
+                "style": "overlay"
+            }
+        ]
+    },
+    "movable-drawer-inverted": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-drawer-inverted",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_drawer_front",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 22,
+                    "w": 6
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        4,
+                        8.875
+                    ],
+                    "rot": [
+                        0,
+                        180,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_drawer_bottom",
+                "name": "Drawer Bottom",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 20,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        1.5,
+                        2.5
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "screw",
+                "hostPartId": "p_drawer_front",
+                "insertPartId": "p_drawer_bottom"
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_drawer",
+                "kind": "drawer",
+                "partIds": [
+                    "p_drawer_front",
+                    "p_drawer_bottom"
+                ],
+                "frontPartId": "p_drawer_front",
+                "style": "overlay"
+            }
+        ]
+    },
+    "movable-oversize": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "movable-oversize",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_side_l",
+                "name": "Left Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        -11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_side_r",
+                "name": "Right Side",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 16,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        11.625,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        -90,
+                        0
+                    ]
+                },
+                "qty": 1,
+                "ops": [
+                    {
+                        "type": "dado",
+                        "face": "front",
+                        "axis": "l",
+                        "offset": 12,
+                        "width": 0.75,
+                        "depth": 0.375
+                    }
+                ]
+            },
+            {
+                "id": "p_shelf",
+                "name": "Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 23.25,
+                    "w": 16
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            },
+            {
+                "id": "p_door",
+                "name": "Door",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 30,
+                    "w": 24
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        12,
+                        8.5
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "qty": 1
+            }
+        ],
+        "joints": [
+            {
+                "type": "dado",
+                "hostPartId": "p_side_l",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            },
+            {
+                "type": "dado",
+                "hostPartId": "p_side_r",
+                "insertPartId": "p_shelf",
+                "opRef": 0
+            }
+        ],
+        "movables": [
+            {
+                "id": "mv_door",
+                "kind": "door",
+                "partIds": [
+                    "p_door"
+                ],
+                "panelPartId": "p_door",
+                "hingeEdge": "w0",
+                "style": "overlay"
+            }
+        ]
+    },
+    "round-width": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "round-width",
+        "materials": [
+            {
+                "id": "mat_dowel",
+                "type": "round",
+                "name": "Dowel 3/4",
+                "thickness": 0.75,
+                "stockLengths": [
+                    36
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_rod",
+                "name": "Rod",
+                "materialId": "mat_dowel",
+                "size": {
+                    "l": 22.5,
+                    "w": 1.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            }
+        ]
+    },
+    "round-ops": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "round-ops",
+        "materials": [
+            {
+                "id": "mat_dowel",
+                "type": "round",
+                "name": "Dowel 3/4",
+                "thickness": 0.75,
+                "stockLengths": [
+                    36
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_rod",
+                "name": "Rod",
+                "materialId": "mat_dowel",
+                "size": {
+                    "l": 22.5,
+                    "w": 0.75
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "rabbet",
+                        "edge": "l0",
+                        "width": 0.25,
+                        "depth": 0.25
+                    }
+                ]
+            }
+        ]
+    },
+    "round-oversized": {
+        "specVersion": "1.13",
+        "units": "in",
+        "name": "round-oversized",
+        "materials": [
+            {
+                "id": "mat_dowel",
+                "type": "round",
+                "name": "Dowel 3/4",
+                "thickness": 0.75,
+                "stockLengths": [
+                    36
+                ],
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_rod",
+                "name": "Rod",
+                "materialId": "mat_dowel",
+                "size": {
+                    "l": 48,
+                    "w": 0.75
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            }
+        ]
+    },
+    "curve-opposed": {
+        "specVersion": "1.7",
+        "units": "in",
+        "name": "curve-opposed",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 20,
+                    "w": 36
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "w0",
+                        "kind": "arc",
+                        "height": 10
+                    },
+                    {
+                        "type": "curve",
+                        "edge": "w1",
+                        "kind": "arc",
+                        "height": 10
+                    },
+                    {
+                        "type": "curve",
+                        "edge": "l1",
+                        "kind": "arc",
+                        "height": 4
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "scallop-notch-abutting": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "scallop-notch-abutting",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "arc",
+                        "from": 6,
+                        "to": 20,
+                        "height": 2
+                    },
+                    {
+                        "type": "notch",
+                        "edge": "l0",
+                        "from": 0,
+                        "to": 6,
+                        "depth": 3
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "scallop-notch-overlapping": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "scallop-notch-overlapping",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "arc",
+                        "from": 2,
+                        "to": 10,
+                        "height": 2
+                    },
+                    {
+                        "type": "notch",
+                        "edge": "l0",
+                        "from": 6,
+                        "to": 12,
+                        "depth": 3
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "scallop-spanning-whole-edge": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "scallop-spanning-whole-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "arc",
+                        "from": 0,
+                        "to": 24,
+                        "height": 2
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "scallop-too-deep": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "scallop-too-deep",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "arc",
+                        "from": 4,
+                        "to": 10,
+                        "height": 5
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "scallop-overlapping-scallops": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "scallop-overlapping-scallops",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "arc",
+                        "from": 2,
+                        "to": 12,
+                        "height": 2
+                    },
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "arc",
+                        "from": 8,
+                        "to": 18,
+                        "height": 2
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "scallop-past-edge": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "scallop-past-edge",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 12
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "arc",
+                        "from": 20,
+                        "to": 30,
+                        "height": 2
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "fastener-row-fully-lands": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "fastener-row-fully-lands",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 96,
+                    "w": 48
+                },
+                "grain": true
+            },
+            {
+                "id": "mat_b",
+                "type": "lumber",
+                "name": "Pine",
+                "thickness": 3,
+                "stockWidth": 8,
+                "stockLengths": [
+                    96
+                ]
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 8
+                },
+                "grainAxis": "l",
+                "qty": 1,
+                "transform": {
+                    "pos": [
+                        0,
+                        10,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "screws",
+                        "face": "back",
+                        "axis": "l",
+                        "offset": 4,
+                        "count": 3,
+                        "from": 2,
+                        "to": 22
+                    }
+                ]
+            },
+            {
+                "id": "p_rail",
+                "name": "Back Rail",
+                "materialId": "mat_b",
+                "size": {
+                    "l": 24,
+                    "w": 8
+                },
+                "grainAxis": "l",
+                "qty": 1,
+                "transform": {
+                    "pos": [
+                        0,
+                        8.5,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "ops": []
+            }
+        ],
+        "joints": [
+            {
+                "id": "j0",
+                "type": "screw",
+                "hostPartId": "p_top",
+                "insertPartId": "p_rail",
+                "opRef": 0
+            }
+        ]
+    },
+    "fastener-row-partial-miss": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "fastener-row-partial-miss",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 96,
+                    "w": 48
+                },
+                "grain": true
+            },
+            {
+                "id": "mat_b",
+                "type": "lumber",
+                "name": "Pine",
+                "thickness": 3,
+                "stockWidth": 8,
+                "stockLengths": [
+                    96
+                ]
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 8
+                },
+                "grainAxis": "l",
+                "qty": 1,
+                "transform": {
+                    "pos": [
+                        0,
+                        10,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "screws",
+                        "face": "back",
+                        "axis": "l",
+                        "offset": 4,
+                        "count": 3,
+                        "from": 2,
+                        "to": 22
+                    }
+                ]
+            },
+            {
+                "id": "p_rail",
+                "name": "Back Rail",
+                "materialId": "mat_b",
+                "size": {
+                    "l": 8.5,
+                    "w": 8
+                },
+                "grainAxis": "l",
+                "qty": 1,
+                "transform": {
+                    "pos": [
+                        0,
+                        8.5,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "ops": []
+            }
+        ],
+        "joints": [
+            {
+                "id": "j0",
+                "type": "screw",
+                "hostPartId": "p_top",
+                "insertPartId": "p_rail",
+                "opRef": 0
+            }
+        ]
+    },
+    "fastener-row-partial-miss-span": {
+        "specVersion": "1.14",
+        "units": "in",
+        "name": "fastener-row-partial-miss-span",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 96,
+                    "w": 48
+                },
+                "grain": true
+            },
+            {
+                "id": "mat_b",
+                "type": "lumber",
+                "name": "Pine",
+                "thickness": 3,
+                "stockWidth": 8,
+                "stockLengths": [
+                    96
+                ]
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_top",
+                "name": "Top Shelf",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 24,
+                    "w": 8
+                },
+                "grainAxis": "l",
+                "qty": 1,
+                "transform": {
+                    "pos": [
+                        0,
+                        10,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "screws",
+                        "face": "back",
+                        "axis": "l",
+                        "offset": 4,
+                        "count": 4,
+                        "from": 2,
+                        "to": 22
+                    }
+                ]
+            },
+            {
+                "id": "p_rail",
+                "name": "Back Rail",
+                "materialId": "mat_b",
+                "size": {
+                    "l": 16,
+                    "w": 8
+                },
+                "grainAxis": "l",
+                "qty": 1,
+                "transform": {
+                    "pos": [
+                        0,
+                        8.5,
+                        0
+                    ],
+                    "rot": [
+                        90,
+                        0,
+                        0
+                    ]
+                },
+                "ops": []
+            }
+        ],
+        "joints": [
+            {
+                "id": "j0",
+                "type": "screw",
+                "hostPartId": "p_top",
+                "insertPartId": "p_rail",
+                "opRef": 0
+            }
+        ]
+    }
+}

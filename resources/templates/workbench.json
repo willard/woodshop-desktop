@@ -1,0 +1,472 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Workbench",
+    "materials": [
+        {
+            "id": "mat_ply_top",
+            "type": "sheet",
+            "name": "Plywood Top 3/4\"",
+            "thickness": 0.75,
+            "sheetSize": {
+                "l": 96,
+                "w": 48
+            },
+            "grain": true,
+            "costPerSheet": 78
+        },
+        {
+            "id": "mat_2x4",
+            "type": "lumber",
+            "name": "2x4 Pine",
+            "thickness": 1.5,
+            "stockLengths": [
+                96
+            ],
+            "stockWidth": 3.5,
+            "grain": true,
+            "costPerBoardFoot": 3.5
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_top",
+            "name": "Top",
+            "materialId": "mat_ply_top",
+            "size": {
+                "l": 60,
+                "w": 24
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    34.375,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 22,
+                    "count": 2,
+                    "from": 2.125,
+                    "to": 3.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 22,
+                    "count": 2,
+                    "from": 56.125,
+                    "to": 57.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2,
+                    "count": 2,
+                    "from": 2.125,
+                    "to": 3.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2,
+                    "count": 2,
+                    "from": 56.125,
+                    "to": 57.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_fl",
+            "name": "Leg Front-Left",
+            "materialId": "mat_2x4",
+            "size": {
+                "l": 34,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -27,
+                    17,
+                    10
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 2,
+                    "from": 29.125,
+                    "to": 30.875,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_fr",
+            "name": "Leg Front-Right",
+            "materialId": "mat_2x4",
+            "size": {
+                "l": 34,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    27,
+                    17,
+                    10
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 29.125,
+                    "to": 30.875,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_bl",
+            "name": "Leg Back-Left",
+            "materialId": "mat_2x4",
+            "size": {
+                "l": 34,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -27,
+                    17,
+                    -10
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 2,
+                    "from": 29.125,
+                    "to": 30.875,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_br",
+            "name": "Leg Back-Right",
+            "materialId": "mat_2x4",
+            "size": {
+                "l": 34,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    27,
+                    17,
+                    -10
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 29.125,
+                    "to": 30.875,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_apron_front",
+            "name": "Front Apron",
+            "materialId": "mat_2x4",
+            "size": {
+                "l": 54,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    30,
+                    10
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_apron_back",
+            "name": "Back Apron",
+            "materialId": "mat_2x4",
+            "size": {
+                "l": 54,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    30,
+                    -10
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_stretcher_l",
+            "name": "Left Stretcher",
+            "materialId": "mat_2x4",
+            "size": {
+                "l": 18.5,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -27,
+                    8,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_stretcher_r",
+            "name": "Right Stretcher",
+            "materialId": "mat_2x4",
+            "size": {
+                "l": 18.5,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    27,
+                    8,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j2",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_bl",
+            "opRef": 2
+        },
+        {
+            "id": "j3",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_br",
+            "opRef": 3
+        },
+        {
+            "id": "j4",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_fl",
+            "insertPartId": "p_apron_front",
+            "opRef": 0
+        },
+        {
+            "id": "j5",
+            "type": "pocketScrew",
+            "hostPartId": "p_stretcher_l",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j6",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_fr",
+            "insertPartId": "p_apron_front",
+            "opRef": 0
+        },
+        {
+            "id": "j7",
+            "type": "pocketScrew",
+            "hostPartId": "p_stretcher_r",
+            "insertPartId": "p_leg_fr",
+            "opRef": 0
+        },
+        {
+            "id": "j8",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_bl",
+            "insertPartId": "p_apron_back",
+            "opRef": 0
+        },
+        {
+            "id": "j9",
+            "type": "pocketScrew",
+            "hostPartId": "p_stretcher_l",
+            "insertPartId": "p_leg_bl",
+            "opRef": 1
+        },
+        {
+            "id": "j10",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_br",
+            "insertPartId": "p_apron_back",
+            "opRef": 0
+        },
+        {
+            "id": "j11",
+            "type": "pocketScrew",
+            "hostPartId": "p_stretcher_r",
+            "insertPartId": "p_leg_br",
+            "opRef": 1
+        }
+    ],
+    "meta": {
+        "difficulty": "intermediate",
+        "notes": "A sturdy workbench: plywood top on a 2x4 frame.",
+        "tags": [
+            "shop",
+            "table"
+        ]
+    }
+}

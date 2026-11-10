@@ -1,0 +1,349 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Record Stand",
+    "materials": [
+        {
+            "id": "mat_bb18",
+            "type": "sheet",
+            "name": "Baltic Birch 18mm",
+            "thickness": 0.709,
+            "sheetSize": {
+                "l": 60,
+                "w": 60
+            },
+            "grain": true,
+            "costPerSheet": 95
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_side_l",
+            "name": "Left Side",
+            "materialId": "mat_bb18",
+            "size": {
+                "l": 19,
+                "w": 34
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    -18.6455,
+                    17,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "dado",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 17,
+                    "width": 0.709,
+                    "depth": 0.25
+                }
+            ],
+            "qty": 1
+        },
+        {
+            "id": "p_side_r",
+            "name": "Right Side",
+            "materialId": "mat_bb18",
+            "size": {
+                "l": 19,
+                "w": 34
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    18.6455,
+                    17,
+                    0
+                ],
+                "rot": [
+                    0,
+                    -90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "dado",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 17,
+                    "width": 0.709,
+                    "depth": 0.25
+                }
+            ],
+            "qty": 1
+        },
+        {
+            "id": "p_top",
+            "name": "Top",
+            "materialId": "mat_bb18",
+            "size": {
+                "l": 36.582,
+                "w": 19
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    33.6455,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 18,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 3,
+                    "from": 1,
+                    "to": 18,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_bottom",
+            "name": "Bottom",
+            "materialId": "mat_bb18",
+            "size": {
+                "l": 36.582,
+                "w": 19
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    0.3545,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 18,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 3,
+                    "from": 1,
+                    "to": 18,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_shelf_1",
+            "name": "Middle Shelf",
+            "materialId": "mat_bb18",
+            "size": {
+                "l": 37.082,
+                "w": 18
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    17,
+                    0.5
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_back",
+            "name": "Back Panel",
+            "materialId": "mat_bb18",
+            "size": {
+                "l": 38,
+                "w": 34
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    0,
+                    17,
+                    -9.1455
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 0.359375,
+                    "count": 6,
+                    "from": 1,
+                    "to": 33,
+                    "gauge": "#8",
+                    "length": 1
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 37.640625,
+                    "count": 6,
+                    "from": 1,
+                    "to": 33,
+                    "gauge": "#8",
+                    "length": 1
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 33.640625,
+                    "count": 6,
+                    "from": 1.703125,
+                    "to": 36.296875,
+                    "gauge": "#8",
+                    "length": 1
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 0.359375,
+                    "count": 6,
+                    "from": 1.703125,
+                    "to": 36.296875,
+                    "gauge": "#8",
+                    "length": 1
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "dado",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_shelf_1",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "dado",
+            "hostPartId": "p_side_r",
+            "insertPartId": "p_shelf_1",
+            "opRef": 0
+        },
+        {
+            "id": "j2",
+            "type": "pocketScrew",
+            "hostPartId": "p_top",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j3",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j4",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j5",
+            "type": "pocketScrew",
+            "hostPartId": "p_top",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j6",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j7",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j8",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_top",
+            "opRef": 2
+        },
+        {
+            "id": "j9",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_bottom",
+            "opRef": 3
+        }
+    ],
+    "meta": {
+        "difficulty": "intermediate",
+        "notes": "Dado variant.",
+        "tags": [
+            "cabinet",
+            "storage"
+        ]
+    }
+}

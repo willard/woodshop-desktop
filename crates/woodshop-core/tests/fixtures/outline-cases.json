@@ -1,0 +1,108 @@
+{
+    "plain": { "l": 24, "w": 12, "ops": [] },
+    "dome-l0": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l0", "kind": "arc", "height": 3 }] },
+    "dome-l1": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l1", "kind": "arc", "height": 3 }] },
+    "dome-w0": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "w0", "kind": "arc", "height": 2 }] },
+    "dome-w1": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "w1", "kind": "arc", "height": 2 }] },
+    "round-both-corners": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l0", "kind": "round", "radius": 2 }] },
+    "round-one-corner": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l0", "kind": "round", "radius": 2, "corner": "w0" }] },
+    "round-all-four": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "curve", "edge": "l0", "kind": "round", "radius": 1.5 },
+            { "type": "curve", "edge": "l1", "kind": "round", "radius": 1.5 }
+        ]
+    },
+    "ramp-low-w0": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l1", "kind": "ramp", "height": 4, "low": "w0" }] },
+    "ramp-low-w1": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l1", "kind": "ramp", "height": 4, "low": "w1" }] },
+    "ramp-parallel-low-ignored": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l1", "kind": "ramp", "height": 4, "low": "l0" }] },
+    "notch-interior": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "l0", "from": 6, "to": 12, "depth": 3 }] },
+    "notch-low-corner": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "l0", "from": 0, "to": 6, "depth": 3 }] },
+    "notch-high-corner": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "l0", "from": 18, "to": 24, "depth": 3 }] },
+    "notch-whole-edge": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "l0", "from": 0, "to": 24, "depth": 3 }] },
+    "notch-on-w1": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "w1", "from": 2, "to": 8, "depth": 4 }] },
+    "notch-on-l1": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "l1", "from": 4, "to": 10, "depth": 2 }] },
+    "notch-on-w0": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "w0", "from": 2, "to": 8, "depth": 4 }] },
+    "notches-overlapping": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "notch", "edge": "l0", "from": 4, "to": 10, "depth": 2 },
+            { "type": "notch", "edge": "l0", "from": 8, "to": 14, "depth": 3 }
+        ]
+    },
+    "notches-two-edges": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "notch", "edge": "l0", "from": 2, "to": 6, "depth": 2 },
+            { "type": "notch", "edge": "l1", "from": 14, "to": 20, "depth": 2 }
+        ]
+    },
+    "scallop-interior": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l0", "kind": "arc", "from": 8, "to": 16, "height": 2 }] },
+    "scallop-from-only": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l0", "kind": "arc", "from": 12, "height": 2 }] },
+    "scallop-to-only": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l0", "kind": "arc", "to": 12, "height": 2 }] },
+    "scallop-touching-low-corner": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l0", "kind": "arc", "from": 0, "to": 8, "height": 2 }] },
+    "scallop-semicircle": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l0", "kind": "arc", "from": 8, "to": 16, "height": 4 }] },
+    "scallop-on-w1": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "w1", "kind": "arc", "from": 2, "to": 10, "height": 1.5 }] },
+    "scallop-on-l1": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l1", "kind": "arc", "from": 6, "to": 18, "height": 2 }] },
+    "scallop-notch-abutting": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "curve", "edge": "l0", "kind": "arc", "from": 6, "to": 20, "height": 2 },
+            { "type": "notch", "edge": "l0", "from": 0, "to": 6, "depth": 3 }
+        ]
+    },
+    "scallop-notch-overlapping": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "curve", "edge": "l0", "kind": "arc", "from": 2, "to": 10, "height": 2 },
+            { "type": "notch", "edge": "l0", "from": 6, "to": 12, "depth": 3 }
+        ]
+    },
+    "scallops-overlapping": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "curve", "edge": "l0", "kind": "arc", "from": 2, "to": 12, "height": 2 },
+            { "type": "curve", "edge": "l0", "kind": "arc", "from": 8, "to": 18, "height": 2 }
+        ]
+    },
+    "dome-drops-notch": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "curve", "edge": "l0", "kind": "arc", "height": 2 },
+            { "type": "notch", "edge": "l0", "from": 0, "to": 6, "depth": 3 }
+        ]
+    },
+    "dome-plus-notch-other-edge": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "curve", "edge": "l0", "kind": "arc", "height": 2 },
+            { "type": "notch", "edge": "l1", "from": 4, "to": 10, "depth": 2 }
+        ]
+    },
+    "scallop-plus-round-other-edge": {
+        "l": 24,
+        "w": 12,
+        "ops": [
+            { "type": "curve", "edge": "l0", "kind": "arc", "from": 8, "to": 16, "height": 2 },
+            { "type": "curve", "edge": "l1", "kind": "round", "radius": 2 }
+        ]
+    },
+    "degenerate-opposed-domes": {
+        "l": 20,
+        "w": 36,
+        "ops": [
+            { "type": "curve", "edge": "w0", "kind": "arc", "height": 10 },
+            { "type": "curve", "edge": "w1", "kind": "arc", "height": 10 },
+            { "type": "curve", "edge": "l1", "kind": "arc", "height": 4 }
+        ]
+    },
+    "degenerate-zero-depth-notch": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "l0", "from": 6, "to": 6, "depth": 3 }] }
+}

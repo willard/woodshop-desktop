@@ -1,0 +1,17 @@
+[package]
+name = "woodshop-store"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Local project library: SQLite (WAL) for projects, versions, notes and settings; PNG thumbnails on disk."
+
+[dependencies]
+woodshop-core = { workspace = true, features = ["validate"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+rusqlite = { version = "0.40", features = ["bundled"] }
+zip = { version = "8", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,0 +1,326 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Side Table",
+    "materials": [
+        {
+            "id": "mat_ply34",
+            "type": "sheet",
+            "name": "Birch Plywood 3/4\"",
+            "thickness": 0.75,
+            "sheetSize": {
+                "l": 96,
+                "w": 48
+            },
+            "grain": true,
+            "costPerSheet": 78
+        },
+        {
+            "id": "mat_pine2x2",
+            "type": "lumber",
+            "name": "Pine 2x2 (1.5\" square)",
+            "thickness": 1.5,
+            "stockWidth": 1.5,
+            "stockLengths": [
+                96
+            ],
+            "grain": true,
+            "species": "pine",
+            "costPerBoardFoot": 3.5
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_top",
+            "name": "Top",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 18,
+                "w": 18
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    23.625,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 16.5,
+                    "count": 2,
+                    "from": 1.125,
+                    "to": 1.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 16.5,
+                    "count": 2,
+                    "from": 16.125,
+                    "to": 16.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 1.5,
+                    "count": 2,
+                    "from": 1.125,
+                    "to": 1.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 1.5,
+                    "count": 2,
+                    "from": 16.125,
+                    "to": 16.875,
+                    "gauge": "#8",
+                    "length": 1.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_fl",
+            "name": "Leg Front-Left",
+            "materialId": "mat_pine2x2",
+            "size": {
+                "l": 23.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7.5,
+                    11.625,
+                    7.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_leg_fr",
+            "name": "Leg Front-Right",
+            "materialId": "mat_pine2x2",
+            "size": {
+                "l": 23.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    7.5,
+                    11.625,
+                    7.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_leg_bl",
+            "name": "Leg Back-Left",
+            "materialId": "mat_pine2x2",
+            "size": {
+                "l": 23.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7.5,
+                    11.625,
+                    -7.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_leg_br",
+            "name": "Leg Back-Right",
+            "materialId": "mat_pine2x2",
+            "size": {
+                "l": 23.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    7.5,
+                    11.625,
+                    -7.5
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_shelf",
+            "name": "Lower Shelf",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 15,
+                "w": 15
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    6,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 1,
+                    "from": 0.375,
+                    "to": 0.375,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 1,
+                    "from": 14.625,
+                    "to": 14.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 1,
+                    "from": 0.375,
+                    "to": 0.375,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 1,
+                    "from": 14.625,
+                    "to": 14.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j2",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_bl",
+            "opRef": 2
+        },
+        {
+            "id": "j3",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_leg_br",
+            "opRef": 3
+        },
+        {
+            "id": "j4",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j5",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf",
+            "insertPartId": "p_leg_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j6",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf",
+            "insertPartId": "p_leg_bl",
+            "opRef": 2
+        },
+        {
+            "id": "j7",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf",
+            "insertPartId": "p_leg_br",
+            "opRef": 3
+        }
+    ],
+    "meta": {
+        "difficulty": "beginner",
+        "notes": "A simple side table with a plywood top and shelf on solid pine legs.",
+        "tags": [
+            "table",
+            "living-room"
+        ]
+    }
+}

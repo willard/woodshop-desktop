@@ -1,0 +1,266 @@
+{
+    "case:material-missing": [
+        "error|part.material-missing|p_a||"
+    ],
+    "case:oversized-grain": [
+        "error|part.oversized|p_a||"
+    ],
+    "case:oversized-lumber": [
+        "error|part.oversized|p_a||"
+    ],
+    "case:oversized-lumber-unlisted": [
+        "error|part.oversized|p_a||"
+    ],
+    "case:dado-depth": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:dado-offset": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:stopped-past-run": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:stopped-inverted": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:hole-off-face": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:overlap-warn": [
+        "warn|op.overlap|p_a|1|"
+    ],
+    "case:joint-ref-missing": [
+        "error|joint.ref-missing|||0",
+        "error|part.unfastened|p_b||"
+    ],
+    "case:joint-op-missing": [
+        "error|joint.op-missing|||0"
+    ],
+    "case:joint-width-mismatch": [
+        "error|joint.dado-width-mismatch|||0"
+    ],
+    "case:floating-mixed": [
+        "error|part.floating|p_c||",
+        "error|part.unfastened|p_a||",
+        "error|part.unfastened|p_b||"
+    ],
+    "case:curve-arc-too-tall": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:curve-round-too-big": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:curve-with-dado": [],
+    "case:curve-miter-same-edge": [
+        "error|op.curve-miter-edge|p_a|1|"
+    ],
+    "case:curve-valid-headboard": [],
+    "case:ramp-valid": [],
+    "case:ramp-too-tall": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:ramp-parallel-low": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:round-single-corner-valid": [],
+    "case:round-parallel-corner": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:round-both-corners-too-big": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:group-valid": [
+        "error|part.unfastened|p_a||",
+        "error|part.unfastened|p_b||"
+    ],
+    "case:group-ref-missing": [
+        "error|group.ref-missing|p_ghost||",
+        "error|part.unfastened|p_a||",
+        "error|part.unfastened|p_b||"
+    ],
+    "case:group-member-overlap": [
+        "error|group.member-overlap|p_a||",
+        "error|group.member-overlap|p_b||",
+        "error|part.unfastened|p_a||",
+        "error|part.unfastened|p_b||"
+    ],
+    "case:notch-valid-corner": [],
+    "case:notch-past-edge": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:notch-inverted": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:notch-depth-span": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:notch-overlap-warn": [
+        "warn|op.overlap|p_a|1|"
+    ],
+    "case:notch-with-dado": [],
+    "case:notch-miter-same-edge": [
+        "error|op.notch-miter-edge|p_a|1|"
+    ],
+    "case:notch-curve-same-edge": [
+        "error|op.notch-curve-edge|p_a|1|"
+    ],
+    "case:joint-not-seated": [
+        "error|joint.mate-not-seated|||0",
+        "error|joint.mate-not-seated|||1"
+    ],
+    "case:joint-seated-valid": [],
+    "case:pierce-through-panel": [
+        "error|part.pierce|p_leg||",
+        "error|part.unfastened|p_leg||",
+        "error|part.unfastened|p_top||"
+    ],
+    "case:pierce-butt-allowed": [
+        "error|part.unfastened|p_back||",
+        "error|part.unfastened|p_side||"
+    ],
+    "case:pierce-corner-lap-allowed": [
+        "error|part.unfastened|p_rail_a||",
+        "error|part.unfastened|p_rail_b||"
+    ],
+    "case:pierce-notch-exempt": [
+        "error|part.unfastened|p_leg||",
+        "error|part.unfastened|p_top||"
+    ],
+    "case:pierce-tilted-face-mount": [
+        "error|part.unfastened|p_post||",
+        "error|part.unfastened|p_slat||"
+    ],
+    "case:fasten-unfastened-shelf": [
+        "error|part.unfastened|p_shelf||",
+        "error|part.unfastened|p_side_l||",
+        "error|part.unfastened|p_side_r||"
+    ],
+    "case:fasten-pocket-screws-valid": [],
+    "case:fasten-screws-valid": [],
+    "case:fasten-screws-no-mate": [
+        "warn|op.fastener-no-mate|p_top|0|"
+    ],
+    "case:fasten-screw-blowout": [
+        "warn|op.screw-blowout|p_top|0|"
+    ],
+    "case:fasten-glue-only-butt": [
+        "warn|joint.glue-only|||0"
+    ],
+    "case:fasten-joint-op-mismatch": [
+        "error|joint.op-mismatch|||0"
+    ],
+    "case:fasten-screws-off-part": [
+        "error|op.out-of-bounds|p_top|0|",
+        "error|op.out-of-bounds|p_top|0|",
+        "error|part.unfastened|p_leg||",
+        "error|part.unfastened|p_top||",
+        "warn|op.fastener-no-mate|p_top|0|"
+    ],
+    "case:fasten-pocket-face-front": [],
+    "case:ease-valid-roundover": [],
+    "case:ease-bullnose-valid": [],
+    "case:ease-radius-past-half-thickness": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:ease-single-face-may-use-full-thickness": [],
+    "case:ease-chamfer-past-thickness": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:ease-with-curve": [],
+    "case:ease-with-notch": [],
+    "case:ease-miter-same-edge": [
+        "error|op.ease-miter-edge|p_a|1|"
+    ],
+    "case:ease-miter-other-edge": [],
+    "case:ease-overlap-same-arris": [
+        "warn|op.overlap|p_a|1|"
+    ],
+    "case:ease-opposite-arrises-ok": [],
+    "case:ease-seated-edge": [
+        "warn|op.ease-seated-edge|p_shelf|0|"
+    ],
+    "case:ease-show-edge-ok": [],
+    "case:ease-stopped-valid-leg": [],
+    "case:ease-stopped-both-ends": [],
+    "case:ease-stopped-past-edge": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:ease-stopped-inverted": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:ease-two-runs-no-overlap": [],
+    "case:ease-two-runs-overlapping": [
+        "warn|op.overlap|p_a|1|"
+    ],
+    "case:movable-door-valid": [],
+    "case:movable-drawer-valid": [],
+    "case:movable-member-loose": [
+        "warn|movable.member-loose|p_drawer_bottom||",
+        "warn|movable.member-loose|p_drawer_front||"
+    ],
+    "case:movable-ref-missing": [
+        "error|movable.ref-missing|p_ghost||"
+    ],
+    "case:movable-anchor-missing": [
+        "error|movable.anchor-missing|p_side_l||",
+        "warn|movable.member-loose|p_door||"
+    ],
+    "case:movable-member-overlap": [
+        "error|movable.member-overlap|p_door||"
+    ],
+    "case:movable-adrift": [
+        "warn|movable.adrift|p_door||"
+    ],
+    "case:movable-drawer-inverted": [
+        "warn|movable.drawer-inverted|p_drawer_front||"
+    ],
+    "case:movable-oversize": [
+        "warn|movable.oversize|p_door||"
+    ],
+    "case:round-width": [
+        "error|part.round-width|p_rod||"
+    ],
+    "case:round-ops": [
+        "error|part.round-ops|p_rod||"
+    ],
+    "case:round-oversized": [
+        "error|part.oversized|p_rod||"
+    ],
+    "case:curve-opposed": [
+        "error|op.curve-opposed|p_a|1|"
+    ],
+    "case:scallop-notch-abutting": [],
+    "case:scallop-notch-overlapping": [
+        "error|op.notch-curve-edge|p_a|1|"
+    ],
+    "case:scallop-spanning-whole-edge": [
+        "warn|op.curve-span-full|p_a|0|"
+    ],
+    "case:scallop-too-deep": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:scallop-overlapping-scallops": [
+        "warn|op.overlap|p_a|1|"
+    ],
+    "case:scallop-past-edge": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:fastener-row-fully-lands": [],
+    "case:fastener-row-partial-miss": [
+        "warn|op.fastener-partial-miss|p_top|0|"
+    ],
+    "case:fastener-row-partial-miss-span": [
+        "warn|op.fastener-partial-miss|p_top|0|"
+    ],
+    "template:bookshelf": [],
+    "template:coffee-table": [],
+    "template:desk": [],
+    "template:mobile-workbench": [],
+    "template:nightstand": [],
+    "template:picnic-table": [],
+    "template:planter-box": [],
+    "template:record-stand-dado": [],
+    "template:record-stand": [],
+    "template:side-table": [],
+    "template:workbench": []
+}

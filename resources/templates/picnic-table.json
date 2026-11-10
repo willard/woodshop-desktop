@@ -1,0 +1,1205 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Picnic Table 6ft (A-Frame)",
+    "materials": [
+        {
+            "id": "m_2x6",
+            "type": "lumber",
+            "name": "2x6 SPF (1.5 x 5.5 actual)",
+            "thickness": 1.5,
+            "stockWidth": 5.5,
+            "stockLengths": [
+                96,
+                120
+            ],
+            "grain": true,
+            "costPerBoardFoot": 3.25
+        },
+        {
+            "id": "m_2x4",
+            "type": "lumber",
+            "name": "2x4 SPF (1.5 x 3.5 actual)",
+            "thickness": 1.5,
+            "stockWidth": 3.5,
+            "stockLengths": [
+                96,
+                120
+            ],
+            "grain": true,
+            "costPerBoardFoot": 3.5
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_top_slat_1",
+            "name": "Tabletop Slat 1",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    28.25,
+                    -11.5
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2.75,
+                    "count": 2,
+                    "from": 10.25,
+                    "to": 13.75,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2.75,
+                    "count": 2,
+                    "from": 58.25,
+                    "to": 61.75,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_top_slat_2",
+            "name": "Tabletop Slat 2",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    28.25,
+                    -5.75
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 0.078125,
+                    "count": 2,
+                    "from": 10.25,
+                    "to": 13.75,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 0.078125,
+                    "count": 2,
+                    "from": 58.25,
+                    "to": 61.75,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_top_slat_3",
+            "name": "Tabletop Slat 3 (center)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    28.25,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_top_slat_4",
+            "name": "Tabletop Slat 4",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    28.25,
+                    5.75
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 5.421875,
+                    "count": 2,
+                    "from": 10.25,
+                    "to": 13.75,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 5.421875,
+                    "count": 2,
+                    "from": 58.25,
+                    "to": 61.75,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_top_slat_5",
+            "name": "Tabletop Slat 5",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    28.25,
+                    11.5
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2.75,
+                    "count": 2,
+                    "from": 10.25,
+                    "to": 13.75,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 2.75,
+                    "count": 2,
+                    "from": 58.25,
+                    "to": 61.75,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_cleat_l",
+            "name": "Top Cleat (left, bolts to leg faces)",
+            "materialId": "m_2x4",
+            "size": {
+                "l": 26,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -20.5,
+                    25.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 22.75,
+                    "to": 25,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 17,
+                    "to": 20.5,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 11.25,
+                    "to": 14.75,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 5.5,
+                    "to": 9,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.25,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 2,
+                    "from": 22.328125,
+                    "to": 25,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_cleat_r",
+            "name": "Top Cleat (right, bolts to leg faces)",
+            "materialId": "m_2x4",
+            "size": {
+                "l": 26,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    20.5,
+                    25.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 22.75,
+                    "to": 25,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 17,
+                    "to": 20.5,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 11.25,
+                    "to": 14.75,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 5.5,
+                    "to": 9,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.25,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 2,
+                    "from": 22.328125,
+                    "to": 25,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_lf",
+            "name": "Leg (left end, front)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 30.9,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -24,
+                    13.74,
+                    16.71
+                ],
+                "rot": [
+                    -30,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 2,
+                    "from": 27.1875,
+                    "to": 29.90625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_lb",
+            "name": "Leg (left end, back)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 30.9,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -24,
+                    13.74,
+                    -16.71
+                ],
+                "rot": [
+                    30,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_leg_rf",
+            "name": "Leg (right end, front)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 30.9,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    24,
+                    13.74,
+                    16.71
+                ],
+                "rot": [
+                    -30,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 27.1875,
+                    "to": 29.90625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_leg_rb",
+            "name": "Leg (right end, back)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 30.9,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    24,
+                    13.74,
+                    -16.71
+                ],
+                "rot": [
+                    30,
+                    0,
+                    90
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_arm_l",
+            "name": "Bench Support Arm (left, bolts to leg faces)",
+            "materialId": "m_2x4",
+            "size": {
+                "l": 60,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -20.5,
+                    13.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 3,
+                    "from": 5.921875,
+                    "to": 20.671875,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 3,
+                    "from": 39.328125,
+                    "to": 54.078125,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 5.75,
+                    "to": 9.25,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.5,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 50.75,
+                    "to": 54.25,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 56.5,
+                    "to": 59,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_arm_r",
+            "name": "Bench Support Arm (right, bolts to leg faces)",
+            "materialId": "m_2x4",
+            "size": {
+                "l": 60,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    20.5,
+                    13.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 3,
+                    "from": 5.921875,
+                    "to": 20.671875,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 3,
+                    "from": 39.328125,
+                    "to": 54.078125,
+                    "gauge": "#8",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 5.75,
+                    "to": 9.25,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.5,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 50.75,
+                    "to": 54.25,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 56.5,
+                    "to": 59,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_bench_f_in",
+            "name": "Front Bench Slat (inner)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    16.25,
+                    22.5
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_bench_f_out",
+            "name": "Front Bench Slat (outer)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    16.25,
+                    28.25
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_bench_b_in",
+            "name": "Back Bench Slat (inner)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    16.25,
+                    -22.5
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_bench_b_out",
+            "name": "Back Bench Slat (outer)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 72,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    16.25,
+                    -28.25
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_stringer",
+            "name": "Center Stringer (cleat to cleat)",
+            "materialId": "m_2x4",
+            "size": {
+                "l": 39.5,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    25.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 7,
+                    "from": 1,
+                    "to": 38.5,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 14.390625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 3,
+                    "from": 25.109375,
+                    "to": 38.5,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
+        },
+        {
+            "id": "p_brace_l",
+            "name": "Diagonal Brace (left arm to stringer)",
+            "materialId": "m_2x4",
+            "size": {
+                "l": 18,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -13,
+                    19.9,
+                    0
+                ],
+                "rot": [
+                    0,
+                    0,
+                    30.5
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_brace_r",
+            "name": "Diagonal Brace (right arm to stringer)",
+            "materialId": "m_2x4",
+            "size": {
+                "l": 18,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    13,
+                    19.9,
+                    0
+                ],
+                "rot": [
+                    0,
+                    0,
+                    -30.5
+                ]
+            },
+            "qty": 1
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_l",
+            "insertPartId": "p_top_slat_1",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_r",
+            "insertPartId": "p_top_slat_1",
+            "opRef": 0
+        },
+        {
+            "id": "j2",
+            "type": "screw",
+            "hostPartId": "p_top_slat_1",
+            "insertPartId": "p_leg_lb",
+            "opRef": 0
+        },
+        {
+            "id": "j3",
+            "type": "screw",
+            "hostPartId": "p_top_slat_1",
+            "insertPartId": "p_leg_rb",
+            "opRef": 1
+        },
+        {
+            "id": "j4",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_l",
+            "insertPartId": "p_top_slat_2",
+            "opRef": 1
+        },
+        {
+            "id": "j5",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_r",
+            "insertPartId": "p_top_slat_2",
+            "opRef": 1
+        },
+        {
+            "id": "j6",
+            "type": "screw",
+            "hostPartId": "p_top_slat_2",
+            "insertPartId": "p_leg_lb",
+            "opRef": 0
+        },
+        {
+            "id": "j7",
+            "type": "screw",
+            "hostPartId": "p_top_slat_2",
+            "insertPartId": "p_leg_rb",
+            "opRef": 1
+        },
+        {
+            "id": "j8",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_l",
+            "insertPartId": "p_top_slat_3",
+            "opRef": 2
+        },
+        {
+            "id": "j9",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_r",
+            "insertPartId": "p_top_slat_3",
+            "opRef": 2
+        },
+        {
+            "id": "j10",
+            "type": "pocketScrew",
+            "hostPartId": "p_stringer",
+            "insertPartId": "p_top_slat_3",
+            "opRef": 0
+        },
+        {
+            "id": "j11",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_l",
+            "insertPartId": "p_top_slat_4",
+            "opRef": 3
+        },
+        {
+            "id": "j12",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_r",
+            "insertPartId": "p_top_slat_4",
+            "opRef": 3
+        },
+        {
+            "id": "j13",
+            "type": "screw",
+            "hostPartId": "p_top_slat_4",
+            "insertPartId": "p_leg_lf",
+            "opRef": 0
+        },
+        {
+            "id": "j14",
+            "type": "screw",
+            "hostPartId": "p_top_slat_4",
+            "insertPartId": "p_leg_rf",
+            "opRef": 1
+        },
+        {
+            "id": "j15",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_l",
+            "insertPartId": "p_top_slat_5",
+            "opRef": 4
+        },
+        {
+            "id": "j16",
+            "type": "pocketScrew",
+            "hostPartId": "p_cleat_r",
+            "insertPartId": "p_top_slat_5",
+            "opRef": 4
+        },
+        {
+            "id": "j17",
+            "type": "screw",
+            "hostPartId": "p_top_slat_5",
+            "insertPartId": "p_leg_lf",
+            "opRef": 0
+        },
+        {
+            "id": "j18",
+            "type": "screw",
+            "hostPartId": "p_top_slat_5",
+            "insertPartId": "p_leg_rf",
+            "opRef": 1
+        },
+        {
+            "id": "j19",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_lf",
+            "insertPartId": "p_cleat_l",
+            "opRef": 0
+        },
+        {
+            "id": "j20",
+            "type": "screw",
+            "hostPartId": "p_cleat_l",
+            "insertPartId": "p_leg_lb",
+            "opRef": 5
+        },
+        {
+            "id": "j21",
+            "type": "pocketScrew",
+            "hostPartId": "p_stringer",
+            "insertPartId": "p_cleat_l",
+            "opRef": 1
+        },
+        {
+            "id": "j22",
+            "type": "pocketScrew",
+            "hostPartId": "p_leg_rf",
+            "insertPartId": "p_cleat_r",
+            "opRef": 0
+        },
+        {
+            "id": "j23",
+            "type": "screw",
+            "hostPartId": "p_cleat_r",
+            "insertPartId": "p_leg_rb",
+            "opRef": 5
+        },
+        {
+            "id": "j24",
+            "type": "pocketScrew",
+            "hostPartId": "p_stringer",
+            "insertPartId": "p_cleat_r",
+            "opRef": 2
+        },
+        {
+            "id": "j25",
+            "type": "screw",
+            "hostPartId": "p_arm_l",
+            "insertPartId": "p_leg_lf",
+            "opRef": 0
+        },
+        {
+            "id": "j26",
+            "type": "screw",
+            "hostPartId": "p_arm_l",
+            "insertPartId": "p_leg_lb",
+            "opRef": 1
+        },
+        {
+            "id": "j27",
+            "type": "screw",
+            "hostPartId": "p_arm_r",
+            "insertPartId": "p_leg_rf",
+            "opRef": 0
+        },
+        {
+            "id": "j28",
+            "type": "screw",
+            "hostPartId": "p_arm_r",
+            "insertPartId": "p_leg_rb",
+            "opRef": 1
+        },
+        {
+            "id": "j29",
+            "type": "pocketScrew",
+            "hostPartId": "p_arm_l",
+            "insertPartId": "p_bench_f_in",
+            "opRef": 2
+        },
+        {
+            "id": "j30",
+            "type": "pocketScrew",
+            "hostPartId": "p_arm_l",
+            "insertPartId": "p_bench_f_out",
+            "opRef": 3
+        },
+        {
+            "id": "j31",
+            "type": "pocketScrew",
+            "hostPartId": "p_arm_l",
+            "insertPartId": "p_bench_b_in",
+            "opRef": 4
+        },
+        {
+            "id": "j32",
+            "type": "pocketScrew",
+            "hostPartId": "p_arm_l",
+            "insertPartId": "p_bench_b_out",
+            "opRef": 5
+        },
+        {
+            "id": "j33",
+            "type": "pocketScrew",
+            "hostPartId": "p_arm_r",
+            "insertPartId": "p_bench_f_in",
+            "opRef": 2
+        },
+        {
+            "id": "j34",
+            "type": "pocketScrew",
+            "hostPartId": "p_arm_r",
+            "insertPartId": "p_bench_f_out",
+            "opRef": 3
+        },
+        {
+            "id": "j35",
+            "type": "pocketScrew",
+            "hostPartId": "p_arm_r",
+            "insertPartId": "p_bench_b_in",
+            "opRef": 4
+        },
+        {
+            "id": "j36",
+            "type": "pocketScrew",
+            "hostPartId": "p_arm_r",
+            "insertPartId": "p_bench_b_out",
+            "opRef": 5
+        },
+        {
+            "id": "j37",
+            "type": "pocketScrew",
+            "hostPartId": "p_stringer",
+            "insertPartId": "p_brace_l",
+            "opRef": 3
+        },
+        {
+            "id": "j38",
+            "type": "pocketScrew",
+            "hostPartId": "p_stringer",
+            "insertPartId": "p_brace_r",
+            "opRef": 4
+        }
+    ],
+    "meta": {
+        "difficulty": "intermediate",
+        "notes": "Classic 6ft A-frame picnic table: 72x28.5 top at 29\", benches at 17\" spanning 62\" overall. All connections are face-to-face as bolted in the real build: cleats and bench arms bolt to the leg faces, slats rest on cleats/arms, legs pass through the clear zone between the tabletop edge and the bench inner edge (never through a board). Legs are cut at 30 degrees, braces at 30.5 degrees; ends are drawn square in the model.",
+        "tags": [
+            "outdoor",
+            "picnic-table",
+            "a-frame"
+        ]
+    }
+}

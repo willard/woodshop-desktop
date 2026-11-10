@@ -1,0 +1,292 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Planter Box",
+    "materials": [
+        {
+            "id": "mat_cedar",
+            "type": "sheet",
+            "name": "Cedar Board 3/4\"",
+            "thickness": 0.75,
+            "sheetSize": {
+                "l": 96,
+                "w": 24
+            },
+            "grain": true,
+            "costPerSheet": 42
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_front",
+            "name": "Front",
+            "materialId": "mat_cedar",
+            "size": {
+                "l": 18,
+                "w": 10
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    5,
+                    6
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_back",
+            "name": "Back",
+            "materialId": "mat_cedar",
+            "size": {
+                "l": 18,
+                "w": 10
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    5,
+                    -6
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_side_l",
+            "name": "Left End",
+            "materialId": "mat_cedar",
+            "size": {
+                "l": 11.25,
+                "w": 10
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -9.375,
+                    5,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 0,
+                    "count": 2,
+                    "from": 1,
+                    "to": 9,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 11.25,
+                    "count": 2,
+                    "from": 1,
+                    "to": 9,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_side_r",
+            "name": "Right End",
+            "materialId": "mat_cedar",
+            "size": {
+                "l": 11.25,
+                "w": 10
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    9.375,
+                    5,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 0,
+                    "count": 2,
+                    "from": 1,
+                    "to": 9,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 11.25,
+                    "count": 2,
+                    "from": 1,
+                    "to": 9,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_bottom",
+            "name": "Bottom",
+            "materialId": "mat_cedar",
+            "size": {
+                "l": 18,
+                "w": 11.25
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    0.375,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 3,
+                    "from": 1,
+                    "to": 17,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 17,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 10.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 10.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "screw",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_front",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "screw",
+            "hostPartId": "p_side_r",
+            "insertPartId": "p_front",
+            "opRef": 0
+        },
+        {
+            "id": "j2",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_front",
+            "opRef": 0
+        },
+        {
+            "id": "j3",
+            "type": "screw",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_back",
+            "opRef": 1
+        },
+        {
+            "id": "j4",
+            "type": "screw",
+            "hostPartId": "p_side_r",
+            "insertPartId": "p_back",
+            "opRef": 1
+        },
+        {
+            "id": "j5",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_back",
+            "opRef": 1
+        },
+        {
+            "id": "j6",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_side_l",
+            "opRef": 2
+        },
+        {
+            "id": "j7",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_side_r",
+            "opRef": 3
+        }
+    ],
+    "meta": {
+        "difficulty": "beginner",
+        "notes": "A small cedar planter box.",
+        "tags": [
+            "outdoor",
+            "garden"
+        ]
+    }
+}

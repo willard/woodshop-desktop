@@ -1,0 +1,249 @@
+[
+    {
+        "slug": "getting-started",
+        "title": "Getting started",
+        "icon": "🚀",
+        "summary": "What Woodshop is and the ways to start your first design.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "Woodshop turns a furniture idea into a real, buildable design: a 3D model you can spin around, plus an automatic cut list of every board to buy and cut. Everything runs on this computer — there is no account, no subscription, and nothing leaves your machine unless you export it."
+            },
+            {
+                "type": "h",
+                "text": "Ways to start"
+            },
+            {
+                "type": "ol",
+                "items": [
+                    "Start from a template. The Templates gallery has ready-made designs (side table, bookshelf, workbench, and more). Pick one and it opens in the editor as your own copy.",
+                    "Start blank. Create a project and build it up part by part from the Add menu.",
+                    "Import a file. Open a .woodshop project someone sent you (or double-click it), or a spec JSON exported from the web version of Woodshop.",
+                    "Let your own AI agent build it. Connect Claude Desktop or Claude Code over MCP (see Connect your own AI agent) and describe what you want."
+                ]
+            },
+            {
+                "type": "h",
+                "text": "How a design is stored"
+            },
+            {
+                "type": "p",
+                "text": "Every design is a set of parts, materials, and joints — measured in inches. Woodshop draws the 3D model and the cut list from that description, so the two are always in sync. You never edit raw 3D shapes; you change the design and everything updates."
+            },
+            {
+                "type": "note",
+                "text": "Your projects live in a single library on this computer. Use Export… on a project to save a .woodshop file for backup or to move it to another machine."
+            }
+        ]
+    },
+    {
+        "slug": "the-3d-editor",
+        "title": "The 3D editor",
+        "icon": "🪚",
+        "summary": "Move, resize, and join parts; undo and version history.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "The editor is where you see and shape a design. The 3D view shows the assembled piece; the inspector shows the selected part and its dimensions."
+            },
+            {
+                "type": "h",
+                "text": "Working with parts"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "Select a part to see its size, material, and position in the inspector.",
+                    "Resize a part by editing its length and width. Thickness comes from the material.",
+                    "Move or rotate a part to position it."
+                ]
+            },
+            {
+                "type": "h",
+                "text": "Joinery"
+            },
+            {
+                "type": "p",
+                "text": "Woodshop detects joints — dado, pocket-hole, screwed, and dowel — where parts meet, and records them on the design. Joints are annotations that describe how pieces connect; moving a part never secretly moves its neighbours."
+            },
+            {
+                "type": "p",
+                "text": "Touching is not holding. A part that only rests against its neighbours is flagged as unbuildable until something fastens it: pick the part, then use \"Fasten to\" in the inspector for pocket screws, screws through the face, or dowels. Woodshop sizes the screws for the thicknesses involved and adds them to the hardware list on your cut list."
+            },
+            {
+                "type": "h",
+                "text": "Undo and safety"
+            },
+            {
+                "type": "p",
+                "text": "Every change can be undone. Your work autosaves as you go, and you can save named versions to go back to (see Versions & autosave)."
+            },
+            {
+                "type": "note",
+                "text": "The 3D view has two modes: View (orbit and zoom the camera only) and Edit (select, drag and change parts). Switch with the Edit/View toggle in the toolbar so a drag does what you expect."
+            }
+        ]
+    },
+    {
+        "slug": "cut-lists",
+        "title": "Cut lists & materials",
+        "icon": "📋",
+        "summary": "Every board to cut, board feet, sheet layouts, and a printable plan.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "The cut list is generated from your design — it is always up to date. It lists every part, how many to cut, its dimensions, and the material."
+            },
+            {
+                "type": "h",
+                "text": "What it shows"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "Parts table: each part, quantity, dimensions in inches, and board feet.",
+                    "Sheet goods (plywood, MDF): how many sheets and how the parts are laid out to minimise waste, grain-aware.",
+                    "Lumber: how the parts are cut from stock lengths.",
+                    "Totals: board feet, sheet count, estimated cost, and waste."
+                ]
+            },
+            {
+                "type": "p",
+                "text": "Cutting allows for a saw kerf (the width of material the blade removes) between pieces, so the plan reflects what you can really get out of a sheet or board."
+            },
+            {
+                "type": "h",
+                "text": "Printable plan"
+            },
+            {
+                "type": "p",
+                "text": "Export a PDF plan to take to the shop or the lumberyard — it includes the parts table and layouts."
+            },
+            {
+                "type": "note",
+                "text": "A connected AI agent can fetch the parts table and board feet with the `get_cut_list` tool; the full packed sheet layout lives here in the app."
+            }
+        ]
+    },
+    {
+        "slug": "versions-and-autosave",
+        "title": "Versions & autosave",
+        "icon": "🕑",
+        "summary": "How your work is saved, and how to go back to an earlier design.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "You do not need to hit save. The editor autosaves your working design a moment after you stop making changes, and reopening a project restores exactly where you left off."
+            },
+            {
+                "type": "h",
+                "text": "Version history"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "Save a version to bookmark a design you like before experimenting.",
+                    "Before a connected AI agent changes a design, Woodshop snapshots your current design automatically — labelled so you can find it.",
+                    "Restore any earlier version to roll back; restoring makes it your current working design."
+                ]
+            },
+            {
+                "type": "note",
+                "text": "If an AI agent edits the project you have open, the editor picks the change up. If you had unsaved edits at the same moment, Woodshop asks whether to keep yours or take the other, so nothing is silently lost."
+            }
+        ]
+    },
+    {
+        "slug": "connect-your-ai-agent",
+        "title": "Connect your own AI agent",
+        "icon": "🔌",
+        "summary": "Let Claude Desktop, Claude Code, or another MCP client build in Woodshop for you.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "Woodshop includes an MCP server that runs on this computer, so your own AI agent (Claude Desktop, Claude Code, an IDE assistant, or something you build) can list, read, create, and edit your designs. No account or token is needed — the server only ever talks to the library on this machine."
+            },
+            {
+                "type": "h",
+                "text": "Set it up"
+            },
+            {
+                "type": "ol",
+                "items": [
+                    "Open Settings → AI agents (MCP) and copy the configuration shown there.",
+                    "Paste it into your MCP client's configuration (for Claude Desktop: Settings → Developer → Edit Config). It launches Woodshop with `--mcp` as a local stdio server.",
+                    "Restart the client. Ask it to `list_projects` to check the connection."
+                ]
+            },
+            {
+                "type": "h",
+                "text": "What the agent can do"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "Read: `list_projects`, `get_design`, `get_cut_list`, `check_design`, `explain_part`.",
+                    "Start: `start_design` (a blank design) or `start_from_template`.",
+                    "Exact edits: `add_part`, `resize_part`, `move_part`, `add_op`, `add_joint`, `set_material`, `delete_part`, and more — every edit is validated against the same rules as the editor."
+                ]
+            },
+            {
+                "type": "note",
+                "text": "Every agent edit is saved as a version first, so you can always restore what you had. The agent works on your library even while the app is closed."
+            }
+        ]
+    },
+    {
+        "slug": "shop-calculators",
+        "title": "Shop calculators",
+        "icon": "📐",
+        "summary": "Fourteen calculators for the numbers you work out at the bench — no project needed.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "Everything else in Woodshop works from a design. The calculators do not: they take numbers you type and hand back an answer, so you can reach for them with nothing open. Find them under **Tools**, or from the ⋯ menu in the editor toolbar while you are working."
+            },
+            {
+                "type": "h",
+                "text": "Typing measurements"
+            },
+            {
+                "type": "p",
+                "text": "Every dimension field reads fractions the way you write them: `3/4`, `1 1/2`, `1-1/2`, or plain decimals like `12.5`. Nothing complains while you are mid-word — `1 1/` is part of typing `1 1/2` — and when you leave the field it tidies what you typed, so `0.375` becomes `3/8`. Where a field offers units, switching converts the value rather than the digits."
+            },
+            {
+                "type": "h",
+                "text": "What is here"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "**Material & stock** — board feet and cost for a pile of rough lumber; how many boards or sheets your parts cut from, kerf included; and a converter that also shows how far your fraction rounds off.",
+                    "**Strength & seasonal movement** — whether a shelf will sag under load and the longest span that still passes; and how much a solid panel grows and shrinks between winter and summer.",
+                    "**Joinery** — mortise and tenon proportions, dowel size and spacing, and pilot, clearance and countersink sizes for a screw in your species.",
+                    "**Angles, curves & proportion** — saw settings for any number of sides (flat or canted), arcs from a chord and rise, segmented rings, leg tapers and splays, and proportion helpers."
+                ]
+            },
+            {
+                "type": "h",
+                "text": "They agree with the rest of the app"
+            },
+            {
+                "type": "p",
+                "text": "The shelf-sag calculator uses the same maths as the sturdiness warnings in the editor, and the pilot-hole calculator sizes screws with the same rules that draw them on your design. So a calculator will never tell you something different from what the editor tells you about the same shelf or the same joint."
+            },
+            {
+                "type": "h",
+                "text": "They never touch your project"
+            },
+            {
+                "type": "p",
+                "text": "The calculators do not read your design and cannot change it. Opening them from the editor puts them over the canvas without navigating away — your selection, camera and undo history are exactly where you left them when you close it."
+            },
+            {
+                "type": "note",
+                "text": "A stock estimate counts the saw kerf between every cut, which is why two 48-inch pieces do not come out of one 96-inch board."
+            }
+        ]
+    }
+]

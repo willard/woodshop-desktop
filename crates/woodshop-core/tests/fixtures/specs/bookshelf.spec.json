@@ -1,0 +1,527 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Bookshelf",
+    "materials": [
+        {
+            "id": "mat_ply34",
+            "type": "sheet",
+            "name": "Birch Plywood 3/4\"",
+            "thickness": 0.75,
+            "sheetSize": {
+                "l": 96,
+                "w": 48
+            },
+            "grain": true,
+            "costPerSheet": 78
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_side_l",
+            "name": "Left Side",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 11.25,
+                "w": 72
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    -15.625,
+                    36,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 10.875,
+                    "count": 12,
+                    "from": 1,
+                    "to": 71,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_side_r",
+            "name": "Right Side",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 11.25,
+                "w": 72
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    15.625,
+                    36,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 10.875,
+                    "count": 12,
+                    "from": 1,
+                    "to": 71,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_top",
+            "name": "Top",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 30.5,
+                "w": 11.25
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    71.625,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 10.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 10.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 0.375,
+                    "count": 5,
+                    "from": 1,
+                    "to": 29.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_bottom",
+            "name": "Bottom",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 30.5,
+                "w": 11.25
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    0.375,
+                    0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 10.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 10.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_shelf_1",
+            "name": "Shelf 1",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 30.5,
+                "w": 10.75
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    18,
+                    0.25
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 9.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 9.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_shelf_2",
+            "name": "Shelf 2",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 30.5,
+                "w": 10.75
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    36,
+                    0.25
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 9.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 9.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_shelf_3",
+            "name": "Shelf 3",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 30.5,
+                "w": 10.75
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    54,
+                    0.25
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 9.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 9.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_back",
+            "name": "Back Panel",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 32,
+                "w": 72
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    0,
+                    36,
+                    -5.25
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 0.375,
+                    "count": 5,
+                    "from": 1.75,
+                    "to": 30.25,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 18,
+                    "count": 5,
+                    "from": 1.75,
+                    "to": 30.25,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 36,
+                    "count": 5,
+                    "from": 1.75,
+                    "to": 30.25,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 54,
+                    "count": 5,
+                    "from": 1.75,
+                    "to": 30.25,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "pocketScrew",
+            "hostPartId": "p_top",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j2",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf_1",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j3",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf_2",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j4",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf_3",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j5",
+            "type": "screw",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_back",
+            "opRef": 0
+        },
+        {
+            "id": "j6",
+            "type": "pocketScrew",
+            "hostPartId": "p_top",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j7",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j8",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf_1",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j9",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf_2",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j10",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf_3",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j11",
+            "type": "screw",
+            "hostPartId": "p_side_r",
+            "insertPartId": "p_back",
+            "opRef": 0
+        },
+        {
+            "id": "j12",
+            "type": "screw",
+            "hostPartId": "p_top",
+            "insertPartId": "p_back",
+            "opRef": 2
+        },
+        {
+            "id": "j13",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_bottom",
+            "opRef": 0
+        },
+        {
+            "id": "j14",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_shelf_1",
+            "opRef": 1
+        },
+        {
+            "id": "j15",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_shelf_2",
+            "opRef": 2
+        },
+        {
+            "id": "j16",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_shelf_3",
+            "opRef": 3
+        }
+    ],
+    "meta": {
+        "difficulty": "beginner",
+        "notes": "Five-bay open bookshelf.",
+        "tags": [
+            "bookshelf",
+            "storage"
+        ]
+    }
+}

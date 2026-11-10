@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#b45309"/>
+      <stop offset="1" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bg)"/>
+  <!-- An isometric box: the cabinet a cut list builds. -->
+  <polygon points="512,250 760,390 512,530 264,390" fill="#fef3c7"/>
+  <polygon points="264,390 512,530 512,790 264,650" fill="url(#face)"/>
+  <polygon points="760,390 512,530 512,790 760,650" fill="#d97706"/>
+  <!-- A shelf dado line on each side. -->
+  <polyline points="264,520 512,660 760,520" fill="none" stroke="#78350f" stroke-width="18" stroke-linejoin="round" opacity="0.55"/>
+  <path d="M512,250 L760,390 L760,650 L512,790 L264,650 L264,390 Z M264,390 L512,530 L760,390 M512,530 L512,790" fill="none" stroke="#451a03" stroke-width="22" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

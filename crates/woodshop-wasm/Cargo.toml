@@ -1,0 +1,24 @@
+[package]
+name = "woodshop-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "WebAssembly bindings over woodshop-core for the editor and the offline viewer."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+woodshop-core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+wasm-bindgen = "0.2"
+serde-wasm-bindgen = "0.6"
+getrandom = { version = "0.3", features = ["wasm_js"], optional = true }
+
+[features]
+default = ["validate"]
+validate = ["woodshop-core/validate", "dep:getrandom"]
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-Oz", "--enable-bulk-memory", "--enable-nontrapping-float-to-int", "--enable-sign-ext", "--enable-mutable-globals"]

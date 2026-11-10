@@ -1,0 +1,9 @@
+target/
+dist/
+node_modules/
+ui/src/domain/wasm/
+viewer/src/wasm/
+ui/src/spec/schema.generated.ts
+ui/src/fixtures/
+src-tauri/gen/
+*.md

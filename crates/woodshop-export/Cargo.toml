@@ -1,0 +1,16 @@
+[package]
+name = "woodshop-export"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Exports: the printable PDF plan (Typst) and the self-contained offline 3D viewer page."
+
+[dependencies]
+woodshop-core = { workspace = true, features = ["validate"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+typst = "0.15"
+typst-pdf = "0.15"
+typst-layout = "0.15"
+typst-assets = { version = "0.15", features = ["fonts"] }

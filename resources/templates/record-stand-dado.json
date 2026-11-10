@@ -1,0 +1,1650 @@
+{
+    "specVersion": "1.14",
+    "units": "in",
+    "name": "Record Stand 38\" (Dado Build)",
+    "materials": [
+        {
+            "id": "mat_ply34",
+            "type": "sheet",
+            "name": "Birch Plywood 3/4\"",
+            "thickness": 0.75,
+            "sheetSize": {
+                "l": 96,
+                "w": 48
+            },
+            "grain": true,
+            "costPerSheet": 78
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_side_l",
+            "name": "Left Side Panel",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 19,
+                "w": 30.5
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    -18.625,
+                    18.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "dado",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 16.875,
+                    "width": 0.75,
+                    "depth": 0.375,
+                    "from": 0.75,
+                    "to": 19
+                },
+                {
+                    "type": "dado",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 25,
+                    "width": 0.75,
+                    "depth": 0.375,
+                    "from": 0.75,
+                    "to": 19
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 1,
+                    "from": 3.75,
+                    "to": 3.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 1,
+                    "from": 18.625,
+                    "to": 18.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 3,
+                    "from": 5.125,
+                    "to": 17.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ],
+            "qty": 1
+        },
+        {
+            "id": "p_side_r",
+            "name": "Right Side Panel",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 19,
+                "w": 30.5
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    18.625,
+                    18.75,
+                    0
+                ],
+                "rot": [
+                    0,
+                    -90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 1,
+                    "from": 15.25,
+                    "to": 15.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 1,
+                    "from": 0.375,
+                    "to": 0.375,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 3,
+                    "from": 1.75,
+                    "to": 13.875,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_bottom",
+            "name": "Bottom Shelf",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 36.5,
+                "w": 18.25
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    3.875,
+                    -0.375
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 17.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 3,
+                    "from": 1,
+                    "to": 17.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_divider",
+            "name": "Vertical Divider",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 18.25,
+                "w": 26.375
+            },
+            "grainAxis": "w",
+            "transform": {
+                "pos": [
+                    4.625,
+                    17.4375,
+                    -0.375
+                ],
+                "rot": [
+                    0,
+                    -90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "dado",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 16.125,
+                    "width": 0.75,
+                    "depth": 0.375
+                },
+                {
+                    "type": "dado",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 24.25,
+                    "width": 0.75,
+                    "depth": 0.375
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 17.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ],
+            "qty": 1
+        },
+        {
+            "id": "p_shelf_receiver",
+            "name": "Receiver Shelf",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 23.25,
+                "w": 18.25
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7,
+                    20.375,
+                    -0.375
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_shelf_adj",
+            "name": "Adjustable Shelf",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 22.5,
+                "w": 16
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7,
+                    12.125,
+                    -0.875
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 15,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 3,
+                    "from": 1,
+                    "to": 15,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_tray_base",
+            "name": "Turntable Sub-Base",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 23.25,
+                "w": 18.25
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7,
+                    28.5,
+                    -0.375
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 15.25,
+                    "count": 2,
+                    "from": 1.375,
+                    "to": 3.875,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 15.25,
+                    "count": 2,
+                    "from": 19.375,
+                    "to": 21.875,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 3.25,
+                    "count": 2,
+                    "from": 1.375,
+                    "to": 3.875,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 3.25,
+                    "count": 2,
+                    "from": 19.375,
+                    "to": 21.875,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_tray_rail_f",
+            "name": "Tray Rail (front)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 22.5,
+                "w": 1.75
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7,
+                    29.75,
+                    8.375
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.4375,
+                    "to": 1.3125,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.4375,
+                    "to": 1.3125,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l0",
+                    "count": 4,
+                    "from": 1,
+                    "to": 21.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_tray_rail_b",
+            "name": "Tray Rail (back)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 22.5,
+                "w": 1.75
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7,
+                    29.75,
+                    -9.125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.4375,
+                    "to": 1.3125,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.4375,
+                    "to": 1.3125,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 4,
+                    "from": 1,
+                    "to": 21.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_brace_fl",
+            "name": "Corner Brace FL (cut diagonal)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 4.5,
+                "w": 4.5
+            },
+            "grainAxis": "none",
+            "transform": {
+                "pos": [
+                    -16,
+                    29.25,
+                    5.75
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 1.96875,
+                    "count": 2,
+                    "from": 1.4375,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_brace_fr",
+            "name": "Corner Brace FR (cut diagonal)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 4.5,
+                "w": 4.5
+            },
+            "grainAxis": "none",
+            "transform": {
+                "pos": [
+                    2,
+                    29.25,
+                    5.75
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 1.96875,
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.0625,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_brace_bl",
+            "name": "Corner Brace BL (cut diagonal)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 4.5,
+                "w": 4.5
+            },
+            "grainAxis": "none",
+            "transform": {
+                "pos": [
+                    -16,
+                    29.25,
+                    -6.25
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 2.46875,
+                    "count": 2,
+                    "from": 1.3125,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_brace_br",
+            "name": "Corner Brace BR (cut diagonal)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 4.5,
+                "w": 4.5
+            },
+            "grainAxis": "none",
+            "transform": {
+                "pos": [
+                    2,
+                    29.25,
+                    -6.25
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 2.03125,
+                    "count": 2,
+                    "from": 1.3125,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_platform",
+            "name": "Isolated Platform",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 21.625,
+                "w": 15.625
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7,
+                    30,
+                    -0.375
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_bin_front",
+            "name": "Flip Bin Front",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 13.25,
+                "w": 8.125
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    11.625,
+                    24.8125,
+                    8.375
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 7.125,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 7.125,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_bin_bottom",
+            "name": "Flip Bin Bottom",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 13.25,
+                "w": 16.75
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    11.625,
+                    21.125,
+                    -0.375
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 3,
+                    "from": 1,
+                    "to": 15.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 15.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 12.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 12.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_bin_back",
+            "name": "Flip Bin Back",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 13.25,
+                "w": 8.125
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    11.625,
+                    24.8125,
+                    -9.125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 1,
+                    "to": 7.125,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 1,
+                    "to": 7.125,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_door",
+            "name": "Cabinet Door",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 22.375,
+                "w": 14.875
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7.0625,
+                    12.125,
+                    8.375
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1
+        },
+        {
+            "id": "p_back",
+            "name": "Cabinet Back Panel",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 22.5,
+                "w": 15.75
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7,
+                    12.125,
+                    -9.125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 3,
+                    "from": 1,
+                    "to": 14.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l0",
+                    "count": 4,
+                    "from": 1,
+                    "to": 21.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 3,
+                    "from": 1,
+                    "to": 14.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 4,
+                    "from": 1,
+                    "to": 21.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 7.875,
+                    "count": 4,
+                    "from": 1,
+                    "to": 21.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_base_front",
+            "name": "Base Rail (front)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 38,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    1.75,
+                    5.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 6,
+                    "from": 1.75,
+                    "to": 36.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_base_back",
+            "name": "Base Rail (back)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 38,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    1.75,
+                    -9.125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 6,
+                    "from": 1.75,
+                    "to": 36.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_base_end_l",
+            "name": "Base Rail (left end)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 14.125,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -18.625,
+                    1.75,
+                    -1.6875
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 3.5,
+                    "count": 3,
+                    "from": 1,
+                    "to": 13.125,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_base_end_r",
+            "name": "Base Rail (right end)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 14.125,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    18.625,
+                    1.75,
+                    -1.6875
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 3.5,
+                    "count": 3,
+                    "from": 1,
+                    "to": 13.125,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_base_center",
+            "name": "Base Rail (center)",
+            "materialId": "mat_ply34",
+            "size": {
+                "l": 14.125,
+                "w": 3.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    4.625,
+                    1.75,
+                    -1.6875
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 3,
+                    "from": 1,
+                    "to": 13.125,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "dado",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_shelf_receiver",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "dado",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_tray_base",
+            "opRef": 1
+        },
+        {
+            "id": "j2",
+            "type": "dado",
+            "hostPartId": "p_divider",
+            "insertPartId": "p_shelf_receiver",
+            "opRef": 0
+        },
+        {
+            "id": "j3",
+            "type": "dado",
+            "hostPartId": "p_divider",
+            "insertPartId": "p_tray_base",
+            "opRef": 1
+        },
+        {
+            "id": "j4",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j5",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf_adj",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j6",
+            "type": "pocketScrew",
+            "hostPartId": "p_tray_rail_f",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j7",
+            "type": "pocketScrew",
+            "hostPartId": "p_tray_rail_b",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j8",
+            "type": "pocketScrew",
+            "hostPartId": "p_brace_fl",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j9",
+            "type": "pocketScrew",
+            "hostPartId": "p_brace_bl",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j10",
+            "type": "pocketScrew",
+            "hostPartId": "p_back",
+            "insertPartId": "p_side_l",
+            "opRef": 0
+        },
+        {
+            "id": "j11",
+            "type": "pocketScrew",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_base_front",
+            "opRef": 2
+        },
+        {
+            "id": "j12",
+            "type": "pocketScrew",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_base_back",
+            "opRef": 3
+        },
+        {
+            "id": "j13",
+            "type": "pocketScrew",
+            "hostPartId": "p_side_l",
+            "insertPartId": "p_base_end_l",
+            "opRef": 4
+        },
+        {
+            "id": "j14",
+            "type": "pocketScrew",
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_side_r",
+            "opRef": 1
+        },
+        {
+            "id": "j15",
+            "type": "pocketScrew",
+            "hostPartId": "p_bin_front",
+            "insertPartId": "p_side_r",
+            "opRef": 0
+        },
+        {
+            "id": "j16",
+            "type": "pocketScrew",
+            "hostPartId": "p_bin_bottom",
+            "insertPartId": "p_side_r",
+            "opRef": 0
+        },
+        {
+            "id": "j17",
+            "type": "pocketScrew",
+            "hostPartId": "p_bin_back",
+            "insertPartId": "p_side_r",
+            "opRef": 0
+        },
+        {
+            "id": "j18",
+            "type": "pocketScrew",
+            "hostPartId": "p_side_r",
+            "insertPartId": "p_base_front",
+            "opRef": 0
+        },
+        {
+            "id": "j19",
+            "type": "pocketScrew",
+            "hostPartId": "p_side_r",
+            "insertPartId": "p_base_back",
+            "opRef": 1
+        },
+        {
+            "id": "j20",
+            "type": "pocketScrew",
+            "hostPartId": "p_side_r",
+            "insertPartId": "p_base_end_r",
+            "opRef": 2
+        },
+        {
+            "id": "j21",
+            "type": "pocketScrew",
+            "hostPartId": "p_divider",
+            "insertPartId": "p_bottom",
+            "opRef": 2
+        },
+        {
+            "id": "j22",
+            "type": "pocketScrew",
+            "hostPartId": "p_back",
+            "insertPartId": "p_bottom",
+            "opRef": 1
+        },
+        {
+            "id": "j23",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_front",
+            "insertPartId": "p_bottom",
+            "opRef": 0
+        },
+        {
+            "id": "j24",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_back",
+            "insertPartId": "p_bottom",
+            "opRef": 0
+        },
+        {
+            "id": "j25",
+            "type": "screw",
+            "hostPartId": "p_base_end_l",
+            "insertPartId": "p_bottom",
+            "opRef": 0
+        },
+        {
+            "id": "j26",
+            "type": "screw",
+            "hostPartId": "p_base_end_r",
+            "insertPartId": "p_bottom",
+            "opRef": 0
+        },
+        {
+            "id": "j27",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_center",
+            "insertPartId": "p_bottom",
+            "opRef": 0
+        },
+        {
+            "id": "j28",
+            "type": "pocketScrew",
+            "hostPartId": "p_shelf_adj",
+            "insertPartId": "p_divider",
+            "opRef": 1
+        },
+        {
+            "id": "j29",
+            "type": "pocketScrew",
+            "hostPartId": "p_tray_rail_f",
+            "insertPartId": "p_divider",
+            "opRef": 1
+        },
+        {
+            "id": "j30",
+            "type": "pocketScrew",
+            "hostPartId": "p_tray_rail_b",
+            "insertPartId": "p_divider",
+            "opRef": 1
+        },
+        {
+            "id": "j31",
+            "type": "pocketScrew",
+            "hostPartId": "p_brace_fr",
+            "insertPartId": "p_divider",
+            "opRef": 0
+        },
+        {
+            "id": "j32",
+            "type": "pocketScrew",
+            "hostPartId": "p_brace_br",
+            "insertPartId": "p_divider",
+            "opRef": 0
+        },
+        {
+            "id": "j33",
+            "type": "pocketScrew",
+            "hostPartId": "p_bin_front",
+            "insertPartId": "p_divider",
+            "opRef": 1
+        },
+        {
+            "id": "j34",
+            "type": "pocketScrew",
+            "hostPartId": "p_bin_bottom",
+            "insertPartId": "p_divider",
+            "opRef": 1
+        },
+        {
+            "id": "j35",
+            "type": "pocketScrew",
+            "hostPartId": "p_bin_back",
+            "insertPartId": "p_divider",
+            "opRef": 1
+        },
+        {
+            "id": "j36",
+            "type": "pocketScrew",
+            "hostPartId": "p_back",
+            "insertPartId": "p_divider",
+            "opRef": 2
+        },
+        {
+            "id": "j37",
+            "type": "pocketScrew",
+            "hostPartId": "p_back",
+            "insertPartId": "p_shelf_receiver",
+            "opRef": 3
+        },
+        {
+            "id": "j38",
+            "type": "screw",
+            "hostPartId": "p_back",
+            "insertPartId": "p_shelf_adj",
+            "opRef": 4
+        },
+        {
+            "id": "j39",
+            "type": "pocketScrew",
+            "hostPartId": "p_tray_rail_f",
+            "insertPartId": "p_tray_base",
+            "opRef": 2
+        },
+        {
+            "id": "j40",
+            "type": "pocketScrew",
+            "hostPartId": "p_tray_rail_b",
+            "insertPartId": "p_tray_base",
+            "opRef": 2
+        },
+        {
+            "id": "j41",
+            "type": "screw",
+            "hostPartId": "p_tray_base",
+            "insertPartId": "p_brace_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j42",
+            "type": "screw",
+            "hostPartId": "p_tray_base",
+            "insertPartId": "p_brace_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j43",
+            "type": "screw",
+            "hostPartId": "p_tray_base",
+            "insertPartId": "p_brace_bl",
+            "opRef": 2
+        },
+        {
+            "id": "j44",
+            "type": "screw",
+            "hostPartId": "p_tray_base",
+            "insertPartId": "p_brace_br",
+            "opRef": 3
+        },
+        {
+            "id": "j45",
+            "type": "pocketScrew",
+            "hostPartId": "p_brace_fl",
+            "insertPartId": "p_tray_rail_f",
+            "opRef": 1
+        },
+        {
+            "id": "j46",
+            "type": "pocketScrew",
+            "hostPartId": "p_brace_fr",
+            "insertPartId": "p_tray_rail_f",
+            "opRef": 1
+        },
+        {
+            "id": "j47",
+            "type": "screw",
+            "hostPartId": "p_brace_fl",
+            "insertPartId": "p_platform",
+            "opRef": 2
+        },
+        {
+            "id": "j48",
+            "type": "screw",
+            "hostPartId": "p_brace_fr",
+            "insertPartId": "p_platform",
+            "opRef": 2
+        },
+        {
+            "id": "j49",
+            "type": "screw",
+            "hostPartId": "p_brace_bl",
+            "insertPartId": "p_platform",
+            "opRef": 1
+        },
+        {
+            "id": "j50",
+            "type": "screw",
+            "hostPartId": "p_brace_br",
+            "insertPartId": "p_platform",
+            "opRef": 1
+        },
+        {
+            "id": "j51",
+            "type": "pocketScrew",
+            "hostPartId": "p_bin_bottom",
+            "insertPartId": "p_bin_front",
+            "opRef": 2
+        },
+        {
+            "id": "j52",
+            "type": "pocketScrew",
+            "hostPartId": "p_bin_bottom",
+            "insertPartId": "p_bin_back",
+            "opRef": 3
+        },
+        {
+            "id": "j53",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_end_l",
+            "insertPartId": "p_base_front",
+            "opRef": 1
+        },
+        {
+            "id": "j54",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_end_r",
+            "insertPartId": "p_base_front",
+            "opRef": 1
+        },
+        {
+            "id": "j55",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_center",
+            "insertPartId": "p_base_front",
+            "opRef": 1
+        },
+        {
+            "id": "j56",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_end_l",
+            "insertPartId": "p_base_back",
+            "opRef": 2
+        },
+        {
+            "id": "j57",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_end_r",
+            "insertPartId": "p_base_back",
+            "opRef": 2
+        },
+        {
+            "id": "j58",
+            "type": "pocketScrew",
+            "hostPartId": "p_base_center",
+            "insertPartId": "p_base_back",
+            "opRef": 2
+        }
+    ],
+    "meta": {
+        "difficulty": "advanced",
+        "notes": "38\" record stand, dado build: receiver shelf + turntable sub-base housed 3/8\" into the left side panel and the divider's left face. Corner braces are 4.5\" square blanks cut diagonally in the shop. The door hangs on its hinges (\u00a73.3 movable) \u2014 the hardware list carries the hinges and knob. Not modeled (hardware/decor): sorbothane isolation domes (~0.4\" under the platform), shelf pins, pocket screws for the bin bottom.",
+        "tags": [
+            "cabinet",
+            "record-stand",
+            "dado",
+            "hifi"
+        ]
+    },
+    "movables": [
+        {
+            "id": "mv_door",
+            "kind": "door",
+            "name": "Cabinet Door",
+            "partIds": [
+                "p_door"
+            ],
+            "panelPartId": "p_door",
+            "hingeEdge": "w0",
+            "style": "overlay"
+        }
+    ]
+}

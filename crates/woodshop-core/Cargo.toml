@@ -1,0 +1,20 @@
+[package]
+name = "woodshop-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Woodshop domain logic: spec model, migrations, validation, geometry, linter, cut list."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+jsonschema = { version = "0.57", default-features = false, optional = true }
+
+[features]
+default = ["validate"]
+# JSON Schema validation (pulls in regex engines and meta-schemas; the offline viewer omits it).
+validate = ["dep:jsonschema"]
+
+[dev-dependencies]
+pretty_assertions = "1"
