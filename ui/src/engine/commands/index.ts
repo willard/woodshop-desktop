@@ -3,7 +3,7 @@
  * exact. Hand-editing a part's geometry sets `locked: true` (CLAUDE.md hard rule 10) so the
  * AI later returns it byte-identical.
  */
-import type { Spec, Part, Joint, Group, Material, Op, Species } from '../../spec/types';
+import type { Spec, Part, Joint, Group, HardwareMount, Material, Op, Species } from '../../spec/types';
 import { type Command, mapPart, mapMaterial, uniqueMaterialId } from './Command';
 import { lumberSizeOf, dowelSizeOf } from '../../lib/lumberSizes';
 import { aabbFromPart } from '../snapping';
@@ -34,6 +34,14 @@ export {
 } from './groups';
 export type { MovableCascade } from './groups';
 export { MakeMovable, DissolveMovable, UpdateMovable, AddMovable, movableOf } from './movables';
+export {
+    AddHardware,
+    UpdateHardware,
+    RemoveHardware,
+    uniqueHardwareId,
+    type HardwarePatch,
+} from './hardware';
+import { cloneHardware, detachHardware, reattachHardware, type DetachedHardware } from './hardware';
 export type { MovableAddition } from './movables';
 
 import { cascadeMovables, restoreMovables, type MovableCascade } from './groups';
@@ -134,6 +142,7 @@ export class RemovePart implements Command {
         dissolved: { group: Group; index: number }[];
         shrunk: { groupId: string; partIds: string[] }[];
         movables: MovableCascade;
+        hardware: DetachedHardware;
     };
 
     constructor(private readonly partId: string) {}
@@ -161,7 +170,9 @@ export class RemovePart implements Command {
             }
         });
         const movables = cascadeMovables(spec, new Set([this.partId]));
+        const hardware = detachHardware(spec, new Set([this.partId]));
         this.removed = {
+            hardware: hardware.detached,
             part: spec.parts[index],
             index,
             joints: joints
@@ -179,6 +190,7 @@ export class RemovePart implements Command {
             joints: joints.filter((j) => j.hostPartId !== this.partId && j.insertPartId !== this.partId),
             groups,
             movables: movables.next,
+            hardware: hardware.next,
         };
     }
 
@@ -200,13 +212,21 @@ export class RemovePart implements Command {
         for (const { group, index } of removed.dissolved) {
             groups.splice(index, 0, group);
         }
-        return { ...spec, parts, joints, groups, movables: restoreMovables(spec, removed.movables) };
+        return {
+            ...spec,
+            parts,
+            joints,
+            groups,
+            movables: restoreMovables(spec, removed.movables),
+            hardware: reattachHardware(spec, removed.hardware),
+        };
     }
 }
 
 /** Clones a part with a fresh id, offset so it's visible. */
 export class DuplicatePart implements Command {
     readonly label = 'Duplicate part';
+    private hardware: HardwareMount[] = [];
     constructor(
         private readonly sourceId: string,
         private readonly newId: string,
@@ -228,11 +248,22 @@ export class DuplicatePart implements Command {
             name: `${source.name} copy`,
             transform: { ...source.transform, pos: [x + offset, y, z] },
         };
-        return { ...spec, parts: [...spec.parts, clone] };
+        // The copy carries copies of the hardware screwed to the original.
+        this.hardware = cloneHardware(spec, new Map([[this.sourceId, this.newId]]));
+        return {
+            ...spec,
+            parts: [...spec.parts, clone],
+            hardware: [...(spec.hardware ?? []), ...this.hardware],
+        };
     }
 
     undo(spec: Spec): Spec {
-        return { ...spec, parts: spec.parts.filter((p) => p.id !== this.newId) };
+        const cloned = new Set(this.hardware.map((h) => h.id));
+        return {
+            ...spec,
+            parts: spec.parts.filter((p) => p.id !== this.newId),
+            hardware: (spec.hardware ?? []).filter((h) => !cloned.has(h.id)),
+        };
     }
 }
 

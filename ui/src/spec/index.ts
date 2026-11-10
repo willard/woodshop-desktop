@@ -12,7 +12,21 @@ import type { Spec } from './types';
 export { CURRENT_SPEC_VERSION };
 export { overallSize, type OverallSize } from './geometry';
 export { opSummary, inch } from './opLabel';
-export type { Spec, Material, Part, Joint, Group, Movable, Op, Axis, Edge, Vec3, Species } from './types';
+export type {
+    Spec,
+    Material,
+    Part,
+    Joint,
+    Group,
+    Movable,
+    HardwareMount,
+    Side,
+    Op,
+    Axis,
+    Edge,
+    Vec3,
+    Species,
+} from './types';
 
 /** A spec that failed migration or validation; `issues` holds one readable line per problem. */
 export class SpecError extends Error {

@@ -91,6 +91,10 @@ export {
     UpdateMovable,
     movableOf,
     uniqueMovableId,
+    AddHardware,
+    UpdateHardware,
+    RemoveHardware,
+    uniqueHardwareId,
     GroupParts,
     UngroupParts,
     MoveParts,
@@ -108,6 +112,7 @@ export {
     uniqueGroupId,
     type Command,
     type NewPartOptions,
+    type HardwarePatch,
 } from './commands';
 export {
     PART_KINDS,

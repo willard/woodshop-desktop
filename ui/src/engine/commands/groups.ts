@@ -5,9 +5,10 @@
  * Groups are annotations: only Move/Rotate touch transforms, and they do so explicitly.
  */
 import * as THREE from 'three';
-import type { Spec, Part, Joint, Group, Movable, Vec3 } from '../../spec/types';
+import type { Spec, Part, Joint, Group, HardwareMount, Movable, Vec3 } from '../../spec/types';
 import { type Command, uniquePartIdFrom, uniqueGroupId, uniqueMovableId } from './Command';
 import { aabbFromPart } from '../snapping';
+import { cloneHardware, detachHardware, reattachHardware, type DetachedHardware } from './hardware';
 import { exitFocusMode } from '../focus';
 
 const DEG2RAD = Math.PI / 180;
@@ -301,6 +302,7 @@ export class RemoveParts implements Command {
         dissolved: { group: Group; index: number }[];
         shrunk: { groupId: string; partIds: string[] }[];
         movables: MovableCascade;
+        hardware: DetachedHardware;
     };
 
     constructor(private readonly partIds: string[]) {}
@@ -336,14 +338,23 @@ export class RemoveParts implements Command {
         });
 
         const movables = cascadeMovables(spec, ids);
+        const hardware = detachHardware(spec, ids);
 
-        this.removed = { parts, joints: touchedJoints, dissolved, shrunk, movables };
+        this.removed = {
+            parts,
+            joints: touchedJoints,
+            dissolved,
+            shrunk,
+            movables,
+            hardware: hardware.detached,
+        };
         return {
             ...spec,
             parts: spec.parts.filter((p) => !ids.has(p.id)),
             joints: joints.filter((j) => !ids.has(j.hostPartId) && !ids.has(j.insertPartId)),
             groups: nextGroups,
             movables: movables.next,
+            hardware: hardware.next,
         };
     }
 
@@ -368,7 +379,14 @@ export class RemoveParts implements Command {
         for (const { group, index } of removed.dissolved) {
             groups.splice(index, 0, group);
         }
-        return { ...spec, parts, joints, groups, movables: restoreMovables(spec, removed.movables) };
+        return {
+            ...spec,
+            parts,
+            joints,
+            groups,
+            movables: restoreMovables(spec, removed.movables),
+            hardware: reattachHardware(spec, removed.hardware),
+        };
     }
 }
 
@@ -385,6 +403,7 @@ export class DuplicateGroup implements Command {
         joints: Joint[];
         group: Group;
         movable?: Movable;
+        hardware: HardwareMount[];
     };
 
     constructor(private readonly groupId: string) {}
@@ -474,7 +493,7 @@ export class DuplicateGroup implements Command {
                 }
             }
 
-            this.plan = { clones, joints, group, movable };
+            this.plan = { clones, joints, group, movable, hardware: cloneHardware(spec, idMap) };
         }
         const plan = this.plan;
         return {
@@ -483,6 +502,7 @@ export class DuplicateGroup implements Command {
             joints: [...(spec.joints ?? []), ...plan.joints],
             groups: [...(spec.groups ?? []), plan.group],
             movables: plan.movable ? [...(spec.movables ?? []), plan.movable] : spec.movables,
+            hardware: [...(spec.hardware ?? []), ...plan.hardware],
         };
     }
 
@@ -502,6 +522,7 @@ export class DuplicateGroup implements Command {
             movables: plan.movable
                 ? (spec.movables ?? []).filter((m) => m.id !== plan.movable!.id)
                 : spec.movables,
+            hardware: (spec.hardware ?? []).filter((h) => !plan.hardware.some((c) => c.id === h.id)),
         };
     }
 }

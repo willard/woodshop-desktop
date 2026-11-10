@@ -1,7 +1,8 @@
 /**
  * Lift a set of parts out of a design as a design of its own — "make this drawer box its own
  * project". The parts come over untouched (ops, grain, qty), along with exactly the annotations
- * that still make sense among them: the materials they use, joints between two of them, and
+ * that still make sense among them: the materials they use, the hardware mounted on them, joints
+ * between two of them, and
  * groups and movables whose every member came along. The result is recentred like a fresh
  * design: centred on X/Z, resting on the floor.
  */
@@ -32,6 +33,8 @@ export function extractParts(spec: Spec, partIds: readonly string[], name: strin
         joints: structuredClone(joints),
         groups: structuredClone(groups),
         movables: structuredClone(movables),
+        // Hardware goes where its part goes.
+        hardware: structuredClone((spec.hardware ?? []).filter((h) => ids.has(h.partId))),
     };
     return new RecenterAssembly().do(extracted);
 }

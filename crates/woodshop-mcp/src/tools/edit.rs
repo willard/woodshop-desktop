@@ -471,7 +471,8 @@ pub const DELETE_PART: ToolDef = ToolDef {
     },
 };
 
-/// Remove a part and everything that only made sense with it: joints naming it, its place in
+/// Remove a part and everything that only made sense with it: joints naming it, hardware mounted
+/// on it, its place in
 /// groups (dissolving a group left with one member), and its place in a movable (dissolving the
 /// movable when it was the anchor).
 fn remove_part(spec: &mut Value, part_id: &str) {
@@ -489,6 +490,10 @@ fn remove_part(spec: &mut Value, part_id: &str) {
     }
     if let Some(joints) = spec["joints"].as_array_mut() {
         joints.retain(|j| j["hostPartId"] != part_id && j["insertPartId"] != part_id);
+    }
+    // Hardware screwed to the part goes with it.
+    if let Some(hardware) = spec["hardware"].as_array_mut() {
+        hardware.retain(|h| h["partId"] != part_id);
     }
     if let Some(groups) = spec["groups"].as_array_mut() {
         groups.retain_mut(|g| {
