@@ -91,7 +91,9 @@ export function installMockBackend(): void {
             dataDir: '/mock/library',
             thumbnailsDir: '/mock/library/thumbnails',
             version: '0.1.0-dev',
+            logDir: '/mock/logs',
         }),
+        log_client_error: () => undefined,
         take_pending_opens: () => [],
         list_projects: (a) =>
             [...rows.values()]

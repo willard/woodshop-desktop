@@ -880,6 +880,18 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             return () => window.removeEventListener('keydown', onKey);
         }, []);
 
+        // Edit ▸ Undo / Redo from the native menu bar (which owns ⌘Z on macOS).
+        useEffect(() => {
+            const undo = () => docRef.current.undo();
+            const redo = () => docRef.current.redo();
+            window.addEventListener('woodshop:undo', undo);
+            window.addEventListener('woodshop:redo', redo);
+            return () => {
+                window.removeEventListener('woodshop:undo', undo);
+                window.removeEventListener('woodshop:redo', redo);
+            };
+        }, []);
+
         // --- Render helpers ---
         const dragLabel = (() => {
             if (dragInfo === null) return null;

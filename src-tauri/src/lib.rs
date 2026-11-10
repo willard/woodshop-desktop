@@ -95,6 +95,14 @@ pub fn run() {
         builder = builder.menu(menu::build).on_menu_event(menu::on_event);
     }
 
+    // A panic on any thread goes to the log file before the default handler prints it, so a crash
+    // report has the message and location even when no terminal was attached.
+    let default_panic = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        log::error!(target: "panic", "{info}");
+        default_panic(info);
+    }));
+
     let app = builder
         .plugin(
             tauri_plugin_log::Builder::new()
@@ -114,6 +122,10 @@ pub fn run() {
             let dir = paths::library_dir(app.handle())?;
             let store = Store::open(&dir)?;
             log::info!("project library at {}", dir.display());
+            // Thumbnails are shown through the asset protocol. The static scope covers the default
+            // library; allow this run's actual folder too, for a library in a custom location.
+            app.asset_protocol_scope()
+                .allow_directory(dir.join("thumbnails"), false)?;
             app.manage(Library {
                 store: Mutex::new(store),
                 dir: dir.clone(),
@@ -124,6 +136,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             take_pending_opens,
             commands::library_info,
+            commands::log_client_error,
             commands::list_projects,
             commands::list_templates,
             commands::create_project,

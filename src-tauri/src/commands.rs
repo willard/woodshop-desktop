@@ -9,7 +9,7 @@ use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use tauri::State;
+use tauri::{Manager, State};
 use woodshop_core::spec::{self, Spec};
 use woodshop_core::templates::{self, TemplateSummary};
 use woodshop_store::{Author, Note, Project, ProjectArchive, ProjectSummary, Store, VersionSummary};
@@ -41,6 +41,8 @@ pub struct LibraryInfo {
     data_dir: PathBuf,
     thumbnails_dir: PathBuf,
     version: String,
+    /// Where the app's log files are written; `None` if the platform has no such directory.
+    log_dir: Option<PathBuf>,
 }
 
 #[tauri::command]
@@ -49,6 +51,18 @@ pub fn library_info(lib: State<'_, Library>, app: tauri::AppHandle) -> LibraryIn
         data_dir: lib.dir.clone(),
         thumbnails_dir: lib.dir.join("thumbnails"),
         version: app.package_info().version.to_string(),
+        log_dir: app.path().app_log_dir().ok(),
+    }
+}
+
+/// Record an error the webview caught (a crashed screen, an unhandled rejection) in the app's
+/// log file, so a problem report can include what actually happened. Nothing leaves the machine.
+#[tauri::command]
+pub fn log_client_error(message: String, detail: Option<String>) {
+    let clip = |s: &str, max: usize| s.chars().take(max).collect::<String>();
+    match detail {
+        Some(detail) => log::error!(target: "webview", "{}\n{}", clip(&message, 2_000), clip(&detail, 8_000)),
+        None => log::error!(target: "webview", "{}", clip(&message, 2_000)),
     }
 }
 

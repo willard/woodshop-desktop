@@ -31,6 +31,7 @@ export interface LibraryInfo {
     dataDir: string;
     thumbnailsDir: string;
     version: string;
+    logDir: string | null;
 }
 
 export interface ProjectSummary {
@@ -92,6 +93,8 @@ export interface McpSetup {
 
 export const api = {
     libraryInfo: () => invoke<LibraryInfo>('library_info'),
+    logClientError: (message: string, detail?: string) =>
+        invoke<void>('log_client_error', { message, detail: detail ?? null }),
     takePendingOpens: () => invoke<string[]>('take_pending_opens'),
 
     listProjects: (trashed = false) => invoke<ProjectSummary[]>('list_projects', { trashed }),

@@ -186,6 +186,30 @@ export default function SettingsPage() {
                     {updateStatus && <span className="text-muted text-sm">{updateStatus}</span>}
                 </div>
             </Section>
+
+            <Section
+                title="Diagnostics"
+                description="If something goes wrong, Woodshop writes what happened to a log file on this computer. Nothing is sent anywhere; attach the file when you report a problem."
+            >
+                {info.data?.logDir && (
+                    <div className="flex items-center gap-2">
+                        <code className="bg-surface-0 border-fg/8 min-w-0 flex-1 truncate rounded-lg border px-3 py-2 text-xs">
+                            {info.data.logDir}
+                        </code>
+                        <button
+                            className="border-fg/12 hover:bg-surface-2 flex-none rounded-lg border px-3 py-2 text-sm"
+                            data-testid="show-logs"
+                            onClick={() =>
+                                void revealItemInDir(info.data.logDir!).catch((e) =>
+                                    toast.error(errorMessage(e)),
+                                )
+                            }
+                        >
+                            Show log files
+                        </button>
+                    </div>
+                )}
+            </Section>
         </div>
     );
 }

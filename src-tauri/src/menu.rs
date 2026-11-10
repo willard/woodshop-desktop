@@ -3,6 +3,9 @@
 //! (edit, window, app) are the platform's own.
 //!
 //! macOS gets the full conventional menu: without an Edit menu, ⌘C/⌘V don't reach text fields.
+//! Undo and Redo there are OUR items, not the predefined ones: the native pair claims ⌘Z for the
+//! webview's text undo, so the editor's own undo never ran. The UI routes ours to the focused
+//! text field or, failing that, to the open design.
 //! Windows and Linux get only our items: there, menu accelerators are handled before the webview
 //! sees the key, so a native Edit ▸ Undo would swallow the editor's own Ctrl+Z.
 
@@ -17,6 +20,8 @@ const PROJECTS: &str = "go-projects";
 const TEMPLATES: &str = "go-templates";
 const TOOLS: &str = "go-tools";
 const HELP: &str = "go-help";
+const UNDO: &str = "undo";
+const REDO: &str = "redo";
 
 pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
     let item = |id: &str, text: &str, accelerator: Option<&str>| {
@@ -58,8 +63,8 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
             .close_window()
             .build()?;
         let edit = SubmenuBuilder::new(app, "Edit")
-            .undo()
-            .redo()
+            .item(&item(UNDO, "Undo", Some("CmdOrCtrl+Z"))?)
+            .item(&item(REDO, "Redo", Some("CmdOrCtrl+Shift+Z"))?)
             .separator()
             .cut()
             .copy()
@@ -94,7 +99,7 @@ pub fn build<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<Menu<R>> {
 /// Forward our own items to the webview; the predefined ones act natively and never get here.
 pub fn on_event<R: Runtime>(app: &AppHandle<R>, event: MenuEvent) {
     let id = event.id().as_ref();
-    if [NEW, OPEN, SETTINGS, PROJECTS, TEMPLATES, TOOLS, HELP].contains(&id) {
+    if [NEW, OPEN, SETTINGS, PROJECTS, TEMPLATES, TOOLS, HELP, UNDO, REDO].contains(&id) {
         let _ = app.emit("menu", id);
     }
 }

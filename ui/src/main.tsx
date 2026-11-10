@@ -7,6 +7,8 @@ import { RouterProvider } from '@tanstack/react-router';
 import { isTauri } from '@tauri-apps/api/core';
 import { initDomain } from '@/domain';
 import { api, setThumbnailsDir } from '@/app/api';
+import { installErrorCapture } from '@/app/diagnostics';
+import { CrashScreen } from '@/components/CrashScreen';
 import { router } from '@/app/router';
 import { ToastProvider } from '@/components/Toast';
 import { AppEvents } from '@/components/AppEvents';
@@ -28,6 +30,7 @@ async function boot(): Promise<void> {
         const { installMockBackend } = await import('@/test/mockBackend');
         installMockBackend();
     }
+    installErrorCapture();
     const info = await api.libraryInfo();
     setThumbnailsDir(info.thumbnailsDir);
     watchSystemTheme(() => undefined);
@@ -46,4 +49,10 @@ async function boot(): Promise<void> {
     );
 }
 
-void boot();
+// If the app cannot even start (the core failed to load, the library would not open), say so
+// instead of leaving an empty window.
+boot().catch((error: unknown) => {
+    createRoot(document.getElementById('root')!).render(
+        <CrashScreen error={error} context="startup failed" />,
+    );
+});

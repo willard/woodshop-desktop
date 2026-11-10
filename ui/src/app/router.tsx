@@ -11,6 +11,7 @@ import {
 } from '@tanstack/react-router';
 import { lazy } from 'react';
 import { AppLayout } from '@/components/AppLayout';
+import { CrashScreen } from '@/components/CrashScreen';
 import { ProjectsPage } from '@/pages/ProjectsPage';
 import { TemplatesPage } from '@/pages/TemplatesPage';
 
@@ -45,7 +46,13 @@ const routeTree = rootRoute.addChildren([
     createRoute({ getParentRoute: () => rootRoute, path: '/projects/$id', component: EditorPage }),
 ]);
 
-export const router = createRouter({ routeTree, history: createHashHistory(), defaultPreload: 'intent' });
+export const router = createRouter({
+    routeTree,
+    history: createHashHistory(),
+    defaultPreload: 'intent',
+    // A screen that throws is replaced by a recovery screen instead of a blank window.
+    defaultErrorComponent: ({ error }) => <CrashScreen error={error} />,
+});
 
 declare module '@tanstack/react-router' {
     interface Register {

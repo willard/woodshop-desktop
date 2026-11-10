@@ -50,6 +50,16 @@ export function AppEvents() {
                 'go-tools': '/tools',
                 'go-help': '/help',
             };
+            if (id === 'undo' || id === 'redo') {
+                // A focused text field undoes its own typing; otherwise the open design does.
+                const el = document.activeElement as HTMLElement | null;
+                const typing =
+                    el !== null &&
+                    (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable);
+                if (typing) document.execCommand(id);
+                else window.dispatchEvent(new CustomEvent(`woodshop:${id}`));
+                return;
+            }
             if (id === 'open-project-file') void openFromDialog();
             else if (routes[id] !== undefined) void router.navigate({ to: routes[id] });
         }
