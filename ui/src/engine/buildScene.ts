@@ -7,7 +7,7 @@
  * transform.rot is intrinsic XYZ Euler degrees applied about the centre before translation.
  */
 import * as THREE from 'three';
-import type { Spec, Part, Material } from '../spec/types';
+import type { Spec, Part, Material, Vec3 } from '../spec/types';
 import { createFlatWoodMaterial, type MaterialProvider } from './materials';
 import { buildPartGeometry } from './geometry/partGeometry';
 import {
@@ -21,6 +21,8 @@ import {
 } from './geometry/screwGeometry';
 import { fastenerSegments, type FastenerOp } from './fastenerPlacement';
 import { hardwarePlacements } from './movablePlacement';
+import { buildHardwareGeometry } from './geometry/hardwareModels';
+import { findItem, mountFrame } from '@/hardware/catalog';
 import {
     hingeGeometry,
     knobGeometry,
@@ -178,8 +180,52 @@ export function buildSpecGroup(
     }
 
     addMovableHardware(spec, meshesById);
+    addMountedHardware(spec, meshesById, materialsById);
 
     return group;
+}
+
+/** Places `piece` at `pos` with its long axis along `x` and its outward direction along `z`. */
+function orient(piece: THREE.Object3D, pos: Vec3, x: Vec3, z: Vec3): void {
+    const vx = new THREE.Vector3(...x).normalize();
+    const vz = new THREE.Vector3(...z).normalize();
+    const vy = new THREE.Vector3().crossVectors(vz, vx);
+    piece.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(vx, vy, vz));
+    piece.position.set(pos[0], pos[1], pos[2]);
+}
+
+/**
+ * Catalog hardware mounted on parts (spec 1.15): pulls, casters, brackets, latches. Children of
+ * the part's mesh, like the fasteners and a movable's hardware, so each piece rides a drag, the
+ * exploded view and a door swing with the part it is screwed to.
+ */
+function addMountedHardware(
+    spec: Spec,
+    meshesById: Map<string, THREE.Mesh>,
+    materialsById: Map<string, Material>,
+): void {
+    const mounts = spec.hardware ?? [];
+    if (mounts.length === 0) {
+        return;
+    }
+    const material = createHardwareMaterial();
+    const partsById = new Map(spec.parts.map((p) => [p.id, p]));
+
+    for (const mount of mounts) {
+        const part = partsById.get(mount.partId);
+        const mesh = meshesById.get(mount.partId);
+        if (part === undefined || mesh === undefined) {
+            continue; // the linter reports the dangling reference
+        }
+        const thickness = materialsById.get(part.materialId)?.thickness ?? 0.75;
+        const frame = mountFrame(part, thickness, mount);
+        const piece = new THREE.Mesh(buildHardwareGeometry(findItem(mount.item)?.model), material);
+        orient(piece, frame.point, frame.along, frame.normal);
+        // Quarter turns about the outward normal, which is the piece's own +Z.
+        piece.rotateZ(((mount.rot ?? 0) * Math.PI) / 180);
+        piece.userData = { hardware: 'mount', hardwareId: mount.id, itemId: mount.item };
+        mesh.add(piece);
+    }
 }
 
 /**
@@ -201,16 +247,32 @@ function addMovableHardware(spec: Spec, meshesById: Map<string, THREE.Mesh>): vo
             if (mesh === undefined) {
                 continue;
             }
-            const geometry =
-                placement.kind === 'hinge'
-                    ? hinge
-                    : placement.kind === 'knob'
-                      ? knobGeometry()
-                      : slideRailGeometry(placement.length ?? 1);
-            const piece = new THREE.Mesh(geometry, material);
-            piece.position.set(placement.pos[0], placement.pos[1], placement.pos[2]);
-            piece.rotation.z = placement.spinZ;
-            piece.userData = { hardware: placement.kind, movableId: movable.id };
+            const item = findItem(placement.itemId);
+            let piece: THREE.Mesh;
+            if (item !== undefined && placement.kind === 'slideRail') {
+                // A rail keeps its place down the side of the box; the item sets its section.
+                const t = typeof item.model.thickness === 'number' ? item.model.thickness : 0.5;
+                const h = typeof item.model.height === 'number' ? item.model.height : 1.77;
+                piece = new THREE.Mesh(
+                    new THREE.BoxGeometry(t, h, Math.max(placement.length ?? 1, 0.5)),
+                    material,
+                );
+                piece.position.set(placement.pos[0], placement.pos[1], placement.pos[2]);
+            } else if (item !== undefined && placement.basis !== undefined) {
+                piece = new THREE.Mesh(buildHardwareGeometry(item.model, placement.length), material);
+                orient(piece, placement.pos, placement.basis.x, placement.basis.z);
+            } else {
+                const geometry =
+                    placement.kind === 'hinge'
+                        ? hinge
+                        : placement.kind === 'knob'
+                          ? knobGeometry()
+                          : slideRailGeometry(placement.length ?? 1);
+                piece = new THREE.Mesh(geometry, material);
+                piece.position.set(placement.pos[0], placement.pos[1], placement.pos[2]);
+                piece.rotation.z = placement.spinZ;
+            }
+            piece.userData = { hardware: placement.kind, movableId: movable.id, itemId: placement.itemId };
             mesh.add(piece);
         }
     }

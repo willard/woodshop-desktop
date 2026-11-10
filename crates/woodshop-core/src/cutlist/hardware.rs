@@ -195,7 +195,12 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
             } => {
                 let count = hinge_count_for(hinge_edge_length(anchor, *hinge_edge));
                 // A chosen catalog hinge names itself; otherwise the style's default wording.
-                let (key, desc) = match hinge.as_deref().and_then(hardware::find) {
+                let chosen = hinge.as_deref().and_then(hardware::find);
+                // A piano hinge is one continuous piece, however long the edge.
+                let continuous =
+                    chosen.is_some_and(|i| i.model.get("shape").and_then(|s| s.as_str()) == Some("pianoHinge"));
+                let count = if continuous { 1 } else { count };
+                let (key, desc) = match chosen {
                     Some(item) => (format!("hinge|{}", item.id), item.list.clone()),
                     None => match style {
                         MovableStyle::Overlay => ("hinge|overlay".into(), "overlay cabinet hinges".into()),
