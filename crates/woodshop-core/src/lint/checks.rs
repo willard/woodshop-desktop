@@ -859,3 +859,108 @@ fn face_name(face: crate::spec::Face) -> &'static str {
         crate::spec::Face::Back => "back",
     }
 }
+
+/// Catalog hardware (1.15): every mount names a real part and sits on it; ids a movable or a
+/// mount names exist in the catalog and suit the job.
+pub(super) fn hardware(spec: &Spec, issues: &mut Vec<LintIssue>) {
+    use crate::hardware::{Role, find, side_extent};
+
+    let mut seen = std::collections::HashSet::new();
+    for mount in spec.hardware() {
+        if !seen.insert(mount.id.as_str()) {
+            issues.push(LintIssue::part(
+                Severity::Error,
+                "hardware.duplicate-id",
+                format!(
+                    "Duplicate hardware id \"{}\". Every piece of hardware must have a unique id.",
+                    mount.id
+                ),
+                &mount.part_id,
+            ));
+        }
+        let Some(part) = spec.part(&mount.part_id) else {
+            issues.push(LintIssue::part(
+                Severity::Error,
+                "hardware.part-missing",
+                format!(
+                    "Hardware \"{}\" is mounted on part \"{}\" which doesn't exist.",
+                    mount.id, mount.part_id
+                ),
+                &mount.part_id,
+            ));
+            continue;
+        };
+        let name = match find(&mount.item) {
+            Some(item) => {
+                if !item.placeable {
+                    issues.push(LintIssue::part(
+                        Severity::Warn,
+                        "hardware.not-placeable",
+                        format!(
+                            "{} on \"{}\" belong to a drawer, not a part — make the drawer a movable and choose them there.",
+                            item.name, part.name
+                        ),
+                        &part.id,
+                    ));
+                }
+                item.name.as_str()
+            }
+            None => {
+                issues.push(LintIssue::part(
+                    Severity::Warn,
+                    "hardware.unknown-item",
+                    format!(
+                        "Hardware \"{}\" on \"{}\" isn't in this version's catalog, so it is drawn as a placeholder.",
+                        mount.item, part.name
+                    ),
+                    &part.id,
+                ));
+                mount.item.as_str()
+            }
+        };
+        let thickness = spec.material(&part.material_id).map(|m| m.thickness).unwrap_or(0.0);
+        let (a, b) = side_extent(part, thickness, mount.side);
+        if mount.x > a + EPS || mount.y > b + EPS {
+            issues.push(LintIssue::part(
+                Severity::Warn,
+                "hardware.off-part",
+                format!(
+                    "{name} on \"{}\" sits off the part: that side is {} × {} in, and it is placed at ({}, {}).",
+                    part.name,
+                    crate::geometry::php_float(a),
+                    crate::geometry::php_float(b),
+                    crate::geometry::php_float(mount.x),
+                    crate::geometry::php_float(mount.y)
+                ),
+                &part.id,
+            ));
+        }
+    }
+
+    for movable in spec.movables() {
+        let label = movable.name().unwrap_or(movable.id());
+        let (fitting, role, field) = match movable {
+            Movable::Door { hinge, .. } => (hinge.as_deref(), Role::Hinge, "hinge"),
+            Movable::Drawer { slide, .. } => (slide.as_deref(), Role::Slide, "slide"),
+        };
+        let pull = movable.pull().filter(|p| *p != "none");
+        for (id, role, field) in [(fitting, role, field), (pull, Role::Pull, "pull")] {
+            let Some(id) = id else { continue };
+            let problem = match find(id) {
+                None => Some(format!(
+                    "isn't in this version's catalog, so the default {field} is used"
+                )),
+                Some(item) if item.role != Some(role) => Some(format!("is not a {field}")),
+                Some(_) => None,
+            };
+            if let Some(problem) = problem {
+                issues.push(LintIssue::part(
+                    Severity::Warn,
+                    "movable.hardware-unknown",
+                    format!("\"{label}\" names \"{id}\" as its {field}, which {problem}."),
+                    movable.anchor_part_id(),
+                ));
+            }
+        }
+    }
+}

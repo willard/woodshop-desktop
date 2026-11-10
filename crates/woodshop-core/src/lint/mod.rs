@@ -136,6 +136,7 @@ pub fn lint(spec: &Spec) -> Vec<LintIssue> {
     checks::eased_joint_edges(spec, &mut issues);
     checks::groups(spec, &mut issues);
     checks::movables(spec, &mut issues);
+    checks::hardware(spec, &mut issues);
     checks::floating_parts(spec, &member_of, &mut issues);
     checks::pierced_parts(spec, &mut issues);
     checks::fastening(spec, &member_of, &mut issues);

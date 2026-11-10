@@ -7,7 +7,7 @@
 use serde_json::{Map, Value};
 use thiserror::Error;
 
-pub const CURRENT_SPEC_VERSION: &str = "1.14";
+pub const CURRENT_SPEC_VERSION: &str = "1.15";
 
 #[derive(Debug, Error, PartialEq)]
 pub enum MigrateError {
@@ -40,6 +40,7 @@ const STEPS: &[(&str, &str, Step)] = &[
     ("1.11", "1.12", |s| stamp(s, "1.12")), // movables
     ("1.12", "1.13", |s| stamp(s, "1.13")), // round stock
     ("1.13", "1.14", mint_joint_ids),       // partial arcs + joint ids
+    ("1.14", "1.15", |s| stamp(s, "1.15")), // catalog hardware
 ];
 
 fn stamp(mut spec: Map<String, Value>, to: &str) -> Map<String, Value> {
@@ -121,7 +122,7 @@ mod tests {
             ]
         }))
         .unwrap();
-        assert_eq!(out["specVersion"], "1.14");
+        assert_eq!(out["specVersion"], CURRENT_SPEC_VERSION);
         let ids: Vec<_> = out["joints"]
             .as_array()
             .unwrap()
@@ -145,7 +146,7 @@ mod tests {
 
     #[test]
     fn current_is_untouched() {
-        let v = json!({"specVersion": "1.14", "joints": [{"type": "butt"}]});
+        let v = json!({"specVersion": "1.15", "joints": [{"type": "butt"}]});
         assert_eq!(migrate_to_latest(v.clone()).unwrap(), v);
     }
 }

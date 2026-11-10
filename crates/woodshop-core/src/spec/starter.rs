@@ -142,6 +142,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
         joints: Some(vec![]),
         groups: None,
         movables: None,
+        hardware: None,
         meta: Some(Meta {
             difficulty: Some(Difficulty::Beginner),
             notes: None,

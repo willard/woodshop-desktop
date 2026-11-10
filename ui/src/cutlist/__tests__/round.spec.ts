@@ -6,7 +6,7 @@ import type { Spec } from '../../spec/types';
 /** A rack with three ¾" dowel rails, the piece the Kreg book-rack plan could not express (D60). */
 function specWithDowels(): Spec {
     return {
-        specVersion: '1.14',
+        specVersion: '1.15',
         units: 'in',
         name: 'Dowel Rack',
         materials: [

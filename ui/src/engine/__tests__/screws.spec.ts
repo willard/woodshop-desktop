@@ -14,7 +14,7 @@ import { parseSpec, type Spec } from '@/spec';
  */
 function lJoint(species?: string): Spec {
     return parseSpec({
-        specVersion: '1.14',
+        specVersion: '1.15',
         units: 'in',
         name: 'Screw L',
         materials: [
@@ -50,7 +50,7 @@ function lJoint(species?: string): Spec {
 /** A 3/4" top resting on a 1-1/2" leg below it — the wood-screw case (through the top, down). */
 function topOnLeg(): Spec {
     return parseSpec({
-        specVersion: '1.14',
+        specVersion: '1.15',
         units: 'in',
         name: 'Screw T',
         materials: [
@@ -276,7 +276,7 @@ describe('planPocketScrews chooses the face (spec 1.9)', () => {
         // Top lying flat (rot [90,0,0] → local +Z points down) over a side below it: the inward
         // face is `front`, so that is where the holes go.
         const spec = parseSpec({
-            specVersion: '1.14',
+            specVersion: '1.15',
             units: 'in',
             name: 'Carcase',
             materials: [

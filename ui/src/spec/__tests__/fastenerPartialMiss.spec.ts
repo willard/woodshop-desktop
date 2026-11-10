@@ -16,7 +16,7 @@ import corpus from '@fixtures/lint-cases.json';
  */
 function shelfOnRail(railLength: number, count = 3): Spec {
     return parseSpec({
-        specVersion: '1.14',
+        specVersion: '1.15',
         units: 'in',
         name: 'partial miss',
         materials: [

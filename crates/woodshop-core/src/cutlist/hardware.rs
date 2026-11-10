@@ -5,6 +5,7 @@ use std::collections::HashMap;
 
 use super::types::{HardwareKind, HardwareRow};
 use crate::fasteners::{pocket_screw_length, pocket_screw_thread, screw_gauge, wood_screw_length};
+use crate::hardware;
 use crate::movables::{extent_along, front_normal, hinge_count_for, hinge_edge_length, slide_length_for};
 use crate::spec::{HolePurpose, JointType, Movable, MovableStyle, Op, Part, Spec};
 use crate::units::format_fraction;
@@ -186,37 +187,89 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
             continue;
         };
         match movable {
-            Movable::Door { hinge_edge, style, .. } => {
+            Movable::Door {
+                hinge_edge,
+                style,
+                hinge,
+                ..
+            } => {
                 let count = hinge_count_for(hinge_edge_length(anchor, *hinge_edge));
-                let (key, desc) = match style {
-                    MovableStyle::Overlay => ("hinge|overlay", "overlay cabinet hinges"),
-                    MovableStyle::Inset => ("hinge|inset", "inset butt hinges"),
+                // A chosen catalog hinge names itself; otherwise the style's default wording.
+                let (key, desc) = match hinge.as_deref().and_then(hardware::find) {
+                    Some(item) => (format!("hinge|{}", item.id), item.list.clone()),
+                    None => match style {
+                        MovableStyle::Overlay => ("hinge|overlay".into(), "overlay cabinet hinges".into()),
+                        MovableStyle::Inset => ("hinge|inset".into(), "inset butt hinges".into()),
+                    },
                 };
                 rows.push(Sized {
-                    key: key.into(),
+                    key,
                     kind: HardwareKind::Hinge,
-                    description: desc.into(),
+                    description: desc,
                     qty: count,
                     derived: false,
                 });
             }
-            Movable::Drawer { part_ids, .. } => {
+            Movable::Drawer { part_ids, slide, .. } => {
                 let members: Vec<&Part> = part_ids.iter().filter_map(|id| spec.part(id)).collect();
                 let depth = extent_along(&members, thickness_of, front_normal(anchor));
                 let length = slide_length_for(depth);
+                let (id, list) = match slide.as_deref().and_then(hardware::find) {
+                    Some(item) => (item.id.as_str(), item.list.as_str()),
+                    None => ("default", "side-mount drawer slides (pairs)"),
+                };
                 rows.push(Sized {
-                    key: format!("drawerSlide|{}", key_num(length)),
+                    key: format!("drawerSlide|{id}|{}", key_num(length)),
                     kind: HardwareKind::DrawerSlide,
-                    description: format!("{}\" side-mount drawer slides (pairs)", inches(length)),
+                    description: format!("{}\" {list}", inches(length)),
                     qty: 1,
                     derived: false,
                 });
             }
         }
+        match movable.pull() {
+            Some("none") => {}
+            Some(id) if hardware::find(id).is_some() => {
+                let item = hardware::find(id).expect("checked");
+                rows.push(Sized {
+                    key: format!("item|{}", item.id),
+                    kind: HardwareKind::Knob,
+                    description: item.list.clone(),
+                    qty: 1,
+                    derived: false,
+                });
+            }
+            _ => rows.push(Sized {
+                key: "knob".into(),
+                kind: HardwareKind::Knob,
+                description: "cabinet knobs".into(),
+                qty: 1,
+                derived: false,
+            }),
+        }
+    }
+
+    // Catalog hardware mounted on parts (1.15), counted per item. An unknown id still gets a row
+    // so nothing bought is silently dropped.
+    for mount in spec.hardware() {
+        let (kind, description) = match hardware::find(&mount.item) {
+            Some(item) => (
+                match item.role {
+                    Some(hardware::Role::Hinge) => HardwareKind::Hinge,
+                    Some(hardware::Role::Pull) => HardwareKind::Knob,
+                    _ => HardwareKind::Other,
+                },
+                item.list.clone(),
+            ),
+            None => (
+                HardwareKind::Other,
+                format!("{} (not in this version's catalog)", mount.item),
+            ),
+        };
         rows.push(Sized {
-            key: "knob".into(),
-            kind: HardwareKind::Knob,
-            description: "cabinet knobs".into(),
+            key: format!("item|{}", mount.item),
+            kind,
+            description,
             qty: 1,
             derived: false,
         });

@@ -13,7 +13,7 @@
     ],
     "properties": {
         "specVersion": {
-            "const": "1.14"
+            "const": "1.15"
         },
         "units": {
             "const": "in",
@@ -55,7 +55,7 @@
                 "$ref": "#/$defs/group"
             },
             "default": [],
-            "description": "Editor part groups (added in 1.6): duplicate/rotate/move together. Annotations only \u2014 transform stays authoritative (\u00a73.2); flat (no nesting)."
+            "description": "Editor part groups (added in 1.6): duplicate/rotate/move together. Annotations only — transform stays authoritative (§3.2); flat (no nesting)."
         },
         "movables": {
             "type": "array",
@@ -64,7 +64,7 @@
                 "$ref": "#/$defs/movable"
             },
             "default": [],
-            "description": "Doors and drawers (added in 1.12): annotations naming the parts that move as a unit and the hardware that carries them. The spec stores the CLOSED state; opening is a view-time transform and never mutates the spec (\u00a73.3)."
+            "description": "Doors and drawers (added in 1.12): annotations naming the parts that move as a unit and the hardware that carries them. The spec stores the CLOSED state; opening is a view-time transform and never mutates the spec (§3.3)."
         },
         "meta": {
             "type": "object",
@@ -90,6 +90,15 @@
                     }
                 }
             }
+        },
+        "hardware": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+                "$ref": "#/$defs/hardwareMount"
+            },
+            "default": [],
+            "description": "Catalog hardware mounted on parts (added in 1.15). Hinges, slides and pulls that belong to a door or drawer are chosen on the movable instead."
         }
     },
     "$defs": {
@@ -132,7 +141,7 @@
                 },
                 "thickness": {
                     "$ref": "#/$defs/positiveDim",
-                    "description": "Actual thickness in inches. For type=round this is the DIAMETER \u2014 a dowel's blank is diameter x diameter x length, so one field carries it (D60)."
+                    "description": "Actual thickness in inches. For type=round this is the DIAMETER — a dowel's blank is diameter x diameter x length, so one field carries it (D60)."
                 },
                 "sheetSize": {
                     "type": "object",
@@ -481,7 +490,7 @@
                         "face": {
                             "$ref": "#/$defs/face",
                             "default": "back",
-                            "description": "Which face the pockets are drilled from (added in 1.9); they exit the named edge either way, so this is the face the holes show on. Defaults to `back` \u2014 put them on whichever face is hidden in the assembly."
+                            "description": "Which face the pockets are drilled from (added in 1.9); they exit the named edge either way, so this is the face the holes show on. Defaults to `back` — put them on whichever face is hidden in the assembly."
                         },
                         "edge": {
                             "$ref": "#/$defs/edge"
@@ -622,13 +631,13 @@
                         },
                         "height": {
                             "$ref": "#/$defs/positiveDim",
-                            "description": "Sagitta: how deep the arc cuts. With no from/to this is a DOME over the whole edge \u2014 the edge's corners drop inward by this amount while the edge midpoint stays put. With from and/or to it is a SCALLOP \u2014 the edge stays straight outside the run and dips this deep at the middle of it, leaving the corners alone. Cut through the full thickness (added in 1.4; scallops added in 1.14)."
+                            "description": "Sagitta: how deep the arc cuts. With no from/to this is a DOME over the whole edge — the edge's corners drop inward by this amount while the edge midpoint stays put. With from and/or to it is a SCALLOP — the edge stays straight outside the run and dips this deep at the middle of it, leaving the corners alone. Cut through the full thickness (added in 1.4; scallops added in 1.14)."
                         },
                         "from": {
                             "type": "number",
                             "minimum": 0,
                             "maximum": 240,
-                            "description": "Partial-span arc (added in 1.14): where the scallop starts along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) \u2014 the stopped-dado datum (\u00a73.1). Omit BOTH from and to for the whole-edge dome. Give either and the edge runs straight outside [from, to]. A scallop leaves the edge's corners in place, so it composes with a notch on the same edge as long as their runs do not overlap."
+                            "description": "Partial-span arc (added in 1.14): where the scallop starts along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) — the stopped-dado datum (§3.1). Omit BOTH from and to for the whole-edge dome. Give either and the edge runs straight outside [from, to]. A scallop leaves the edge's corners in place, so it composes with a notch on the same edge as long as their runs do not overlap."
                         },
                         "to": {
                             "type": "number",
@@ -718,7 +727,7 @@
                             "type": "number",
                             "minimum": 0,
                             "maximum": 240,
-                            "description": "Cutout start along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) \u2014 the stopped-dado datum (\u00a73.1). from < to; from = 0 makes a corner notch at the low corner (added in 1.7)."
+                            "description": "Cutout start along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) — the stopped-dado datum (§3.1). from < to; from = 0 makes a corner notch at the low corner (added in 1.7)."
                         },
                         "to": {
                             "type": "number",
@@ -763,7 +772,7 @@
                             "type": "number",
                             "minimum": 0,
                             "maximum": 240,
-                            "description": "Stopped ease: run start along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) \u2014 the stopped-dado datum (\u00a73.1). Omit to start at the edge's end (added in 1.11)."
+                            "description": "Stopped ease: run start along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) — the stopped-dado datum (§3.1). Omit to start at the edge's end (added in 1.11)."
                         },
                         "to": {
                             "type": "number",
@@ -805,7 +814,7 @@
                             "type": "number",
                             "minimum": 0,
                             "maximum": 240,
-                            "description": "Stopped ease: run start along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) \u2014 the stopped-dado datum (\u00a73.1). Omit to start at the edge's end (added in 1.11)."
+                            "description": "Stopped ease: run start along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) — the stopped-dado datum (§3.1). Omit to start at the edge's end (added in 1.11)."
                         },
                         "to": {
                             "type": "number",
@@ -838,7 +847,7 @@
                             "type": "number",
                             "minimum": 0,
                             "maximum": 240,
-                            "description": "Stopped ease: run start along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) \u2014 the stopped-dado datum (\u00a73.1). Omit to start at the edge's end (added in 1.11)."
+                            "description": "Stopped ease: run start along the named edge, measured from the low perpendicular edge (w0 for l-edges, l0 for w-edges) — the stopped-dado datum (§3.1). Omit to start at the edge's end (added in 1.11)."
                         },
                         "to": {
                             "type": "number",
@@ -847,7 +856,7 @@
                             "description": "Stopped ease: run end, same datum as `from`. Omit to run out the far end. A stopped end gets a short taper where the bit leaves the cut (added in 1.11)."
                         }
                     },
-                    "description": "Full half-round on the named edge (added in 1.10): both arrises rounded at thickness/2, so the edge becomes a semicircle. Takes no size and no face \u2014 the stock thickness decides both."
+                    "description": "Full half-round on the named edge (added in 1.10): both arrises rounded at thickness/2, so the edge becomes a semicircle. Takes no size and no face — the stock thickness decides both."
                 }
             ]
         },
@@ -878,7 +887,7 @@
             "properties": {
                 "id": {
                     "$ref": "#/$defs/id",
-                    "description": "Stable joint id (added in 1.14). Optional so pre-1.14 documents still read, but every joint the app or a tool writes has one \u2014 address joints by id, not by their position in the array, which shifts as joints are removed."
+                    "description": "Stable joint id (added in 1.14). Optional so pre-1.14 documents still read, but every joint the app or a tool writes has one — address joints by id, not by their position in the array, which shifts as joints are removed."
                 },
                 "type": {
                     "enum": [
@@ -975,17 +984,26 @@
                         },
                         "hingeEdge": {
                             "$ref": "#/$defs/edge",
-                            "description": "The panel edge the hinges mount on, in the panel's LOCAL frame (\u00a73.1). The hinge line is that edge's front (+Z) arris; the door swings its free edge toward the panel's front face."
+                            "description": "The panel edge the hinges mount on, in the panel's LOCAL frame (§3.1). The hinge line is that edge's front (+Z) arris; the door swings its free edge toward the panel's front face."
                         },
                         "style": {
                             "enum": [
                                 "overlay",
                                 "inset"
                             ],
-                            "description": "Overlay laps the opening by the overlay allowance per side; inset sits inside it behind a reveal. Drives preset sizing and hinge selection only \u2014 transform stays authoritative."
+                            "description": "Overlay laps the opening by the overlay allowance per side; inset sits inside it behind a reveal. Drives preset sizing and hinge selection only — transform stays authoritative."
+                        },
+                        "hinge": {
+                            "$ref": "#/$defs/hardwareItemId",
+                            "description": "Which catalog hinge the door hangs on (added in 1.15). Omit for the default for its style."
+                        },
+                        "pull": {
+                            "type": "string",
+                            "pattern": "^(none|[a-z][a-z0-9.-]{1,59})$",
+                            "description": "Which catalog pull or knob it opens with (added in 1.15), or \"none\" for a push latch or a wooden pull. Omit for a plain knob."
                         }
                     },
-                    "description": "A hinged door: swings on the front arris of the named panel edge (\u00a73.3)."
+                    "description": "A hinged door: swings on the front arris of the named panel edge (§3.3)."
                 },
                 {
                     "additionalProperties": false,
@@ -1020,18 +1038,90 @@
                         },
                         "frontPartId": {
                             "$ref": "#/$defs/id",
-                            "description": "The drawer front; its local +Z (front-face normal, \u00a73.1) is the pull-out direction. Must be listed in partIds."
+                            "description": "The drawer front; its local +Z (front-face normal, §3.1) is the pull-out direction. Must be listed in partIds."
                         },
                         "style": {
                             "enum": [
                                 "overlay",
                                 "inset"
                             ]
+                        },
+                        "slide": {
+                            "$ref": "#/$defs/hardwareItemId",
+                            "description": "Which catalog slide the drawer runs on (added in 1.15). Omit for side-mount ball-bearing slides."
+                        },
+                        "pull": {
+                            "type": "string",
+                            "pattern": "^(none|[a-z][a-z0-9.-]{1,59})$",
+                            "description": "Which catalog pull or knob it opens with (added in 1.15), or \"none\" for a push latch or a wooden pull. Omit for a plain knob."
                         }
                     },
-                    "description": "A drawer riding side-mount slides: pulls out along the front's face normal (\u00a73.3)."
+                    "description": "A drawer riding side-mount slides: pulls out along the front's face normal (§3.3)."
                 }
             ]
+        },
+        "hardwareItemId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]{1,59}$",
+            "description": "A hardware catalog id, e.g. pull.bar-96mm (see the hardware catalog)."
+        },
+        "hardwareMount": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "item",
+                "partId",
+                "side",
+                "x",
+                "y"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/id"
+                },
+                "item": {
+                    "$ref": "#/$defs/hardwareItemId"
+                },
+                "partId": {
+                    "$ref": "#/$defs/id",
+                    "description": "The part this piece is mounted on; it moves with that part."
+                },
+                "side": {
+                    "enum": [
+                        "front",
+                        "back",
+                        "l0",
+                        "l1",
+                        "w0",
+                        "w1"
+                    ],
+                    "description": "Which side of the part it mounts on, in the part's LOCAL frame (§3.1): a face (front = +Z, back = -Z) or an edge."
+                },
+                "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 240,
+                    "description": "Position along the side's first axis. Faces and l-edges: along the length, from the w0 end. w-edges (ends): along the width, from the l0 edge."
+                },
+                "y": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 240,
+                    "description": "Position along the side's second axis. Faces: along the width, from the l0 edge (as a hole's y). Edges: across the thickness, from the back face."
+                },
+                "rot": {
+                    "enum": [
+                        0,
+                        90,
+                        180,
+                        270
+                    ],
+                    "default": 0,
+                    "description": "Quarter turns about the outward normal. At 0 the piece's long axis runs along the side's first axis."
+                }
+            },
+            "description": "One piece of catalog hardware mounted on a part (added in 1.15): a pull, caster, bracket, latch… Annotation only: it adds to the hardware list and the 3D view and never cuts the part."
         }
     }
 }

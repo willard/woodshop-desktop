@@ -75,7 +75,7 @@ export interface LumberPlan {
 
 /** One line of the hardware list (spec 1.8, movables 1.12): the metal to buy. */
 export interface HardwareRow {
-    kind: 'pocketScrew' | 'woodScrew' | 'dowel' | 'hinge' | 'drawerSlide' | 'knob';
+    kind: 'pocketScrew' | 'woodScrew' | 'dowel' | 'hinge' | 'drawerSlide' | 'knob' | 'other';
     /** Shop notation, e.g. `#8 × 1-1/4" wood screws`. */
     description: string;
     qty: number;

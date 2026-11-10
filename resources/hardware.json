@@ -1,0 +1,972 @@
+{
+ "categories": [
+  {
+   "id": "pulls",
+   "name": "Pulls & knobs"
+  },
+  {
+   "id": "hinges",
+   "name": "Hinges"
+  },
+  {
+   "id": "slides",
+   "name": "Drawer slides"
+  },
+  {
+   "id": "casters",
+   "name": "Casters"
+  },
+  {
+   "id": "feet",
+   "name": "Feet & levelers"
+  },
+  {
+   "id": "brackets",
+   "name": "Brackets & plates"
+  },
+  {
+   "id": "shelf",
+   "name": "Shelf hardware"
+  },
+  {
+   "id": "latches",
+   "name": "Latches & catches"
+  },
+  {
+   "id": "lids",
+   "name": "Lids & handles"
+  },
+  {
+   "id": "hooks",
+   "name": "Hooks"
+  }
+ ],
+ "items": [
+  {
+   "id": "knob.round-1-1-4",
+   "category": "pulls",
+   "name": "Round knob 1 1/4\"",
+   "list": "1 1/4\" round cabinet knobs",
+   "model": {
+    "shape": "knob",
+    "diameter": 1.25,
+    "projection": 1.1
+   },
+   "role": "pull"
+  },
+  {
+   "id": "knob.round-1-1-2",
+   "category": "pulls",
+   "name": "Round knob 1 1/2\"",
+   "list": "1 1/2\" round cabinet knobs",
+   "model": {
+    "shape": "knob",
+    "diameter": 1.5,
+    "projection": 1.25
+   },
+   "role": "pull"
+  },
+  {
+   "id": "knob.square-1-1-4",
+   "category": "pulls",
+   "name": "Square knob 1 1/4\"",
+   "list": "1 1/4\" square cabinet knobs",
+   "model": {
+    "shape": "knob",
+    "diameter": 1.25,
+    "projection": 1.0,
+    "square": true
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.bar-3in",
+   "category": "pulls",
+   "name": "Bar pull, 3\" centers",
+   "list": "bar pulls, 3\" centers",
+   "model": {
+    "shape": "barPull",
+    "centers": 3,
+    "length": 3.75,
+    "diameter": 0.47,
+    "projection": 1.3
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.bar-96mm",
+   "category": "pulls",
+   "name": "Bar pull, 96 mm centers",
+   "list": "bar pulls, 96 mm centers",
+   "model": {
+    "shape": "barPull",
+    "centers": 3.7795,
+    "length": 4.5,
+    "diameter": 0.47,
+    "projection": 1.3
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.bar-128mm",
+   "category": "pulls",
+   "name": "Bar pull, 128 mm centers",
+   "list": "bar pulls, 128 mm centers",
+   "model": {
+    "shape": "barPull",
+    "centers": 5.0394,
+    "length": 5.75,
+    "diameter": 0.47,
+    "projection": 1.3
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.bar-160mm",
+   "category": "pulls",
+   "name": "Bar pull, 160 mm centers",
+   "list": "bar pulls, 160 mm centers",
+   "model": {
+    "shape": "barPull",
+    "centers": 6.2992,
+    "length": 7.0,
+    "diameter": 0.47,
+    "projection": 1.3
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.bar-192mm",
+   "category": "pulls",
+   "name": "Bar pull, 192 mm centers",
+   "list": "bar pulls, 192 mm centers",
+   "model": {
+    "shape": "barPull",
+    "centers": 7.5591,
+    "length": 8.25,
+    "diameter": 0.47,
+    "projection": 1.3
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.arch-3in",
+   "category": "pulls",
+   "name": "Arch pull, 3\" centers",
+   "list": "arch pulls, 3\" centers",
+   "model": {
+    "shape": "archPull",
+    "centers": 3,
+    "diameter": 0.4,
+    "projection": 1.2
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.arch-96mm",
+   "category": "pulls",
+   "name": "Arch pull, 96 mm centers",
+   "list": "arch pulls, 96 mm centers",
+   "model": {
+    "shape": "archPull",
+    "centers": 3.7795,
+    "diameter": 0.4,
+    "projection": 1.2
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.arch-128mm",
+   "category": "pulls",
+   "name": "Arch pull, 128 mm centers",
+   "list": "arch pulls, 128 mm centers",
+   "model": {
+    "shape": "archPull",
+    "centers": 5.0394,
+    "diameter": 0.4,
+    "projection": 1.2
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.cup-3in",
+   "category": "pulls",
+   "name": "Cup (bin) pull, 3\" centers",
+   "list": "cup pulls, 3\" centers",
+   "model": {
+    "shape": "cupPull",
+    "width": 3.75,
+    "height": 1.4,
+    "projection": 0.9
+   },
+   "role": "pull"
+  },
+  {
+   "id": "pull.cup-96mm",
+   "category": "pulls",
+   "name": "Cup (bin) pull, 96 mm centers",
+   "list": "cup pulls, 96 mm centers",
+   "model": {
+    "shape": "cupPull",
+    "width": 4.5,
+    "height": 1.5,
+    "projection": 1.0
+   },
+   "role": "pull"
+  },
+  {
+   "id": "hinge.butt-2in",
+   "category": "hinges",
+   "name": "Butt hinge 2\"",
+   "list": "2\" butt hinges",
+   "model": {
+    "shape": "buttHinge",
+    "height": 2,
+    "width": 1.5,
+    "knuckle": 0.22
+   },
+   "role": "hinge",
+   "description": "Mount with the knuckle on the hinge line; the leaves lie on the two faces."
+  },
+  {
+   "id": "hinge.butt-2-5in",
+   "category": "hinges",
+   "name": "Butt hinge 2 1/2\"",
+   "list": "2 1/2\" butt hinges",
+   "model": {
+    "shape": "buttHinge",
+    "height": 2.5,
+    "width": 1.75,
+    "knuckle": 0.22
+   },
+   "role": "hinge",
+   "description": "Mount with the knuckle on the hinge line; the leaves lie on the two faces."
+  },
+  {
+   "id": "hinge.butt-3in",
+   "category": "hinges",
+   "name": "Butt hinge 3\"",
+   "list": "3\" butt hinges",
+   "model": {
+    "shape": "buttHinge",
+    "height": 3,
+    "width": 2,
+    "knuckle": 0.22
+   },
+   "role": "hinge",
+   "description": "Mount with the knuckle on the hinge line; the leaves lie on the two faces."
+  },
+  {
+   "id": "hinge.butt-3-5in",
+   "category": "hinges",
+   "name": "Butt hinge 3 1/2\"",
+   "list": "3 1/2\" butt hinges",
+   "model": {
+    "shape": "buttHinge",
+    "height": 3.5,
+    "width": 3.5,
+    "knuckle": 0.3
+   },
+   "role": "hinge",
+   "description": "Mount with the knuckle on the hinge line; the leaves lie on the two faces."
+  },
+  {
+   "id": "hinge.butt-4in",
+   "category": "hinges",
+   "name": "Butt hinge 4\"",
+   "list": "4\" butt hinges",
+   "model": {
+    "shape": "buttHinge",
+    "height": 4,
+    "width": 4,
+    "knuckle": 0.3
+   },
+   "role": "hinge",
+   "description": "Mount with the knuckle on the hinge line; the leaves lie on the two faces."
+  },
+  {
+   "id": "hinge.euro-full-overlay",
+   "category": "hinges",
+   "name": "Concealed hinge, full overlay",
+   "list": "concealed (Euro) hinges, full overlay, 35 mm cup",
+   "model": {
+    "shape": "euroHinge",
+    "cup": 1.378,
+    "cupDepth": 0.4724,
+    "arm": 2.4,
+    "boring": 0.8858
+   },
+   "role": "hinge",
+   "description": "35 mm cup bored 12 mm deep in the door, centred 22.5 mm in from its edge."
+  },
+  {
+   "id": "hinge.euro-half-overlay",
+   "category": "hinges",
+   "name": "Concealed hinge, half overlay",
+   "list": "concealed (Euro) hinges, half overlay, 35 mm cup",
+   "model": {
+    "shape": "euroHinge",
+    "cup": 1.378,
+    "cupDepth": 0.4724,
+    "arm": 2.4,
+    "boring": 0.8858
+   },
+   "role": "hinge",
+   "description": "For two doors sharing one partition."
+  },
+  {
+   "id": "hinge.euro-inset",
+   "category": "hinges",
+   "name": "Concealed hinge, inset",
+   "list": "concealed (Euro) hinges, inset, 35 mm cup",
+   "model": {
+    "shape": "euroHinge",
+    "cup": 1.378,
+    "cupDepth": 0.4724,
+    "arm": 2.4,
+    "boring": 0.8858
+   },
+   "role": "hinge",
+   "description": "For a door that sits inside the opening."
+  },
+  {
+   "id": "hinge.piano-12in",
+   "category": "hinges",
+   "name": "Piano hinge 12\"",
+   "list": "12\" piano (continuous) hinges",
+   "model": {
+    "shape": "pianoHinge",
+    "length": 12,
+    "width": 1.5,
+    "knuckle": 0.16
+   },
+   "role": "hinge",
+   "description": "Runs the full hinge edge: the usual choice for a chest or bench lid."
+  },
+  {
+   "id": "hinge.piano-24in",
+   "category": "hinges",
+   "name": "Piano hinge 24\"",
+   "list": "24\" piano (continuous) hinges",
+   "model": {
+    "shape": "pianoHinge",
+    "length": 24,
+    "width": 1.5,
+    "knuckle": 0.16
+   },
+   "role": "hinge",
+   "description": "Runs the full hinge edge: the usual choice for a chest or bench lid."
+  },
+  {
+   "id": "hinge.piano-36in",
+   "category": "hinges",
+   "name": "Piano hinge 36\"",
+   "list": "36\" piano (continuous) hinges",
+   "model": {
+    "shape": "pianoHinge",
+    "length": 36,
+    "width": 1.5,
+    "knuckle": 0.16
+   },
+   "role": "hinge",
+   "description": "Runs the full hinge edge: the usual choice for a chest or bench lid."
+  },
+  {
+   "id": "hinge.piano-48in",
+   "category": "hinges",
+   "name": "Piano hinge 48\"",
+   "list": "48\" piano (continuous) hinges",
+   "model": {
+    "shape": "pianoHinge",
+    "length": 48,
+    "width": 1.5,
+    "knuckle": 0.16
+   },
+   "role": "hinge",
+   "description": "Runs the full hinge edge: the usual choice for a chest or bench lid."
+  },
+  {
+   "id": "hinge.tee-4in",
+   "category": "hinges",
+   "name": "T-hinge 4\"",
+   "list": "4\" T-hinges",
+   "model": {
+    "shape": "teeHinge",
+    "length": 4,
+    "height": 2.2,
+    "knuckle": 0.25
+   },
+   "role": "hinge",
+   "description": "Surface-mounted strap hinge for gates, sheds and outdoor boxes."
+  },
+  {
+   "id": "hinge.tee-6in",
+   "category": "hinges",
+   "name": "T-hinge 6\"",
+   "list": "6\" T-hinges",
+   "model": {
+    "shape": "teeHinge",
+    "length": 6,
+    "height": 3.25,
+    "knuckle": 0.25
+   },
+   "role": "hinge",
+   "description": "Surface-mounted strap hinge for gates, sheds and outdoor boxes."
+  },
+  {
+   "id": "hinge.tee-8in",
+   "category": "hinges",
+   "name": "T-hinge 8\"",
+   "list": "8\" T-hinges",
+   "model": {
+    "shape": "teeHinge",
+    "length": 8,
+    "height": 3.25,
+    "knuckle": 0.25
+   },
+   "role": "hinge",
+   "description": "Surface-mounted strap hinge for gates, sheds and outdoor boxes."
+  },
+  {
+   "id": "slide.side-mount",
+   "category": "slides",
+   "name": "Side-mount ball-bearing slides",
+   "list": "side-mount ball-bearing drawer slides (pairs)",
+   "model": {
+    "shape": "slide",
+    "mount": "side",
+    "height": 1.77,
+    "thickness": 0.5
+   },
+   "role": "slide",
+   "placeable": false,
+   "description": "Full extension. Needs 1/2\" clearance each side of the drawer box."
+  },
+  {
+   "id": "slide.side-mount-soft-close",
+   "category": "slides",
+   "name": "Side-mount soft-close slides",
+   "list": "side-mount soft-close drawer slides (pairs)",
+   "model": {
+    "shape": "slide",
+    "mount": "side",
+    "height": 1.77,
+    "thickness": 0.5
+   },
+   "role": "slide",
+   "placeable": false,
+   "description": "Full extension, soft close. Needs 1/2\" clearance each side of the drawer box."
+  },
+  {
+   "id": "slide.undermount",
+   "category": "slides",
+   "name": "Undermount soft-close slides",
+   "list": "undermount soft-close drawer slides (pairs)",
+   "model": {
+    "shape": "slide",
+    "mount": "under",
+    "height": 0.5,
+    "thickness": 1.2
+   },
+   "role": "slide",
+   "placeable": false,
+   "description": "Hidden under the box. Needs a 1/2\" recess under the drawer bottom and a notched back."
+  },
+  {
+   "id": "slide.euro-bottom",
+   "category": "slides",
+   "name": "Bottom-mount (Euro) slides",
+   "list": "bottom-mount epoxy drawer slides (pairs)",
+   "model": {
+    "shape": "slide",
+    "mount": "side",
+    "height": 1.0,
+    "thickness": 0.5
+   },
+   "role": "slide",
+   "placeable": false,
+   "description": "Three-quarter extension, the budget option."
+  },
+  {
+   "id": "caster.swivel-2in",
+   "category": "casters",
+   "name": "Swivel caster 2\"",
+   "list": "2\" swivel plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 2,
+    "height": 2.6,
+    "plate": 2.5,
+    "swivel": true,
+    "brake": false
+   }
+  },
+  {
+   "id": "caster.locking-2in",
+   "category": "casters",
+   "name": "Locking swivel caster 2\"",
+   "list": "2\" locking swivel plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 2,
+    "height": 2.6,
+    "plate": 2.5,
+    "swivel": true,
+    "brake": true
+   }
+  },
+  {
+   "id": "caster.fixed-2in",
+   "category": "casters",
+   "name": "Fixed caster 2\"",
+   "list": "2\" fixed (rigid) plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 2,
+    "height": 2.6,
+    "plate": 2.5,
+    "swivel": false,
+    "brake": false
+   }
+  },
+  {
+   "id": "caster.swivel-3in",
+   "category": "casters",
+   "name": "Swivel caster 3\"",
+   "list": "3\" swivel plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 3,
+    "height": 3.9,
+    "plate": 3.5,
+    "swivel": true,
+    "brake": false
+   }
+  },
+  {
+   "id": "caster.locking-3in",
+   "category": "casters",
+   "name": "Locking swivel caster 3\"",
+   "list": "3\" locking swivel plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 3,
+    "height": 3.9,
+    "plate": 3.5,
+    "swivel": true,
+    "brake": true
+   }
+  },
+  {
+   "id": "caster.fixed-3in",
+   "category": "casters",
+   "name": "Fixed caster 3\"",
+   "list": "3\" fixed (rigid) plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 3,
+    "height": 3.9,
+    "plate": 3.5,
+    "swivel": false,
+    "brake": false
+   }
+  },
+  {
+   "id": "caster.swivel-4in",
+   "category": "casters",
+   "name": "Swivel caster 4\"",
+   "list": "4\" swivel plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 4,
+    "height": 5.1,
+    "plate": 4.0,
+    "swivel": true,
+    "brake": false
+   }
+  },
+  {
+   "id": "caster.locking-4in",
+   "category": "casters",
+   "name": "Locking swivel caster 4\"",
+   "list": "4\" locking swivel plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 4,
+    "height": 5.1,
+    "plate": 4.0,
+    "swivel": true,
+    "brake": true
+   }
+  },
+  {
+   "id": "caster.fixed-4in",
+   "category": "casters",
+   "name": "Fixed caster 4\"",
+   "list": "4\" fixed (rigid) plate casters",
+   "model": {
+    "shape": "caster",
+    "wheel": 4,
+    "height": 5.1,
+    "plate": 4.0,
+    "swivel": false,
+    "brake": false
+   }
+  },
+  {
+   "id": "foot.leveler-1-1-2in",
+   "category": "feet",
+   "name": "Leveling foot 1 1/2\"",
+   "list": "1 1/2\" leveling feet with T-nut",
+   "model": {
+    "shape": "leveler",
+    "base": 1.5,
+    "height": 1.0,
+    "stem": 0.3125
+   }
+  },
+  {
+   "id": "foot.leveler-2in",
+   "category": "feet",
+   "name": "Leveling foot 2\"",
+   "list": "2\" heavy-duty leveling feet with T-nut",
+   "model": {
+    "shape": "leveler",
+    "base": 2.0,
+    "height": 1.25,
+    "stem": 0.375
+   }
+  },
+  {
+   "id": "foot.glide-1in",
+   "category": "feet",
+   "name": "Furniture glide 1\"",
+   "list": "1\" nail-on furniture glides",
+   "model": {
+    "shape": "leveler",
+    "base": 1.0,
+    "height": 0.25,
+    "stem": 0
+   }
+  },
+  {
+   "id": "bracket.corner-1-5in",
+   "category": "brackets",
+   "name": "Corner brace 1 1/2\"",
+   "list": "1 1/2\" corner braces",
+   "model": {
+    "shape": "cornerBracket",
+    "leg": 1.5,
+    "width": 0.625,
+    "thickness": 0.08
+   },
+   "description": "Sits in an inside corner; mount it on one face with the other leg standing up."
+  },
+  {
+   "id": "bracket.corner-2in",
+   "category": "brackets",
+   "name": "Corner brace 2\"",
+   "list": "2\" corner braces",
+   "model": {
+    "shape": "cornerBracket",
+    "leg": 2,
+    "width": 0.75,
+    "thickness": 0.08
+   },
+   "description": "Sits in an inside corner; mount it on one face with the other leg standing up."
+  },
+  {
+   "id": "bracket.corner-3in",
+   "category": "brackets",
+   "name": "Corner brace 3\"",
+   "list": "3\" corner braces",
+   "model": {
+    "shape": "cornerBracket",
+    "leg": 3,
+    "width": 0.75,
+    "thickness": 0.08
+   },
+   "description": "Sits in an inside corner; mount it on one face with the other leg standing up."
+  },
+  {
+   "id": "bracket.corner-4in",
+   "category": "brackets",
+   "name": "Corner brace 4\"",
+   "list": "4\" corner braces",
+   "model": {
+    "shape": "cornerBracket",
+    "leg": 4,
+    "width": 0.875,
+    "thickness": 0.08
+   },
+   "description": "Sits in an inside corner; mount it on one face with the other leg standing up."
+  },
+  {
+   "id": "plate.mending-2in",
+   "category": "brackets",
+   "name": "Mending plate 2\"",
+   "list": "2\" mending plates",
+   "model": {
+    "shape": "flatPlate",
+    "length": 2,
+    "width": 0.625,
+    "thickness": 0.08
+   }
+  },
+  {
+   "id": "plate.mending-3in",
+   "category": "brackets",
+   "name": "Mending plate 3\"",
+   "list": "3\" mending plates",
+   "model": {
+    "shape": "flatPlate",
+    "length": 3,
+    "width": 0.75,
+    "thickness": 0.08
+   }
+  },
+  {
+   "id": "plate.mending-4in",
+   "category": "brackets",
+   "name": "Mending plate 4\"",
+   "list": "4\" mending plates",
+   "model": {
+    "shape": "flatPlate",
+    "length": 4,
+    "width": 0.75,
+    "thickness": 0.08
+   }
+  },
+  {
+   "id": "plate.figure-8",
+   "category": "brackets",
+   "name": "Figure-8 tabletop fastener",
+   "list": "figure-8 tabletop fasteners",
+   "model": {
+    "shape": "flatPlate",
+    "length": 1.4,
+    "width": 0.7,
+    "thickness": 0.09
+   },
+   "description": "Lets a solid top move with the seasons."
+  },
+  {
+   "id": "plate.leg-mount",
+   "category": "brackets",
+   "name": "Angled leg mounting plate",
+   "list": "leg mounting plates",
+   "model": {
+    "shape": "flatPlate",
+    "length": 2.5,
+    "width": 2.5,
+    "thickness": 0.2
+   }
+  },
+  {
+   "id": "shelf.pin-5mm",
+   "category": "shelf",
+   "name": "Shelf pin 5 mm",
+   "list": "5 mm shelf pins",
+   "model": {
+    "shape": "shelfPin",
+    "diameter": 0.1969,
+    "length": 0.6
+   },
+   "description": "Sits in a 5 mm hole; four per shelf."
+  },
+  {
+   "id": "shelf.pin-1-4in",
+   "category": "shelf",
+   "name": "Shelf pin 1/4\"",
+   "list": "1/4\" shelf pins",
+   "model": {
+    "shape": "shelfPin",
+    "diameter": 0.25,
+    "length": 0.6
+   },
+   "description": "Sits in a 1/4\" hole; four per shelf."
+  },
+  {
+   "id": "shelf.standard-24in",
+   "category": "shelf",
+   "name": "Shelf standard 24\"",
+   "list": "24\" shelf standards (pilaster strips)",
+   "model": {
+    "shape": "flatPlate",
+    "length": 24,
+    "width": 0.625,
+    "thickness": 0.19
+   }
+  },
+  {
+   "id": "latch.barrel-bolt-3in",
+   "category": "latches",
+   "name": "Barrel bolt 3\"",
+   "list": "3\" barrel bolts",
+   "model": {
+    "shape": "barrelBolt",
+    "length": 3,
+    "width": 1.1,
+    "projection": 0.55
+   }
+  },
+  {
+   "id": "latch.barrel-bolt-4in",
+   "category": "latches",
+   "name": "Barrel bolt 4\"",
+   "list": "4\" barrel bolts",
+   "model": {
+    "shape": "barrelBolt",
+    "length": 4,
+    "width": 1.25,
+    "projection": 0.6
+   }
+  },
+  {
+   "id": "latch.hasp-3in",
+   "category": "latches",
+   "name": "Safety hasp 3\"",
+   "list": "3\" safety hasps",
+   "model": {
+    "shape": "hasp",
+    "length": 3,
+    "width": 1.25,
+    "projection": 0.35
+   }
+  },
+  {
+   "id": "latch.hasp-4-1-2in",
+   "category": "latches",
+   "name": "Safety hasp 4 1/2\"",
+   "list": "4 1/2\" safety hasps",
+   "model": {
+    "shape": "hasp",
+    "length": 4.5,
+    "width": 1.5,
+    "projection": 0.4
+   }
+  },
+  {
+   "id": "catch.magnetic",
+   "category": "latches",
+   "name": "Magnetic catch",
+   "list": "magnetic door catches",
+   "model": {
+    "shape": "block",
+    "length": 1.8,
+    "width": 0.6,
+    "projection": 0.55
+   }
+  },
+  {
+   "id": "catch.roller",
+   "category": "latches",
+   "name": "Roller catch",
+   "list": "roller door catches",
+   "model": {
+    "shape": "block",
+    "length": 1.4,
+    "width": 0.75,
+    "projection": 0.6
+   }
+  },
+  {
+   "id": "lid.stay-soft-close",
+   "category": "lids",
+   "name": "Soft-close lid stay",
+   "list": "soft-close lid stays",
+   "model": {
+    "shape": "lidStay",
+    "length": 9,
+    "width": 0.9,
+    "projection": 0.7
+   },
+   "description": "Holds a lid open and lowers it slowly. Two for a wide or heavy lid."
+  },
+  {
+   "id": "lid.stay-friction",
+   "category": "lids",
+   "name": "Friction lid support",
+   "list": "friction lid supports",
+   "model": {
+    "shape": "lidStay",
+    "length": 7,
+    "width": 0.7,
+    "projection": 0.5
+   }
+  },
+  {
+   "id": "lid.chain-12in",
+   "category": "lids",
+   "name": "Lid chain 12\"",
+   "list": "12\" lid chains",
+   "model": {
+    "shape": "lidStay",
+    "length": 12,
+    "width": 0.3,
+    "projection": 0.2
+   }
+  },
+  {
+   "id": "handle.chest-4in",
+   "category": "lids",
+   "name": "Chest handle 4\"",
+   "list": "4\" chest handles",
+   "model": {
+    "shape": "chestHandle",
+    "width": 4,
+    "height": 2.2,
+    "projection": 1.0
+   }
+  },
+  {
+   "id": "handle.rope-cleat",
+   "category": "lids",
+   "name": "Rope handle cleat",
+   "list": "rope handle cleats (pairs)",
+   "model": {
+    "shape": "block",
+    "length": 3,
+    "width": 1,
+    "projection": 0.75
+   }
+  },
+  {
+   "id": "hook.coat-single",
+   "category": "hooks",
+   "name": "Coat hook",
+   "list": "single coat hooks",
+   "model": {
+    "shape": "hook",
+    "height": 3.2,
+    "width": 0.9,
+    "projection": 1.9
+   }
+  },
+  {
+   "id": "hook.coat-double",
+   "category": "hooks",
+   "name": "Double coat hook",
+   "list": "double coat hooks",
+   "model": {
+    "shape": "hook",
+    "height": 4.2,
+    "width": 1.4,
+    "projection": 2.6,
+    "double": true
+   }
+  },
+  {
+   "id": "hook.utility",
+   "category": "hooks",
+   "name": "Utility hook",
+   "list": "screw-in utility hooks",
+   "model": {
+    "shape": "hook",
+    "height": 2.2,
+    "width": 0.4,
+    "projection": 1.6
+   }
+  }
+ ]
+}

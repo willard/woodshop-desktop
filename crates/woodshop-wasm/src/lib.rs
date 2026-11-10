@@ -10,7 +10,7 @@ use wasm_bindgen::prelude::*;
 use woodshop_core::cutlist::{self, CutList, CutListConfig};
 use woodshop_core::geometry::{self, outline};
 use woodshop_core::spec::{self, Curve, Notch, Op, Part, Spec};
-use woodshop_core::{fasteners, lint, units};
+use woodshop_core::{fasteners, hardware, lint, units};
 
 type JsResult<T> = Result<T, JsError>;
 
@@ -227,6 +227,20 @@ pub fn group_label(names: Vec<String>) -> String {
 #[wasm_bindgen(js_name = computeHardware)]
 pub fn compute_hardware(spec: JsValue) -> JsResult<JsValue> {
     to_js(&cutlist::compute_hardware(&spec_from_js(spec)?))
+}
+
+/// The hardware catalog: categories and every item with its dimensions and 3D model parameters.
+#[wasm_bindgen(js_name = hardwareCatalog)]
+pub fn hardware_catalog() -> JsResult<JsValue> {
+    to_js(hardware::catalog())
+}
+
+/// Where a mounted piece sits in its part's local frame: point, outward normal, long-axis direction.
+#[wasm_bindgen(js_name = hardwareMountFrame)]
+pub fn hardware_mount_frame(part: JsValue, thickness: f64, mount: JsValue) -> JsResult<JsValue> {
+    let part: Part = from_js(part)?;
+    let mount: spec::HardwareMount = from_js(mount)?;
+    to_js(&hardware::mount_frame(&part, thickness, &mount))
 }
 
 #[wasm_bindgen(js_name = stockAdvice)]

@@ -38,7 +38,7 @@ pub fn parse(input: Value) -> Result<Spec, ParseError> {
 
 /// Apply the schema's `default`s for the fields the editor reads unconditionally (the same set
 /// the web app's Zod parse filled): material grain, part grainAxis/rot/ops/qty/locked, and the
-/// top-level joints/groups/movables arrays. Op-level defaults are left implicit.
+/// top-level joints/groups/movables/hardware arrays. Op-level defaults are left implicit.
 pub fn fill_defaults(spec: &mut Spec) {
     for m in &mut spec.materials {
         m.grain.get_or_insert(true);
@@ -53,4 +53,5 @@ pub fn fill_defaults(spec: &mut Spec) {
     spec.joints.get_or_insert_with(Vec::new);
     spec.groups.get_or_insert_with(Vec::new);
     spec.movables.get_or_insert_with(Vec::new);
+    spec.hardware.get_or_insert_with(Vec::new);
 }

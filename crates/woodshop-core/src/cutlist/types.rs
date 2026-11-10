@@ -98,6 +98,8 @@ pub enum HardwareKind {
     Hinge,
     DrawerSlide,
     Knob,
+    /// Any other catalog hardware mounted on a part (1.15): casters, brackets, latches…
+    Other,
 }
 
 /// One line of the hardware list: the metal to buy.

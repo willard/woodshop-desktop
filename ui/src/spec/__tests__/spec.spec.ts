@@ -113,13 +113,13 @@ describe('migrations', () => {
 
     it('stamps a 1.2 spec through the chain to 1.14 (species/curves/groups/notches/fasteners/eases/movables/round are additive)', () => {
         const migrated = migrateToLatest({ ...(recordStand as object), specVersion: '1.2' });
-        expect(migrated.specVersion).toBe('1.14');
+        expect(migrated.specVersion).toBe('1.15');
     });
 
     it('walks 1.9 → … → 1.14 (the version is a number pair, not a decimal)', () => {
-        expect(migrateToLatest({ ...(recordStand as object), specVersion: '1.9' }).specVersion).toBe('1.14');
-        expect(migrateToLatest({ ...(recordStand as object), specVersion: '1.11' }).specVersion).toBe('1.14');
-        expect(migrateToLatest({ ...(recordStand as object), specVersion: '1.12' }).specVersion).toBe('1.14');
+        expect(migrateToLatest({ ...(recordStand as object), specVersion: '1.9' }).specVersion).toBe('1.15');
+        expect(migrateToLatest({ ...(recordStand as object), specVersion: '1.11' }).specVersion).toBe('1.15');
+        expect(migrateToLatest({ ...(recordStand as object), specVersion: '1.12' }).specVersion).toBe('1.15');
     });
 
     /**

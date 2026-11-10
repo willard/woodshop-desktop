@@ -69,7 +69,7 @@ describe('buildPartGeometry — the mesh survives it', () => {
 describe('lintSpec — op.curve-opposed catches it before geometry', () => {
     it('errors when two arcs consume the span between them', () => {
         const spec = parseSpec({
-            specVersion: '1.14',
+            specVersion: '1.15',
             units: 'in',
             name: 'opposed',
             materials: [
@@ -104,7 +104,7 @@ describe('lintSpec — op.curve-opposed catches it before geometry', () => {
 
     it('leaves opposing arcs that still leave material alone', () => {
         const spec = parseSpec({
-            specVersion: '1.14',
+            specVersion: '1.15',
             units: 'in',
             name: 'shallow',
             materials: [

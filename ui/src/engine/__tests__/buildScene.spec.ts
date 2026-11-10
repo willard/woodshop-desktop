@@ -287,7 +287,7 @@ describe('fasteners point at their mate (golden fixtures + shipped templates)', 
 describe('movable hardware in the scene (spec 1.12)', () => {
     function cabinet(): Spec {
         return parseSpec({
-            specVersion: '1.14',
+            specVersion: '1.15',
             units: 'in',
             name: 'Cabinet',
             materials: [

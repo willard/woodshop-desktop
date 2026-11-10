@@ -4,7 +4,7 @@
  */
 import { wasm } from '@/domain';
 
-export const CURRENT_SPEC_VERSION = '1.14' as const;
+export const CURRENT_SPEC_VERSION = '1.15' as const;
 
 /** Applies every step from the spec's version up to CURRENT_SPEC_VERSION. Throws on unknown. */
 export function migrateToLatest(input: unknown): Record<string, unknown> {

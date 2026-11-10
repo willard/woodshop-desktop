@@ -22,6 +22,8 @@ pub struct Spec {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub movables: Option<Vec<Movable>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hardware: Option<Vec<HardwareMount>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub meta: Option<Meta>,
 }
 
@@ -36,6 +38,10 @@ impl Spec {
 
     pub fn movables(&self) -> &[Movable] {
         self.movables.as_deref().unwrap_or_default()
+    }
+
+    pub fn hardware(&self) -> &[HardwareMount] {
+        self.hardware.as_deref().unwrap_or_default()
     }
 
     pub fn material(&self, id: &str) -> Option<&Material> {
@@ -600,6 +606,12 @@ pub enum Movable {
         #[serde(rename = "hingeEdge")]
         hinge_edge: Edge,
         style: MovableStyle,
+        /// Catalog hinge (1.15); `None` = the default for the style.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        hinge: Option<String>,
+        /// Catalog pull or knob (1.15), or `"none"`; `None` = a plain knob.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pull: Option<String>,
     },
     Drawer {
         id: Id,
@@ -610,6 +622,12 @@ pub enum Movable {
         #[serde(rename = "frontPartId")]
         front_part_id: Id,
         style: MovableStyle,
+        /// Catalog slide (1.15); `None` = side-mount ball-bearing.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        slide: Option<String>,
+        /// Catalog pull or knob (1.15), or `"none"`; `None` = a plain knob.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pull: Option<String>,
     },
 }
 
@@ -640,9 +658,43 @@ impl Movable {
         }
     }
 
+    /// The chosen pull's catalog id, `"none"`, or `None` for the default knob.
+    pub fn pull(&self) -> Option<&str> {
+        match self {
+            Movable::Door { pull, .. } | Movable::Drawer { pull, .. } => pull.as_deref(),
+        }
+    }
+
     pub fn style(&self) -> MovableStyle {
         match self {
             Movable::Door { style, .. } | Movable::Drawer { style, .. } => *style,
         }
     }
+}
+
+/// A side of a part a piece of hardware can mount on: a face or an edge, in the local frame.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Side {
+    Front,
+    Back,
+    L0,
+    L1,
+    W0,
+    W1,
+}
+
+/// One piece of catalog hardware mounted on a part (1.15). See `crate::hardware` for the catalog
+/// and the mounting frame.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct HardwareMount {
+    pub id: Id,
+    pub item: String,
+    pub part_id: Id,
+    pub side: Side,
+    pub x: f64,
+    pub y: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rot: Option<u16>,
 }

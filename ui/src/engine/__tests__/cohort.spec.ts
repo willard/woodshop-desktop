@@ -14,7 +14,7 @@ function spec(): Spec {
     });
 
     return parseSpec({
-        specVersion: '1.14',
+        specVersion: '1.15',
         units: 'in',
         name: 'Cohorts',
         materials: [{ id: 'mat', type: 'sheet', name: 'Ply', thickness: 0.75, sheetSize: { l: 96, w: 48 } }],
