@@ -68,6 +68,12 @@ template — the outline you would cut, with holes and channels marked — so yo
 is deep enough to hold anything before a human does. get_cut_list adds the ops that shape each part and \
 the stock to buy.
 
+Hardware: list_hardware browses a catalog of real hardware with true dimensions. A door's hinge and \
+pull and a drawer's slides and pull are set on the movable (add_movable / update_movable) and placed \
+for you; anything else — a pull on a fixed panel, casters, corner braces, a hasp, a lid stay — is \
+mounted on a side of a part with add_hardware, and moved or removed with update_hardware and \
+delete_hardware. Hardware is counted in the hardware list; it never cuts the part.
+
 Precise edits: edit_parts changes SEVERAL parts at once (moves, rotations, resizes) and is validated \
 only at the end, which is the only way to re-orient an existing design — the single-part tools reject \
 each intermediate state. move_part (new position and/or rotation), resize_part, rename_part, \

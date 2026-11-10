@@ -36,11 +36,11 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 29);
+    assert_eq!(tools::TOOLS.len(), 33);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
-    assert_eq!(names.len(), 29);
+    assert_eq!(names.len(), 33);
     for t in tools::TOOLS {
         let schema = (t.schema)();
         assert_eq!(schema["type"], "object", "{}", t.name);
@@ -434,4 +434,135 @@ fn trashed_designs_are_invisible() {
         err(&w, "get_design", json!({ "project_id": id })),
         format!("No design #{id} was found in your library.")
     );
+}
+
+#[test]
+fn hardware_from_the_catalog() {
+    let w = woodshop();
+    let overview = ok(&w, "list_hardware", json!({}));
+    assert!(
+        overview["categories"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|c| c["id"] == "casters")
+    );
+    let pulls = ok(&w, "list_hardware", json!({ "role": "pull" }));
+    assert!(
+        pulls["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|i| i["id"] == "pull.bar-96mm")
+    );
+
+    let id = ok(&w, "start_from_template", json!({ "template": "bookshelf" }))["projectId"]
+        .as_i64()
+        .unwrap();
+    let spec = ok(&w, "get_design", json!({ "project_id": id }))["spec"].clone();
+    let part = spec["parts"][0]["id"].as_str().unwrap().to_owned();
+
+    // Mounted at the centre of the front face unless told otherwise.
+    let added = ok(
+        &w,
+        "add_hardware",
+        json!({ "project_id": id, "item": "pull.bar-96mm", "part_id": part }),
+    );
+    assert!(
+        added["summary"].as_str().unwrap().contains("hw_pull_bar_96mm"),
+        "{added}"
+    );
+    let listed = ok(&w, "get_cut_list", json!({ "project_id": id }));
+    assert!(
+        listed["hardware"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|h| h["description"] == "bar pulls, 96 mm centers" && h["qty"] == 1)
+    );
+
+    ok(
+        &w,
+        "update_hardware",
+        json!({ "project_id": id, "hardware_id": "hw_pull_bar_96mm", "side": "back", "rot": 90 }),
+    );
+    let mount = ok(&w, "get_design", json!({ "project_id": id }))["spec"]["hardware"][0].clone();
+    assert_eq!(mount["side"], "back");
+    assert_eq!(mount["rot"], 90);
+
+    // Explained refusals: off the part, not in the catalog, slides are not for parts.
+    assert!(
+        err(
+            &w,
+            "add_hardware",
+            json!({ "project_id": id, "item": "pull.bar-96mm", "part_id": part, "x": 200 })
+        )
+        .contains("is off the front")
+    );
+    assert!(
+        err(
+            &w,
+            "add_hardware",
+            json!({ "project_id": id, "item": "pull.unobtainium", "part_id": part })
+        )
+        .starts_with("No \"pull.unobtainium\" in the hardware catalog")
+    );
+    assert!(
+        err(
+            &w,
+            "add_hardware",
+            json!({ "project_id": id, "item": "slide.side-mount", "part_id": part })
+        )
+        .contains("belong to a drawer")
+    );
+
+    // A door names its hinge and pull; the list follows.
+    ok(
+        &w,
+        "add_movable",
+        json!({ "project_id": id, "kind": "door", "part_ids": [part], "anchor_part_id": part, "hinge_edge": "w0", "hinge": "hinge.piano-24in", "pull": "none" }),
+    );
+    let listed = ok(&w, "get_cut_list", json!({ "project_id": id }));
+    let rows = listed["hardware"].as_array().unwrap();
+    assert!(
+        rows.iter()
+            .any(|h| h["description"] == "24\" piano (continuous) hinges" && h["qty"] == 1),
+        "{rows:?}"
+    );
+    assert!(!rows.iter().any(|h| h["description"] == "cabinet knobs"), "{rows:?}");
+    assert!(
+        err(
+            &w,
+            "update_movable",
+            json!({ "project_id": id, "movable_id": "mv_door", "hinge": "pull.bar-96mm" })
+        )
+        .contains("is not a hinge")
+    );
+
+    // Deleting the part takes its hardware with it.
+    ok(
+        &w,
+        "delete_hardware",
+        json!({ "project_id": id, "hardware_id": "hw_pull_bar_96mm" }),
+    );
+    ok(
+        &w,
+        "add_hardware",
+        json!({ "project_id": id, "item": "hook.coat-single", "part_id": part }),
+    );
+    ok(
+        &w,
+        "delete_movable",
+        json!({ "project_id": id, "movable_id": "mv_door" }),
+    );
+    let _ = call(&w, "delete_part", json!({ "project_id": id, "part_id": part }));
+    let after = ok(&w, "get_design", json!({ "project_id": id }))["spec"].clone();
+    if after["parts"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|p| p["id"] != part.as_str())
+    {
+        assert!(after["hardware"].as_array().unwrap().is_empty());
+    }
 }

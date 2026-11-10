@@ -9,6 +9,7 @@ use crate::ctx::{Outcome, Woodshop};
 
 mod authoring;
 mod edit;
+mod hardware;
 mod joinery;
 mod read;
 mod start;
@@ -53,6 +54,10 @@ pub static TOOLS: &[ToolDef] = &[
     joinery::ADD_MOVABLE,
     joinery::UPDATE_MOVABLE,
     joinery::DELETE_MOVABLE,
+    hardware::LIST_HARDWARE,
+    hardware::ADD_HARDWARE,
+    hardware::UPDATE_HARDWARE,
+    hardware::DELETE_HARDWARE,
 ];
 
 pub fn find(name: &str) -> Option<&'static ToolDef> {

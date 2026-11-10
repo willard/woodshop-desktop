@@ -198,3 +198,29 @@ REAL-WORLD PROPORTIONS — unless the user gives a dimension, use these so the p
 
 Produce a buildable, real-world-plausible design: sensible material thicknesses, parts that fit
 their stock, and a fully connected assembly with no floating parts.
+
+## Hardware (§3.4, spec 1.15)
+
+- Hardware comes from a catalog of real items with true dimensions (pulls, hinges, slides, casters,
+  feet, brackets, shelf pins, latches, lid stays, hooks). Never invent an id: list them with
+  `list_hardware`. Hardware adds to the hardware list and the 3D view. It NEVER cuts the part: a
+  hole a piece needs is still a `hole` op you place.
+- A door's hinge and pull and a drawer's slides and pull belong to the MOVABLE: set `hinge`,
+  `slide` and `pull` on it and they are placed and counted for you. `pull: "none"` means a push
+  latch or a wooden pull. Do not also mount them by hand.
+- Everything else is a mount: `{ "id": "hw_pull_1", "item": "pull.bar-96mm", "partId": "p_door",
+  "side": "front", "x": 3, "y": 12, "rot": 90 }`. It moves with its part.
+  · `side` is in the part's LOCAL frame (§3.1): `front` (+Z), `back` (−Z), an l-edge (`l0`, `l1`)
+    or an end (`w0`, `w1`). After rotation that is NOT a world direction — check with
+    explain_part which way the side faces. A caster goes on whichever side faces DOWN: the
+    `back` of a base panel laid flat with `rot: [-90, 0, 0]`, or the `w0` end of a leg stood up
+    with `rot: [0, 0, 90]`.
+  · `x`, `y` are inches from that side's low corner. Faces and l-edges: `x` along the length from
+    the w0 end. Ends: `x` along the width from the l0 edge. `y` on a face runs along the width
+    from the l0 edge (exactly a hole's `y`); on an edge or end it runs across the thickness from
+    the back face.
+  · `rot` is 0, 90, 180 or 270 about the outward normal. At 0 the piece's long axis follows the
+    side's first axis; a bar pull that should stand upright on a door whose length is horizontal
+    needs `rot: 90`.
+- Mount hardware where it would really go: pulls 2–4 in from the opening edge, casters 1–2 in
+  in from each corner of the base, corner braces in the inside corner they brace.

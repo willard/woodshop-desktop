@@ -2,8 +2,10 @@
 
 use serde_json::{Value, json};
 
+use super::hardware::fitting;
 use super::*;
 use crate::ctx::{Loaded, compact, find, ids, map_one, plural, push, text, unique_id};
+use woodshop_core::hardware::Role;
 
 fn op_arg<'a>(args: &Args<'a>, required: &str, needs_type: &str) -> Result<&'a Value, String> {
     let op = args.raw("op").ok_or_else(|| required.to_owned())?;
@@ -366,6 +368,9 @@ pub const ADD_MOVABLE: ToolDef = ToolDef {
                 "hinge_edge": one_of(EDGES, "Doors only: the panel edge the hinges mount on, in its own frame (§3.1)."),
                 "style": one_of(&["overlay", "inset"], "overlay laps the opening, inset sits inside it. Defaults to overlay."),
                 "name": string("Optional label, e.g. \"Left Door\"."),
+                "hinge": string("Doors only: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style."),
+                "slide": string("Drawers only: a catalog slide id (list_hardware with role \"slide\"). Omit for side-mount ball-bearing slides."),
+                "pull": string("A catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
             }),
             &["project_id", "kind", "part_ids", "anchor_part_id"],
         )
@@ -403,6 +408,15 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
     )?;
     let style = args.opt_enum("style", &["overlay", "inset"], "")?;
     let name = args.opt_str_max("name", 80)?;
+    let hinge = fitting(args, "hinge", Role::Hinge)?;
+    let slide = fitting(args, "slide", Role::Slide)?;
+    let pull = fitting(args, "pull", Role::Pull)?;
+    if kind == "drawer" && hinge.is_some() {
+        return Err("A drawer has no hinge; give it a `slide` instead.".into());
+    }
+    if kind == "door" && slide.is_some() {
+        return Err("A door has no slides; give it a `hinge` instead.".into());
+    }
 
     let design = w.load_editable(project_id)?;
     for part_id in &part_ids {
@@ -451,6 +465,9 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
         "frontPartId": (!door).then_some(anchor),
         "hingeEdge": if door { hinge_edge } else { None },
         "style": style.unwrap_or("overlay"),
+        "hinge": if door { hinge } else { None },
+        "slide": if door { None } else { slide },
+        "pull": pull,
     }));
     let result = w.apply(&design, &format!("Add {kind}"), false, |spec| {
         push(spec, "movables", movable)
@@ -487,6 +504,9 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
                 "hinge_edge": one_of(EDGES, "Doors only: the panel edge the hinges mount on, in its own frame (§3.1)."),
                 "style": one_of(&["overlay", "inset"], "Overlay laps the opening; inset sits inside it."),
                 "name": string("New display name, e.g. \"Left Door\"."),
+                "hinge": string("Doors only: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style."),
+                "slide": string("Drawers only: a catalog slide id (list_hardware with role \"slide\"). Omit for side-mount ball-bearing slides."),
+                "pull": string("A catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
             }),
             &["project_id", "movable_id"],
         )
@@ -511,15 +531,29 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
                 args.opt_enum("style", &["overlay", "inset"], "style must be overlay or inset.")?,
             ),
             ("name", args.opt_str_max("name", 80)?.filter(|n| !n.is_empty())),
+            ("hinge", fitting(args, "hinge", Role::Hinge)?),
+            ("slide", fitting(args, "slide", Role::Slide)?),
+            ("pull", fitting(args, "pull", Role::Pull)?),
         ]
         .into_iter()
         .filter_map(|(k, v)| v.map(|v| (k, v)))
         .collect();
         if changes.is_empty() {
-            return Err("Provide a new hinge_edge, style, or name.".into());
+            return Err("Provide what to change: hinge_edge, style, name, hinge, slide or pull.".into());
         }
         let design = w.load_editable(project_id)?;
         let movable = find(&design.draft, "movables", movable_id).ok_or_else(|| no_movable(movable_id))?;
+        let is_door = movable["kind"] == "door";
+        if changes.iter().any(|(k, _)| *k == "hinge") && !is_door {
+            return Err(format!(
+                "\"{movable_id}\" is a drawer, which has no hinge; set its `slide` instead."
+            ));
+        }
+        if changes.iter().any(|(k, _)| *k == "slide") && is_door {
+            return Err(format!(
+                "\"{movable_id}\" is a door, which has no slides; set its `hinge` instead."
+            ));
+        }
         if changes.iter().any(|(k, _)| *k == "hingeEdge") && movable["kind"] != "door" {
             return Err(format!(
                 "\"{movable_id}\" is a drawer, which has no hinge edge — it pulls out along its front's own +Z \
