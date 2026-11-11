@@ -85,14 +85,15 @@ workflows, crash logging, the macOS fixes, and **most of Phase 1**.
 | 1.6 Inspector: per-part hardware list; hinge, slide and pull pickers | Done |
 | 1.7 Click a hardware mesh to select it | Done: selects its part, opens the inspector on that piece's row, and tints the piece |
 | 1.8 MCP tools, conventions, server instructions | Done, except `explain_part` does not report mounts yet |
-| 1.9 Templates with real hardware; help article | Not started |
-| 1.10 Verify in the real window; exports | Partly: 3D view and hardware list seen in the real window. PDF, CSV and HTML viewer with hardware not yet checked there. |
+| 1.9 Templates with real hardware; help article | Done: mobile workbench (locking casters, legs shortened to keep a 34" top), nightstand (soft-close slides, bar pull), dado record stand (concealed hinges, pull); help article "Adding hardware" |
+| 1.10 Verify; exports | PDF and HTML viewer checked with hardware (rows, casters drawn, overall height includes casters). CSV uses the same rows. Still to do: click through the native save dialogs in the real window. |
 
 Known rough edges in what is done:
 - Hardware is one flat metal colour. Pulls and knobs want finishes (black, brass); see 5b.1.
 - The T-hinge strap and the shelf pin are crude; fine at furniture zoom, weak in the preview.
 - An undermount slide is drawn in the side-mount position.
 - At default zoom hardware is only a few pixels; the editor has no "zoom to selection".
+- Caster height is now in the overall size; levelers and other mounted hardware count by their projection.
 
 ---
 
