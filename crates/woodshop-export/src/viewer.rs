@@ -20,6 +20,8 @@ pub struct ViewerInput<'a> {
     pub theme: &'a str,
     pub exported_at: &'a str,
     pub notes: Vec<PlanNote>,
+    /// How the page shows sizes (the exporter's setting).
+    pub units: woodshop_core::units::Units,
 }
 
 #[derive(Serialize)]
@@ -32,6 +34,7 @@ struct Payload<'a> {
     kerf: f64,
     theme: &'a str,
     notes: &'a [PlanNote],
+    units: woodshop_core::units::Units,
 }
 
 #[derive(Serialize)]
@@ -66,6 +69,7 @@ pub fn render_viewer_html(input: &ViewerInput<'_>) -> String {
         kerf: input.kerf,
         theme,
         notes: &input.notes,
+        units: input.units,
     };
     // A bundle can never contain a literal closing tag that would end the inline script early.
     let js = VIEWER_JS.replace("</script", "<\\/script");
@@ -90,6 +94,7 @@ mod tests {
             theme: "dark",
             exported_at: "2026-01-01T00:00:00Z",
             notes: vec![],
+            units: Default::default(),
         });
         assert!(!html.contains("</script><img"));
         assert!(html.contains("<title>&lt;b&gt;Box&lt;/b&gt; — Woodshop plan</title>"));

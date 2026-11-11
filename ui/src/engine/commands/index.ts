@@ -5,7 +5,7 @@
  */
 import type { Spec, Part, Joint, Group, HardwareMount, Material, Op, Species } from '../../spec/types';
 import { type Command, mapPart, mapMaterial, uniqueMaterialId } from './Command';
-import { lumberSizeOf, dowelSizeOf } from '../../lib/lumberSizes';
+import { lumberSizeOf, dowelSizeOf, METRIC_STOCK_LENGTHS } from '../../lib/lumberSizes';
 import { aabbFromPart } from '../snapping';
 
 export {
@@ -597,7 +597,9 @@ export class SetPartStock implements Command {
                     stockLengths:
                         current.type === 'lumber' && current.stockLengths !== undefined
                             ? current.stockLengths
-                            : [96],
+                            : size.metric
+                              ? METRIC_STOCK_LENGTHS
+                              : [96],
                     grain: current.grain ?? true,
                     ...(current.species === undefined ? {} : { species: current.species }),
                     ...(current.costPerBoardFoot === undefined

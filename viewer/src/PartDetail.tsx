@@ -1,9 +1,9 @@
 /** Read-only part detail for the exported plan; op rows use the editor's own vocabulary. */
-import { formatFraction } from '@/lib/fraction';
+import { len } from '@/lib/display';
 import { opSummary } from '@/spec/opLabel';
 import type { Part, Spec } from '@/spec';
 
-const inch = (n: number): string => `${formatFraction(n)}"`;
+const inch = (n: number): string => len(n);
 const AXIS_LABEL = ['X (length)', 'Y (width)', 'Z (up)'] as const;
 
 export function PartDetail({ spec, part }: { spec: Spec; part: Part }) {

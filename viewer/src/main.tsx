@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { initDomain } from '@/domain';
 import { ViewerApp } from './ViewerApp';
 import { readPayload } from './payload';
+import { setUnits } from '@/lib/display';
 import './viewer.css';
 
 function fail(message: string): void {
@@ -29,6 +30,7 @@ void initDomain().then(() => {
         fail(result.error);
         return;
     }
+    setUnits(result.payload.units);
     document.title = `${result.payload.projectName} — Woodshop plan`;
     createRoot(mount).render(<ViewerApp payload={result.payload} />);
 });

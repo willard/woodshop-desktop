@@ -16,7 +16,7 @@ use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 use woodshop_core::cutlist::{CutList, CutListConfig, CutListSection, compute_cut_list, group_cut_list};
 use woodshop_core::geometry::overall_size;
 use woodshop_core::spec::Spec;
-use woodshop_core::units::inch_label;
+use woodshop_core::units::{Units, format_length, format_length_value};
 
 use crate::ExportError;
 
@@ -38,6 +38,8 @@ pub struct PlanInput<'a> {
     pub notes: Vec<PlanNote>,
     /// PNG snapshot of the model for the title block.
     pub thumbnail: Option<Vec<u8>>,
+    /// How sizes are printed: fractions, decimal inches or millimetres (the reader's setting).
+    pub units: Units,
 }
 
 // --- The view model the template lays out --------------------------------------------------
@@ -118,6 +120,24 @@ struct CutView {
     length: String,
 }
 
+/// Three sizes as one, the unit said once in metric: `24" × 16" × 3/4"`, `610 × 406 × 19 mm`.
+fn dims3(a: f64, b: f64, c: f64, units: Units) -> String {
+    match units {
+        Units::Metric => format!(
+            "{} × {} × {} mm",
+            format_length_value(a, units),
+            format_length_value(b, units),
+            format_length_value(c, units)
+        ),
+        _ => format!(
+            "{} × {} × {}",
+            format_length(a, units),
+            format_length(b, units),
+            format_length(c, units)
+        ),
+    }
+}
+
 fn money(n: Option<f64>) -> String {
     n.map_or_else(|| "—".into(), |v| format!("${v:.2}"))
 }
@@ -130,7 +150,7 @@ fn plural(n: usize, one: &str) -> String {
     format!("{n} {one}{}", if n == 1 { "" } else { "s" })
 }
 
-fn section_view(section: &CutListSection) -> SectionView {
+fn section_view(section: &CutListSection, units: Units) -> SectionView {
     let kind = match section.kind {
         SectionKind::Sheet => "Sheet goods",
         SectionKind::Lumber => "Lumber",
@@ -143,8 +163,8 @@ fn section_view(section: &CutListSection) -> SectionView {
             StockUnit::Stick => "stick",
         };
         let size = match stock.w {
-            Some(w) => format!("{} × {}", inch_label(stock.l), inch_label(w)),
-            None => inch_label(stock.l),
+            Some(w) => woodshop_core::units::format_size(stock.l, w, units),
+            None => format_length(stock.l, units),
         };
         summary.push(format!("Buy {} · {size}", plural(stock.count, unit)));
     }
@@ -190,12 +210,7 @@ fn section_view(section: &CutListSection) -> SectionView {
                 RowView {
                     qty: g.qty,
                     label: g.label.clone(),
-                    dims: format!(
-                        "{} × {} × {}",
-                        inch_label(g.length),
-                        inch_label(g.width),
-                        inch_label(g.thickness)
-                    ),
+                    dims: dims3(g.length, g.width, g.thickness, units),
                     notes: notes.join(", "),
                     members,
                 }
@@ -205,14 +220,8 @@ fn section_view(section: &CutListSection) -> SectionView {
 }
 
 fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
-    let overall = overall_size(input.spec).map(|o| {
-        format!(
-            "{} × {} × {}",
-            inch_label(o.width),
-            inch_label(o.depth),
-            inch_label(o.height)
-        )
-    });
+    let units = input.units;
+    let overall = overall_size(input.spec).map(|o| dims3(o.width, o.depth, o.height, units));
     let mut notes = input.notes.clone();
     notes.sort_by_key(|n| !n.pinned);
     PlanView {
@@ -240,7 +249,10 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             },
         ],
         notes,
-        sections: group_cut_list(cut_list).iter().map(section_view).collect(),
+        sections: group_cut_list(cut_list)
+            .iter()
+            .map(|sec| section_view(sec, units))
+            .collect(),
         hardware: cut_list
             .hardware
             .iter()
@@ -284,7 +296,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                     "{} — {} @ {}, {} waste",
                     p.material_name,
                     plural(p.stick_count, "stick"),
-                    inch_label(p.stock_length),
+                    format_length(p.stock_length, units),
                     pct(p.waste)
                 ),
                 cuts: p
@@ -293,7 +305,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                     .map(|c| CutView {
                         name: c.name.clone(),
                         stick: c.stick + 1,
-                        length: inch_label(c.length),
+                        length: format_length(c.length, units),
                     })
                     .collect(),
             })

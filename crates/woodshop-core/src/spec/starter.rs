@@ -20,6 +20,20 @@ pub struct StarterOptions {
     pub sheet_width: Option<f64>,
 }
 
+impl StarterOptions {
+    /// What a metric shop starts on: 18 mm birch plywood in 2440 × 1220 sheets.
+    pub fn metric() -> Self {
+        let mm = |v: f64| v / super::super::units::MM_PER_INCH;
+        Self {
+            material_name: Some("Birch Plywood 18 mm".into()),
+            thickness: Some(mm(18.0)),
+            sheet_length: Some(mm(2440.0)),
+            sheet_width: Some(mm(1220.0)),
+            ..Self::default()
+        }
+    }
+}
+
 fn capitalized(species: Species) -> String {
     let s = species.as_str();
     let mut chars = s.chars();

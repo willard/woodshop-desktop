@@ -71,6 +71,13 @@ export function size(a: number, b: number, units: Units = current): string {
         : `${len(a, units)} × ${len(b, units)}`;
 }
 
+/** Three lengths as one size, the unit said once in metric: `24" × 12" × 3/4"`, `610 × 305 × 18 mm`. */
+export function dims(a: number, b: number, c: number, units: Units = current): string {
+    return units === 'metric'
+        ? `${lenValue(a, units)} × ${lenValue(b, units)} × ${lenValue(c, units)} mm`
+        : `${len(a, units)} × ${len(b, units)} × ${len(c, units)}`;
+}
+
 /** What a person typed, in inches; null if unreadable or negative. A named unit (mm, cm, ", ') wins. */
 export function parseLen(input: string, units: Units = current): number | null {
     return wasm.parseLength(input, units) ?? null;

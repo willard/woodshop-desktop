@@ -16,6 +16,12 @@ fn main() {
             body: "Sand to 180 before glue-up.".into(),
             pinned: true,
         }],
+        // `WOODSHOP_UNITS=metric` (or decimal) to see the page in other units.
+        units: match std::env::var("WOODSHOP_UNITS").as_deref() {
+            Ok("metric") => woodshop_core::units::Units::Metric,
+            Ok("decimal") => woodshop_core::units::Units::Decimal,
+            _ => woodshop_core::units::Units::Fraction,
+        },
     });
     std::fs::write(out, html).expect("writable");
 }

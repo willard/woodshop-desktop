@@ -23,7 +23,11 @@ export interface StockSuggestion {
     partsFitWithin: string;
     suggestedStock: string;
     wastePercent: number;
+    /** In shop fractions (what MCP agents read); the app words its own with `adviceText`. */
     message: string;
+    currentSize: { l: number; w: number };
+    neededSize: { l: number; w: number };
+    suggestedSize: { l: number; w: number };
 }
 
 export function stockAdvice(cutList: CutList, spec: Spec): StockSuggestion[] {

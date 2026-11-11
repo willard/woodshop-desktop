@@ -2,15 +2,21 @@
  * Selection-driven part editor (right dock "Inspector"). Purely presentational: every change is
  * reported through a callback and the workspace executes the Command.
  */
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Op, Part, Species } from '@/spec';
 import type { HardwarePatch, PlacementRequest } from '@/engine';
 import { MovableFittings, PartHardware } from './HardwareFittings';
 import { DEFAULT_EASE_CONFIG, WORKSPACE_POS_BOUND } from '@/engine';
 import { opSummary } from '@/spec/opLabel';
-import { DOWEL_SIZES, LUMBER_SIZES, dowelSizeOf } from '@/lib/lumberSizes';
+import {
+    DOWEL_SIZES,
+    LUMBER_SIZES,
+    METRIC_DOWEL_SIZES,
+    METRIC_LUMBER_SIZES,
+    dowelSizeOf,
+} from '@/lib/lumberSizes';
 import { Field, PrimaryButton, SecondaryButton, SectionLabel, Select, TextInput, onEnter } from './form';
-import { len, lenValue, parseLen, parseSignedLen, unitSuffix } from '@/lib/display';
+import { getUnits, len, lenValue, parseLen, parseSignedLen, unitSuffix } from '@/lib/display';
 
 type Edge = 'l0' | 'l1' | 'w0' | 'w1';
 type Axis3 = 0 | 1 | 2;
@@ -61,6 +67,24 @@ export interface PartInspectorProps {
     /** The piece picked in the 3D view, highlighted and scrolled to. */
     selectedHardwareId: string | null;
     onSelectHardware(id: string | null): void;
+}
+
+const IMPERIAL_STOCK = {
+    lumberLabel: 'Dimensional lumber',
+    lumber: LUMBER_SIZES,
+    dowelLabel: 'Dowel rod',
+    dowels: DOWEL_SIZES,
+};
+const METRIC_STOCK = {
+    lumberLabel: 'Timber (metric)',
+    lumber: METRIC_LUMBER_SIZES,
+    dowelLabel: 'Dowel rod (metric)',
+    dowels: METRIC_DOWEL_SIZES,
+};
+
+/** Stock sizes for the picker, the system being worked in first. */
+function stockGroups() {
+    return getUnits() === 'metric' ? [METRIC_STOCK, IMPERIAL_STOCK] : [IMPERIAL_STOCK, METRIC_STOCK];
 }
 
 const SPECIES_OPTIONS: { value: Species; label: string }[] = [
@@ -169,7 +193,13 @@ export function PartInspector(p: PartInspectorProps) {
             setWInput(lenValue(part.size.w));
             return;
         }
-        if (l !== part.size.l || w !== part.size.w) p.onResize({ l, w });
+        if (l !== part.size.l || w !== part.size.w) {
+            p.onResize({ l, w });
+        } else {
+            // Same size typed another way ("12 in" for 305 mm): show it the usual way.
+            setLInput(lenValue(l));
+            setWInput(lenValue(w));
+        }
     }
 
     function commitPosition(axis: Axis3): void {
@@ -181,7 +211,10 @@ export function PartInspector(p: PartInspectorProps) {
             return;
         }
         // Unchanged text means the user did not ask for a move (the shown value is rounded).
-        if (text.trim() === lenValue(current[axis]) || value === current[axis]) return;
+        if (text.trim() === lenValue(current[axis]) || value === current[axis]) {
+            setPosInputs(posText(part));
+            return;
+        }
         const pos: [number, number, number] = [current[0], current[1], current[2]];
         pos[axis] = value;
         p.onMove(pos);
@@ -530,20 +563,27 @@ export function PartInspector(p: PartInspectorProps) {
                         <option value="" disabled>
                             — custom —
                         </option>
-                        <optgroup label="Dimensional lumber">
-                            {LUMBER_SIZES.map((s) => (
-                                <option key={s.nominal} value={s.nominal}>
-                                    {s.nominal} ({len(s.thickness)} × {len(s.width)})
-                                </option>
-                            ))}
-                        </optgroup>
-                        <optgroup label="Dowel rod" disabled={hasOps}>
-                            {DOWEL_SIZES.map((d) => (
-                                <option key={d.label} value={d.label}>
-                                    {d.label} dowel
-                                </option>
-                            ))}
-                        </optgroup>
+                        {/* The stock of the system being worked in comes first; the other stays reachable. */}
+                        {stockGroups().map((g) => (
+                            <Fragment key={g.lumberLabel}>
+                                <optgroup label={g.lumberLabel}>
+                                    {g.lumber.map((s) => (
+                                        <option key={s.nominal} value={s.nominal}>
+                                            {s.metric
+                                                ? s.nominal
+                                                : `${s.nominal} (${len(s.thickness)} × ${len(s.width)})`}
+                                        </option>
+                                    ))}
+                                </optgroup>
+                                <optgroup label={g.dowelLabel} disabled={hasOps}>
+                                    {g.dowels.map((d) => (
+                                        <option key={d.label} value={d.label}>
+                                            {d.label} dowel
+                                        </option>
+                                    ))}
+                                </optgroup>
+                            </Fragment>
+                        ))}
                     </Select>
                 </Field>
             </div>

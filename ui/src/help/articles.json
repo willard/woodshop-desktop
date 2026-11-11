@@ -33,6 +33,14 @@
             {
                 "type": "note",
                 "text": "Your projects live in a single library on this computer. Use Export… on a project to save a .woodshop file for backup or to move it to another machine."
+            },
+            {
+                "type": "h",
+                "text": "Inches or millimetres"
+            },
+            {
+                "type": "p",
+                "text": "Settings ▸ Units chooses how sizes are shown and typed: inches as fractions, decimal inches, or millimetres. Any size field also takes a unit you type, such as 450 mm or 17 3/4 in. Designs are stored the same way whichever you pick, so you can switch at any time."
             }
         ]
     },

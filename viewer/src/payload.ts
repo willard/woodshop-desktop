@@ -6,6 +6,7 @@
  */
 import { safeParseSpec, type Spec } from '@/spec';
 import { DEFAULT_CUTLIST_CONFIG } from '@/cutlist';
+import { isUnits, type Units } from '@/lib/display';
 
 export interface ExportNote {
     body: string;
@@ -20,6 +21,8 @@ export interface ExportPayload {
     kerf: number;
     theme: 'dark' | 'light';
     notes: ExportNote[];
+    /** How sizes are shown; files from before 1.15 carry none and stay in fractions. */
+    units: Units;
 }
 
 interface RawPayload {
@@ -30,6 +33,7 @@ interface RawPayload {
     kerf?: unknown;
     theme?: unknown;
     notes?: unknown;
+    units?: unknown;
 }
 
 export function readPayload(
@@ -58,6 +62,7 @@ export function readPayload(
             spec: parsed.data,
             kerf,
             theme: raw.theme === 'light' ? 'light' : 'dark',
+            units: isUnits(raw.units) ? raw.units : 'fraction',
             notes: Array.isArray(raw.notes)
                 ? raw.notes.flatMap((note) => {
                       const row = note as { body?: unknown; pinned?: unknown };

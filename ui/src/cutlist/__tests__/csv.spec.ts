@@ -72,4 +72,14 @@ describe('cutListCsv', () => {
         const tricky = cutListCsv(computeCutList(spec));
         expect(tricky).toContain('"Shelf, ""top""');
     });
+
+    it('writes millimetres when working in metric', () => {
+        const metric = cutListCsv(cutList, 'metric')
+            .replace(/^\ufeff/, '')
+            .split('\r\n');
+        expect(fields(metric[0]).slice(3, 6)).toEqual(['Length (mm)', 'Width (mm)', 'Thickness (mm)']);
+        const first = fields(metric[1]);
+        expect(Number(first[3])).toBeGreaterThan(100); // a length in mm, not inches
+        expect(first[6]).toMatch(/^\d+ × \d+ × \d+(\.\d)? mm$/);
+    });
 });

@@ -78,7 +78,13 @@ pub fn list_templates() -> Vec<TemplateSummary> {
 
 /// A new project: blank (a single base board), or started from a gallery template.
 #[tauri::command]
-pub fn create_project(lib: State<'_, Library>, name: String, template: Option<String>) -> CmdResult<Project> {
+/// `metric`: a blank project starts on metric stock (18 mm plywood, 2440 × 1220 sheets).
+pub fn create_project(
+    lib: State<'_, Library>,
+    name: String,
+    template: Option<String>,
+    metric: Option<bool>,
+) -> CmdResult<Project> {
     let spec = match template.as_deref() {
         Some(id) => {
             let mut s = templates::find(id).ok_or_else(|| CommandError::NotFound {
@@ -90,7 +96,12 @@ pub fn create_project(lib: State<'_, Library>, name: String, template: Option<St
             s
         }
         None => {
-            let mut s = spec::starter::minimal(&name, &Default::default());
+            let options = if metric == Some(true) {
+                spec::starter::StarterOptions::metric()
+            } else {
+                Default::default()
+            };
+            let mut s = spec::starter::minimal(&name, &options);
             spec::fill_defaults(&mut s);
             s
         }
@@ -358,7 +369,14 @@ fn plan_notes(store: &Store, id: i64) -> woodshop_store::Result<Vec<woodshop_exp
 
 /// The printable PDF plan: cut list, sheet layouts, hardware and shop notes.
 #[tauri::command]
-pub async fn export_pdf(lib: State<'_, Library>, id: i64, path: PathBuf, kerf: f64, date: String) -> CmdResult<()> {
+pub async fn export_pdf(
+    lib: State<'_, Library>,
+    id: i64,
+    path: PathBuf,
+    kerf: f64,
+    date: String,
+    units: Option<woodshop_core::units::Units>,
+) -> CmdResult<()> {
     let (project, notes, thumbnail) = lib.with(|s| {
         let project = s.get_project(id)?;
         let notes = plan_notes(s, id)?;
@@ -378,6 +396,7 @@ pub async fn export_pdf(lib: State<'_, Library>, id: i64, path: PathBuf, kerf: f
             date: &date,
             notes,
             thumbnail,
+            units: units.unwrap_or_default(),
         })
     })
     .await
@@ -396,6 +415,7 @@ pub fn export_viewer(
     kerf: f64,
     theme: String,
     exported_at: String,
+    units: Option<woodshop_core::units::Units>,
 ) -> CmdResult<()> {
     let (project, notes) = lib.with(|s| Ok((s.get_project(id)?, plan_notes(s, id)?)))?;
     let html = woodshop_export::render_viewer_html(&woodshop_export::ViewerInput {
@@ -405,6 +425,7 @@ pub fn export_viewer(
         theme: &theme,
         exported_at: &exported_at,
         notes,
+        units: units.unwrap_or_default(),
     });
     std::fs::write(&path, html)?;
     Ok(())

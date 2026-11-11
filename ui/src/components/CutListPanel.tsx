@@ -11,9 +11,10 @@ import {
     type CutList,
     type CutListGroup,
     type CutListSection,
+    type StockSuggestion,
 } from '@/cutlist';
 import { overallSize, type Material, type Spec } from '@/spec';
-import { len, lenValue, parseLen } from '@/lib/display';
+import { dims, len, lenValue, parseLen, size as sizeOf } from '@/lib/display';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -39,12 +40,18 @@ const pct = (n: number): string => `${Math.round(n * 100)}%`;
 const kindLabel = (kind: CutListSection['kind']): string =>
     kind === 'sheet' ? 'Sheet goods' : kind === 'lumber' ? 'Lumber' : 'Other stock';
 
+/** The stock advice in the reader's units. */
+function adviceText(a: StockSuggestion): string {
+    const { neededSize: n, suggestedSize: p, currentSize: c } = a;
+    return `These parts fit within ${sizeOf(n.l, n.w)}, so a ${sizeOf(p.l, p.w)} panel would do — the ${sizeOf(c.l, c.w)} sheet is ${Math.round(a.wastePercent)}% offcut.`;
+}
+
 function stockLine(section: CutListSection): string {
     if (section.stock === null) {
         return 'No stock plan for this material';
     }
     const { count, unit, l, w } = section.stock;
-    const size = w === undefined ? fmt(l) : `${fmt(l)} × ${fmt(w)}`;
+    const size = w === undefined ? fmt(l) : sizeOf(l, w);
     return `${count} ${unit}${count === 1 ? '' : 's'} · ${size}`;
 }
 
@@ -139,7 +146,7 @@ export function CutListPanel(props: CutListPanelProps) {
                     >
                         <div className="text-muted text-[11.5px]">Overall (W × D × H)</div>
                         <div className="mt-0.5 text-lg font-semibold">
-                            {fmt(overall.width)} × {fmt(overall.depth)} × {fmt(overall.height)}
+                            {dims(overall.width, overall.depth, overall.height)}
                         </div>
                     </div>
                 )}
@@ -151,7 +158,7 @@ export function CutListPanel(props: CutListPanelProps) {
                     data-testid="stock-advice"
                 >
                     {advice.map((a) => (
-                        <p key={a.materialId}>{a.message}</p>
+                        <p key={a.materialId}>{adviceText(a)}</p>
                     ))}
                 </div>
             )}
@@ -246,7 +253,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                     {readonly ? (
                                         <>
                                             <span className="text-muted text-xs">
-                                                {fmt(material.sheetSize.l)} × {fmt(material.sheetSize.w)}
+                                                {sizeOf(material.sheetSize.l, material.sheetSize.w)}
                                             </span>
                                             {material.costPerSheet !== undefined && (
                                                 <span className="text-muted ml-auto text-xs">
@@ -358,8 +365,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                                         </span>
                                                     ))}
                                                     <span className="whitespace-nowrap">
-                                                        {fmt(group.length)} × {fmt(group.width)} ×{' '}
-                                                        {fmt(group.thickness)}
+                                                        {dims(group.length, group.width, group.thickness)}
                                                     </span>
                                                 </span>
                                             </span>

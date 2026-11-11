@@ -106,7 +106,17 @@ export function installMockBackend(): void {
             const template = a.template as string | null;
             const spec = template
                 ? templates.find((t) => t.id === template)?.spec
-                : (wasm.starterSpec(a.name as string, undefined) as Spec);
+                : (wasm.starterSpec(
+                      a.name as string,
+                      a.metric
+                          ? {
+                                material_name: 'Birch Plywood 18 mm',
+                                thickness: 18 / 25.4,
+                                sheet_length: 2440 / 25.4,
+                                sheet_width: 1220 / 25.4,
+                            }
+                          : undefined,
+                  ) as Spec);
             if (!spec) throw notFound(`Template "${template}"`);
             return create(a.name as string, structuredClone(spec));
         },

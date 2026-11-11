@@ -244,21 +244,27 @@ The catalog already carries the numbers (`cup`, `cupDepth`, `boring` on Euro hin
 
 ## Phase 2: Metric support
 
-Designs stay in inches internally (ground rule 2). This phase is display and input only.
+**Done** (commits after `35f253a`). Designs stay in inches internally; this is display and input.
 
-- A `units` setting (Imperial fractions / Imperial decimal / Metric mm) in
-  `ui/src/app/settings.ts` and the Settings page.
-- One formatter and one parser used everywhere a length is shown or typed: build on
-  `ui/src/lib/units.ts` and `ui/src/lib/fraction.ts`. Replace direct `formatFraction` calls in
-  components (grep for them; there are many in `PartInspector`, `CutListPanel`, dialogs).
-- Inputs accept either system regardless of the setting (`450mm`, `17 3/4`, `17.75"`).
-- Cut list, CSV, PDF (`crates/woodshop-export`, pass the unit choice into `PlanInput`), HTML
-  viewer and SVG templates follow the setting.
-- Metric stock presets: 18 mm, 12 mm, 9 mm sheet; 2440 × 1220 sheets; common metric timber
-  sections. Add to `ui/src/lib/lumberSizes.ts` and the add-material UI.
-- Snap grid options in mm (1, 5, 10) when metric.
-- Linter and MCP messages stay in inches for now; note it in the help.
-- Done when: a design can be created, edited, and exported end to end without seeing an inch.
+- Settings ▸ Units: inches as fractions, decimal inches, or millimetres. The default follows the
+  system's region (inches in the US, Liberia and Myanmar; millimetres elsewhere).
+- One formatter and parser in the core (`woodshop-core::units::display`), used by the editor,
+  inspector, dialogs, cut list, CSV, PDF, SVG templates and the offline 3D plan
+  (`ui/src/lib/display.ts` on the UI side: `len`, `lenValue`, `dims`, `size`, `parseLen`).
+- Any field takes a named unit whatever the setting: `450mm`, `45 cm`, `17 3/4"`, `1' 6"`. A
+  bare number follows the setting; a fraction is always inches.
+- Metric snap grids (1, 2, 5, 10 mm) and gaps; metric timber sections and dowels in the stock
+  picker (listed first when working in mm); a new blank project starts on 18 mm plywood in
+  2440 × 1220 sheets; stock advice suggests metric panels for a metric sheet.
+- Browser test: switch to mm, create a project, resize it, and nothing on screen shows an inch.
+
+**Not done, by choice:**
+- Hardware names keep their inch product sizes (`#8 × 1 1/2" wood screws`, `12" drawer slides`,
+  `3" casters`). Metric equivalents need metric fastener tables (screw gauge × length in mm,
+  300 mm slides): a domain change, not a display one.
+- Linter and MCP messages, and the MCP tools' numbers, stay in inches.
+- The shop calculators keep their own per-tool unit picker.
+- Template material names that carry a size ("Birch Plywood 3/4\"") are data and stay as written.
 
 ## Phase 3: Production foundation
 

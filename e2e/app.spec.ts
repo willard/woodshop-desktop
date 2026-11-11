@@ -232,3 +232,37 @@ test('clicking hardware in the 3D view selects it in the inspector', async ({ pa
     await expect(row).toContainText('Round knob 1 1/2"');
     await expect(page.getByTestId('properties')).toBeVisible();
 });
+
+test('working in millimetres, a design never shows an inch', async ({ page }) => {
+    await page.goto('/#/settings');
+    await page.getByTestId('units-metric').click();
+
+    // A new blank project starts on metric stock.
+    await page.getByRole('link', { name: 'Projects' }).click();
+    await page.getByPlaceholder('New project name').fill('Metric box');
+    await page.getByRole('button', { name: 'Create', exact: true }).click();
+    await expect(page).toHaveURL(/#\/projects\/\d+$/);
+
+    await page.getByTestId('cutlist-toggle').click();
+    const cutlist = page.getByTestId('cutlist');
+    await expect(cutlist).toContainText('Birch Plywood 18 mm');
+    await expect(cutlist).toContainText('2440 × 1220 mm');
+
+    // The inspector reads and takes millimetres; a named unit still works.
+    await page.getByTestId('cutlist-group-row').filter({ hasText: 'Base' }).click();
+    await page.getByTestId('inspector-tab').click();
+    await expect(page.getByText('Length (mm)')).toBeVisible();
+    const length = page.getByTestId('length');
+    await length.fill('450');
+    await length.press('Enter');
+    await expect(length).toHaveValue('450');
+    const width = page.getByTestId('width');
+    await width.fill('12 in');
+    await width.press('Enter');
+    await expect(width).toHaveValue('305');
+
+    // Nothing on screen is in inches.
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(cutlist).toContainText('450 × 305 × 18 mm');
+    await expect(page.locator('body')).not.toContainText('"');
+});

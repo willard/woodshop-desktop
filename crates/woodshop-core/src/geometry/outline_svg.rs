@@ -9,7 +9,7 @@ use super::Aabb;
 use super::op_extent::local_box;
 use super::outline::{self, Segment};
 use crate::spec::{Op, Part};
-use crate::units::inch_label;
+use crate::units::{Units, format_length};
 
 /// Paper margin around the blank, in inches.
 const MARGIN: f64 = 1.0;
@@ -19,13 +19,18 @@ const THIN_WIDTH: &str = "0.012";
 const FONT: f64 = 0.18;
 
 pub fn render(part: &Part, thickness: f64, material_name: &str, notes: &[String]) -> String {
+    render_in(part, thickness, material_name, notes, Units::Fraction)
+}
+
+/// [`render`], with the sizes written in the reader's units. The drawing itself is always 1:1.
+pub fn render_in(part: &Part, thickness: f64, material_name: &str, notes: &[String], units: Units) -> String {
     let (l, w) = (part.size.l, part.size.w);
     let m = MARGIN;
     let width = l + 2.0 * m;
     let drawn = w + 2.0 * m;
 
     // The title block gets its own strip BELOW the drawing rather than sharing the margin.
-    let lines = captions(part, l, w, thickness, material_name, notes);
+    let lines = captions(part, l, w, thickness, material_name, notes, units);
     let height = drawn + FONT * 1.35 * (lines.len() as f64 + 1.0);
 
     let mut body = vec![
@@ -43,7 +48,7 @@ pub fn render(part: &Part, thickness: f64, material_name: &str, notes: &[String]
         body.push(op_marks);
     }
     body.push("</g>".into());
-    body.push(labels(&lines, l, w, m, drawn));
+    body.push(labels(&lines, l, w, m, drawn, units));
 
     [
         "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\"".to_string(),
@@ -227,14 +232,22 @@ fn footprint(b: &Aabb, attrs: &str) -> String {
     )
 }
 
-fn captions(part: &Part, l: f64, w: f64, thickness: f64, material_name: &str, notes: &[String]) -> Vec<String> {
+fn captions(
+    part: &Part,
+    l: f64,
+    w: f64,
+    thickness: f64,
+    material_name: &str,
+    notes: &[String],
+    units: Units,
+) -> Vec<String> {
     let mut lines = vec![
         esc(&part.name),
         format!(
             "Blank {} × {} × {}{}",
-            inch_label(l),
-            inch_label(w),
-            inch_label(thickness),
+            format_length(l, units),
+            format_length(w, units),
+            format_length(thickness, units),
             if material_name.is_empty() {
                 String::new()
             } else {
@@ -248,11 +261,11 @@ fn captions(part: &Part, l: f64, w: f64, thickness: f64, material_name: &str, no
     lines
 }
 
-fn labels(lines: &[String], l: f64, w: f64, m: f64, drawn: f64) -> String {
+fn labels(lines: &[String], l: f64, w: f64, m: f64, drawn: f64, units: Units) -> String {
     let mut text = vec![
         // Overall dimensions, centred on each edge, just outside the blank.
-        text_el(m + l / 2.0, m / 2.0, &esc(&inch_label(l)), "middle"),
-        text_el(m / 2.0, m + w / 2.0, &esc(&inch_label(w)), "middle"),
+        text_el(m + l / 2.0, m / 2.0, &esc(&format_length(l, units)), "middle"),
+        text_el(m / 2.0, m + w / 2.0, &esc(&format_length(w, units)), "middle"),
     ];
     for (i, line) in lines.iter().enumerate() {
         text.push(text_el(m, drawn + FONT * 1.35 * (i as f64 + 1.0), line, "start"));

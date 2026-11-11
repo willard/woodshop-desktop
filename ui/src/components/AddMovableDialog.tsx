@@ -31,13 +31,15 @@ export function AddMovableDialog({
         width !== null && width > 0 && width <= 240 && height !== null && height > 0 && height <= 240;
 
     const fit =
-        draft.style === 'overlay' ? 'lapping the opening 1/2" a side' : 'inside the opening, 1/16" reveal';
+        draft.style === 'overlay'
+            ? `lapping the opening ${len(0.5)} a side`
+            : `inside the opening, ${len(0.0625)} reveal`;
     const opening = valid ? `${len(width!)} × ${len(height!)}` : '';
     const summary = !valid
         ? `Enter the opening size (${getUnits() === 'metric' ? '305, 495' : '12, 19 1/2'}).`
         : draft.kind === 'door'
           ? `A door for a ${opening} opening, ${fit}, hinged on the ${draft.hingeSide}.`
-          : `A drawer for a ${opening} opening, front ${fit}. The box gets 1/2" of slide clearance a side.`;
+          : `A drawer for a ${opening} opening, front ${fit}. The box gets ${len(0.5)} of slide clearance a side.`;
 
     const submit = () => valid && onAdd({ ...draft, width: width!, height: height! });
     const input =

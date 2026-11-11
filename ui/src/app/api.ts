@@ -7,6 +7,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import type { Spec } from '@/spec';
+import { getUnits } from '@/lib/display';
 
 export type CommandError =
     | { kind: 'notFound'; message: string }
@@ -100,7 +101,11 @@ export const api = {
     listProjects: (trashed = false) => invoke<ProjectSummary[]>('list_projects', { trashed }),
     listTemplates: () => invoke<TemplateSummary[]>('list_templates'),
     createProject: (name: string, template?: string) =>
-        invoke<Project>('create_project', { name, template: template ?? null }),
+        invoke<Project>('create_project', {
+            name,
+            template: template ?? null,
+            metric: getUnits() === 'metric',
+        }),
     getProject: (id: number) => invoke<Project>('get_project', { id }),
     renameProject: (id: number, name: string) => invoke<void>('rename_project', { id, name }),
     trashProject: (id: number) => invoke<void>('trash_project', { id }),
@@ -152,6 +157,7 @@ export const api = {
                 month: 'short',
                 day: 'numeric',
             }),
+            units: getUnits(),
         }),
     exportViewer: (id: number, path: string, kerf: number) =>
         invoke<void>('export_viewer', {
@@ -160,6 +166,7 @@ export const api = {
             kerf,
             theme: document.documentElement.dataset.theme ?? 'dark',
             exportedAt: new Date().toISOString(),
+            units: getUnits(),
         }),
 };
 

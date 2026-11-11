@@ -10,6 +10,7 @@ import { computeCutList } from '@/cutlist';
 import { api, errorMessage } from '@/app/api';
 import { chooseSavePath, fileStem } from '@/app/files';
 import { wasm } from '@/domain';
+import { getUnits } from '@/lib/display';
 import { useToast } from './Toast';
 
 export interface ExportTarget {
@@ -89,7 +90,13 @@ export function useProjectExports(target: ExportTarget) {
                     const base = path.replace(/\.svg$/i, '');
                     for (const [i, part] of targets.entries()) {
                         const m = materials.get(part.materialId);
-                        const svg = wasm.outlineSvg(part, m?.thickness ?? 0.75, m?.name ?? '', []);
+                        const svg = wasm.outlineSvg(
+                            part,
+                            m?.thickness ?? 0.75,
+                            m?.name ?? '',
+                            [],
+                            getUnits(),
+                        );
                         await api.writeTextFile(
                             targets.length === 1
                                 ? path

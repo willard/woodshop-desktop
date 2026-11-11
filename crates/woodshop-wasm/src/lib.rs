@@ -148,9 +148,22 @@ pub fn outline_for_part(part: JsValue) -> JsResult<JsValue> {
 }
 
 #[wasm_bindgen(js_name = outlineSvg)]
-pub fn outline_svg(part: JsValue, thickness: f64, material_name: &str, notes: Vec<String>) -> JsResult<String> {
+pub fn outline_svg(
+    part: JsValue,
+    thickness: f64,
+    material_name: &str,
+    notes: Vec<String>,
+    units: Option<String>,
+) -> JsResult<String> {
     let part: Part = from_js(part)?;
-    Ok(geometry::outline_svg::render(&part, thickness, material_name, &notes))
+    let units = units_of(units.as_deref().unwrap_or("fraction"));
+    Ok(geometry::outline_svg::render_in(
+        &part,
+        thickness,
+        material_name,
+        &notes,
+        units,
+    ))
 }
 
 #[wasm_bindgen(js_name = fastenerSegments)]

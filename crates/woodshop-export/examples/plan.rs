@@ -16,6 +16,11 @@ fn main() {
             pinned: true,
         }],
         thumbnail: None,
+        units: match std::env::var("WOODSHOP_UNITS").as_deref() {
+            Ok("metric") => woodshop_core::units::Units::Metric,
+            Ok("decimal") => woodshop_core::units::Units::Decimal,
+            _ => woodshop_core::units::Units::Fraction,
+        },
     })
     .expect("renders");
     std::fs::write(out, pdf).expect("writable");
