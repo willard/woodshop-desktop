@@ -1,8 +1,8 @@
 /** Size and style a door or drawer; sized from the selection's opening when there is one. */
 import { useState } from 'react';
 import type { MovableOptions } from '@/engine';
-import { formatFraction, parseFraction } from '@/lib/fraction';
 import { Modal } from './Modal';
+import { getUnits, len, lenValue, parseLen } from '@/lib/display';
 
 const HINGE_SIDES: { value: MovableOptions['hingeSide']; label: string }[] = [
     { value: 'left', label: 'Left' },
@@ -23,18 +23,18 @@ export function AddMovableDialog({
     onClose: () => void;
 }) {
     const [draft, setDraft] = useState<MovableOptions>({ ...options });
-    const [widthText, setWidthText] = useState(formatFraction(options.width));
-    const [heightText, setHeightText] = useState(formatFraction(options.height));
-    const width = parseFraction(widthText);
-    const height = parseFraction(heightText);
+    const [widthText, setWidthText] = useState(lenValue(options.width));
+    const [heightText, setHeightText] = useState(lenValue(options.height));
+    const width = parseLen(widthText);
+    const height = parseLen(heightText);
     const valid =
         width !== null && width > 0 && width <= 240 && height !== null && height > 0 && height <= 240;
 
     const fit =
         draft.style === 'overlay' ? 'lapping the opening 1/2" a side' : 'inside the opening, 1/16" reveal';
-    const opening = valid ? `${formatFraction(width!)}" × ${formatFraction(height!)}"` : '';
+    const opening = valid ? `${len(width!)} × ${len(height!)}` : '';
     const summary = !valid
-        ? 'Enter the opening size in inches (12, 19 1/2).'
+        ? `Enter the opening size (${getUnits() === 'metric' ? '305, 495' : '12, 19 1/2'}).`
         : draft.kind === 'door'
           ? `A door for a ${opening} opening, ${fit}, hinged on the ${draft.hingeSide}.`
           : `A drawer for a ${opening} opening, front ${fit}. The box gets 1/2" of slide clearance a side.`;

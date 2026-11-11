@@ -287,3 +287,34 @@ pub fn parse_fraction(input: &str) -> Option<f64> {
 pub fn parse_signed_fraction(input: &str) -> Option<f64> {
     units::parse_signed_fraction(input)
 }
+
+// ---------------------------------------------------------------------------------------------
+// Display units: how lengths are shown and read (fractions, decimal inches or millimetres)
+
+fn units_of(units: &str) -> units::Units {
+    match units {
+        "decimal" => units::Units::Decimal,
+        "metric" => units::Units::Metric,
+        _ => units::Units::Fraction,
+    }
+}
+
+#[wasm_bindgen(js_name = formatLength)]
+pub fn format_length(inches: f64, units: &str) -> String {
+    units::format_length(inches, units_of(units))
+}
+
+#[wasm_bindgen(js_name = formatLengthValue)]
+pub fn format_length_value(inches: f64, units: &str) -> String {
+    units::format_length_value(inches, units_of(units))
+}
+
+#[wasm_bindgen(js_name = parseLength)]
+pub fn parse_length(input: &str, units: &str) -> Option<f64> {
+    units::parse_length(input, units_of(units))
+}
+
+#[wasm_bindgen(js_name = parseSignedLength)]
+pub fn parse_signed_length(input: &str, units: &str) -> Option<f64> {
+    units::parse_signed_length(input, units_of(units))
+}

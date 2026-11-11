@@ -4,10 +4,10 @@
  * Pure — no DOM, no Vue.
  */
 import type { Op } from './types';
-import { formatFraction } from '../lib/fraction';
+import { len } from '@/lib/display';
 
 /** Formats a decimal-inch measurement the way hard rule 3 requires — via lib/fraction, only. */
-export const inch = (n: number): string => `${formatFraction(n)}"`;
+export const inch = (n: number): string => `${len(n)}`;
 
 /** One-line human summary per op row (§3.1 vocabulary). */
 export function opSummary(op: Op): string {

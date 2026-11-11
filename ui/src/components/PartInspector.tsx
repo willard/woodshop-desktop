@@ -7,10 +7,10 @@ import type { HardwareMount, Movable, Op, Part, Species } from '@/spec';
 import type { HardwarePatch, PlacementRequest } from '@/engine';
 import { MovableFittings, PartHardware } from './HardwareFittings';
 import { DEFAULT_EASE_CONFIG, WORKSPACE_POS_BOUND } from '@/engine';
-import { formatFraction, parseFraction, parseSignedFraction } from '@/lib/fraction';
 import { opSummary } from '@/spec/opLabel';
 import { DOWEL_SIZES, LUMBER_SIZES, dowelSizeOf } from '@/lib/lumberSizes';
 import { Field, PrimaryButton, SecondaryButton, SectionLabel, Select, TextInput, onEnter } from './form';
+import { len, lenValue, parseLen, parseSignedLen, unitSuffix } from '@/lib/display';
 
 type Edge = 'l0' | 'l1' | 'w0' | 'w1';
 type Axis3 = 0 | 1 | 2;
@@ -110,9 +110,9 @@ const OP_BUTTONS: { form: OpForm; label: string }[] = [
 ];
 
 const posText = (part: Part): [string, string, string] => [
-    formatFraction(part.transform.pos[0]),
-    formatFraction(part.transform.pos[1]),
-    formatFraction(part.transform.pos[2]),
+    lenValue(part.transform.pos[0]),
+    lenValue(part.transform.pos[1]),
+    lenValue(part.transform.pos[2]),
 ];
 const rotText = (part: Part): [string, string, string] => [
     String(part.transform.rot[0]),
@@ -129,15 +129,15 @@ export function PartInspector(p: PartInspectorProps) {
     const nameInput = useRef<HTMLInputElement>(null);
 
     // --- Dimension, position and rotation fields: text, so fractions and half-typed values work.
-    const [lInput, setLInput] = useState(formatFraction(part.size.l));
-    const [wInput, setWInput] = useState(formatFraction(part.size.w));
+    const [lInput, setLInput] = useState(lenValue(part.size.l));
+    const [wInput, setWInput] = useState(lenValue(part.size.w));
     const [posInputs, setPosInputs] = useState(posText(part));
     const [rotInputs, setRotInputs] = useState(rotText(part));
 
     useEffect(() => {
         setRenaming(false); // selection or part changed — drop any half-typed rename
-        setLInput(formatFraction(part.size.l));
-        setWInput(formatFraction(part.size.w));
+        setLInput(lenValue(part.size.l));
+        setWInput(lenValue(part.size.w));
         setPosInputs(posText(part));
         setRotInputs(rotText(part));
     }, [part]);
@@ -158,15 +158,15 @@ export function PartInspector(p: PartInspectorProps) {
      * was rendered means "unchanged", so the exact stored value passes straight through.
      */
     function typedDimension(input: string, current: number): number | null {
-        return input.trim() === formatFraction(current) ? current : parseFraction(input);
+        return input.trim() === lenValue(current) ? current : parseLen(input);
     }
 
     function commitResize(): void {
         const l = typedDimension(lInput, part.size.l);
         const w = typedDimension(wInput, part.size.w);
         if (l === null || w === null || l <= 0 || w <= 0 || l > 240 || w > 240) {
-            setLInput(formatFraction(part.size.l));
-            setWInput(formatFraction(part.size.w));
+            setLInput(lenValue(part.size.l));
+            setWInput(lenValue(part.size.w));
             return;
         }
         if (l !== part.size.l || w !== part.size.w) p.onResize({ l, w });
@@ -174,14 +174,14 @@ export function PartInspector(p: PartInspectorProps) {
 
     function commitPosition(axis: Axis3): void {
         const text = posInputs[axis];
-        const value = parseSignedFraction(text);
+        const value = parseSignedLen(text);
         const current = part.transform.pos;
         if (value === null || value < -WORKSPACE_POS_BOUND || value > WORKSPACE_POS_BOUND) {
             setPosInputs(posText(part));
             return;
         }
         // Unchanged text means the user did not ask for a move (the shown value is rounded).
-        if (text.trim() === formatFraction(current[axis]) || value === current[axis]) return;
+        if (text.trim() === lenValue(current[axis]) || value === current[axis]) return;
         const pos: [number, number, number] = [current[0], current[1], current[2]];
         pos[axis] = value;
         p.onMove(pos);
@@ -206,26 +206,32 @@ export function PartInspector(p: PartInspectorProps) {
     // --- Op forms ---
     const [openForm, setOpenForm] = useState<OpForm | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
-    const [dado, setDado] = useState({ face: 'front', axis: 'l', offset: '', width: '3/4', depth: '' });
+    const [dado, setDado] = useState({
+        face: 'front',
+        axis: 'l',
+        offset: '',
+        width: lenValue(0.75),
+        depth: '',
+    });
     const [stopped, setStopped] = useState(false);
     const [dadoRun, setDadoRun] = useState({ from: '', to: '' });
     const [hole, setHole] = useState({
         face: 'front',
         x: '',
         y: '',
-        diameter: '1/4',
+        diameter: lenValue(0.25),
         depth: '',
         purpose: 'other',
     });
     const [curve, setCurve] = useState({ edge: 'l1', kind: 'arc', size: '', end: 'both' });
     const [notch, setNotch] = useState({ edge: 'l1', from: '0', to: '', depth: '' });
-    const [clearance, setClearance] = useState('1/16');
+    const [clearance, setClearance] = useState(lenValue(0.0625));
     const [pocket, setPocket] = useState({ edge: 'w1', count: '2' });
     const [miter, setMiter] = useState({ edge: 'w1', angle: '15' });
     const [ease, setEase] = useState({
         edge: 'l1',
         profile: 'roundover',
-        size: formatFraction(DEFAULT_EASE_CONFIG.defaultRadius),
+        size: lenValue(DEFAULT_EASE_CONFIG.defaultRadius),
         face: 'both',
     });
     const [easeStopped, setEaseStopped] = useState(false);
@@ -248,13 +254,13 @@ export function PartInspector(p: PartInspectorProps) {
         const next = openForm === kind ? null : kind;
         setOpenForm(next);
         if (next === 'dado' && dado.depth === '' && p.thickness !== null) {
-            setDado((d) => ({ ...d, depth: formatFraction(p.thickness! / 2) }));
+            setDado((d) => ({ ...d, depth: lenValue(p.thickness! / 2) }));
         }
     }
 
     /** A required positive fraction; sets the shared error naming the field when invalid. */
     function dim(label: string, raw: string): number | null {
-        const value = parseFraction(raw.trim());
+        const value = parseLen(raw.trim());
         if (value === null || value <= 0 || value > 240) {
             setFormError(`${label} needs a positive dimension (e.g. 3 1/2)`);
             return null;
@@ -264,7 +270,7 @@ export function PartInspector(p: PartInspectorProps) {
 
     /** Like dim(), but 0 is legal (a notch `from: 0` is a corner notch). */
     function dim0(label: string, raw: string): number | null {
-        const value = parseFraction(raw.trim());
+        const value = parseLen(raw.trim());
         if (value === null || value < 0 || value > 240) {
             setFormError(`${label} needs a dimension of 0 or more (e.g. 3 1/2)`);
             return null;
@@ -291,7 +297,7 @@ export function PartInspector(p: PartInspectorProps) {
             return null;
         }
         if (chord !== undefined && t > chord) {
-            setFormError(`To must be within the ${formatFraction(chord)}" edge`);
+            setFormError(`To must be within the ${len(chord)} edge`);
             return null;
         }
         return { from: f, to: t };
@@ -426,7 +432,7 @@ export function PartInspector(p: PartInspectorProps) {
         const limit = p.thickness === null ? null : ease.face === 'both' ? p.thickness / 2 : p.thickness;
         if (limit !== null && size > limit) {
             setFormError(
-                `Max ${formatFraction(limit)}" on ${formatFraction(p.thickness!)}" stock${ease.face === 'both' ? ' eased from both faces' : ''}`,
+                `Max ${len(limit)} on ${len(p.thickness!)} stock${ease.face === 'both' ? ' eased from both faces' : ''}`,
             );
             return;
         }
@@ -527,7 +533,7 @@ export function PartInspector(p: PartInspectorProps) {
                         <optgroup label="Dimensional lumber">
                             {LUMBER_SIZES.map((s) => (
                                 <option key={s.nominal} value={s.nominal}>
-                                    {s.nominal} ({formatFraction(s.thickness)}" × {formatFraction(s.width)}")
+                                    {s.nominal} ({len(s.thickness)} × {len(s.width)})
                                 </option>
                             ))}
                         </optgroup>
@@ -543,7 +549,7 @@ export function PartInspector(p: PartInspectorProps) {
             </div>
 
             <div className="mb-3 grid grid-cols-2 gap-2.5">
-                <Field label="Length (in)">
+                <Field label={`Length (${unitSuffix()})`}>
                     <TextInput
                         h="md"
                         value={lInput}
@@ -554,7 +560,7 @@ export function PartInspector(p: PartInspectorProps) {
                         onKeyDown={onEnter(commitResize)}
                     />
                 </Field>
-                <Field label="Width (in)">
+                <Field label={`Width (${unitSuffix()})`}>
                     <TextInput
                         h="md"
                         value={wInput}
@@ -568,7 +574,7 @@ export function PartInspector(p: PartInspectorProps) {
             </div>
 
             <div className="text-muted mb-4 flex items-center justify-between text-xs">
-                <span>Thickness {p.thickness === null ? '—' : `${formatFraction(p.thickness)}"`}</span>
+                <span>Thickness {p.thickness === null ? '—' : `${len(p.thickness)}`}</span>
                 <label className="flex items-center gap-2">
                     <span>Grain</span>
                     <select
@@ -597,11 +603,11 @@ export function PartInspector(p: PartInspectorProps) {
                 {AXIS_LABELS.map((label, i) => {
                     const axis = i as Axis3;
                     return (
-                        <Field key={label} label={`${label} (in)`}>
+                        <Field key={label} label={`${label} (${unitSuffix()})`}>
                             <TextInput
                                 h="md"
                                 value={posInputs[axis]}
-                                aria-label={`Position ${label} in inches`}
+                                aria-label={`Position ${label} in ${unitSuffix() === 'mm' ? 'millimetres' : 'inches'}`}
                                 data-testid={`pos-input-${axis}`}
                                 onChange={(e) => setPosInputs(setAt(posInputs, axis, e.target.value))}
                                 onBlur={() => commitPosition(axis)}
@@ -968,7 +974,7 @@ export function PartInspector(p: PartInspectorProps) {
                         onChange={(edge) => setNotch({ ...notch, edge })}
                     />
                     <div className="mb-2 grid grid-cols-3 gap-2">
-                        <Field label="From (in)">
+                        <Field label={`From (${unitSuffix()})`}>
                             <TextInput
                                 value={notch.from}
                                 inputMode="decimal"
@@ -976,7 +982,7 @@ export function PartInspector(p: PartInspectorProps) {
                                 onChange={(e) => setNotch({ ...notch, from: e.target.value })}
                             />
                         </Field>
-                        <Field label="To (in)">
+                        <Field label={`To (${unitSuffix()})`}>
                             <TextInput
                                 value={notch.to}
                                 inputMode="decimal"
@@ -985,7 +991,7 @@ export function PartInspector(p: PartInspectorProps) {
                                 onChange={(e) => setNotch({ ...notch, to: e.target.value })}
                             />
                         </Field>
-                        <Field label="Depth (in)">
+                        <Field label={`Depth (${unitSuffix()})`}>
                             <TextInput
                                 value={notch.depth}
                                 inputMode="decimal"
@@ -1088,10 +1094,10 @@ export function PartInspector(p: PartInspectorProps) {
                         className="mb-2"
                         label={
                             curve.kind === 'arc'
-                                ? 'Height (in) — how far the corners drop'
+                                ? `Height (${unitSuffix()}) — how far the corners drop`
                                 : curve.kind === 'ramp'
-                                  ? 'Height (in) — how far the low end drops'
-                                  : 'Corner radius (in)'
+                                  ? `Height (${unitSuffix()}) — how far the low end drops`
+                                  : `Corner radius (${unitSuffix()})`
                         }
                     >
                         <TextInput
@@ -1124,7 +1130,7 @@ export function PartInspector(p: PartInspectorProps) {
                         </Field>
                     </div>
                     <div className="mb-2 grid grid-cols-3 gap-2">
-                        <Field label="Offset (in)">
+                        <Field label={`Offset (${unitSuffix()})`}>
                             <TextInput
                                 value={dado.offset}
                                 inputMode="decimal"
@@ -1133,7 +1139,7 @@ export function PartInspector(p: PartInspectorProps) {
                                 onChange={(e) => setDado({ ...dado, offset: e.target.value })}
                             />
                         </Field>
-                        <Field label="Width (in)">
+                        <Field label={`Width (${unitSuffix()})`}>
                             <TextInput
                                 value={dado.width}
                                 inputMode="decimal"
@@ -1141,7 +1147,7 @@ export function PartInspector(p: PartInspectorProps) {
                                 onChange={(e) => setDado({ ...dado, width: e.target.value })}
                             />
                         </Field>
-                        <Field label="Depth (in)">
+                        <Field label={`Depth (${unitSuffix()})`}>
                             <TextInput
                                 value={dado.depth}
                                 inputMode="decimal"
@@ -1205,7 +1211,7 @@ export function PartInspector(p: PartInspectorProps) {
                         </Field>
                     </div>
                     <div className="mb-2 grid grid-cols-2 gap-2">
-                        <Field label="Diameter (in)">
+                        <Field label={`Diameter (${unitSuffix()})`}>
                             <TextInput
                                 value={hole.diameter}
                                 inputMode="decimal"
@@ -1346,7 +1352,7 @@ function RunFields({
 }) {
     return (
         <div className="mb-2 grid grid-cols-2 gap-2">
-            <Field label="From (in)">
+            <Field label={`From (${unitSuffix()})`}>
                 <TextInput
                     value={value.from}
                     inputMode="decimal"
@@ -1355,7 +1361,7 @@ function RunFields({
                     onChange={(e) => onChange({ ...value, from: e.target.value })}
                 />
             </Field>
-            <Field label="To (in)">
+            <Field label={`To (${unitSuffix()})`}>
                 <TextInput
                     value={value.to}
                     inputMode="decimal"

@@ -4,16 +4,15 @@
  */
 import { useState } from 'react';
 import { catalog, type HardwareItem } from '@/hardware/catalog';
-import { formatFraction } from '@/lib/fraction';
 import { Modal } from './Modal';
 import { PrimaryButton, Select, TextInput } from './form';
 import { HardwarePreview } from './HardwarePreview';
+import { len } from '@/lib/display';
 
 /** The two or three numbers a buyer checks first, in shop notation. */
 export function keySize(item: HardwareItem): string {
     const m = item.model;
-    const inches = (key: string) =>
-        typeof m[key] === 'number' ? `${formatFraction(m[key] as number, 16)}"` : null;
+    const inches = (key: string) => (typeof m[key] === 'number' ? `${len(m[key] as number)}` : null);
     const parts: (string | null)[] = (() => {
         switch (m.shape) {
             case 'knob':

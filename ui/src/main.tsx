@@ -8,6 +8,7 @@ import { isTauri } from '@tauri-apps/api/core';
 import { initDomain } from '@/domain';
 import { api, setThumbnailsDir } from '@/app/api';
 import { installErrorCapture } from '@/app/diagnostics';
+import { isUnits, setUnits } from '@/lib/display';
 import { CrashScreen } from '@/components/CrashScreen';
 import { router } from '@/app/router';
 import { ToastProvider } from '@/components/Toast';
@@ -31,7 +32,9 @@ async function boot(): Promise<void> {
         installMockBackend();
     }
     installErrorCapture();
-    const info = await api.libraryInfo();
+    const [info, settings] = await Promise.all([api.libraryInfo(), api.getSettings()]);
+    // A saved choice of units; until there is one, the default follows the system's region.
+    if (isUnits(settings.units)) setUnits(settings.units);
     setThumbnailsDir(info.thumbnailsDir);
     watchSystemTheme(() => undefined);
 

@@ -7,9 +7,10 @@
  */
 import { TOUCH_TOL, separation } from '../spec/geometry';
 import { deflection, rectangleInertia } from './beam';
-import { formatFraction } from '../lib/fraction';
 import type { ShelfSagRow, StructConfig, StructIssue } from './types';
 import { EPS, extent, type PlacedPart } from './placed';
+import { getUnits, len } from '@/lib/display';
+import { formatFraction } from '@/lib/fraction';
 
 /** Spans shorter than this are trivially stiff — skip to avoid noise, inches. */
 const MIN_SPAN = 12;
@@ -37,7 +38,7 @@ export function checkSag(placed: PlacedPart[], config: StructConfig, issues: Str
             issues.push({
                 severity: 'warn',
                 code: 'struct.sag',
-                message: `Shelf "${shelf.part.name}" may sag ~${formatFraction(row.deflection, 32)}" over its ${formatFraction(row.span)}" span under ${config.shelfLoadPerFoot} lb/ft — add a center support, use thicker stock, or shorten the span.`,
+                message: `Shelf "${shelf.part.name}" may sag ~${getUnits() === 'fraction' ? `${formatFraction(row.deflection, 32)}"` : len(row.deflection)} over its ${len(row.span)} span under ${config.shelfLoadPerFoot} lb/ft — add a center support, use thicker stock, or shorten the span.`,
                 partId: shelf.part.id,
             });
         }

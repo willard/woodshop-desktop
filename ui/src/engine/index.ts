@@ -49,6 +49,8 @@ export {
     DEFAULT_OPEN_CONFIG,
     GRID_SIZES,
     SNAP_GAPS,
+    METRIC_GRID_SIZES,
+    METRIC_SNAP_GAPS,
     WORKSPACE_POS_BOUND,
 } from './config';
 export { cohortOf, cohortsOf } from './cohort';

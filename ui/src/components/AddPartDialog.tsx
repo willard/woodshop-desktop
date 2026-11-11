@@ -1,8 +1,8 @@
 /** Choose size, orientation and count before a preset part is added. Nothing is added until Add. */
 import { useState } from 'react';
 import { PART_PRESETS, type AddPartOptions, type Orientation } from '@/engine';
-import { formatFraction, parseFraction } from '@/lib/fraction';
 import { Modal } from './Modal';
+import { getUnits, len, lenValue, parseLen } from '@/lib/display';
 
 const ORIENTATIONS: { value: Orientation; label: string; hint: string }[] = [
     { value: 'upright', label: 'Upright', hint: 'Standing on end, like a leg' },
@@ -20,20 +20,20 @@ export function AddPartDialog({
     onClose: () => void;
 }) {
     const [draft, setDraft] = useState<AddPartOptions>({ ...options });
-    const [lengthText, setLengthText] = useState(formatFraction(options.l));
-    const [widthText, setWidthText] = useState(formatFraction(options.w));
-    const length = parseFraction(lengthText);
-    const width = parseFraction(widthText);
+    const [lengthText, setLengthText] = useState(lenValue(options.l));
+    const [widthText, setWidthText] = useState(lenValue(options.w));
+    const length = parseLen(lengthText);
+    const width = parseLen(widthText);
     const valid =
         length !== null && length > 0 && length <= 240 && width !== null && width > 0 && width <= 240;
     const preset = PART_PRESETS[draft.kind];
 
     const how = ORIENTATIONS.find((o) => o.value === draft.orientation)!.label.toLowerCase();
     const summary = !valid
-        ? 'Enter a length and width in inches (3/4, 1 1/2, 18).'
+        ? `Enter a length and width (${getUnits() === 'metric' ? '19, 38, 450' : '3/4, 1 1/2, 18'}).`
         : draft.qty > 1
-          ? `${draft.qty} × ${preset.label}, ${formatFraction(length!)}" × ${formatFraction(width!)}", ${how}`
-          : `One ${preset.label.toLowerCase()}, ${formatFraction(length!)}" × ${formatFraction(width!)}", ${how}`;
+          ? `${draft.qty} × ${preset.label}, ${len(length!)} × ${len(width!)}, ${how}`
+          : `One ${preset.label.toLowerCase()}, ${len(length!)} × ${len(width!)}, ${how}`;
 
     const submit = () => valid && onAdd({ ...draft, l: length!, w: width! });
     const setQty = (n: number) => setDraft({ ...draft, qty: Math.min(12, Math.max(1, n)) });

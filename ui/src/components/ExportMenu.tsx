@@ -127,7 +127,7 @@ export function ExportMenuItems(props: ExportTarget & { close(): void }) {
             <button
                 className={item}
                 data-testid="export-csv"
-                title="The cut list for a spreadsheet: one row per blank, sizes in inches"
+                title="The cut list for a spreadsheet: one row per blank, sizes in your units"
                 onClick={run(() => exports.cutListCsv())}
             >
                 Export cut list (CSV)…
@@ -168,7 +168,7 @@ export function CutListExportButtons(props: ExportTarget & { cutList: CutList })
             <button
                 className={button}
                 data-testid="cutlist-export-csv"
-                title="The cut list for a spreadsheet: one row per blank, sizes in inches"
+                title="The cut list for a spreadsheet: one row per blank, sizes in your units"
                 onClick={() => void exports.cutListCsv(props.cutList)}
             >
                 CSV

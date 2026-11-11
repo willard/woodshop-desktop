@@ -1,6 +1,6 @@
 /** Snapping settings (grid, face snap, gap) behind one toolbar button that shows their state. */
-import { formatFraction } from '@/lib/fraction';
 import { Popover } from './Popover';
+import { len } from '@/lib/display';
 
 export function SnapSettings(props: {
     gridSize: number;
@@ -12,11 +12,11 @@ export function SnapSettings(props: {
     onFaceSnap(v: boolean): void;
     onSnapGap(v: number): void;
 }) {
-    const grid = `${formatFraction(props.gridSize)}"`;
+    const grid = `${len(props.gridSize)}`;
     // Face snap off still rounds to the grid, so say "grid only", not "free".
     const summary = !props.faceSnap
         ? `${grid} · grid only`
-        : `${grid}${props.snapGap === 0 ? '' : ` · gap ${formatFraction(props.snapGap)}"`}`;
+        : `${grid}${props.snapGap === 0 ? '' : ` · gap ${len(props.snapGap)}`}`;
     const title = props.faceSnap
         ? `Snapping: grid ${grid}, snapping to faces and edges`
         : `Snapping: grid ${grid}; faces and edges off, so positions only round to the grid`;
@@ -57,7 +57,7 @@ export function SnapSettings(props: {
                         >
                             {props.gridSizes.map((g) => (
                                 <option key={g} value={g}>
-                                    {formatFraction(g)}"
+                                    {len(g)}
                                 </option>
                             ))}
                         </select>
@@ -82,7 +82,7 @@ export function SnapSettings(props: {
                         >
                             {props.snapGaps.map((g) => (
                                 <option key={g} value={g}>
-                                    {g === 0 ? 'none' : `${formatFraction(g)}"`}
+                                    {g === 0 ? 'none' : `${len(g)}`}
                                 </option>
                             ))}
                         </select>

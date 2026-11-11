@@ -13,7 +13,7 @@ import {
     type CutListSection,
 } from '@/cutlist';
 import { overallSize, type Material, type Spec } from '@/spec';
-import { formatFraction, parseFraction } from '@/lib/fraction';
+import { len, lenValue, parseLen } from '@/lib/display';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -33,7 +33,7 @@ export interface CutListPanelProps {
 
 const KERF_OPTIONS = [0.0625, 0.09375, 0.125, 0.25];
 
-const fmt = (n: number): string => `${formatFraction(n)}"`;
+const fmt = (n: number): string => `${len(n)}`;
 const money = (n: number | null): string => (n === null ? '—' : `$${n.toFixed(2)}`);
 const pct = (n: number): string => `${Math.round(n * 100)}%`;
 const kindLabel = (kind: CutListSection['kind']): string =>
@@ -115,7 +115,7 @@ export function CutListPanel(props: CutListPanelProps) {
     }
 
     function commitSheet(material: Material, dim: 'l' | 'w', raw: string): void {
-        const value = parseFraction(raw);
+        const value = parseLen(raw);
         if (value === null || value <= 0 || value > 240 || material.sheetSize === undefined) return;
         props.onMaterial?.(material.id, { sheetSize: { ...material.sheetSize, [dim]: value } });
     }
@@ -539,12 +539,12 @@ function FractionCell({
     return (
         <input
             key={value}
-            defaultValue={formatFraction(value)}
+            defaultValue={lenValue(value)}
             data-testid={testId}
             className="bg-surface-1 focus:border-accent border-fg/10 h-7 w-16 rounded-lg border px-1 text-center text-xs focus:outline-none"
             onBlur={(e) => {
                 onCommit(e.target.value);
-                e.target.value = formatFraction(value);
+                e.target.value = lenValue(value);
             }}
             onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
         />

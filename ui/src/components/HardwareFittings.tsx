@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Part, Side } from '@/spec';
 import { findItem, itemsForRole, sideExtent } from '@/hardware/catalog';
 import type { HardwarePatch } from '@/engine';
-import { formatFraction, parseFraction } from '@/lib/fraction';
 import { Field, Select, TextInput } from './form';
+import { lenValue, parseLen } from '@/lib/display';
 
 const SIDES: { value: Side; label: string }[] = [
     { value: 'front', label: 'Front face' },
@@ -26,19 +26,19 @@ function LengthInput(props: {
     testId?: string;
     onCommit(v: number): void;
 }) {
-    const [draft, setDraft] = useState(formatFraction(props.value, 16));
-    useEffect(() => setDraft(formatFraction(props.value, 16)), [props.value]);
+    const [draft, setDraft] = useState(lenValue(props.value));
+    useEffect(() => setDraft(lenValue(props.value)), [props.value]);
 
     function commit(): void {
-        const parsed = parseFraction(draft);
+        const parsed = parseLen(draft);
         if (parsed === null || parsed < 0) {
-            setDraft(formatFraction(props.value, 16));
+            setDraft(lenValue(props.value));
             return;
         }
         // Keep it on the part: a piece off the edge is never what was meant.
         const next = Math.min(parsed, props.max);
         if (next !== props.value) props.onCommit(next);
-        else setDraft(formatFraction(props.value, 16));
+        else setDraft(lenValue(props.value));
     }
 
     return (
@@ -144,7 +144,7 @@ export function PartHardware(props: {
                                 <LengthInput
                                     value={mount.x}
                                     max={maxX}
-                                    label="Position along the side, in inches"
+                                    label="Position along the side"
                                     testId="hardware-x"
                                     onCommit={(x) => props.onUpdate(mount.id, { x })}
                                 />
@@ -153,7 +153,7 @@ export function PartHardware(props: {
                                 <LengthInput
                                     value={mount.y}
                                     max={maxY}
-                                    label="Position across the side, in inches"
+                                    label="Position across the side"
                                     testId="hardware-y"
                                     onCommit={(y) => props.onUpdate(mount.id, { y })}
                                 />

@@ -23,6 +23,12 @@ export const GRID_SIZES = [0.0625, 0.125, 0.25] as const;
 /** Selectable snap gaps for the UI (0 = flush; 1/16"…1/2"). Slats want a small even gap. */
 export const SNAP_GAPS = [0, 0.0625, 0.125, 0.25, 0.375, 0.5] as const;
 
+/** The same choices for someone working in millimetres: 1, 2, 5 and 10 mm grids. */
+export const METRIC_GRID_SIZES = [1, 2, 5, 10].map((mm) => mm / 25.4);
+
+/** Metric snap gaps: flush, then 1–10 mm. */
+export const METRIC_SNAP_GAPS = [0, 1, 2, 3, 5, 10].map((mm) => mm / 25.4);
+
 /**
  * Workspace bound for part centres: spec.schema.json limits every transform.pos
  * component to ±240". Drags must clamp to this so a commit can never fail validation.

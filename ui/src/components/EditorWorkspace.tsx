@@ -49,6 +49,8 @@ import {
     RotatePart,
     RotateParts,
     SNAP_GAPS,
+    METRIC_GRID_SIZES,
+    METRIC_SNAP_GAPS,
     SetGrainAxis,
     SetJoints,
     SetMaterial,
@@ -104,7 +106,6 @@ import { createCsgWorker } from '@/engine/csgWorker';
 import type { Joint, Material, Movable, Op, Part, Spec, Species } from '@/spec';
 import type { CutList } from '@/cutlist';
 import { assessSturdiness } from '@/struct';
-import { formatFraction } from '@/lib/fraction';
 import { dowelLabelOf, nominalOf } from '@/lib/lumberSizes';
 import { handleEditorKeydown, type NudgeDirection, type NudgeStep } from '@/lib/shortcuts';
 import { activeTheme, onThemeChange, sceneFor } from '@/lib/theme';
@@ -119,6 +120,7 @@ import { Popover } from './Popover';
 import { SnapSettings } from './SnapSettings';
 import { ToolbarOverflow } from './ToolbarOverflow';
 import { ToolsOverlay } from './tools/ToolsOverlay';
+import { getUnits, len, useUnits } from '@/lib/display';
 
 export interface EditorWorkspaceHandle {
     snapshot(): Promise<Blob | null>;
@@ -181,7 +183,11 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const lastSpec = useRef<Spec | null>(null);
 
         // --- UI state ---
-        const [gridSize, setGridSize] = useState(0.125);
+        const units = useUnits();
+        // 1/8" in inches, 1 mm in metric: a grid that reads as a round number either way.
+        const [gridSize, setGridSize] = useState(() =>
+            getUnits() === 'metric' ? METRIC_GRID_SIZES[0] : 0.125,
+        );
         const [faceSnap, setFaceSnap] = useState(true);
         const [snapGap, setSnapGap] = useState(0);
         const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
@@ -859,15 +865,14 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const placementLabel = (() => {
             const preview = placementPreview;
             if (preview === null || placing === null) return null;
-            if (placing.kind === 'dado')
-                return `offset ${formatFraction(preview.offset ?? 0)}" · ${preview.face}`;
+            if (placing.kind === 'dado') return `offset ${len(preview.offset ?? 0)} · ${preview.face}`;
             if (placing.kind === 'pocket')
                 return preview.edge === null ? null : `edge ${preview.edge} · ${placing.count} screws`;
             if (placing.kind === 'hardware') {
                 const on = spec.parts.find((p) => p.id === preview.partId)?.name ?? '';
-                return `${on} · ${preview.face} · (${formatFraction(preview.x)}", ${formatFraction(preview.y)}")`;
+                return `${on} · ${preview.face} · (${len(preview.x)}, ${len(preview.y)})`;
             }
-            return `(${formatFraction(preview.x)}", ${formatFraction(preview.y)}") · ${preview.face}`;
+            return `(${len(preview.x)}, ${len(preview.y)}) · ${preview.face}`;
         })();
 
         // --- Arrow-key nudging: a run of presses is one undo entry ---
@@ -982,16 +987,14 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             if (dragInfo === null) return null;
             if (dragInfo.snapped) {
                 if (dragInfo.nearestGap === null || Math.abs(dragInfo.nearestGap) < 1 / 32) return 'flush';
-                return `${formatFraction(Math.abs(dragInfo.nearestGap))}" gap`;
+                return `${len(Math.abs(dragInfo.nearestGap))} gap`;
             }
-            return dragInfo.nearestGap === null
-                ? null
-                : `${formatFraction(Math.abs(dragInfo.nearestGap))}" to neighbour`;
+            return dragInfo.nearestGap === null ? null : `${len(Math.abs(dragInfo.nearestGap))} to neighbour`;
         })();
 
         const measureText = (label: MeasureLabel): string => {
             if (label.kind === 'gap' && label.distance < 1 / 32) return 'touching';
-            const value = `${formatFraction(label.distance)}"`;
+            const value = `${len(label.distance)}`;
             return label.prefix === '' ? value : `${label.prefix} ${value}`;
         };
         const measureChipClass = (label: MeasureLabel): string =>
@@ -1345,8 +1348,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 gridSize={gridSize}
                                 faceSnap={faceSnap}
                                 snapGap={snapGap}
-                                gridSizes={GRID_SIZES}
-                                snapGaps={SNAP_GAPS}
+                                gridSizes={units === 'metric' ? METRIC_GRID_SIZES : GRID_SIZES}
+                                snapGaps={units === 'metric' ? METRIC_SNAP_GAPS : SNAP_GAPS}
                                 onGridSize={setGridSize}
                                 onFaceSnap={setFaceSnap}
                                 onSnapGap={setSnapGap}

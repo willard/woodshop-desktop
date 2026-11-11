@@ -3,9 +3,9 @@
  * false-positive rate low — a missed warning is cheaper than a nagging wrong one.
  */
 import type { Spec } from '../spec/types';
-import { formatFraction } from '../lib/fraction';
 import type { StructConfig, StructIssue } from './types';
 import { extent, unionBox, type PlacedPart } from './placed';
+import { len } from '@/lib/display';
 
 /** Tall assembly on a small footprint — assembly-level, so no partId. */
 export function checkTipping(placed: PlacedPart[], config: StructConfig, issues: StructIssue[]): void {
@@ -22,7 +22,7 @@ export function checkTipping(placed: PlacedPart[], config: StructConfig, issues:
         issues.push({
             severity: 'warn',
             code: 'struct.tipping',
-            message: `Assembly is ${formatFraction(height)}" tall on a ${formatFraction(footprint)}" deep footprint — it could tip forward; consider anchoring it to the wall.`,
+            message: `Assembly is ${len(height)} tall on a ${len(footprint)} deep footprint — it could tip forward; consider anchoring it to the wall.`,
         });
     }
 }
@@ -44,7 +44,7 @@ export function checkSlenderness(placed: PlacedPart[], config: StructConfig, iss
             issues.push({
                 severity: 'warn',
                 code: 'struct.slender',
-                message: `"${part.name}" is ${formatFraction(longDim)}" long but only ${formatFraction(cross)}" thick — it may flex; use thicker stock.`,
+                message: `"${part.name}" is ${len(longDim)} long but only ${len(cross)} thick — it may flex; use thicker stock.`,
                 partId: part.id,
             });
         }

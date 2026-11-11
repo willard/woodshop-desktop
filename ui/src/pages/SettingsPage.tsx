@@ -6,6 +6,7 @@ import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { api, errorMessage } from '@/app/api';
 import { formatFraction } from '@/lib/fraction';
+import { len, setUnits, UNITS_OPTIONS, useUnits, type Units } from '@/lib/display';
 import { readPreference, setPreference, type ThemePreference } from '@/lib/theme';
 import { useToast } from '@/components/Toast';
 import { KERF_OPTIONS, useDefaultKerf } from '@/app/settings';
@@ -57,6 +58,17 @@ export default function SettingsPage() {
     const [theme, setTheme] = useState<ThemePreference>(readPreference);
     const [updateStatus, setUpdateStatus] = useState<string | null>(null);
     const [checking, setChecking] = useState(false);
+    const units = useUnits();
+
+    async function chooseUnits(value: Units): Promise<void> {
+        setUnits(value); // the whole app follows at once; the setting makes it stick
+        try {
+            await api.setSetting('units', value);
+            await queryClient.invalidateQueries({ queryKey: ['settings'] });
+        } catch (e) {
+            toast.error(errorMessage(e));
+        }
+    }
 
     async function setKerf(value: number): Promise<void> {
         try {
@@ -112,13 +124,31 @@ export default function SettingsPage() {
             </Section>
 
             <Section
+                title="Units"
+                description="How sizes are shown and typed everywhere: the editor, cut list, PDF, CSV and 3D plan. Any field also takes a size with its unit, such as 450 mm or 17 3/4 in. Designs are stored the same way whichever you pick, so you can switch at any time."
+            >
+                <div className="flex gap-2" data-testid="units-choice">
+                    {UNITS_OPTIONS.map((o) => (
+                        <button
+                            key={o.value}
+                            className={choice(units === o.value)}
+                            data-testid={`units-${o.value}`}
+                            onClick={() => void chooseUnits(o.value)}
+                        >
+                            {o.label} <span className="opacity-60">{o.example}</span>
+                        </button>
+                    ))}
+                </div>
+            </Section>
+
+            <Section
                 title="Cut list"
                 description="The saw kerf every new editor session starts with. You can still change it per session in the Cut list panel."
             >
                 <div className="flex gap-2">
                     {KERF_OPTIONS.map((k) => (
                         <button key={k} className={choice(kerf === k)} onClick={() => void setKerf(k)}>
-                            {formatFraction(k, 32)}"
+                            {units === 'fraction' ? `${formatFraction(k, 32)}"` : len(k)}
                         </button>
                     ))}
                 </div>

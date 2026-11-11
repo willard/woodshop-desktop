@@ -1,9 +1,9 @@
 /** Group panel: act on a group as a unit, or drill into a member. Presentational. */
 import { useEffect, useRef, useState } from 'react';
 import type { Group, Movable, Part } from '@/spec';
-import { formatFraction } from '@/lib/fraction';
 import { Field, SectionLabel, Select } from './form';
 import { MovableFittings } from './HardwareFittings';
+import { len } from '@/lib/display';
 
 type Axis3 = 0 | 1 | 2;
 const ROTATIONS: { axis: Axis3; label: string }[] = [
@@ -58,7 +58,7 @@ export function GroupInspector(p: GroupInspectorProps) {
         if (next !== '' && next !== name) p.onRename(next);
     }
 
-    const size = (part: Part) => `${formatFraction(part.size.l)}" × ${formatFraction(part.size.w)}"`;
+    const size = (part: Part) => `${len(part.size.l)} × ${len(part.size.w)}`;
 
     return (
         <div data-testid="group-inspector">
