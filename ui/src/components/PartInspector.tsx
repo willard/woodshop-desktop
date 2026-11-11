@@ -58,6 +58,9 @@ export interface PartInspectorProps {
     onAddHardware(): void;
     onUpdateHardware(id: string, patch: HardwarePatch): void;
     onRemoveHardware(id: string): void;
+    /** The piece picked in the 3D view, highlighted and scrolled to. */
+    selectedHardwareId: string | null;
+    onSelectHardware(id: string | null): void;
 }
 
 const SPECIES_OPTIONS: { value: Species; label: string }[] = [
@@ -735,6 +738,8 @@ export function PartInspector(p: PartInspectorProps) {
                 onAdd={p.onAddHardware}
                 onUpdate={p.onUpdateHardware}
                 onRemove={p.onRemoveHardware}
+                selectedId={p.selectedHardwareId}
+                onSelect={p.onSelectHardware}
             />
 
             <SectionLabel>Ops</SectionLabel>

@@ -205,3 +205,30 @@ test('hardware is placed by clicking on the model', async ({ page }) => {
     await page.getByTestId('undo').click();
     await expect(row).toContainText('×1');
 });
+
+test('clicking hardware in the 3D view selects it in the inspector', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    const canvas = page.getByTestId('editor-shell').locator('canvas').first();
+    await expect(canvas).toBeVisible();
+    const box = (await canvas.boundingBox())!;
+    const cx = box.x + box.width / 2;
+    const cy = box.y + box.height / 2;
+
+    // Put a knob exactly where we will click.
+    await page.getByTestId('add-menu-toggle').click();
+    await page.getByTestId('add-hardware-menu').click();
+    await page.locator('[data-item="knob.round-1-1-2"]').click();
+    await page.getByTestId('hardware-place').click();
+    await page.mouse.move(cx, cy);
+    await page.mouse.click(cx, cy);
+    await page.keyboard.press('Escape');
+
+    // Click empty space first, so nothing is selected, then click the knob.
+    await page.mouse.click(box.x + 20, box.y + 20);
+    await page.mouse.click(cx, cy);
+
+    const row = page.locator('[data-testid="hardware-row"][data-selected]');
+    await expect(row).toBeVisible();
+    await expect(row).toContainText('Round knob 1 1/2"');
+    await expect(page.getByTestId('properties')).toBeVisible();
+});

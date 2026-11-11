@@ -2,7 +2,7 @@
  * Inspector pieces for catalog hardware (spec 1.15): the hardware mounted on a part, and the
  * hinge, slide and pull a door or drawer uses.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Part, Side } from '@/spec';
 import { findItem, itemsForRole, sideExtent } from '@/hardware/catalog';
 import type { HardwarePatch } from '@/engine';
@@ -60,7 +60,17 @@ export function PartHardware(props: {
     onAdd(): void;
     onUpdate(id: string, patch: HardwarePatch): void;
     onRemove(id: string): void;
+    selectedId?: string | null;
+    onSelect?(id: string | null): void;
 }) {
+    // Bring the piece picked in the 3D view into sight.
+    const rows = useRef(new Map<string, HTMLDivElement>());
+    useEffect(() => {
+        if (props.selectedId) {
+            rows.current.get(props.selectedId)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }, [props.selectedId]);
+
     return (
         <div className="mb-4" data-testid="part-hardware">
             {props.mounts.map((mount) => {
@@ -70,8 +80,14 @@ export function PartHardware(props: {
                 return (
                     <div
                         key={mount.id}
-                        className="bg-surface-2/60 mb-2 rounded-lg p-2.5"
+                        ref={(el) => {
+                            if (el) rows.current.set(mount.id, el);
+                            else rows.current.delete(mount.id);
+                        }}
+                        className={`mb-2 rounded-lg p-2.5 ${mount.id === props.selectedId ? 'bg-accent/12 ring-accent/60 ring-1' : 'bg-surface-2/60'}`}
                         data-testid="hardware-row"
+                        data-selected={mount.id === props.selectedId || undefined}
+                        onClick={() => props.onSelect?.(mount.id)}
                     >
                         <div className="mb-2 flex items-center justify-between gap-2">
                             <span className="text-fg/85 min-w-0 truncate text-[12.5px] font-semibold">

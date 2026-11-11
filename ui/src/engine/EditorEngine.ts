@@ -124,6 +124,8 @@ export interface PickModifiers {
     additive: boolean;
     /** The pick came from a drag start, never a deliberate click (no drill-in). */
     fromDrag?: boolean;
+    /** The click landed on a piece of mounted hardware (spec 1.15); `partId` is its part. */
+    hardwareId?: string;
 }
 
 export class EditorEngine {
@@ -189,6 +191,8 @@ export class EditorEngine {
     // orbit stays available, and Esc (via cancelPlacement) exits. Blocked while exploded.
     private placement: PlacementRequest | null = null;
     private placementGhost: THREE.Mesh | null = null;
+    /** The mounted piece shown as selected (spec 1.15), by hardware id. */
+    private selectedHardwareId: string | null = null;
     /** Live preview for UI labels (null when the pointer is off any valid face). */
     placementUpdateHandler: ((preview: PlacementPreview | null) => void) | null = null;
     /** Called on a tap over a valid face; the app turns this into an AddOp. */
@@ -444,9 +448,13 @@ export class EditorEngine {
         }
         // Shift-click is additive selection; shift only means "lift" once a drag has actually
         // started (>4px of motion), so the two never collide on a clean tap.
-        this.pickHandler?.(this.pickAt(event), {
-            additive: event.shiftKey || event.metaKey || event.ctrlKey,
-        });
+        const additive = event.shiftKey || event.metaKey || event.ctrlKey;
+        const hardware = additive ? null : this.hardwareAt(event);
+        if (hardware !== null) {
+            this.pickHandler?.(hardware.partId, { additive: false, hardwareId: hardware.id });
+            return;
+        }
+        this.pickHandler?.(this.pickAt(event), { additive });
     };
 
     // --- click-to-place ---
@@ -1110,6 +1118,70 @@ export class EditorEngine {
         return this.raycaster.ray.intersectPlane(plane, hit) === null ? null : hit;
     }
 
+    /**
+     * The mounted hardware under the pointer, if a piece of it is the nearest thing hit. Hardware
+     * hangs off its part's mesh, so it is found by walking the visible parts' children.
+     */
+    private hardwareAt(event: MouseEvent): { id: string; partId: string } | null {
+        const parts = this.pickableParts();
+        const pieces: THREE.Object3D[] = [];
+        for (const part of parts) {
+            for (const child of part.children) {
+                if (child.userData.hardwareId !== undefined) pieces.push(child);
+            }
+        }
+        if (pieces.length === 0) {
+            return null;
+        }
+        const rect = this.canvas.getBoundingClientRect();
+        this.pointer.set(
+            ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            -((event.clientY - rect.top) / rect.height) * 2 + 1,
+        );
+        this.raycaster.setFromCamera(this.pointer, this.camera);
+        const piece = this.raycaster.intersectObjects(pieces, false)[0];
+        if (piece === undefined) {
+            return null;
+        }
+        // Behind a part (the far side of a panel) does not count.
+        const part = this.raycaster.intersectObjects(parts, false)[0];
+        if (part !== undefined && part.distance < piece.distance - 1e-3) {
+            return null;
+        }
+        return { id: piece.object.userData.hardwareId as string, partId: piece.object.parent?.name ?? '' };
+    }
+
+    /** Tints one mounted piece as selected (or none). Survives rebuilds, like the hidden set. */
+    setSelectedHardware(id: string | null): void {
+        if (id === this.selectedHardwareId) {
+            return;
+        }
+        this.selectedHardwareId = id;
+        this.applyHardwareSelection();
+        this.requestRender();
+    }
+
+    private applyHardwareSelection(): void {
+        this.partsGroup?.traverse((object) => {
+            const mesh = object as THREE.Mesh;
+            if (mesh.userData.hardwareId === undefined) return;
+            const selected = mesh.userData.hardwareId === this.selectedHardwareId;
+            if (selected && mesh.userData.baseMaterial === undefined) {
+                mesh.userData.baseMaterial = mesh.material;
+                mesh.material = new THREE.MeshStandardMaterial({
+                    color: this.palette.snap,
+                    emissive: this.palette.snap,
+                    emissiveIntensity: 0.35,
+                    roughness: 0.5,
+                });
+            } else if (!selected && mesh.userData.baseMaterial !== undefined) {
+                (mesh.material as THREE.Material).dispose();
+                mesh.material = mesh.userData.baseMaterial as THREE.Material;
+                delete mesh.userData.baseMaterial;
+            }
+        });
+    }
+
     /** Returns the id of the front-most part under the pointer, or null. */
     private pickAt(event: MouseEvent): string | null {
         if (this.partsGroup === null) {
@@ -1223,6 +1295,7 @@ export class EditorEngine {
         this.currentSpec = spec;
         this.applyPose();
         this.applyVisibility(); // hidden ids are keyed by part id, so they outlive a rebuild
+        this.applyHardwareSelection();
         if (options.frame === true) {
             this.frameToParts();
         }

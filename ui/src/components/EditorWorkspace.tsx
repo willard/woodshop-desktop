@@ -204,6 +204,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         } | null>(null);
         const [toolsOpen, setToolsOpen] = useState(false);
         const [hardwareDialog, setHardwareDialog] = useState<{ partId: string | null } | null>(null);
+        const [selectedHardware, setSelectedHardware] = useState<string | null>(null);
         const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
         const [opError, setOpError] = useState<string | null>(null);
         const [placing, setPlacing] = useState<PlacementRequest | null>(null);
@@ -261,7 +262,19 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             });
             engineRef.current = engine;
             const unwatchTheme = onThemeChange((next) => engine.setScenePalette(sceneFor(next)));
-            engine.pickHandler = (id, modifiers) => docRef.current.handlePick(id, modifiers);
+            engine.pickHandler = (id, modifiers) => {
+                if (modifiers.hardwareId !== undefined) {
+                    // A piece of hardware: select its part on its own (never the whole group) and
+                    // point the inspector at that piece.
+                    docRef.current.select(id);
+                    setSelectedHardware(modifiers.hardwareId);
+                    setActiveTab('inspector');
+                    setDockOpen(true);
+                    return;
+                }
+                setSelectedHardware(null);
+                docRef.current.handlePick(id, modifiers);
+            };
             engine.dragCommitHandler = (ids: string[], delta: Vec3) => {
                 docRef.current.execute(new MoveParts(ids, delta));
                 // Record any dado joints the drop seated (annotations, not constraints).
@@ -326,6 +339,15 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             }
             engineRef.current?.setAutoMeasure(selectedGroup === null ? (selected?.id ?? null) : null);
         }, [selectionKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+        // The selected piece of hardware belongs to the selected part; drop it when either goes.
+        const hardwareStillThere =
+            selectedHardware !== null &&
+            (spec.hardware ?? []).some((h) => h.id === selectedHardware && h.partId === selected?.id);
+        useEffect(() => {
+            if (selectedHardware !== null && !hardwareStillThere) setSelectedHardware(null);
+            engineRef.current?.setSelectedHardware(hardwareStillThere ? selectedHardware : null);
+        }, [selectedHardware, hardwareStillThere]);
 
         useImperativeHandle(ref, () => ({
             snapshot: () => engineRef.current?.snapshot() ?? Promise.resolve(null),
@@ -1099,6 +1121,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         onAddHardware={() => setHardwareDialog({ partId: selected.id })}
                         onUpdateHardware={(id, patch) => doc.execute(new UpdateHardware(id, patch))}
                         onRemoveHardware={(id) => doc.execute(new RemoveHardware(id))}
+                        selectedHardwareId={hardwareStillThere ? selectedHardware : null}
+                        onSelectHardware={setSelectedHardware}
                         onDissolveMovable={() =>
                             selectedMovable && doc.execute(new DissolveMovable(selectedMovable.id))
                         }

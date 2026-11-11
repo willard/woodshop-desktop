@@ -83,7 +83,7 @@ workflows, crash logging, the macOS fixes, and **most of Phase 1**.
 | 1.4 Commands; hardware follows delete, duplicate, extract | Done |
 | 1.5 Hardware browser with search and a 3D preview; click-to-place | Done. Click-to-place covers the front and back faces, with a live ghost, R to turn, and repeat placing. Edges and ends are still set from the inspector. |
 | 1.6 Inspector: per-part hardware list; hinge, slide and pull pickers | Done |
-| 1.7 Click a hardware mesh to select it | Not started |
+| 1.7 Click a hardware mesh to select it | Done: selects its part, opens the inspector on that piece's row, and tints the piece |
 | 1.8 MCP tools, conventions, server instructions | Done, except `explain_part` does not report mounts yet |
 | 1.9 Templates with real hardware; help article | Not started |
 | 1.10 Verify in the real window; exports | Partly: 3D view and hardware list seen in the real window. PDF, CSV and HTML viewer with hardware not yet checked there. |
