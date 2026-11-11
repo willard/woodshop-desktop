@@ -1,942 +1,944 @@
 {
-    "specVersion": "1.14",
-    "units": "in",
-    "name": "Nightstand",
-    "materials": [
-        {
-            "id": "ply_birch",
-            "name": "Birch Plywood",
-            "type": "sheet",
-            "species": "maple",
-            "sheetSize": {
-                "l": 96,
-                "w": 48
-            },
-            "thickness": 0.75
-        },
-        {
-            "id": "ply_birch_drawer",
-            "name": "Birch Plywood (drawer parts)",
-            "type": "sheet",
-            "species": "maple",
-            "sheetSize": {
-                "l": 96,
-                "w": 48
-            },
-            "thickness": 0.5
-        },
-        {
-            "id": "lumber_birch",
-            "name": "Solid Birch (legs/aprons/cleats)",
-            "type": "lumber",
-            "species": "maple",
-            "thickness": 1.5,
-            "stockWidth": 3.5,
-            "stockLengths": [
-                96
-            ]
-        }
-    ],
-    "parts": [
-        {
-            "id": "p_leg_fl",
-            "name": "Front Left Leg",
-            "size": {
-                "l": 26,
-                "w": 1.5
-            },
-            "transform": {
-                "pos": [
-                    -11.25,
-                    13,
-                    7.25
-                ],
-                "rot": [
-                    0,
-                    0,
-                    90
-                ]
-            },
-            "materialId": "lumber_birch"
-        },
-        {
-            "id": "p_leg_fr",
-            "name": "Front Right Leg",
-            "size": {
-                "l": 26,
-                "w": 1.5
-            },
-            "transform": {
-                "pos": [
-                    11.25,
-                    13,
-                    7.25
-                ],
-                "rot": [
-                    0,
-                    0,
-                    90
-                ]
-            },
-            "materialId": "lumber_birch"
-        },
-        {
-            "id": "p_leg_bl",
-            "name": "Back Left Leg",
-            "size": {
-                "l": 26,
-                "w": 1.5
-            },
-            "transform": {
-                "pos": [
-                    -11.25,
-                    13,
-                    -7.25
-                ],
-                "rot": [
-                    0,
-                    0,
-                    90
-                ]
-            },
-            "materialId": "lumber_birch"
-        },
-        {
-            "id": "p_leg_br",
-            "name": "Back Right Leg",
-            "size": {
-                "l": 26,
-                "w": 1.5
-            },
-            "transform": {
-                "pos": [
-                    11.25,
-                    13,
-                    -7.25
-                ],
-                "rot": [
-                    0,
-                    0,
-                    90
-                ]
-            },
-            "materialId": "lumber_birch"
-        },
-        {
-            "id": "p_apron_front",
-            "name": "Front Apron",
-            "size": {
-                "l": 20.5,
-                "w": 3.5
-            },
-            "transform": {
-                "pos": [
-                    0,
-                    22.25,
-                    7.375
-                ],
-                "rot": [
-                    0,
-                    0,
-                    0
-                ]
-            },
-            "materialId": "lumber_birch"
-        },
-        {
-            "id": "p_apron_back",
-            "name": "Back Apron",
-            "size": {
-                "l": 20.5,
-                "w": 3.5
-            },
-            "transform": {
-                "pos": [
-                    0,
-                    22.25,
-                    -7.375
-                ],
-                "rot": [
-                    0,
-                    0,
-                    0
-                ]
-            },
-            "materialId": "lumber_birch"
-        },
-        {
-            "id": "p_apron_left",
-            "name": "Left Apron",
-            "size": {
-                "l": 12.5,
-                "w": 3.5
-            },
-            "transform": {
-                "pos": [
-                    -11.25,
-                    22.25,
-                    0
-                ],
-                "rot": [
-                    0,
-                    90,
-                    0
-                ]
-            },
-            "materialId": "lumber_birch"
-        },
-        {
-            "id": "p_apron_right",
-            "name": "Right Apron",
-            "size": {
-                "l": 12.5,
-                "w": 3.5
-            },
-            "transform": {
-                "pos": [
-                    11.25,
-                    22.25,
-                    0
-                ],
-                "rot": [
-                    0,
-                    90,
-                    0
-                ]
-            },
-            "materialId": "lumber_birch"
-        },
-        {
-            "id": "p_shelf_cleat_l",
-            "name": "Shelf Cleat Left",
-            "size": {
-                "l": 12.5,
-                "w": 1.5
-            },
-            "transform": {
-                "pos": [
-                    -10.125,
-                    8.375,
-                    0
-                ],
-                "rot": [
-                    0,
-                    90,
-                    0
-                ]
-            },
-            "materialId": "lumber_birch",
-            "ops": [
-                {
-                    "type": "screws",
-                    "face": "front",
-                    "axis": "l",
-                    "offset": 0.75,
-                    "count": 2,
-                    "from": 1,
-                    "to": 11.5,
-                    "gauge": "#8",
-                    "length": 2
-                }
-            ]
-        },
-        {
-            "id": "p_shelf_cleat_r",
-            "name": "Shelf Cleat Right",
-            "size": {
-                "l": 12.5,
-                "w": 1.5
-            },
-            "transform": {
-                "pos": [
-                    10.125,
-                    8.375,
-                    0
-                ],
-                "rot": [
-                    0,
-                    90,
-                    0
-                ]
-            },
-            "materialId": "lumber_birch",
-            "ops": [
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "l",
-                    "offset": 0.75,
-                    "count": 2,
-                    "from": 1,
-                    "to": 11.5,
-                    "gauge": "#8",
-                    "length": 2
-                }
-            ]
-        },
-        {
-            "id": "p_top",
-            "name": "Top Panel",
-            "size": {
-                "l": 24,
-                "w": 16
-            },
-            "transform": {
-                "pos": [
-                    0,
-                    25.375,
-                    0
-                ],
-                "rot": [
-                    90,
-                    0,
-                    0
-                ]
-            },
-            "materialId": "ply_birch",
-            "ops": [
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "l",
-                    "offset": 15.25,
-                    "count": 2,
-                    "from": 0.375,
-                    "to": 1.125,
-                    "gauge": "#8",
-                    "length": 1.5
-                },
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "l",
-                    "offset": 15.25,
-                    "count": 2,
-                    "from": 22.875,
-                    "to": 23.625,
-                    "gauge": "#8",
-                    "length": 1.5
-                },
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "l",
-                    "offset": 0.75,
-                    "count": 2,
-                    "from": 0.375,
-                    "to": 1.125,
-                    "gauge": "#8",
-                    "length": 1.5
-                },
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "l",
-                    "offset": 0.75,
-                    "count": 2,
-                    "from": 22.875,
-                    "to": 23.625,
-                    "gauge": "#8",
-                    "length": 1.5
-                }
-            ]
-        },
-        {
-            "id": "p_shelf",
-            "name": "Open Shelf",
-            "size": {
-                "l": 20.5,
-                "w": 14.5
-            },
-            "transform": {
-                "pos": [
-                    0,
-                    9.5,
-                    0
-                ],
-                "rot": [
-                    90,
-                    0,
-                    0
-                ]
-            },
-            "materialId": "ply_birch",
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "l0",
-                    "count": 4,
-                    "from": 1,
-                    "to": 19.5,
-                    "thread": "coarse",
-                    "length": 1.25
-                },
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "w",
-                    "offset": 0.4375,
-                    "count": 2,
-                    "from": 2,
-                    "to": 12.5,
-                    "gauge": "#8",
-                    "length": 1.5
-                },
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "w",
-                    "offset": 20.0625,
-                    "count": 2,
-                    "from": 2,
-                    "to": 12.5,
-                    "gauge": "#8",
-                    "length": 1.5
-                }
-            ]
-        },
-        {
-            "id": "p_side_left",
-            "name": "Left Side Panel",
-            "size": {
-                "l": 13,
-                "w": 20.75
-            },
-            "transform": {
-                "pos": [
-                    -11.25,
-                    13.375,
-                    0
-                ],
-                "rot": [
-                    0,
-                    90,
-                    0
-                ]
-            },
-            "materialId": "ply_birch",
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "front",
-                    "edge": "w0",
-                    "count": 4,
-                    "from": 1,
-                    "to": 19.75,
-                    "thread": "fine",
-                    "length": 1.25
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "front",
-                    "edge": "w1",
-                    "count": 4,
-                    "from": 1,
-                    "to": 19.75,
-                    "thread": "fine",
-                    "length": 1.25
-                }
-            ]
-        },
-        {
-            "id": "p_side_right",
-            "name": "Right Side Panel",
-            "size": {
-                "l": 13,
-                "w": 20.75
-            },
-            "transform": {
-                "pos": [
-                    11.25,
-                    13.375,
-                    0
-                ],
-                "rot": [
-                    0,
-                    90,
-                    0
-                ]
-            },
-            "materialId": "ply_birch",
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "w0",
-                    "count": 4,
-                    "from": 1,
-                    "to": 19.75,
-                    "thread": "fine",
-                    "length": 1.25
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "w1",
-                    "count": 4,
-                    "from": 1,
-                    "to": 19.75,
-                    "thread": "fine",
-                    "length": 1.25
-                }
-            ]
-        },
-        {
-            "id": "p_back_panel",
-            "name": "Back Panel",
-            "size": {
-                "l": 21,
-                "w": 20.75
-            },
-            "transform": {
-                "pos": [
-                    0,
-                    13.375,
-                    -7.625
-                ],
-                "rot": [
-                    0,
-                    0,
-                    0
-                ]
-            },
-            "materialId": "ply_birch",
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "front",
-                    "edge": "w0",
-                    "count": 4,
-                    "from": 1,
-                    "to": 19.75,
-                    "thread": "fine",
-                    "length": 1.25
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "front",
-                    "edge": "w1",
-                    "count": 4,
-                    "from": 1,
-                    "to": 19.75,
-                    "thread": "fine",
-                    "length": 1.25
-                }
-            ]
-        },
-        {
-            "id": "p_drawer_front",
-            "name": "Drawer Front",
-            "size": {
-                "l": 21.5,
-                "w": 6.5
-            },
-            "transform": {
-                "pos": [
-                    0,
-                    19.75,
-                    7.375
-                ],
-                "rot": [
-                    0,
-                    0,
-                    0
-                ]
-            },
-            "materialId": "ply_birch"
-        },
-        {
-            "id": "p_drawer_box_bottom",
-            "name": "Drawer Box Bottom",
-            "size": {
-                "l": 19,
-                "w": 12
-            },
-            "transform": {
-                "pos": [
-                    0,
-                    16.75,
-                    1
-                ],
-                "rot": [
-                    90,
-                    0,
-                    0
-                ]
-            },
-            "materialId": "ply_birch_drawer"
-        },
-        {
-            "id": "p_drawer_box_left",
-            "name": "Drawer Box Left Side",
-            "size": {
-                "l": 12,
-                "w": 6
-            },
-            "transform": {
-                "pos": [
-                    -9.75,
-                    20,
-                    1
-                ],
-                "rot": [
-                    0,
-                    90,
-                    0
-                ]
-            },
-            "materialId": "ply_birch_drawer",
-            "ops": [
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "l",
-                    "offset": 0,
-                    "count": 2,
-                    "from": 1,
-                    "to": 11,
-                    "gauge": "#8",
-                    "length": 0.75
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "front",
-                    "edge": "w0",
-                    "count": 2,
-                    "from": 1,
-                    "to": 5,
-                    "thread": "coarse",
-                    "length": 1.0
-                }
-            ]
-        },
-        {
-            "id": "p_drawer_box_right",
-            "name": "Drawer Box Right Side",
-            "size": {
-                "l": 12,
-                "w": 6
-            },
-            "transform": {
-                "pos": [
-                    9.75,
-                    20,
-                    1
-                ],
-                "rot": [
-                    0,
-                    90,
-                    0
-                ]
-            },
-            "materialId": "ply_birch_drawer",
-            "ops": [
-                {
-                    "type": "screws",
-                    "face": "front",
-                    "axis": "l",
-                    "offset": 0,
-                    "count": 2,
-                    "from": 1,
-                    "to": 11,
-                    "gauge": "#8",
-                    "length": 0.75
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "w0",
-                    "count": 2,
-                    "from": 1,
-                    "to": 5,
-                    "thread": "coarse",
-                    "length": 1.0
-                }
-            ]
-        },
-        {
-            "id": "p_drawer_box_back",
-            "name": "Drawer Box Back",
-            "size": {
-                "l": 19,
-                "w": 6
-            },
-            "transform": {
-                "pos": [
-                    0,
-                    20,
-                    -5
-                ],
-                "rot": [
-                    0,
-                    0,
-                    0
-                ]
-            },
-            "materialId": "ply_birch_drawer",
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "l0",
-                    "count": 3,
-                    "from": 1,
-                    "to": 18,
-                    "thread": "coarse",
-                    "length": 0.75
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "w0",
-                    "count": 2,
-                    "from": 1,
-                    "to": 5,
-                    "thread": "coarse",
-                    "length": 0.75
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "w1",
-                    "count": 2,
-                    "from": 1,
-                    "to": 5,
-                    "thread": "coarse",
-                    "length": 0.75
-                }
-            ]
-        }
-    ],
-    "joints": [
-        {
-            "id": "j0",
-            "type": "pocketScrew",
-            "hostPartId": "p_apron_front",
-            "insertPartId": "p_leg_fl"
-        },
-        {
-            "id": "j1",
-            "type": "pocketScrew",
-            "hostPartId": "p_apron_front",
-            "insertPartId": "p_leg_fr"
-        },
-        {
-            "id": "j2",
-            "type": "pocketScrew",
-            "hostPartId": "p_apron_back",
-            "insertPartId": "p_leg_bl"
-        },
-        {
-            "id": "j3",
-            "type": "pocketScrew",
-            "hostPartId": "p_apron_back",
-            "insertPartId": "p_leg_br"
-        },
-        {
-            "id": "j4",
-            "type": "pocketScrew",
-            "hostPartId": "p_apron_left",
-            "insertPartId": "p_leg_fl"
-        },
-        {
-            "id": "j5",
-            "type": "pocketScrew",
-            "hostPartId": "p_apron_left",
-            "insertPartId": "p_leg_bl"
-        },
-        {
-            "id": "j6",
-            "type": "pocketScrew",
-            "hostPartId": "p_apron_right",
-            "insertPartId": "p_leg_fr"
-        },
-        {
-            "id": "j7",
-            "type": "pocketScrew",
-            "hostPartId": "p_apron_right",
-            "insertPartId": "p_leg_br"
-        },
-        {
-            "id": "j8",
-            "type": "screw",
-            "hostPartId": "p_top",
-            "insertPartId": "p_leg_fl",
-            "opRef": 0
-        },
-        {
-            "id": "j9",
-            "type": "pocketScrew",
-            "hostPartId": "p_side_left",
-            "insertPartId": "p_leg_fl",
-            "opRef": 0
-        },
-        {
-            "id": "j10",
-            "type": "screw",
-            "hostPartId": "p_top",
-            "insertPartId": "p_leg_fr",
-            "opRef": 1
-        },
-        {
-            "id": "j11",
-            "type": "pocketScrew",
-            "hostPartId": "p_side_right",
-            "insertPartId": "p_leg_fr",
-            "opRef": 0
-        },
-        {
-            "id": "j12",
-            "type": "screw",
-            "hostPartId": "p_top",
-            "insertPartId": "p_leg_bl",
-            "opRef": 2
-        },
-        {
-            "id": "j13",
-            "type": "pocketScrew",
-            "hostPartId": "p_side_left",
-            "insertPartId": "p_leg_bl",
-            "opRef": 1
-        },
-        {
-            "id": "j14",
-            "type": "pocketScrew",
-            "hostPartId": "p_back_panel",
-            "insertPartId": "p_leg_bl",
-            "opRef": 0
-        },
-        {
-            "id": "j15",
-            "type": "screw",
-            "hostPartId": "p_top",
-            "insertPartId": "p_leg_br",
-            "opRef": 3
-        },
-        {
-            "id": "j16",
-            "type": "pocketScrew",
-            "hostPartId": "p_side_right",
-            "insertPartId": "p_leg_br",
-            "opRef": 1
-        },
-        {
-            "id": "j17",
-            "type": "pocketScrew",
-            "hostPartId": "p_back_panel",
-            "insertPartId": "p_leg_br",
-            "opRef": 1
-        },
-        {
-            "id": "j18",
-            "type": "pocketScrew",
-            "hostPartId": "p_shelf",
-            "insertPartId": "p_back_panel",
-            "opRef": 0
-        },
-        {
-            "id": "j19",
-            "type": "screw",
-            "hostPartId": "p_drawer_box_left",
-            "insertPartId": "p_drawer_box_bottom",
-            "opRef": 0
-        },
-        {
-            "id": "j20",
-            "type": "screw",
-            "hostPartId": "p_drawer_box_right",
-            "insertPartId": "p_drawer_box_bottom",
-            "opRef": 0
-        },
-        {
-            "id": "j21",
-            "type": "pocketScrew",
-            "hostPartId": "p_drawer_box_back",
-            "insertPartId": "p_drawer_box_bottom",
-            "opRef": 0
-        },
-        {
-            "id": "j22",
-            "type": "pocketScrew",
-            "hostPartId": "p_drawer_box_back",
-            "insertPartId": "p_drawer_box_left",
-            "opRef": 1
-        },
-        {
-            "id": "j23",
-            "type": "pocketScrew",
-            "hostPartId": "p_drawer_box_back",
-            "insertPartId": "p_drawer_box_right",
-            "opRef": 2
-        },
-        {
-            "id": "j24",
-            "type": "screw",
-            "hostPartId": "p_shelf",
-            "insertPartId": "p_shelf_cleat_l",
-            "opRef": 1
-        },
-        {
-            "id": "j25",
-            "type": "screw",
-            "hostPartId": "p_shelf_cleat_l",
-            "insertPartId": "p_side_left",
-            "opRef": 0
-        },
-        {
-            "id": "j26",
-            "type": "screw",
-            "hostPartId": "p_shelf",
-            "insertPartId": "p_shelf_cleat_r",
-            "opRef": 2
-        },
-        {
-            "id": "j27",
-            "type": "screw",
-            "hostPartId": "p_shelf_cleat_r",
-            "insertPartId": "p_side_right",
-            "opRef": 0
-        },
-        {
-            "id": "j28",
-            "type": "pocketScrew",
-            "hostPartId": "p_drawer_box_left",
-            "insertPartId": "p_drawer_front",
-            "opRef": 1
-        },
-        {
-            "id": "j29",
-            "type": "pocketScrew",
-            "hostPartId": "p_drawer_box_right",
-            "insertPartId": "p_drawer_front",
-            "opRef": 1
-        }
-    ],
-    "meta": {
-        "difficulty": "intermediate",
-        "notes": "A modern birch-plywood nightstand: a dado-and-pocket-screw carcass with one drawer and an open lower shelf. The drawer rides side-mount slides (\u00a73.3 movable); the hardware list carries the slides and knob.",
-        "tags": [
-            "nightstand",
-            "bedroom",
-            "storage",
-            "cabinet"
-        ]
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Nightstand",
+  "materials": [
+    {
+      "id": "ply_birch",
+      "name": "Birch Plywood",
+      "type": "sheet",
+      "species": "maple",
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      },
+      "thickness": 0.75
     },
-    "movables": [
+    {
+      "id": "ply_birch_drawer",
+      "name": "Birch Plywood (drawer parts)",
+      "type": "sheet",
+      "species": "maple",
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      },
+      "thickness": 0.5
+    },
+    {
+      "id": "lumber_birch",
+      "name": "Solid Birch (legs/aprons/cleats)",
+      "type": "lumber",
+      "species": "maple",
+      "thickness": 1.5,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_leg_fl",
+      "name": "Front Left Leg",
+      "size": {
+        "l": 26,
+        "w": 1.5
+      },
+      "transform": {
+        "pos": [
+          -11.25,
+          13,
+          7.25
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "materialId": "lumber_birch"
+    },
+    {
+      "id": "p_leg_fr",
+      "name": "Front Right Leg",
+      "size": {
+        "l": 26,
+        "w": 1.5
+      },
+      "transform": {
+        "pos": [
+          11.25,
+          13,
+          7.25
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "materialId": "lumber_birch"
+    },
+    {
+      "id": "p_leg_bl",
+      "name": "Back Left Leg",
+      "size": {
+        "l": 26,
+        "w": 1.5
+      },
+      "transform": {
+        "pos": [
+          -11.25,
+          13,
+          -7.25
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "materialId": "lumber_birch"
+    },
+    {
+      "id": "p_leg_br",
+      "name": "Back Right Leg",
+      "size": {
+        "l": 26,
+        "w": 1.5
+      },
+      "transform": {
+        "pos": [
+          11.25,
+          13,
+          -7.25
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "materialId": "lumber_birch"
+    },
+    {
+      "id": "p_apron_front",
+      "name": "Front Apron",
+      "size": {
+        "l": 20.5,
+        "w": 3.5
+      },
+      "transform": {
+        "pos": [
+          0,
+          22.25,
+          7.375
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialId": "lumber_birch"
+    },
+    {
+      "id": "p_apron_back",
+      "name": "Back Apron",
+      "size": {
+        "l": 20.5,
+        "w": 3.5
+      },
+      "transform": {
+        "pos": [
+          0,
+          22.25,
+          -7.375
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialId": "lumber_birch"
+    },
+    {
+      "id": "p_apron_left",
+      "name": "Left Apron",
+      "size": {
+        "l": 12.5,
+        "w": 3.5
+      },
+      "transform": {
+        "pos": [
+          -11.25,
+          22.25,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "materialId": "lumber_birch"
+    },
+    {
+      "id": "p_apron_right",
+      "name": "Right Apron",
+      "size": {
+        "l": 12.5,
+        "w": 3.5
+      },
+      "transform": {
+        "pos": [
+          11.25,
+          22.25,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "materialId": "lumber_birch"
+    },
+    {
+      "id": "p_shelf_cleat_l",
+      "name": "Shelf Cleat Left",
+      "size": {
+        "l": 12.5,
+        "w": 1.5
+      },
+      "transform": {
+        "pos": [
+          -10.125,
+          8.375,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "materialId": "lumber_birch",
+      "ops": [
         {
-            "id": "mv_drawer",
-            "kind": "drawer",
-            "name": "Drawer",
-            "partIds": [
-                "p_drawer_front",
-                "p_drawer_box_bottom",
-                "p_drawer_box_left",
-                "p_drawer_box_right",
-                "p_drawer_box_back"
-            ],
-            "frontPartId": "p_drawer_front",
-            "style": "inset"
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.75,
+          "count": 2,
+          "from": 1,
+          "to": 11.5,
+          "gauge": "#8",
+          "length": 2
         }
+      ]
+    },
+    {
+      "id": "p_shelf_cleat_r",
+      "name": "Shelf Cleat Right",
+      "size": {
+        "l": 12.5,
+        "w": 1.5
+      },
+      "transform": {
+        "pos": [
+          10.125,
+          8.375,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "materialId": "lumber_birch",
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 0.75,
+          "count": 2,
+          "from": 1,
+          "to": 11.5,
+          "gauge": "#8",
+          "length": 2
+        }
+      ]
+    },
+    {
+      "id": "p_top",
+      "name": "Top Panel",
+      "size": {
+        "l": 24,
+        "w": 16
+      },
+      "transform": {
+        "pos": [
+          0,
+          25.375,
+          0
+        ],
+        "rot": [
+          90,
+          0,
+          0
+        ]
+      },
+      "materialId": "ply_birch",
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 15.25,
+          "count": 2,
+          "from": 0.375,
+          "to": 1.125,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 15.25,
+          "count": 2,
+          "from": 22.875,
+          "to": 23.625,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.375,
+          "to": 1.125,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 0.75,
+          "count": 2,
+          "from": 22.875,
+          "to": 23.625,
+          "gauge": "#8",
+          "length": 1.5
+        }
+      ]
+    },
+    {
+      "id": "p_shelf",
+      "name": "Open Shelf",
+      "size": {
+        "l": 20.5,
+        "w": 14.5
+      },
+      "transform": {
+        "pos": [
+          0,
+          9.5,
+          0
+        ],
+        "rot": [
+          90,
+          0,
+          0
+        ]
+      },
+      "materialId": "ply_birch",
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l0",
+          "count": 4,
+          "from": 1,
+          "to": 19.5,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 0.4375,
+          "count": 2,
+          "from": 2,
+          "to": 12.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 20.0625,
+          "count": 2,
+          "from": 2,
+          "to": 12.5,
+          "gauge": "#8",
+          "length": 1.5
+        }
+      ]
+    },
+    {
+      "id": "p_side_left",
+      "name": "Left Side Panel",
+      "size": {
+        "l": 13,
+        "w": 20.75
+      },
+      "transform": {
+        "pos": [
+          -11.25,
+          13.375,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "materialId": "ply_birch",
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 4,
+          "from": 1,
+          "to": 19.75,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 4,
+          "from": 1,
+          "to": 19.75,
+          "thread": "fine",
+          "length": 1.25
+        }
+      ]
+    },
+    {
+      "id": "p_side_right",
+      "name": "Right Side Panel",
+      "size": {
+        "l": 13,
+        "w": 20.75
+      },
+      "transform": {
+        "pos": [
+          11.25,
+          13.375,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "materialId": "ply_birch",
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 4,
+          "from": 1,
+          "to": 19.75,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 4,
+          "from": 1,
+          "to": 19.75,
+          "thread": "fine",
+          "length": 1.25
+        }
+      ]
+    },
+    {
+      "id": "p_back_panel",
+      "name": "Back Panel",
+      "size": {
+        "l": 21,
+        "w": 20.75
+      },
+      "transform": {
+        "pos": [
+          0,
+          13.375,
+          -7.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialId": "ply_birch",
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 4,
+          "from": 1,
+          "to": 19.75,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 4,
+          "from": 1,
+          "to": 19.75,
+          "thread": "fine",
+          "length": 1.25
+        }
+      ]
+    },
+    {
+      "id": "p_drawer_front",
+      "name": "Drawer Front",
+      "size": {
+        "l": 21.5,
+        "w": 6.5
+      },
+      "transform": {
+        "pos": [
+          0,
+          19.75,
+          7.375
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialId": "ply_birch"
+    },
+    {
+      "id": "p_drawer_box_bottom",
+      "name": "Drawer Box Bottom",
+      "size": {
+        "l": 19,
+        "w": 12
+      },
+      "transform": {
+        "pos": [
+          0,
+          16.75,
+          1
+        ],
+        "rot": [
+          90,
+          0,
+          0
+        ]
+      },
+      "materialId": "ply_birch_drawer"
+    },
+    {
+      "id": "p_drawer_box_left",
+      "name": "Drawer Box Left Side",
+      "size": {
+        "l": 12,
+        "w": 6
+      },
+      "transform": {
+        "pos": [
+          -9.75,
+          20,
+          1
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "materialId": "ply_birch_drawer",
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 0,
+          "count": 2,
+          "from": 1,
+          "to": 11,
+          "gauge": "#8",
+          "length": 0.75
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 5,
+          "thread": "coarse",
+          "length": 1.0
+        }
+      ]
+    },
+    {
+      "id": "p_drawer_box_right",
+      "name": "Drawer Box Right Side",
+      "size": {
+        "l": 12,
+        "w": 6
+      },
+      "transform": {
+        "pos": [
+          9.75,
+          20,
+          1
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "materialId": "ply_birch_drawer",
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0,
+          "count": 2,
+          "from": 1,
+          "to": 11,
+          "gauge": "#8",
+          "length": 0.75
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 5,
+          "thread": "coarse",
+          "length": 1.0
+        }
+      ]
+    },
+    {
+      "id": "p_drawer_box_back",
+      "name": "Drawer Box Back",
+      "size": {
+        "l": 19,
+        "w": 6
+      },
+      "transform": {
+        "pos": [
+          0,
+          20,
+          -5
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "materialId": "ply_birch_drawer",
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l0",
+          "count": 3,
+          "from": 1,
+          "to": 18,
+          "thread": "coarse",
+          "length": 0.75
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 5,
+          "thread": "coarse",
+          "length": 0.75
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 1,
+          "to": 5,
+          "thread": "coarse",
+          "length": 0.75
+        }
+      ]
+    }
+  ],
+  "joints": [
+    {
+      "id": "j0",
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_front",
+      "insertPartId": "p_leg_fl"
+    },
+    {
+      "id": "j1",
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_front",
+      "insertPartId": "p_leg_fr"
+    },
+    {
+      "id": "j2",
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_back",
+      "insertPartId": "p_leg_bl"
+    },
+    {
+      "id": "j3",
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_back",
+      "insertPartId": "p_leg_br"
+    },
+    {
+      "id": "j4",
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_left",
+      "insertPartId": "p_leg_fl"
+    },
+    {
+      "id": "j5",
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_left",
+      "insertPartId": "p_leg_bl"
+    },
+    {
+      "id": "j6",
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_right",
+      "insertPartId": "p_leg_fr"
+    },
+    {
+      "id": "j7",
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_right",
+      "insertPartId": "p_leg_br"
+    },
+    {
+      "id": "j8",
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0
+    },
+    {
+      "id": "j9",
+      "type": "pocketScrew",
+      "hostPartId": "p_side_left",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0
+    },
+    {
+      "id": "j10",
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_leg_fr",
+      "opRef": 1
+    },
+    {
+      "id": "j11",
+      "type": "pocketScrew",
+      "hostPartId": "p_side_right",
+      "insertPartId": "p_leg_fr",
+      "opRef": 0
+    },
+    {
+      "id": "j12",
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_leg_bl",
+      "opRef": 2
+    },
+    {
+      "id": "j13",
+      "type": "pocketScrew",
+      "hostPartId": "p_side_left",
+      "insertPartId": "p_leg_bl",
+      "opRef": 1
+    },
+    {
+      "id": "j14",
+      "type": "pocketScrew",
+      "hostPartId": "p_back_panel",
+      "insertPartId": "p_leg_bl",
+      "opRef": 0
+    },
+    {
+      "id": "j15",
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_leg_br",
+      "opRef": 3
+    },
+    {
+      "id": "j16",
+      "type": "pocketScrew",
+      "hostPartId": "p_side_right",
+      "insertPartId": "p_leg_br",
+      "opRef": 1
+    },
+    {
+      "id": "j17",
+      "type": "pocketScrew",
+      "hostPartId": "p_back_panel",
+      "insertPartId": "p_leg_br",
+      "opRef": 1
+    },
+    {
+      "id": "j18",
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf",
+      "insertPartId": "p_back_panel",
+      "opRef": 0
+    },
+    {
+      "id": "j19",
+      "type": "screw",
+      "hostPartId": "p_drawer_box_left",
+      "insertPartId": "p_drawer_box_bottom",
+      "opRef": 0
+    },
+    {
+      "id": "j20",
+      "type": "screw",
+      "hostPartId": "p_drawer_box_right",
+      "insertPartId": "p_drawer_box_bottom",
+      "opRef": 0
+    },
+    {
+      "id": "j21",
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_box_back",
+      "insertPartId": "p_drawer_box_bottom",
+      "opRef": 0
+    },
+    {
+      "id": "j22",
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_box_back",
+      "insertPartId": "p_drawer_box_left",
+      "opRef": 1
+    },
+    {
+      "id": "j23",
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_box_back",
+      "insertPartId": "p_drawer_box_right",
+      "opRef": 2
+    },
+    {
+      "id": "j24",
+      "type": "screw",
+      "hostPartId": "p_shelf",
+      "insertPartId": "p_shelf_cleat_l",
+      "opRef": 1
+    },
+    {
+      "id": "j25",
+      "type": "screw",
+      "hostPartId": "p_shelf_cleat_l",
+      "insertPartId": "p_side_left",
+      "opRef": 0
+    },
+    {
+      "id": "j26",
+      "type": "screw",
+      "hostPartId": "p_shelf",
+      "insertPartId": "p_shelf_cleat_r",
+      "opRef": 2
+    },
+    {
+      "id": "j27",
+      "type": "screw",
+      "hostPartId": "p_shelf_cleat_r",
+      "insertPartId": "p_side_right",
+      "opRef": 0
+    },
+    {
+      "id": "j28",
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_box_left",
+      "insertPartId": "p_drawer_front",
+      "opRef": 1
+    },
+    {
+      "id": "j29",
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_box_right",
+      "insertPartId": "p_drawer_front",
+      "opRef": 1
+    }
+  ],
+  "meta": {
+    "difficulty": "intermediate",
+    "notes": "A birch-plywood nightstand with one drawer on soft-close slides and an open shelf below. Dado-and-pocket-screw carcass; the hardware list includes the slides and a 128 mm bar pull.",
+    "tags": [
+      "nightstand",
+      "bedroom",
+      "storage",
+      "cabinet"
     ]
+  },
+  "movables": [
+    {
+      "id": "mv_drawer",
+      "kind": "drawer",
+      "name": "Drawer",
+      "partIds": [
+        "p_drawer_front",
+        "p_drawer_box_bottom",
+        "p_drawer_box_left",
+        "p_drawer_box_right",
+        "p_drawer_box_back"
+      ],
+      "frontPartId": "p_drawer_front",
+      "style": "inset",
+      "slide": "slide.side-mount-soft-close",
+      "pull": "pull.bar-128mm"
+    }
+  ]
 }

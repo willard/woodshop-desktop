@@ -187,6 +187,21 @@ pub fn overall_size(spec: &Spec) -> Option<OverallSize> {
     for part in &spec.parts {
         total.union(&world_aabb(part, spec.thickness_of(part).unwrap_or(0.0)));
     }
+    // Hardware that stands proud of the piece counts too: a workbench on casters is as tall as
+    // it stands, and a pull sets how close the piece can sit to a wall.
+    for mount in spec.hardware() {
+        let (Some(part), Some(item)) = (spec.part(&mount.part_id), crate::hardware::find(&mount.item)) else {
+            continue;
+        };
+        let reach = ["height", "projection"]
+            .iter()
+            .find_map(|k| item.model.get(*k).and_then(|v| v.as_f64()))
+            .unwrap_or(0.0);
+        let frame = crate::hardware::mount_frame(part, spec.thickness_of(part).unwrap_or(0.0), mount);
+        let tip: Vec3 = std::array::from_fn(|i| frame.point[i] + frame.normal[i] * reach);
+        total.include(local_to_world(part, frame.point));
+        total.include(local_to_world(part, tip));
+    }
     let s = total.size();
     Some(OverallSize {
         width: round_to(s[0], 4),
@@ -284,5 +299,29 @@ mod tests {
         assert!(obb_penetration(&a, 1.0, &b, 1.0) <= 1e-12);
         let c = part(10.0, 10.0, [0.0, 0.0, 0.5], [0.0; 3]);
         assert!((obb_penetration(&a, 1.0, &c, 1.0) - 0.5).abs() < 1e-9);
+    }
+}
+
+#[cfg(test)]
+mod overall_with_hardware {
+    use crate::spec::parse;
+    use serde_json::json;
+
+    #[test]
+    fn casters_count_toward_the_height() {
+        let spec = |hardware| {
+            parse(json!({
+                "specVersion": "1.15", "units": "in", "name": "T",
+                "materials": [{ "id": "m_2x4", "type": "lumber", "name": "2x4", "thickness": 1.5, "stockWidth": 3.5 }],
+                // A leg standing on end, its w0 end at 4" off the floor.
+                "parts": [{ "id": "p_leg", "name": "Leg", "materialId": "m_2x4", "size": { "l": 30, "w": 3.5 },
+                            "transform": { "pos": [0, 19, 0], "rot": [0, 0, 90] } }],
+                "hardware": hardware,
+            }))
+            .unwrap()
+        };
+        assert_eq!(super::overall_size(&spec(json!([]))).unwrap().height, 30.0);
+        let caster = json!([{ "id": "hw_c", "item": "caster.locking-3in", "partId": "p_leg", "side": "w0", "x": 1.75, "y": 0.75 }]);
+        assert_eq!(super::overall_size(&spec(caster)).unwrap().height, 33.9);
     }
 }

@@ -126,6 +126,51 @@
         ]
     },
     {
+        "slug": "adding-hardware",
+        "title": "Adding hardware",
+        "icon": "🔩",
+        "summary": "Pulls, hinges, slides, casters and more: real sizes, shown in 3D and counted in the hardware list.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "Woodshop has a catalog of real hardware with true dimensions: knobs and pulls, hinges, drawer slides, casters, leveling feet, brackets and plates, shelf pins, latches, lid stays and handles, and hooks. Hardware shows in the 3D view, moves with the part it is screwed to, and is counted in the hardware list, so the cut list, PDF and CSV tell you what to buy."
+            },
+            {
+                "type": "h",
+                "text": "Put hardware on a part"
+            },
+            {
+                "type": "ol",
+                "items": [
+                    "Open Add ▸ Hardware… in the editor toolbar, or select a part and choose + Add hardware in the inspector.",
+                    "Pick a category or search, and click an item to see a preview and its size.",
+                    "Choose Place on the model, then click where it goes on a part's face. Press R to turn it a quarter turn. You can keep clicking to place more; press Esc or Done when you are finished.",
+                    "Or pick a part under \"Or add to the centre of\" and choose Add to drop it in the middle of that part's front face."
+                ]
+            },
+            {
+                "type": "h",
+                "text": "Move, turn or remove it"
+            },
+            {
+                "type": "p",
+                "text": "Click a piece in the 3D view, or select its part, to see it in the inspector's Hardware section. There you can change which side it is on (front or back face, an edge, or an end), type its position in inches, turn it 90°, or remove it. Casters and feet usually go on an end: the end of a leg or the bottom edge of a base."
+            },
+            {
+                "type": "h",
+                "text": "Doors and drawers"
+            },
+            {
+                "type": "p",
+                "text": "A door's hinges and pull, and a drawer's slides and pull, are chosen on the door or drawer itself: select its part and use the Hinge, Slides and Pull pickers in the Door / Drawer section. Woodshop places them for you and moves them as the door swings or the drawer slides. Choose None for a push latch or a wooden pull."
+            },
+            {
+                "type": "note",
+                "text": "Hardware never cuts the part. If a piece needs a hole (a cup for a concealed hinge, a hole for a pull's screws), add a hole from the inspector's cuts. Casters and feet do add to the overall height shown in the cut list."
+            }
+        ]
+    },
+    {
         "slug": "versions-and-autosave",
         "title": "Versions & autosave",
         "icon": "🕑",
