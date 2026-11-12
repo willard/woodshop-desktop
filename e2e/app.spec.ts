@@ -266,3 +266,22 @@ test('working in millimetres, a design never shows an inch', async ({ page }) =>
     await expect(cutlist).toContainText('450 × 305 × 18 mm');
     await expect(page.locator('body')).not.toContainText('"');
 });
+
+test('a project comes back out of a backup', async ({ page }) => {
+    await page.goto('/#/settings');
+    await page.getByTestId('backup-now').click();
+    await expect(page.getByTestId('backup-row')).toHaveCount(1);
+
+    // Lose the project, then get it back from the backup.
+    await page.getByRole('link', { name: 'Projects' }).click();
+    await expect(page.getByTestId('project-row')).toHaveCount(1);
+    await page.getByRole('link', { name: 'Settings' }).click();
+    await page.getByTestId('backup-open').click();
+    const project = page.getByTestId('backup-project').filter({ hasText: 'Record stand' });
+    await expect(project).toContainText('6 parts');
+    await project.getByTestId('backup-restore').click();
+
+    await expect(page).toHaveURL(/#\/projects\/\d+$/);
+    await expect(page.getByText('Record stand (restored)')).toBeVisible();
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+});

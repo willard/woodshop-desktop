@@ -1,6 +1,7 @@
 //! Woodshop desktop shell: a Tauri window over the React editor, a local SQLite project library,
 //! and the Rust domain core. Everything stays on this computer — no account, no server.
 
+mod backups;
 mod commands;
 mod error;
 mod menu;
@@ -130,13 +131,18 @@ pub fn run() {
                 store: Mutex::new(store),
                 dir: dir.clone(),
             });
-            spawn_library_watcher(app.handle().clone(), dir);
+            spawn_library_watcher(app.handle().clone(), dir.clone());
+            backups::spawn_daily(dir);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             take_pending_opens,
             commands::library_info,
             commands::log_client_error,
+            backups::list_backups,
+            backups::backup_now,
+            backups::backup_projects,
+            backups::restore_from_backup,
             commands::list_projects,
             commands::list_templates,
             commands::create_project,

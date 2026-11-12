@@ -85,6 +85,13 @@ export interface Note {
 
 export type Settings = Record<string, unknown>;
 
+/** One automatic (or manual) copy of the library. */
+export interface BackupInfo {
+    file: string;
+    createdAt: number;
+    bytes: number;
+}
+
 export interface McpSetup {
     command: string;
     args: string[];
@@ -146,6 +153,13 @@ export const api = {
     writeTextFile: (path: string, contents: string) =>
         invoke<void>('write_text_file', { file: { path, contents } }),
     mcpSetup: () => invoke<McpSetup>('mcp_setup'),
+
+    listBackups: () => invoke<BackupInfo[]>('list_backups'),
+    backupNow: () => invoke<BackupInfo>('backup_now'),
+    backupProjects: (file: string) => invoke<ProjectSummary[]>('backup_projects', { file }),
+    /** Copies one project out of a backup into the library as a new project. */
+    restoreFromBackup: (file: string, projectId: number) =>
+        invoke<Project>('restore_from_backup', { file, projectId }),
     exportPdf: (id: number, path: string, kerf: number) =>
         invoke<void>('export_pdf', {
             id,

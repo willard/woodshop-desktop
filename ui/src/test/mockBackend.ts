@@ -22,6 +22,7 @@ interface Row {
 export function installMockBackend(): void {
     const rows = new Map<number, Row>();
     const settings: Record<string, unknown> = {};
+    const backups: { file: string; createdAt: number; bytes: number; projects: Row[] }[] = [];
     let nextId = 1;
     let clock = Date.now();
     const now = () => (clock = Math.max(clock + 1, Date.now()));
@@ -210,6 +211,31 @@ export function installMockBackend(): void {
         },
         delete_note: (a) => {
             for (const r of rows.values()) r.notes = r.notes.filter((n) => n.id !== a.noteId);
+        },
+        // Backups: snapshots of the in-memory library, taken on demand.
+        list_backups: () => backups.map(({ projects: _p, ...b }) => b),
+        backup_now: () => {
+            const createdAt = now();
+            const b = {
+                file: `woodshop-${createdAt}.db`,
+                createdAt,
+                bytes: 4096 * rows.size,
+                projects: structuredClone([...rows.values()]),
+            };
+            backups.unshift(b);
+            const { projects: _p, ...info } = b;
+            return info;
+        },
+        backup_projects: (a) => {
+            const b = backups.find((x) => x.file === a.file);
+            if (!b) throw notFound(`Backup ${a.file}`);
+            return b.projects.map((r) => summary(r.project));
+        },
+        restore_from_backup: (a) => {
+            const b = backups.find((x) => x.file === a.file);
+            const r = b?.projects.find((x) => x.project.id === a.projectId);
+            if (!r) throw notFound(`Project ${a.projectId} in that backup`);
+            return create(`${r.project.name} (restored)`, structuredClone(r.project.draft));
         },
         get_settings: () => settings,
         set_setting: (a) => void (settings[a.key as string] = a.value),

@@ -22,7 +22,7 @@ pub struct Library {
 }
 
 impl Library {
-    fn with<T>(&self, f: impl FnOnce(&Store) -> woodshop_store::Result<T>) -> CmdResult<T> {
+    pub(crate) fn with<T>(&self, f: impl FnOnce(&Store) -> woodshop_store::Result<T>) -> CmdResult<T> {
         let store = self.store.lock().map_err(CommandError::internal)?;
         Ok(f(&store)?)
     }

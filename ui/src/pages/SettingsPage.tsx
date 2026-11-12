@@ -9,6 +9,7 @@ import { formatFraction } from '@/lib/fraction';
 import { len, setUnits, UNITS_OPTIONS, useUnits, type Units } from '@/lib/display';
 import { readPreference, setPreference, type ThemePreference } from '@/lib/theme';
 import { useToast } from '@/components/Toast';
+import { BackupsPanel } from '@/components/BackupsPanel';
 import { KERF_OPTIONS, useDefaultKerf } from '@/app/settings';
 
 function Section({
@@ -156,7 +157,7 @@ export default function SettingsPage() {
 
             <Section
                 title="Project library"
-                description="Every project, version, note and thumbnail is stored in one folder on this computer. Back it up like any other folder, or export single projects as .woodshop files."
+                description="Every project, version, note and thumbnail is stored in one folder on this computer. Back it up with the rest of your files, or export single projects as .woodshop files."
             >
                 {info.data && (
                     <div className="flex items-center gap-2">
@@ -175,6 +176,13 @@ export default function SettingsPage() {
                         </button>
                     </div>
                 )}
+            </Section>
+
+            <Section
+                title="Backups"
+                description="Woodshop copies your whole library once a day and keeps the last week. If a project goes wrong or is deleted, look inside a backup and restore it."
+            >
+                <BackupsPanel />
             </Section>
 
             <Section

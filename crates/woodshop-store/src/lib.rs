@@ -68,6 +68,23 @@ impl Store {
         Self::init(conn, Some(thumbnails))
     }
 
+    /// Open a library database file directly: a backup, say. Migrated if it is older; no thumbnails.
+    /// Open a COPY of a backup, never the backup itself: opening switches the file to WAL mode.
+    pub fn open_file(path: &Path) -> Result<Self> {
+        Self::init(Connection::open(path)?, None)
+    }
+
+    /// A consistent copy of the whole library database at `path`, made while the app and an MCP
+    /// agent keep working (SQLite's `VACUUM INTO`: one read transaction, compacted). Thumbnails
+    /// are not included; they are redrawn the next time a project is opened.
+    pub fn backup_to(&self, path: &Path) -> Result<()> {
+        if path.exists() {
+            std::fs::remove_file(path)?;
+        }
+        self.conn.execute("VACUUM INTO ?1", [path.to_string_lossy().as_ref()])?;
+        Ok(())
+    }
+
     /// A throwaway library for tests; thumbnails are not supported.
     pub fn open_in_memory() -> Result<Self> {
         Self::init(Connection::open_in_memory()?, None)

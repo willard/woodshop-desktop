@@ -165,3 +165,24 @@ fn imported_projects_keep_their_original_dates() {
         Err(StoreError::ProjectNotFound(99))
     ));
 }
+
+#[test]
+fn a_backup_holds_every_project_and_opens_on_its_own() {
+    let dir = tempfile::tempdir().unwrap();
+    let store = Store::open(dir.path()).unwrap();
+    let a = store.create_project("Bench", &spec("Bench")).unwrap();
+    store
+        .create_version(a.id, &spec("Bench"), Some("first"), Author::User)
+        .unwrap();
+    store.create_project("Shelf", &spec("Shelf")).unwrap();
+
+    let file = dir.path().join("backup.db");
+    store.backup_to(&file).unwrap();
+    store.backup_to(&file).unwrap(); // replacing an older backup is fine
+
+    let copy = Store::open_file(&file).unwrap();
+    let names: Vec<_> = copy.list_projects(false).unwrap().into_iter().map(|p| p.name).collect();
+    assert_eq!(names.len(), 2);
+    assert!(names.contains(&"Bench".to_string()));
+    assert_eq!(copy.list_versions(a.id).unwrap().len(), 1);
+}
