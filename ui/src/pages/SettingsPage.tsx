@@ -1,7 +1,7 @@
 /** App settings: appearance, cut-list defaults, where the library lives, MCP setup, updates. */
 import { useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { revealItemInDir } from '@tauri-apps/plugin-opener';
+import { openUrl, revealItemInDir } from '@tauri-apps/plugin-opener';
 import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { api, errorMessage } from '@/app/api';
@@ -9,6 +9,7 @@ import { formatFraction } from '@/lib/fraction';
 import { len, setUnits, UNITS_OPTIONS, useUnits, type Units } from '@/lib/display';
 import { readPreference, setPreference, type ThemePreference } from '@/lib/theme';
 import { useToast } from '@/components/Toast';
+import { problemReportUrl } from '@/app/diagnostics';
 import { BackupsPanel } from '@/components/BackupsPanel';
 import { KERF_OPTIONS, useDefaultKerf } from '@/app/settings';
 
@@ -227,7 +228,7 @@ export default function SettingsPage() {
 
             <Section
                 title="Diagnostics"
-                description="If something goes wrong, Woodshop writes what happened to a log file on this computer. Nothing is sent anywhere; attach the file when you report a problem."
+                description="If something goes wrong, Woodshop writes what happened to a log file on this computer. Nothing is sent anywhere on its own: Report a problem opens a new issue in your browser, and you choose whether to attach the log."
             >
                 {info.data?.logDir && (
                     <div className="flex items-center gap-2">
@@ -247,6 +248,19 @@ export default function SettingsPage() {
                         </button>
                     </div>
                 )}
+                <button
+                    className="border-fg/12 hover:bg-surface-2 mt-2 rounded-lg border px-3 py-2 text-sm"
+                    data-testid="report-problem"
+                    onClick={() => {
+                        // The log goes along only if the person attaches it, so show where it is.
+                        if (info.data?.logDir) void revealItemInDir(info.data.logDir).catch(() => undefined);
+                        void openUrl(problemReportUrl(info.data?.version ?? 'unknown')).catch((e) =>
+                            toast.error(errorMessage(e)),
+                        );
+                    }}
+                >
+                    Report a problem…
+                </button>
             </Section>
         </div>
     );

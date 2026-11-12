@@ -31,3 +31,30 @@ export function installErrorCapture(): void {
         reportError(event.reason, 'unhandled rejection'),
     );
 }
+
+/** Where problems are reported: the project's public issue tracker. */
+export const ISSUES_URL = 'https://github.com/willard/woodshop-desktop/issues/new';
+
+/**
+ * A new issue, pre-filled with the app version and the system — nothing about the user or their
+ * designs. The log stays on this computer until the person attaches it themselves.
+ */
+export function problemReportUrl(version: string): string {
+    const system = navigator.userAgent.match(/\(([^)]+)\)/)?.[1] ?? navigator.platform;
+    const body = [
+        '**What happened?**',
+        '',
+        '',
+        '**What did you expect?**',
+        '',
+        '',
+        '**Steps to make it happen again**',
+        '1. ',
+        '',
+        '_Attach the log file from Settings ▸ Diagnostics ▸ Show log files if you can._',
+        '',
+        '---',
+        `Woodshop ${version} · ${system}`,
+    ].join('\n');
+    return `${ISSUES_URL}?${new URLSearchParams({ title: '', body, labels: 'bug' }).toString()}`;
+}

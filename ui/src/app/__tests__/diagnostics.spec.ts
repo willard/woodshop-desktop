@@ -32,4 +32,13 @@ describe('reportError', () => {
         const { reportError } = await import('@/app/diagnostics');
         expect(() => reportError('plain string', 'error')).not.toThrow();
     });
+
+    it('reports a problem with the version and system, and nothing else', async () => {
+        const { problemReportUrl, ISSUES_URL } = await import('@/app/diagnostics');
+        const url = new URL(problemReportUrl('1.2.3'));
+        expect(`${url.origin}${url.pathname}`).toBe(ISSUES_URL);
+        const body = url.searchParams.get('body')!;
+        expect(body).toContain('Woodshop 1.2.3');
+        expect(url.searchParams.get('labels')).toBe('bug');
+    });
 });

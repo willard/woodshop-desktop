@@ -1,8 +1,10 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "What the main window may do. The app's own commands are all allowed; plugins are limited to file dialogs, opening the data folder, relaunch after an update, and the update check.",
-  "windows": ["main"],
+  "description": "What the main window may do. The app's own commands are all allowed; plugins are limited to file dialogs, opening the data folder, the project's issue page, relaunch after an update, and the update check.",
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:default",
     "dialog:allow-open",
@@ -11,6 +13,14 @@
     "dialog:allow-message",
     "dialog:allow-confirm",
     "opener:allow-reveal-item-in-dir",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "https://github.com/willard/woodshop-desktop/*"
+        }
+      ]
+    },
     "process:allow-restart",
     "updater:default",
     "window-state:default"
