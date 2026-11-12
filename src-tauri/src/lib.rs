@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 use std::time::Duration;
 
-use tauri::{Emitter, Manager, RunEvent};
+use tauri::{Emitter, Manager};
 use woodshop_store::Store;
 
 use commands::Library;
@@ -178,7 +178,7 @@ pub fn run() {
     app.run(|handle, event| {
         // macOS delivers "open this file" as an event, not an argument.
         #[cfg(any(target_os = "macos", target_os = "ios"))]
-        if let RunEvent::Opened { urls } = &event {
+        if let tauri::RunEvent::Opened { urls } = &event {
             let files: Vec<PathBuf> = urls.iter().filter_map(|u| u.to_file_path().ok()).collect();
             if let Some(pending) = handle.try_state::<PendingOpens>()
                 && let Ok(mut v) = pending.0.lock()

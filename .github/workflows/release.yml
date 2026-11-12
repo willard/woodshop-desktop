@@ -35,7 +35,7 @@ jobs:
             rust-targets: wasm32-unknown-unknown
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Tauri system libraries
         if: startsWith(matrix.platform, 'ubuntu')
         run: |
@@ -48,7 +48,7 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: wasm-pack
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
