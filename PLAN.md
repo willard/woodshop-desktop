@@ -268,29 +268,34 @@ The catalog already carries the numbers (`cup`, `cupDepth`, `boring` on Euro hin
 
 ## Phase 3: Production foundation
 
-Needs decisions from the owner first (see "Owner decisions").
+Apple signing and notarization are **deferred by the owner**; macOS builds ship unsigned for now
+(users right-click ▸ Open the first time).
 
-- **Repository and CI:** create the GitHub repo, push, confirm `.github/workflows/ci.yml` passes
-  on Linux. Fix whatever only fails there.
-- **Updater:** generate the signing key (`npx tauri signer generate`), put the public key and the
-  real release URL in `src-tauri/tauri.conf.json`, add the secrets, and prove an update end to
-  end: publish 0.1.0 and 0.1.1 to a test repo, install 0.1.0, update from Settings.
-- **macOS signing and notarization** through `tauri-action` (secrets listed in
-  `.github/workflows/release.yml`). Build universal (Intel + Apple silicon).
-- **Windows:** first build and first run ever. Expect path, font and WebView2 differences. The
-  menu there is File / View / Help only by design (see `src-tauri/src/menu.rs`). Check Ctrl+Z,
-  file association for `.woodshop`, thumbnails, PDF export, and `woodshop.exe --mcp` from a
-  terminal (the release build is a GUI-subsystem binary; make sure stdio still works).
-- **Linux:** build AppImage and deb, smoke test.
-- **Exports through the native save dialog** have never been clicked through in the real window:
-  PDF, HTML viewer, CSV, SVG templates, `.woodshop`. Test each on each platform.
-- **Crash reports:** local logging exists (`ui/src/app/diagnostics.ts`, Settings → Diagnostics).
-  Add a "Report a problem" action that opens an email or web form with the log attached, opt-in.
-  A hosted service (Sentry) only if the owner wants it.
-- **Data safety:** a daily automatic backup of `woodshop.db` (keep the last 7) and a "Restore
-  from backup" action in Settings. A paid product cannot lose a user's designs.
-- **Performance pass:** open the largest real design (71 parts) and a 200-part stress design;
-  drag, undo and cut list must stay smooth. Profile the linter-on-every-edit path first.
+**Done:**
+- **Data safety:** the library is backed up once a day (`VACUUM INTO`, safe while the app and an
+  MCP agent write) to `<library>/backups`, keeping 7. Settings ▸ Backups lists them, backs up on
+  demand, and restores one project out of a backup as a new project (never overwrites).
+  (`src-tauri/src/backups.rs`, `ui/src/components/BackupsPanel.tsx`)
+- **Report a problem:** Settings ▸ Diagnostics opens a prefilled issue on
+  `github.com/willard/woodshop-desktop` (version and OS only) and shows the log folder. The
+  opener permission is scoped to that repository's URLs.
+- **Performance, measured** on the largest real design (71 parts) and a 213-part tiling of it,
+  per edit: linter 3.7 / 15.9 ms, cut list 1.5 / 3.8 ms, 3D scene rebuild 33 / 79 ms (Node, not
+  the webview). Fine for now; if large designs feel slow, rebuild only the changed parts' meshes
+  instead of the whole scene.
+
+**Still to do:**
+- **Push and CI:** the repository exists (public) at `github.com/willard/woodshop-desktop`. Push
+  `main` and fix whatever `.github/workflows/ci.yml` finds on Linux. Needs the owner's go-ahead.
+- **Updater key:** generate it (`npx tauri signer generate -w ~/.tauri/woodshop.key`), put the
+  public key in `src-tauri/tauri.conf.json`, add `TAURI_SIGNING_PRIVATE_KEY` (+ password) as
+  repository secrets, and prove an update end to end (0.1.0 → 0.1.1). The owner must back up the
+  private key: without it no installed copy can ever be updated.
+- **Windows and Linux:** first builds and first runs, via the release workflow. Check Ctrl+Z,
+  the `.woodshop` file association, thumbnails, PDF export, and `woodshop.exe --mcp` from a
+  terminal (the release build is a GUI-subsystem binary; stdio must still work).
+- **Exports through the native save dialogs**, clicked through in the real window on each OS.
+- **macOS signing and notarization** when the owner has an Apple Developer account.
 
 ## Phase 4: Licensing and sales
 
