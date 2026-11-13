@@ -305,77 +305,44 @@ now (users allow the app once in System Settings ▸ Privacy & Security).
 
 ## Phase 4: Open-source release
 
-The repository is already public at `github.com/willard/woodshop-desktop`, but it has no license,
-so legally nobody may use, copy or contribute to it yet. This phase makes it a real open-source
-project. No feature gating is built: there is nothing to unlock.
+Woodshop is free software under **GPL-3.0-or-later** (decided 2026-11-13), with **DCO** sign-off
+instead of a CLA. The repository is public at `github.com/willard/woodshop-desktop`. No feature
+gating is built: there is nothing to unlock.
 
-**4.1 License (needs the owner's choice first; see "Owner decisions").**
-- Add `LICENSE` at the root; set `license` in the root `Cargo.toml` (now `"UNLICENSED"`) and in
-  `package.json` / `ui/package.json` to the matching SPDX id.
-- Add an SPDX line to the README. No per-file headers needed.
-- Hardware catalog data, templates and help articles are covered by the same license unless
-  the owner decides otherwise; say so in the README.
-- Done when: `cargo metadata` and `npm pkg get license` report the chosen SPDX id.
+**Done:**
+- **4.1 License:** `LICENSE` (canonical GPL-3.0 text), `license = "GPL-3.0-or-later"` in the
+  workspace `Cargo.toml` and `package.json`; the crates are `publish = false`. The README's
+  License section covers the catalog, templates and help articles too.
+- **4.2 Third-party licenses:** `deny.toml` + a CI job (`cargo deny check`: GPL-compatible
+  licence allow-list, advisories, bans, sources). Fixing it took rusqlite 0.41 (patched SQLite)
+  and zip 9; two `quick-xml` advisories are ignored with a reason (only Typst's bibliography
+  parser uses it). `scripts/notices.mjs` (cargo-about + the production npm tree) writes
+  `third-party-notices.txt` into the UI at `npm run build:release`; Settings ▸ About shows the
+  version, licence, source, privacy note and the notices.
+- **4.3 Contributor files:** a user-first `README.md`; `CONTRIBUTING.md` (build, checks, ground
+  rules, DCO, data contributions, releasing); `SECURITY.md`; issue forms (bug, feature, hardware)
+  with blank issues off; a PR template; `.github/workflows/dco.yml` checks every PR commit for
+  `Signed-off-by`. Report a problem opens the bug form with version and OS filled in.
+- **4.4 Privacy:** `PRIVACY.md` (network use: the update check you start, and links you click).
+  Commits now use the owner's GitHub `noreply` address (repo-local git config).
+- **4.6 (part):** `CHANGELOG.md`.
 
-**4.2 Third-party licenses.**
-- Add `cargo-deny` to CI (`deny.toml`): license allow-list compatible with the chosen license,
-  plus `advisories` and `bans` (duplicate majors as warnings). Fix or justify every finding.
-- Generate a third-party notices file at build time (`cargo-about` for Rust, a script over
-  `npm ls --all --json` for the UI) and ship it in the app bundle.
-- Settings ▸ About shows the version, the license, the source link and "Open-source licenses"
-  (opens the notices file). This is what most licenses require of a binary distribution.
-- Done when: CI fails on a dependency with a disallowed license, and the shipped app shows
-  the notices.
-
-**4.3 Contributor files.**
-- `README.md`: rewrite the top for users (what it does, screenshot, download link, platforms,
-  "free forever, no account"), then build-from-source instructions, then the architecture that
-  is there today.
-- `CONTRIBUTING.md`: prerequisites (Rust stable + `wasm32-unknown-unknown`, wasm-pack, Node 24),
-  the "How to verify" command block from this plan, the ground rules (spec version bumps,
-  match the surrounding code, tests with every change), and how to run e2e
-  (`E2E_BROWSER_CHANNEL=chrome npx playwright test`).
-- Sign-off: Developer Certificate of Origin (`Signed-off-by:` on commits, checked by a GitHub
-  app or a CI step) unless the owner chooses a CLA. No CLA means the license can never be
-  changed without every contributor's consent; that is intended.
-- `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1, contact = a project address, not a personal
-  one), `SECURITY.md` (report privately through GitHub's private vulnerability reporting; turn
-  it on in the repo settings).
-- `.github/ISSUE_TEMPLATE/` (bug: version, OS, steps, attach `.woodshop` if possible; feature
-  request; `config.yml` linking Discussions for questions) and a short PR template (what, why,
-  how verified). The in-app "Report a problem" link (`ui/src/app/diagnostics.ts`) should land
-  on the bug template: add `template=bug.yml` to `problemReportUrl`.
-- Labels: `good first issue`, `help wanted`, `hardware-data`, `template`, `platform:windows`,
-  `platform:linux`. Seed 5–10 good first issues from "Known issues" and Phase 6.
-- CI already needs no secrets, so pull requests from forks run it as-is. Keep it that way; the
-  release workflow runs only on tags pushed by the owner.
-
-**4.4 Privacy and identity.**
-- `PRIVACY.md` (short): the app makes no network requests except the update check to GitHub
-  Releases and links the user clicks. No telemetry, no accounts. Keep it true: any future
-  network feature must be opt-in and listed here.
-- Commits so far are authored with the owner's work email. Decide whether to switch future
-  commits to a GitHub `noreply` address (`git config user.email`). History is already public;
-  rewriting it is not worth it.
-- Trademark: decide whether "Woodshop" and the icon are reserved for official builds (a short
-  `TRADEMARKS.md`, common for open-source apps so forks rename), and check the name is not
-  already used by another woodworking product before the launch announcement.
-
-**4.5 Funding (voluntary, never nagging).**
-- `.github/FUNDING.yml` (GitHub Sponsors and/or Ko-fi / Open Collective, owner's choice).
-- One "Support Woodshop" link in Settings ▸ About and on the website. No pop-ups, no counters,
-  nothing at export time.
-- Sponsorship can later pay for the Apple Developer account and a Windows code-signing
-  certificate (Phase 3).
-
-**4.6 First public release.**
-- `CHANGELOG.md` (Keep a Changelog). Release notes come from it.
-- Publish the v0.1.0 draft (or cut a fresh tag if `main` has moved), marked as a pre-release
-  until Phase 5 is done. Note the macOS "allow in Privacy & Security" step and the Windows
-  SmartScreen warning in the release notes until signing exists.
-- Done when: a stranger can download, install, open a template and export a PDF on each
-  platform using only the README and release notes, and can build from source using only
-  `CONTRIBUTING.md`.
+**Still to do:**
+- **Code of Conduct:** add `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1) once the owner gives
+  a contact address for reports.
+- **Repository settings (owner):** turn on private vulnerability reporting (SECURITY.md links
+  to it) and Discussions (the issue chooser links to it); create the labels `good first issue`,
+  `help wanted`, `hardware-data`, `template`, `enhancement`, `platform:windows`,
+  `platform:linux`; seed 5–10 good first issues from "Known issues" and Phase 6.
+- **Trademark:** decide whether "Woodshop" and the icon are reserved for official builds
+  (`TRADEMARKS.md`), and check the name is free among woodworking software before announcing.
+- **4.5 Funding:** `.github/FUNDING.yml` and one "Support Woodshop" link in Settings ▸ About,
+  once the owner picks the platform(s). Never nagging; nothing at export time.
+- **4.6 First public release:** publish a release built from `main` as a pre-release until
+  Phase 5 is done (the v0.1.0 draft predates the licence; cut v0.1.1 instead). Release notes
+  from `CHANGELOG.md`, with the macOS "Open Anyway" and Windows SmartScreen steps.
+  Done when a stranger can install, open a template and export a PDF on each platform using
+  only the README, and build from source using only `CONTRIBUTING.md`.
 
 ## Phase 5: First-run experience and content
 
@@ -506,18 +473,16 @@ Ask before starting the phase that needs them. Do not guess.
 
 | Decision | Needed for |
 |---|---|
-| License: GPL-3.0-or-later (forks must stay open; recommended for an app meant to stay free) or MIT / Apache-2.0 (anyone may reuse it, including in closed products) | Phase 4 |
-| Contributions: DCO sign-off (recommended) or a CLA | Phase 4 |
+| Contact address for Code of Conduct reports | Phase 4 |
 | Reserve the "Woodshop" name and icon for official builds (trademark note) | Phase 4 |
 | Sponsorship platform(s): GitHub Sponsors, Ko-fi, Open Collective | Phase 4 |
-| Commit email for future commits (work address or GitHub noreply) | Phase 4 |
 | Apple Developer account ($99/yr) and Windows signing certificate | Phase 3 |
 | Launch platforms: macOS first, or macOS and Windows together | Phase 3 |
 | Hosted crash reporting (Sentry) or GitHub issues only | Phase 3 |
 
 Decided: repository `willard/woodshop-desktop`, public (2026-11-12); updater key
 password-protected, backed up by the owner (2026-11-12); fully free and open source, no paid
-tier (2026-11-13).
+tier; GPL-3.0-or-later; DCO; commits from the GitHub noreply address (2026-11-13).
 
 ## Known issues and debts
 
