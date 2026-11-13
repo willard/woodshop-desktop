@@ -4,7 +4,7 @@ A working plan for a coding agent. Goal: turn this app into a product that can b
 "Ground rules" and "Current state" first, then work the phases in order. Each task says where the
 code is and how to know it is done.
 
-Last updated: 2026-11-10.
+Last updated: 2026-11-13.
 
 ## What the product is
 
@@ -268,8 +268,8 @@ The catalog already carries the numbers (`cup`, `cupDepth`, `boring` on Euro hin
 
 ## Phase 3: Production foundation
 
-Apple signing and notarization are **deferred by the owner**; macOS builds ship unsigned for now
-(users right-click ▸ Open the first time).
+Apple signing and notarization are **deferred by the owner**; macOS builds are ad-hoc signed for
+now (users allow the app once in System Settings ▸ Privacy & Security).
 
 **Done:**
 - **Data safety:** the library is backed up once a day (`VACUUM INTO`, safe while the app and an
@@ -284,14 +284,20 @@ Apple signing and notarization are **deferred by the owner**; macOS builds ship 
   the webview). Fine for now; if large designs feel slow, rebuild only the changed parts' meshes
   instead of the whole scene.
 
+- **CI** passes on Linux (web, e2e, Rust tests, clippy).
+- **Release builds:** pushing a `v*` tag builds a draft GitHub Release for macOS (universal
+  `.dmg`, Intel + Apple Silicon), Windows (`.msi`, `-setup.exe`) and Linux (`.AppImage`, `.deb`,
+  `.rpm`), each with an updater signature, plus `latest.json`. v0.1.0 exists as a **draft**
+  (unpublished, by choice). Apple signing turns on by itself once the `APPLE_*` secrets exist;
+  until then the workflow ad-hoc signs.
+- **Updater:** the key is password-protected at `~/.tauri/woodshop.key` (owner keeps the backup);
+  its public key is in `tauri.conf.json`; `TAURI_SIGNING_PRIVATE_KEY` and its password are
+  repository secrets. CI artifacts carry that key's ID. An update was proven end to end on
+  macOS (0.1.0 → Settings ▸ Check for updates → relaunched as 0.1.1), against a local feed
+  with a throwaway key, so nothing was published.
+
 **Still to do:**
-- **Push and CI:** the repository exists (public) at `github.com/willard/woodshop-desktop`. Push
-  `main` and fix whatever `.github/workflows/ci.yml` finds on Linux. Needs the owner's go-ahead.
-- **Updater key:** generate it (`npx tauri signer generate -w ~/.tauri/woodshop.key`), put the
-  public key in `src-tauri/tauri.conf.json`, add `TAURI_SIGNING_PRIVATE_KEY` (+ password) as
-  repository secrets, and prove an update end to end (0.1.0 → 0.1.1). The owner must back up the
-  private key: without it no installed copy can ever be updated.
-- **Windows and Linux:** first builds and first runs, via the release workflow. Check Ctrl+Z,
+- **Windows and Linux:** first runs of the release workflow's installers (they build). Check Ctrl+Z,
   the `.woodshop` file association, thumbnails, PDF export, and `woodshop.exe --mcp` from a
   terminal (the release build is a GUI-subsystem binary; stdio must still work).
 - **Exports through the native save dialogs**, clicked through in the real window on each OS.
