@@ -1,6 +1,6 @@
 # Woodshop v1.0 plan
 
-A working plan for a coding agent. Goal: turn this app into a product that can be sold. Read
+A working plan for a coding agent. Goal: ship this app as a free, open-source v1.0. Read
 "Ground rules" and "Current state" first, then work the phases in order. Each task says where the
 code is and how to know it is done.
 
@@ -12,9 +12,9 @@ Woodshop is a standalone desktop app (Tauri 2 + React, Rust core) for designing 
 It checks that a design is buildable and produces a cut list, sheet layouts, a hardware list and a
 printable plan. No account, no network needed. See `README.md` for the architecture and layout.
 
-**Business model (decided):** free tier plus a one-time Pro license (about $59–79, one year of
-updates). No subscription. Sold through a merchant of record (Lemon Squeezy or Paddle). The app
-verifies a signed license key offline.
+**Model (decided 2026-11-13):** fully free and open source. Every feature, for everyone: no
+tiers, no license keys, no paid add-ons, no telemetry. Development is supported by voluntary
+sponsorship only. (This replaces the earlier free-tier + Pro-license plan.)
 
 **Headline feature of v1.0:** a library of real hardware with 3D models (Phase 1).
 
@@ -303,24 +303,79 @@ now (users allow the app once in System Settings ▸ Privacy & Security).
 - **Exports through the native save dialogs**, clicked through in the real window on each OS.
 - **macOS signing and notarization** when the owner has an Apple Developer account.
 
-## Phase 4: Licensing and sales
+## Phase 4: Open-source release
 
-- **License keys:** an Ed25519-signed token (name, email, tier, issued date, updates-until date).
-  The public key is compiled in; verification is offline, in Rust (`src-tauri`). Store the key
-  in the app settings. No hardware lock, no phoning home.
-- **Tiers.** Free: up to 3 projects, cut list without the sheet-layout optimizer, a small
-  "Made with Woodshop" line on the PDF, hardware limited to a starter set. Pro: everything.
-  Gate in one place (a `license` module with `can(feature)`), never scattered `if`s. Free users
-  must always be able to open, view and export projects they already have.
-- **UI:** Settings → License (enter key, status, updates-until). A clear, non-nagging upgrade
-  prompt at the moment a Pro feature is used.
-- **Store:** Lemon Squeezy or Paddle product, a webhook or their license API issuing the signed
-  key, and the purchase email. A small key-signing tool or serverless function (keep the private
-  key out of the repo).
-- **Updates-until:** builds released after that date run as Free unless the key is renewed;
-  older builds keep working forever.
-- **MCP:** agent access is a Pro feature; the free tier's `--mcp` is read-only.
-- Tests: valid, expired, tampered and wrong-product keys; the gates.
+The repository is already public at `github.com/willard/woodshop-desktop`, but it has no license,
+so legally nobody may use, copy or contribute to it yet. This phase makes it a real open-source
+project. No feature gating is built: there is nothing to unlock.
+
+**4.1 License (needs the owner's choice first; see "Owner decisions").**
+- Add `LICENSE` at the root; set `license` in the root `Cargo.toml` (now `"UNLICENSED"`) and in
+  `package.json` / `ui/package.json` to the matching SPDX id.
+- Add an SPDX line to the README. No per-file headers needed.
+- Hardware catalog data, templates and help articles are covered by the same license unless
+  the owner decides otherwise; say so in the README.
+- Done when: `cargo metadata` and `npm pkg get license` report the chosen SPDX id.
+
+**4.2 Third-party licenses.**
+- Add `cargo-deny` to CI (`deny.toml`): license allow-list compatible with the chosen license,
+  plus `advisories` and `bans` (duplicate majors as warnings). Fix or justify every finding.
+- Generate a third-party notices file at build time (`cargo-about` for Rust, a script over
+  `npm ls --all --json` for the UI) and ship it in the app bundle.
+- Settings ▸ About shows the version, the license, the source link and "Open-source licenses"
+  (opens the notices file). This is what most licenses require of a binary distribution.
+- Done when: CI fails on a dependency with a disallowed license, and the shipped app shows
+  the notices.
+
+**4.3 Contributor files.**
+- `README.md`: rewrite the top for users (what it does, screenshot, download link, platforms,
+  "free forever, no account"), then build-from-source instructions, then the architecture that
+  is there today.
+- `CONTRIBUTING.md`: prerequisites (Rust stable + `wasm32-unknown-unknown`, wasm-pack, Node 24),
+  the "How to verify" command block from this plan, the ground rules (spec version bumps,
+  match the surrounding code, tests with every change), and how to run e2e
+  (`E2E_BROWSER_CHANNEL=chrome npx playwright test`).
+- Sign-off: Developer Certificate of Origin (`Signed-off-by:` on commits, checked by a GitHub
+  app or a CI step) unless the owner chooses a CLA. No CLA means the license can never be
+  changed without every contributor's consent; that is intended.
+- `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1, contact = a project address, not a personal
+  one), `SECURITY.md` (report privately through GitHub's private vulnerability reporting; turn
+  it on in the repo settings).
+- `.github/ISSUE_TEMPLATE/` (bug: version, OS, steps, attach `.woodshop` if possible; feature
+  request; `config.yml` linking Discussions for questions) and a short PR template (what, why,
+  how verified). The in-app "Report a problem" link (`ui/src/app/diagnostics.ts`) should land
+  on the bug template: add `template=bug.yml` to `problemReportUrl`.
+- Labels: `good first issue`, `help wanted`, `hardware-data`, `template`, `platform:windows`,
+  `platform:linux`. Seed 5–10 good first issues from "Known issues" and Phase 6.
+- CI already needs no secrets, so pull requests from forks run it as-is. Keep it that way; the
+  release workflow runs only on tags pushed by the owner.
+
+**4.4 Privacy and identity.**
+- `PRIVACY.md` (short): the app makes no network requests except the update check to GitHub
+  Releases and links the user clicks. No telemetry, no accounts. Keep it true: any future
+  network feature must be opt-in and listed here.
+- Commits so far are authored with the owner's work email. Decide whether to switch future
+  commits to a GitHub `noreply` address (`git config user.email`). History is already public;
+  rewriting it is not worth it.
+- Trademark: decide whether "Woodshop" and the icon are reserved for official builds (a short
+  `TRADEMARKS.md`, common for open-source apps so forks rename), and check the name is not
+  already used by another woodworking product before the launch announcement.
+
+**4.5 Funding (voluntary, never nagging).**
+- `.github/FUNDING.yml` (GitHub Sponsors and/or Ko-fi / Open Collective, owner's choice).
+- One "Support Woodshop" link in Settings ▸ About and on the website. No pop-ups, no counters,
+  nothing at export time.
+- Sponsorship can later pay for the Apple Developer account and a Windows code-signing
+  certificate (Phase 3).
+
+**4.6 First public release.**
+- `CHANGELOG.md` (Keep a Changelog). Release notes come from it.
+- Publish the v0.1.0 draft (or cut a fresh tag if `main` has moved), marked as a pre-release
+  until Phase 5 is done. Note the macOS "allow in Privacy & Security" step and the Windows
+  SmartScreen warning in the release notes until signing exists.
+- Done when: a stranger can download, install, open a template and export a PDF on each
+  platform using only the README and release notes, and can build from source using only
+  `CONTRIBUTING.md`.
 
 ## Phase 5: First-run experience and content
 
@@ -335,13 +390,14 @@ now (users allow the app once in System Settings ▸ Privacy & Security).
 - **Empty states and error messages:** read every one; each should say what to do next.
 - **Accessibility:** keyboard access to every action, visible focus, sufficient contrast in both
   themes, labels on icon buttons.
-- **Website:** a landing page, a download page, pricing, and the docs. Separate repo.
+- **Website:** a landing page, a download page (latest release per platform), the docs, and a
+  link to the source and to sponsoring. GitHub Pages from a separate repo or a `docs/` folder.
 
 ## Phase 5b: UI and design pass
 
 From a review of the built app in its real window (both themes, 1560 × 780). The app is clean and
 consistent, but it reads as an engineer's tool. These are ordered by how much they affect a
-first-time buyer. Do 5b.1–5b.6 before any marketing screenshots are taken.
+first-time user. Do 5b.1–5b.6 before any marketing screenshots are taken.
 
 **5b.1 The 3D view is the product; make it look like one.** (`ui/src/engine/EditorEngine.ts`,
 `buildScene.ts`, `engine/materials.ts`, `lib/theme.ts`)
@@ -428,7 +484,7 @@ layout mounted and put the suspense boundary inside it (`ui/src/main.tsx`, `app/
 - Add a consistent set of icons (`lucide-react` is already a dependency) instead of text glyphs.
 
 Done when: a first-time user can go from launch to an exported PDF without meeting a word they
-have to look up, and the editor screenshot would sell the product on a landing page.
+have to look up, and the editor screenshot would make someone want to try it from the README.
 
 ## Phase 6: After launch
 
@@ -436,7 +492,8 @@ have to look up, and the editor screenshot would sell the product on a landing p
   lines and to matching hardware on a sibling part.
 - Branded hardware packs (Blum, Häfele, Accuride) with part numbers, once dimensional data and
   permission are sorted.
-- Paid plan packs and affiliate links from the hardware list.
+- Community-contributed hardware and template packs (a documented data format and a review
+  checklist, so contributions need no Rust).
 - DXF export of part outlines for CNC; STEP or glTF export of the assembly.
 - In-app AI design chat (bring-your-own API key), reusing the MCP tool layer.
 - iPad companion viewer for the shop.
@@ -449,13 +506,18 @@ Ask before starting the phase that needs them. Do not guess.
 
 | Decision | Needed for |
 |---|---|
-| GitHub owner and repo name; private or public | Phase 3 |
-| Updater key: password-protected or not; where the backup lives | Phase 3 |
+| License: GPL-3.0-or-later (forks must stay open; recommended for an app meant to stay free) or MIT / Apache-2.0 (anyone may reuse it, including in closed products) | Phase 4 |
+| Contributions: DCO sign-off (recommended) or a CLA | Phase 4 |
+| Reserve the "Woodshop" name and icon for official builds (trademark note) | Phase 4 |
+| Sponsorship platform(s): GitHub Sponsors, Ko-fi, Open Collective | Phase 4 |
+| Commit email for future commits (work address or GitHub noreply) | Phase 4 |
 | Apple Developer account ($99/yr) and Windows signing certificate | Phase 3 |
 | Launch platforms: macOS first, or macOS and Windows together | Phase 3 |
-| Exact Pro price and the free tier's limits | Phase 4 |
-| Lemon Squeezy or Paddle | Phase 4 |
-| Hosted crash reporting (Sentry) or email only | Phase 3 |
+| Hosted crash reporting (Sentry) or GitHub issues only | Phase 3 |
+
+Decided: repository `willard/woodshop-desktop`, public (2026-11-12); updater key
+password-protected, backed up by the owner (2026-11-12); fully free and open source, no paid
+tier (2026-11-13).
 
 ## Known issues and debts
 
