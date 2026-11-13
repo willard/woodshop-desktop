@@ -1,0 +1,23 @@
+name: Feature request
+description: Something Woodshop should do, or do better.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to build or do?
+      description: The project or the step in your workflow, not the feature yet.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+    validations:
+      required: true
+  - type: textarea
+    id: instead
+    attributes:
+      label: What do you do today instead?
+    validations:
+      required: false

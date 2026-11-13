@@ -1,0 +1,38 @@
+name: DCO
+
+# Every commit in a pull request must carry a Signed-off-by line (Developer Certificate of Origin,
+# see CONTRIBUTING.md). Runs on the PR's own commits only, with no secrets and no third-party action.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  signoff:
+    name: Signed-off-by on every commit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Check commits
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          missing=0
+          for sha in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            if ! git show -s --format=%B "$sha" | grep -qiE '^Signed-off-by: .+ <.+>$'; then
+              echo "::error::$(git show -s --format='%h %s' "$sha") has no Signed-off-by line"
+              missing=1
+            fi
+          done
+          if [ "$missing" = 1 ]; then
+            echo "Sign off with: git rebase --signoff $BASE && git push --force-with-lease"
+            echo "See CONTRIBUTING.md#sign-your-commits-dco"
+            exit 1
+          fi
+          echo "Every commit is signed off."

@@ -36,25 +36,11 @@ export function installErrorCapture(): void {
 export const ISSUES_URL = 'https://github.com/willard/woodshop-desktop/issues/new';
 
 /**
- * A new issue, pre-filled with the app version and the system — nothing about the user or their
- * designs. The log stays on this computer until the person attaches it themselves.
+ * A new issue on the bug form (`.github/ISSUE_TEMPLATE/bug.yml`), pre-filled with the app version
+ * and the system — nothing about the user or their designs. GitHub fills form fields from query
+ * parameters named by their `id`. The log stays on this computer until the person attaches it.
  */
 export function problemReportUrl(version: string): string {
-    const system = navigator.userAgent.match(/\(([^)]+)\)/)?.[1] ?? navigator.platform;
-    const body = [
-        '**What happened?**',
-        '',
-        '',
-        '**What did you expect?**',
-        '',
-        '',
-        '**Steps to make it happen again**',
-        '1. ',
-        '',
-        '_Attach the log file from Settings ▸ Diagnostics ▸ Show log files if you can._',
-        '',
-        '---',
-        `Woodshop ${version} · ${system}`,
-    ].join('\n');
-    return `${ISSUES_URL}?${new URLSearchParams({ title: '', body, labels: 'bug' }).toString()}`;
+    const os = navigator.userAgent.match(/\(([^)]+)\)/)?.[1] ?? navigator.platform;
+    return `${ISSUES_URL}?${new URLSearchParams({ template: 'bug.yml', version, os }).toString()}`;
 }

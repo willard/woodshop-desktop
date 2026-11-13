@@ -37,8 +37,9 @@ describe('reportError', () => {
         const { problemReportUrl, ISSUES_URL } = await import('@/app/diagnostics');
         const url = new URL(problemReportUrl('1.2.3'));
         expect(`${url.origin}${url.pathname}`).toBe(ISSUES_URL);
-        const body = url.searchParams.get('body')!;
-        expect(body).toContain('Woodshop 1.2.3');
-        expect(url.searchParams.get('labels')).toBe('bug');
+        expect(url.searchParams.get('template')).toBe('bug.yml');
+        expect(url.searchParams.get('version')).toBe('1.2.3');
+        expect(url.searchParams.get('os')).toBeTruthy();
+        expect([...url.searchParams.keys()].sort()).toEqual(['os', 'template', 'version']);
     });
 });

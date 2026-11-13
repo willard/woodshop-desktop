@@ -1,0 +1,25 @@
+name: Add hardware
+description: A hinge, slide, pull, caster or fastener that should be in the catalog.
+labels: [hardware-data]
+body:
+  - type: input
+    id: product
+    attributes:
+      label: Product
+      placeholder: Maker, product line and part number
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Data sheet
+      description: A link to the manufacturer's dimensions.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Sizes or variants you need, and what you're building with it.
+    validations:
+      required: false

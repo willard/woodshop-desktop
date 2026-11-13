@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/willard/woodshop-desktop/discussions
+    about: How do I…? Show what you built. Ideas that aren't ready to be an issue yet.
+  - name: Security problem
+    url: https://github.com/willard/woodshop-desktop/security/advisories/new
+    about: Report it privately, not in a public issue.
