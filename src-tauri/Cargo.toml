@@ -3,6 +3,7 @@ name = "woodshop"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+publish.workspace = true
 description = "Woodshop — design furniture in 3D, get a buildable cut list. Standalone desktop app."
 default-run = "woodshop"
 

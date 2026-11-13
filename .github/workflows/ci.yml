@@ -30,6 +30,15 @@ jobs:
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
 
+  deny:
+    name: Dependencies (licenses, advisories)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
+
   web:
     name: Web (wasm, typecheck, lint, test)
     runs-on: ubuntu-24.04

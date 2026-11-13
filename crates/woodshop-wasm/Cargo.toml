@@ -3,6 +3,7 @@ name = "woodshop-wasm"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+publish.workspace = true
 description = "WebAssembly bindings over woodshop-core for the editor and the offline viewer."
 
 [lib]

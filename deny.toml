@@ -1,0 +1,46 @@
+# cargo-deny: run `cargo deny check` (CI does). Woodshop is GPL-3.0-or-later, so every dependency
+# must carry a licence that may be combined into a GPL-3.0 binary.
+
+[graph]
+all-features = true
+
+[licenses]
+confidence-threshold = 0.9
+allow = [
+    "MIT",
+    "MIT-0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "CC0-1.0",
+    "0BSD",
+    "BSL-1.0",
+    "MPL-2.0",
+    "CDLA-Permissive-2.0",
+    "GPL-3.0-or-later",
+]
+
+[advisories]
+# Unmaintained crates fail the check only when we depend on them directly; the transitive ones
+# (deep inside Tauri, Typst and zbus) are for those projects to replace.
+unmaintained = "workspace"
+ignore = [
+    # quick-xml 0.38 is reached only through Typst's bibliography parser (citationberg). Woodshop's
+    # PDF templates never load a bibliography, so no untrusted XML reaches it. Drop these when
+    # Typst moves to quick-xml >= 0.39.
+    { id = "RUSTSEC-2026-0194", reason = "quick-xml via typst bibliographies, never used" },
+    { id = "RUSTSEC-2026-0195", reason = "quick-xml via typst bibliographies, never used" },
+]
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

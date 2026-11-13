@@ -3,6 +3,7 @@ name = "woodshop-mcp"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+publish.workspace = true
 description = "Woodshop's local MCP server (stdio): design tools over the project library."
 
 [dependencies]

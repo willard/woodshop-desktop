@@ -3,6 +3,7 @@ name = "woodshop-core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+publish.workspace = true
 description = "Woodshop domain logic: spec model, migrations, validation, geometry, linter, cut list."
 
 [dependencies]
