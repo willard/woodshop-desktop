@@ -47,7 +47,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@v2
         with:
-          tool: wasm-pack
+          tool: wasm-pack,cargo-about
       - uses: actions/setup-node@v5
         with:
           node-version: 24
@@ -73,7 +73,8 @@ jobs:
           else
             echo "APPLE_SIGNING_IDENTITY=-" >> "$GITHUB_ENV"
           fi
-      # beforeBuildCommand (npm run build:release) builds the WASM, the viewer and the UI.
+      # beforeBuildCommand (npm run build:release) writes the third-party notices, then builds the
+      # WASM, the viewer and the UI.
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

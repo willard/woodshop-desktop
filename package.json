@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run wasm && tsc --noEmit -p ui && vite build",
-    "build:release": "npm run build:viewer && npm run build",
+    "build:release": "npm run notices && npm run build:viewer && npm run build",
     "build:viewer": "npm run wasm:viewer && vite build --config viewer/vite.config.ts",
     "wasm": "wasm-pack build crates/woodshop-wasm --target web --release --out-dir ../../ui/src/domain/wasm --out-name woodshop",
     "wasm:viewer": "wasm-pack build crates/woodshop-wasm --target web --release --out-dir ../../viewer/src/wasm --out-name woodshop -- --no-default-features",
@@ -18,7 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "notices": "node scripts/notices.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.103.2",

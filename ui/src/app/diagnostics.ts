@@ -32,8 +32,11 @@ export function installErrorCapture(): void {
     );
 }
 
+/** The project's public repository: source, licence, privacy note and issue tracker. */
+export const REPO_URL = 'https://github.com/willard/woodshop-desktop';
+
 /** Where problems are reported: the project's public issue tracker. */
-export const ISSUES_URL = 'https://github.com/willard/woodshop-desktop/issues/new';
+export const ISSUES_URL = `${REPO_URL}/issues/new`;
 
 /**
  * A new issue on the bug form (`.github/ISSUE_TEMPLATE/bug.yml`), pre-filled with the app version

@@ -11,6 +11,7 @@ import { readPreference, setPreference, type ThemePreference } from '@/lib/theme
 import { useToast } from '@/components/Toast';
 import { problemReportUrl } from '@/app/diagnostics';
 import { BackupsPanel } from '@/components/BackupsPanel';
+import { AboutPanel } from '@/components/AboutPanel';
 import { KERF_OPTIONS, useDefaultKerf } from '@/app/settings';
 
 function Section({
@@ -261,6 +262,10 @@ export default function SettingsPage() {
                 >
                     Report a problem…
                 </button>
+            </Section>
+
+            <Section title="About">
+                <AboutPanel version={info.data?.version} />
             </Section>
         </div>
     );

@@ -17,6 +17,9 @@
       "identifier": "opener:allow-open-url",
       "allow": [
         {
+          "url": "https://github.com/willard/woodshop-desktop"
+        },
+        {
           "url": "https://github.com/willard/woodshop-desktop/*"
         }
       ]

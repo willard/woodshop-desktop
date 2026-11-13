@@ -102,6 +102,18 @@ test('settings show how to connect an MCP client', async ({ page }) => {
     await expect(page.getByText('claude mcp add woodshop', { exact: false })).toBeVisible();
 });
 
+test('settings say what licence Woodshop is under and list the open-source licenses', async ({ page }) => {
+    await page.goto('/#/settings');
+    await expect(page.getByText('GNU General Public License, version 3 or later')).toBeVisible();
+    await page.getByTestId('about-notices').click();
+    const dialog = page.getByTestId('notices');
+    await expect(dialog).toBeVisible();
+    // Release builds ship the notices file; a checkout without it says how to make it.
+    await expect(dialog.getByText(/Woodshop — third-party software notices|npm run notices/)).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+});
+
 test('when parts cannot be dragged, the editor says why and how to fix it', async ({ page }) => {
     await page.goto('/#/projects/1');
     const blocked = page.getByTestId('drag-blocked');

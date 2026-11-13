@@ -14,3 +14,4 @@ playwright-report/
 # IDE and generated files
 .idea/
 src-tauri/gen/schemas/
+ui/public/third-party-notices.txt
