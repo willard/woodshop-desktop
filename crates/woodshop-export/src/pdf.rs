@@ -15,7 +15,8 @@ use typst_layout::PagedDocument;
 use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 use woodshop_core::cutlist::{CutList, CutListConfig, CutListSection, compute_cut_list, group_cut_list};
 use woodshop_core::geometry::overall_size;
-use woodshop_core::spec::Spec;
+use woodshop_core::movables::derived_borings;
+use woodshop_core::spec::{Edge, Movable, Spec};
 use woodshop_core::units::{Units, format_length, format_length_value};
 
 use crate::ExportError;
@@ -56,6 +57,8 @@ struct PlanView {
     notes: Vec<PlanNote>,
     sections: Vec<SectionView>,
     hardware: Vec<HardwareView>,
+    /// Holes the hardware needs that are on no part's op list: hinge cups.
+    drilling: Vec<String>,
     sheets: Vec<SheetView>,
     lumber: Vec<LumberView>,
 }
@@ -219,6 +222,59 @@ fn section_view(section: &CutListSection, units: Units) -> SectionView {
     }
 }
 
+/// One line per door hung on concealed hinges: how many cups, what size, and where.
+fn drilling_notes(spec: &Spec, units: Units) -> Vec<String> {
+    let borings = derived_borings(spec);
+    let mut notes = Vec::new();
+    for movable in spec.movables() {
+        let Movable::Door {
+            id,
+            hinge_edge,
+            panel_part_id,
+            ..
+        } = movable
+        else {
+            continue;
+        };
+        let cups: Vec<_> = borings.iter().filter(|b| &b.movable_id == id).collect();
+        let (Some(first), Some(panel)) = (cups.first(), spec.part(panel_part_id)) else {
+            continue;
+        };
+        // Along the hinge edge, and in from it.
+        let along_x = hinge_edge.is_l_edge();
+        let positions: Vec<String> = cups
+            .iter()
+            .map(|b| format_length(if along_x { b.hole.x } else { b.hole.y }, units))
+            .collect();
+        let inset = match hinge_edge {
+            Edge::L0 => first.hole.y,
+            Edge::L1 => panel.size.w - first.hole.y,
+            Edge::W0 => first.hole.x,
+            Edge::W1 => panel.size.l - first.hole.x,
+        };
+        // A cup is a metric fitting whatever the plan is drawn in; say so once when it is not.
+        let mm = |inches: f64| format!("{} mm", (inches * 254.0).round() / 10.0);
+        let size = |inches: f64| match units {
+            // To the half millimetre: the 22.5 mm boring distance must not round to 23.
+            Units::Metric => mm(inches),
+            _ => format!("{} ({})", format_length(inches, units), mm(inches)),
+        };
+        let hinge = woodshop_core::hardware::find(&first.item).map_or("concealed hinge", |i| i.name.as_str());
+        notes.push(format!(
+            "{}: bore {} cup{} {} across and {} deep in the back face, centred {} in from the hinge edge, at {} along it ({}).",
+            panel.name,
+            cups.len(),
+            if cups.len() == 1 { "" } else { "s" },
+            size(first.hole.diameter),
+            size(first.hole.depth.unwrap_or(0.0)),
+            size(inset),
+            positions.join(", "),
+            hinge.to_lowercase(),
+        ));
+    }
+    notes
+}
+
 fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
     let units = input.units;
     let overall = overall_size(input.spec).map(|o| dims3(o.width, o.depth, o.height, units));
@@ -261,6 +317,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                 description: h.description.clone(),
             })
             .collect(),
+        drilling: drilling_notes(input.spec, units),
         sheets: cut_list
             .sheets
             .iter()
@@ -416,4 +473,60 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
                 .join("; "),
         )
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+    use woodshop_core::spec;
+
+    fn door(hinge: &str) -> Spec {
+        let raw = json!({
+            "specVersion": spec::migrate::CURRENT_SPEC_VERSION, "name": "Cabinet", "units": "in",
+            "materials": [{ "id": "ply", "name": "Plywood", "type": "sheet", "thickness": 0.75 }],
+            "parts": [{ "id": "door", "name": "Left door", "materialId": "ply", "size": { "l": 18, "w": 30 },
+                "transform": { "pos": [0, 0, 0] } }],
+            "movables": [{ "id": "mv_door", "kind": "door", "partIds": ["door"], "panelPartId": "door",
+                "hingeEdge": "w1", "style": "overlay", "hinge": hinge }],
+        });
+        spec::from_value(spec::migrate_to_latest(raw).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn the_plan_says_where_to_bore_hinge_cups() {
+        let inches = drilling_notes(&door("hinge.euro-full-overlay"), Units::Fraction);
+        assert_eq!(
+            inches,
+            vec![
+                "Left door: bore 2 cups 1 3/8\" (35 mm) across and 1/2\" (12 mm) deep in the back face, centred \
+                 7/8\" (22.5 mm) in from the hinge edge, at 3\", 27\" along it (concealed hinge, full overlay)."
+            ]
+        );
+        let metric = drilling_notes(&door("hinge.euro-full-overlay"), Units::Metric);
+        assert!(metric[0].contains("35 mm across and 12 mm deep"), "{}", metric[0]);
+        assert!(metric[0].contains("centred 22.5 mm in"), "{}", metric[0]);
+        assert!(metric[0].contains("at 76 mm, 686 mm along it"), "{}", metric[0]);
+    }
+
+    #[test]
+    fn a_plan_with_drilling_notes_renders() {
+        let spec = door("hinge.euro-full-overlay");
+        let pdf = render_plan_pdf(&PlanInput {
+            title: "Cabinet",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 14, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Metric,
+        })
+        .unwrap();
+        assert!(pdf.starts_with(b"%PDF-"));
+    }
+
+    #[test]
+    fn a_surface_hinge_needs_no_drilling_note() {
+        assert!(drilling_notes(&door("hinge.butt-2-5in"), Units::Fraction).is_empty());
+    }
 }

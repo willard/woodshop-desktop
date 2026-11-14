@@ -73,3 +73,149 @@ pub fn movable_member_of(spec: &Spec) -> HashMap<&str, &Movable> {
     }
     by_part
 }
+
+/// Hinges sit this far in from each end of the hinge edge.
+pub const HINGE_INSET: f64 = 3.0;
+/// Wood a cup bore must leave behind it, or the bit's point comes through the show face.
+pub const CUP_FLOOR: f64 = 0.0625;
+
+/// Where each hinge sits along the hinge edge, measured from the edge's centre: evenly spaced
+/// between the two inset positions, so a third hinge lands in the middle. On an edge too short
+/// for the insets they all collapse to the centre, and one position is returned.
+pub fn hinge_offsets(hinge_edge_length: f64) -> Vec<f64> {
+    let reach = (hinge_edge_length / 2.0 - HINGE_INSET).max(0.0);
+    if reach == 0.0 {
+        return vec![0.0];
+    }
+    let count = hinge_count_for(hinge_edge_length);
+    (0..count)
+        .map(|i| (-1.0 + 2.0 * f64::from(i) / f64::from(count - 1)) * reach)
+        .collect()
+}
+
+/// A hole the chosen hardware needs that nobody authored: the cup of a concealed hinge.
+///
+/// Borings are DERIVED from the movable every time they are needed — by the 3D view, the shop
+/// templates, the plan and the linter — and never written into `part.ops`, so changing the hinge
+/// or resizing the door cannot leave stale holes behind.
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Boring {
+    pub part_id: String,
+    pub movable_id: String,
+    /// The catalog item that asks for the hole.
+    pub item: String,
+    pub hole: crate::spec::Hole,
+}
+
+/// Every hole the design's door hardware needs: for each door hung on concealed (Euro) hinges,
+/// one cup per hinge in the panel's back face, centred `boring` in from the hinge edge.
+pub fn derived_borings(spec: &Spec) -> Vec<Boring> {
+    use crate::spec::{Face, Hole, HolePurpose};
+    let mut out = Vec::new();
+    for movable in spec.movables() {
+        let Movable::Door {
+            id,
+            panel_part_id,
+            hinge_edge,
+            hinge,
+            ..
+        } = movable
+        else {
+            continue;
+        };
+        // No hinge named means the generic "overlay cabinet hinges" of the hardware list: nothing
+        // says they are concealed, so nothing is bored.
+        let Some(item_id) = hinge.as_deref() else { continue };
+        let Some(item) = crate::hardware::find(item_id) else {
+            continue;
+        };
+        let num = |key: &str| item.model.get(key).and_then(serde_json::Value::as_f64);
+        if item.model.get("shape").and_then(|s| s.as_str()) != Some("euroHinge") {
+            continue;
+        }
+        let (Some(cup), Some(cup_depth), Some(boring)) = (num("cup"), num("cupDepth"), num("boring")) else {
+            continue;
+        };
+        let Some(panel) = spec.part(panel_part_id) else {
+            continue;
+        };
+        let (l, w) = (panel.size.l, panel.size.w);
+        for offset in hinge_offsets(hinge_edge_length(panel, *hinge_edge)) {
+            let (x, y) = match hinge_edge {
+                Edge::L0 => (l / 2.0 + offset, boring),
+                Edge::L1 => (l / 2.0 + offset, w - boring),
+                Edge::W0 => (boring, w / 2.0 + offset),
+                Edge::W1 => (l - boring, w / 2.0 + offset),
+            };
+            out.push(Boring {
+                part_id: panel.id.clone(),
+                movable_id: id.clone(),
+                item: item.id.clone(),
+                hole: Hole {
+                    face: Face::Back,
+                    x,
+                    y,
+                    diameter: cup,
+                    depth: Some(cup_depth),
+                    purpose: Some(HolePurpose::Hardware),
+                },
+            });
+        }
+    }
+    out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::spec;
+    use serde_json::json;
+
+    fn door_spec(hinge: Option<&str>, hinge_edge: &str, l: f64, w: f64) -> Spec {
+        let mut door = json!({ "id": "d", "kind": "door", "partIds": ["p_door"], "panelPartId": "p_door",
+            "hingeEdge": hinge_edge, "style": "overlay" });
+        if let Some(h) = hinge {
+            door["hinge"] = json!(h);
+        }
+        let raw = json!({
+            "specVersion": spec::migrate::CURRENT_SPEC_VERSION, "name": "Cabinet", "units": "in",
+            "materials": [{ "id": "ply", "name": "Plywood", "type": "sheet", "thickness": 0.75 }],
+            "parts": [{ "id": "p_door", "name": "Door", "materialId": "ply", "size": { "l": l, "w": w },
+                "transform": { "pos": [0, 0, 0] } }],
+            "movables": [door],
+        });
+        spec::from_value(spec::migrate_to_latest(raw).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn hinges_spread_between_the_insets() {
+        assert_eq!(hinge_offsets(30.0), vec![-12.0, 12.0]);
+        assert_eq!(hinge_offsets(48.0), vec![-21.0, 0.0, 21.0]);
+        // Too short for two: one, in the middle.
+        assert_eq!(hinge_offsets(5.0), vec![0.0]);
+    }
+
+    #[test]
+    fn a_euro_hinge_bores_a_cup_per_hinge_in_the_back_face() {
+        // Hinged on w0 (the x = 0 end): cups 22.5 mm in from it, 3" from each end of the 30" edge.
+        let borings = derived_borings(&door_spec(Some("hinge.euro-full-overlay"), "w0", 18.0, 30.0));
+        assert_eq!(borings.len(), 2);
+        let h = &borings[0].hole;
+        assert_eq!(h.face, crate::spec::Face::Back);
+        assert!((h.x - 0.8858).abs() < 1e-9 && (h.y - 3.0).abs() < 1e-9, "{h:?}");
+        assert!((borings[1].hole.y - 27.0).abs() < 1e-9);
+        assert!((h.diameter - 1.378).abs() < 1e-9);
+        assert_eq!(h.depth, Some(0.4724));
+
+        // The far long edge: measured back from it.
+        let l1 = derived_borings(&door_spec(Some("hinge.euro-inset"), "l1", 30.0, 18.0));
+        assert!((l1[0].hole.y - (18.0 - 0.8858)).abs() < 1e-9 && (l1[0].hole.x - 3.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn surface_hinges_and_unnamed_hinges_bore_nothing() {
+        assert!(derived_borings(&door_spec(Some("hinge.butt-2-5in"), "w0", 18.0, 30.0)).is_empty());
+        assert!(derived_borings(&door_spec(None, "w0", 18.0, 30.0)).is_empty());
+    }
+}

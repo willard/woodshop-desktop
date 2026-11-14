@@ -11,6 +11,7 @@ import { api, errorMessage } from '@/app/api';
 import { chooseSavePath, fileStem } from '@/app/files';
 import { wasm } from '@/domain';
 import { getUnits } from '@/lib/display';
+import { derivedHoleOps } from '@/spec/movables';
 import { useToast } from './Toast';
 
 export interface ExportTarget {
@@ -85,8 +86,14 @@ export function useProjectExports(target: ExportTarget) {
                 async (path) => {
                     const spec = target.getSpec();
                     const materials = new Map(spec.materials.map((m) => [m.id, m]));
-                    const parts = spec.parts.filter((p) => (p.ops ?? []).length > 0);
-                    const targets = parts.length > 0 ? parts : spec.parts;
+                    // A door on concealed hinges gets its cup holes on the template too.
+                    const bored = derivedHoleOps(spec);
+                    const all = spec.parts.map((p) => {
+                        const cups = bored.get(p.id);
+                        return cups === undefined ? p : { ...p, ops: [...(p.ops ?? []), ...cups] };
+                    });
+                    const parts = all.filter((p) => (p.ops ?? []).length > 0);
+                    const targets = parts.length > 0 ? parts : all;
                     const base = path.replace(/\.svg$/i, '');
                     for (const [i, part] of targets.entries()) {
                         const m = materials.get(part.materialId);

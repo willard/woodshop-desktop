@@ -1,15 +1,16 @@
 /**
  * Movables — doors and drawers (§3.3, spec 1.12). The shop tables and derivation helpers shared
  * by the cut list (hardware rows), the linter (both sides mirror these numbers), the renderer
- * (hinge/slide placement), and the presets (opening sizing). Pure TS, three-free, like
+ * (hinge/slide placement), and the presets (opening sizing). Three-free, like
  * fasteners.ts: one definition of "how many hinges does this door take", not four.
  *
  * A movable is an annotation, not a constraint (§3.2 family): the spec stores the CLOSED
  * geometry, `transform` stays authoritative, and opening is a view-time transform that never
  * touches the document.
  */
-import type { Spec, Part, Movable, Vec3 } from './types';
+import type { Spec, Part, Movable, Op, Vec3 } from './types';
 import { localAxesWorld } from './geometry';
+import { wasm } from '@/domain';
 
 /** How far an overlay door/drawer front laps the opening, per side. */
 export const OVERLAY_ALLOWANCE = 0.5;
@@ -92,6 +93,40 @@ export function movableMemberOf(spec: Spec): Map<string, Movable> {
                 byPart.set(partId, movable);
             }
         }
+    }
+    return byPart;
+}
+
+type HoleOp = Extract<Op, { type: 'hole' }>;
+
+/** A hole the chosen hardware needs that nobody authored: the cup of a concealed hinge. */
+export interface Boring {
+    partId: string;
+    movableId: string;
+    /** The catalog item that asks for the hole. */
+    item: string;
+    hole: Omit<HoleOp, 'type'>;
+}
+
+/**
+ * Every hole the design's door hardware needs, from the core. Borings are derived from the
+ * movables each time — by the 3D view, the shop templates and the plan — and never written into
+ * `part.ops`, so changing a hinge or resizing a door cannot leave stale holes behind.
+ */
+export function derivedBorings(spec: Spec): Boring[] {
+    if ((spec.movables ?? []).length === 0) {
+        return [];
+    }
+    return wasm.derivedBorings(spec) as Boring[];
+}
+
+/** The derived borings as hole ops, per part: what to cut in addition to `part.ops`. */
+export function derivedHoleOps(spec: Spec): Map<string, HoleOp[]> {
+    const byPart = new Map<string, HoleOp[]>();
+    for (const boring of derivedBorings(spec)) {
+        const ops = byPart.get(boring.partId) ?? [];
+        ops.push({ type: 'hole', ...boring.hole });
+        byPart.set(boring.partId, ops);
     }
     return byPart;
 }

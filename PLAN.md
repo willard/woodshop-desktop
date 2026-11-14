@@ -228,17 +228,28 @@ help article "Adding hardware" to `ui/src/help/articles.json`.
 door, open the door (the pull swings with it), explode, undo and redo from the menu, export PDF
 and CSV and confirm the hardware rows, export the HTML viewer and confirm the models show.
 
-### Phase 1b (after 1.10): hardware that affects the build
+### Phase 1b: hardware that affects the build
 
-The catalog already carries the numbers (`cup`, `cupDepth`, `boring` on Euro hinges; slide
-`thickness`).
-- **Euro hinge cup holes:** when a door's hinge is a `euroHinge`, show the 35 mm cup holes on the
-  door (drawn as holes, listed in the plan's drilling notes). Decide first whether they are
-  derived at render time (preferred: nothing to keep in sync) or written as hole ops.
-- **Slide clearance:** a linter warning when a drawer box does not leave the chosen slide's side
-  clearance (1/2" each side for side-mount) inside its opening.
-- **Caster height:** include mounted casters and levelers in the overall height.
+**Done:**
+- **Euro hinge cup holes.** A door whose `hinge` is a `euroHinge` gets a 35 mm cup per hinge in
+  the panel's back face. They are **derived** (`movables::derived_borings`, WASM
+  `derivedBorings`), never written into `part.ops`: the 3D view cuts them with the authored
+  holes (`EditorEngine.applyCsgOps`), the SVG shop templates and MCP `render_preview` draw them,
+  the PDF plan lists them under "Drilling", and `explain_part` reports them as
+  `hardwareBorings`. A door with no hinge named ("overlay cabinet hinges") bores nothing.
+  Hinge positions along the edge now live in the core (`movables::hinge_offsets`); a test keeps
+  the TypeScript hinge placement (`engine/movablePlacement.ts`) under the same holes.
+- **Linter:** `movable.hinge-cup-deep` (door too thin for the cup: needs cup depth + 1/16") and
+  `movable.slide-clearance` (a drawer box on side-mount slides must leave the slide's thickness
+  each side of the box inside its opening; says what width to make the box, or that it is
+  off-centre). The slide check waits until the drawer has a real box (three parts besides the
+  front) and skips undermount slides and fronts that are not square to a horizontal axis.
+- **Caster height** is in the overall size (done with Phase 2).
+- **MCP:** `explain_part` reports the mounts on a part (side, position, world point, facing).
+
+**Still to do:**
 - **Lid stays:** suggest one when a door's hinge edge is horizontal and at the top (a lid).
+- Undermount slides: check the 1/2" recess under the drawer bottom.
 
 ---
 

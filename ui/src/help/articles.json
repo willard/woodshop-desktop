@@ -173,8 +173,12 @@
                 "text": "A door's hinges and pull, and a drawer's slides and pull, are chosen on the door or drawer itself: select its part and use the Hinge, Slides and Pull pickers in the Door / Drawer section. Woodshop places them for you and moves them as the door swings or the drawer slides. Choose None for a push latch or a wooden pull."
             },
             {
+                "type": "p",
+                "text": "Woodshop checks the fit as you go. A door too thin for its hinge cups gets a warning, and so does a drawer box that doesn't leave its side-mount slides exactly their clearance, 1/2\" (12.7 mm) each side: the warning tells you what width to make the box."
+            },
+            {
                 "type": "note",
-                "text": "Hardware never cuts the part. If a piece needs a hole (a cup for a concealed hinge, a hole for a pull's screws), add a hole from the inspector's cuts. Casters and feet do add to the overall height shown in the cut list."
+                "text": "Choose a concealed (Euro) hinge for a door and Woodshop bores its 35 mm cups for you: they show in the door, on its shop template and in the plan's Drilling section, and move if you resize the door or change the hinge. Other hardware never cuts the part, so a pull's screw holes are holes you add from the inspector's cuts. Casters and feet do add to the overall height shown in the cut list."
             }
         ]
     },

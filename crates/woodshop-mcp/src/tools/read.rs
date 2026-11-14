@@ -4,12 +4,15 @@
 use serde_json::{Map, Value, json};
 use woodshop_core::cutlist::{CutListConfig, compute_cut_list, grouping::group_cut_list, stock_advice::stock_advice};
 use woodshop_core::geometry::frame::{
-    Aabb, axis_map, face_map, obb_penetration, overall_size, php_float, rotation_rows, round_to, to_world, world_aabb,
+    Aabb, axis_map, describe_axis, face_map, obb_penetration, overall_size, php_float, rotation_rows, round_to,
+    to_world, world_aabb,
 };
 use woodshop_core::geometry::op_extent::{datum_note, local_box};
 use woodshop_core::geometry::outline_svg;
+use woodshop_core::hardware;
 use woodshop_core::lint::{self, LintIssue, Severity};
-use woodshop_core::spec::{self, MaterialType, Part, Spec, catalog, validate};
+use woodshop_core::movables::derived_borings;
+use woodshop_core::spec::{self, MaterialType, Op, Part, Spec, catalog, validate};
 use woodshop_core::units::fraction::inch_label;
 
 use super::*;
@@ -305,7 +308,8 @@ pub const EXPLAIN_PART: ToolDef = ToolDef {
         world bounding box, WHICH WORLD AXIS its local length, width and thickness land on after \
         rotation (on a part rotated [0,90,0] the length runs along world -Z, so an op measured 1.25\" \
         along it lands 1.25\" from the front), and for every op its index, type, the datum its offsets \
-        count from, and the world box it occupies. Pass part_id for one part, or omit it for every part \
+        count from, and the world box it occupies; plus the hardware mounted on it (side, position, where \
+        that is in the world, which way it faces) and any holes its door hardware needs (hinge cups). Pass part_id for one part, or omit it for every part \
         in the design. Read-only.",
     read_only: true,
     schema: || {
@@ -407,6 +411,60 @@ fn explain(part: &Part, spec: &Spec) -> Value {
     if !overlapping.is_empty() {
         out["overlappingParts"] = json!(overlapping);
     }
+
+    // Hardware mounted on this part: which side, and where that puts it in the world.
+    let mounts: Vec<Value> = spec
+        .hardware()
+        .iter()
+        .filter(|m| m.part_id == part.id)
+        .map(|mount| {
+            let frame = hardware::mount_frame(part, thickness, mount);
+            let world_normal: [f64; 3] =
+                std::array::from_fn(|i| (0..3).map(|k| rotation[i][k] * frame.normal[k]).sum());
+            let at = to_world(part, &rotation, frame.point);
+            compact(json!({
+                "id": mount.id,
+                "item": mount.item,
+                "name": hardware::find(&mount.item).map(|i| i.name.as_str()),
+                "side": spec::to_value(&mount.side),
+                "x": mount.x,
+                "y": mount.y,
+                "rot": mount.rot,
+                "at": at.map(|v| round_to(v, 3)),
+                "faces": describe_axis(world_normal),
+            }))
+        })
+        .collect();
+    if !mounts.is_empty() {
+        out["hardware"] = json!(mounts);
+    }
+
+    // Holes the door hardware needs. They are derived, so they are not in `ops`.
+    let borings: Vec<Value> = derived_borings(spec)
+        .into_iter()
+        .filter(|b| b.part_id == part.id)
+        .map(|boring| {
+            let op = Op::Hole(boring.hole.clone());
+            let local = local_box(&op, part, thickness);
+            compact(json!({
+                "for": hardware::find(&boring.item).map(|i| i.name.as_str()),
+                "movableId": boring.movable_id,
+                "face": spec::to_value(&boring.hole.face),
+                "x": round_to(boring.hole.x, 4),
+                "y": round_to(boring.hole.y, 4),
+                "diameter": boring.hole.diameter,
+                "depth": boring.hole.depth,
+                "world": local.map(|b| range(&world_of(&b, part, &rotation))),
+            }))
+        })
+        .collect();
+    if !borings.is_empty() {
+        out["hardwareBorings"] = json!({
+            "note": "Bored for the door's hinge. Derived from the movable, not stored in ops: change or \
+                     remove them with update_movable (hinge), not remove_op.",
+            "holes": borings,
+        });
+    }
     out
 }
 
@@ -486,7 +544,17 @@ fn render_preview(w: &Woodshop, args: &Args) -> Outcome {
             inch_label(part.size.l)
         ));
     }
-    let drawing = outline_svg::render(part, thickness, material.map(|m| m.name.as_str()).unwrap_or(""), &[]);
+    // A door on concealed hinges shows its cup holes on the pattern too.
+    let mut drawn = part.clone();
+    let cups: Vec<Op> = derived_borings(spec)
+        .into_iter()
+        .filter(|b| b.part_id == part.id)
+        .map(|b| Op::Hole(b.hole))
+        .collect();
+    if !cups.is_empty() {
+        drawn.ops.get_or_insert_with(Vec::new).extend(cups);
+    }
+    let drawing = outline_svg::render(&drawn, thickness, material.map(|m| m.name.as_str()).unwrap_or(""), &[]);
     let mut payload = json!({ "projectId": design.id() });
     merge(&mut payload, summarise(part, spec));
     payload["bytes"] = drawing.len().into();

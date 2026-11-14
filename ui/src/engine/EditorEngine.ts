@@ -8,7 +8,8 @@ import * as THREE from 'three';
 import { buildHardwareGeometry } from './geometry/hardwareModels';
 import { findItem } from '@/hardware/catalog';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import type { Spec, Part, Material } from '../spec/types';
+import type { Spec, Part, Material, Op } from '../spec/types';
+import { derivedHoleOps } from '../spec/movables';
 import { buildSpecGroup } from './buildScene';
 import { woodMaterialProvider, createGrainTexture, type MaterialProvider } from './materials';
 import { computeSnap, clampAnchorToWorkspace, aabbFromPart, type AABB, type Vec3 } from './snapping';
@@ -1485,8 +1486,13 @@ export class EditorEngine {
         const generation = (this.csgGeneration += 1);
         const materials = new Map<string, Material>(spec.materials.map((m) => [m.id, m]));
 
+        // Holes the door hardware needs (concealed-hinge cups): cut like authored ones, but
+        // derived from the movables, never stored in the spec.
+        const derived = derivedHoleOps(spec);
+
         for (const part of spec.parts) {
-            const holes = holeSpecsOf(part);
+            const bored = derived.get(part.id) ?? [];
+            const holes = holeSpecsOf(part.ops ?? []).concat(holeSpecsOf(bored));
             const channels = csgChannelsOf(part);
             const material = materials.get(part.materialId);
             const mesh = this.partsGroup?.getObjectByName(part.id) as THREE.Mesh | undefined;
@@ -1500,7 +1506,7 @@ export class EditorEngine {
             const dims = { l: part.size.l, w: part.size.w, thickness: material.thickness };
             // The cut geometry is a pure function of the blank and every op on it, so the whole
             // ops array goes into the key — channels included, and in their authored order.
-            const key = `${part.id}|${material.thickness}|${part.size.l}x${part.size.w}|${JSON.stringify(part.ops)}`;
+            const key = `${part.id}|${material.thickness}|${part.size.l}x${part.size.w}|${JSON.stringify(part.ops)}|${JSON.stringify(bored)}`;
             void (this.partCsg ??= new PartCsg(this.csgWorkerFactory))
                 .subtract(key, mesh.geometry, holes, channels, dims)
                 .then((geometry) => {
@@ -1759,8 +1765,8 @@ export class EditorEngine {
 }
 
 /** Extracts a part's hole ops as worker-serializable hole specs (§3.1). */
-function holeSpecsOf(part: Part): HoleSpec[] {
-    return (part.ops ?? [])
+function holeSpecsOf(ops: Op[]): HoleSpec[] {
+    return ops
         .filter((op): op is Extract<typeof op, { type: 'hole' }> => op.type === 'hole')
         .map((op) => ({ face: op.face, x: op.x, y: op.y, diameter: op.diameter, depth: op.depth }));
 }

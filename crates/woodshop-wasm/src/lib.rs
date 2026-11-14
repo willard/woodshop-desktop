@@ -256,6 +256,13 @@ pub fn hardware_mount_frame(part: JsValue, thickness: f64, mount: JsValue) -> Js
     to_js(&hardware::mount_frame(&part, thickness, &mount))
 }
 
+/// Holes the chosen door hardware needs (concealed-hinge cups), derived from the movables and
+/// never stored in `part.ops`: `[{ partId, movableId, item, hole }]`.
+#[wasm_bindgen(js_name = derivedBorings)]
+pub fn derived_borings(spec: JsValue) -> JsResult<JsValue> {
+    to_js(&woodshop_core::movables::derived_borings(&spec_from_js(spec)?))
+}
+
 #[wasm_bindgen(js_name = stockAdvice)]
 pub fn stock_advice(cut_list: JsValue, spec: JsValue) -> JsResult<JsValue> {
     let cut_list: CutList = from_js(cut_list)?;

@@ -86,6 +86,11 @@
   )
 ]
 
+#if data.drilling.len() > 0 [
+  == Drilling
+  #list(..data.drilling.map(line => [#line]))
+]
+
 #let sheet-width = 100%
 #for plan in data.sheets [
   == #plan.title

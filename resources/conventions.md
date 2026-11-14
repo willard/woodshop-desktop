@@ -203,8 +203,16 @@ their stock, and a fully connected assembly with no floating parts.
 
 - Hardware comes from a catalog of real items with true dimensions (pulls, hinges, slides, casters,
   feet, brackets, shelf pins, latches, lid stays, hooks). Never invent an id: list them with
-  `list_hardware`. Hardware adds to the hardware list and the 3D view. It NEVER cuts the part: a
-  hole a piece needs is still a `hole` op you place.
+  `list_hardware`. Hardware adds to the hardware list and the 3D view. A mount NEVER cuts the
+  part: a hole a piece needs (a pull's screw holes) is still a `hole` op you place.
+- The one exception is a concealed (Euro) hinge chosen on a door: its 35 mm cups are bored for
+  you, in the panel's BACK face, 22.5 mm in from the hinge edge and 3" from each end. They are
+  derived from the movable, not stored in `ops` — do NOT add them as hole ops, and change them by
+  changing the door's `hinge`. `explain_part` lists them under `hardwareBorings`. The door must
+  be thick enough for the 12 mm cup (`movable.hinge-cup-deep`): 5/8" or more.
+- A drawer box on side-mount slides must leave the slide's clearance each side of the box —
+  1/2" — inside its opening: box width = opening − 1". The linter says so
+  (`movable.slide-clearance`) once the box has sides. Undermount slides take no side clearance.
 - A door's hinge and pull and a drawer's slides and pull belong to the MOVABLE: set `hinge`,
   `slide` and `pull` on it and they are placed and counted for you. `pull: "none"` means a push
   latch or a wooden pull. Do not also mount them by hand.

@@ -539,6 +539,36 @@ fn hardware_from_the_catalog() {
         .contains("is not a hinge")
     );
 
+    // explain_part says where the pull ended up, and which way it faces.
+    let explained = ok(&w, "explain_part", json!({ "project_id": id, "part_id": part }))["parts"][0].clone();
+    let mounted = &explained["hardware"][0];
+    assert_eq!(mounted["id"], "hw_pull_bar_96mm", "{explained}");
+    assert_eq!(mounted["name"], "Bar pull, 96 mm centers");
+    assert_eq!(mounted["side"], "back");
+    assert_eq!(mounted["at"].as_array().unwrap().len(), 3);
+    assert!(mounted["faces"].as_str().unwrap().contains('('), "{mounted}");
+    assert!(
+        explained.get("hardwareBorings").is_none(),
+        "a piano hinge bores nothing"
+    );
+
+    // Concealed hinges need cups in the door: derived, reported, and never written into ops.
+    ok(
+        &w,
+        "update_movable",
+        json!({ "project_id": id, "movable_id": "mv_door", "hinge": "hinge.euro-full-overlay" }),
+    );
+    let explained = ok(&w, "explain_part", json!({ "project_id": id, "part_id": part }))["parts"][0].clone();
+    let cups = explained["hardwareBorings"]["holes"].as_array().unwrap();
+    assert!(cups.len() >= 2, "{explained}");
+    assert_eq!(cups[0]["face"], "back");
+    assert_eq!(cups[0]["for"], "Concealed hinge, full overlay");
+    assert!(cups[0]["world"].is_object(), "{}", cups[0]);
+    let ops_after = ok(&w, "get_design", json!({ "project_id": id }))["spec"]["parts"][0]["ops"].clone();
+    assert_eq!(ops_after, spec["parts"][0]["ops"], "the cups are not stored in ops");
+    let drawing = ok(&w, "render_preview", json!({ "project_id": id, "part_id": part }));
+    assert!(drawing.to_string().contains("circle"), "the pattern shows the cups");
+
     // Deleting the part takes its hardware with it.
     ok(
         &w,

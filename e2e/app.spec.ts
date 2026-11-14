@@ -297,3 +297,45 @@ test('a project comes back out of a backup', async ({ page }) => {
     await expect(page.getByText('Record stand (restored)')).toBeVisible();
     await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
 });
+
+test('a door on concealed hinges gets its cups bored in the 3D view', async ({ page }) => {
+    // The cut happens in a worker and the hinge sits over the hole, so watch what is asked of it.
+    await page.addInitScript(() => {
+        const sent: unknown[] = [];
+        (window as unknown as { __csgHoles: unknown[] }).__csgHoles = sent;
+        const post = Worker.prototype.postMessage;
+        Worker.prototype.postMessage = function (this: Worker, message: unknown, ...rest: unknown[]) {
+            const holes = (message as { holes?: unknown[] } | null)?.holes;
+            if (Array.isArray(holes)) sent.push(...holes);
+            return (post as (...args: unknown[]) => void).call(this, message, ...rest);
+        };
+    });
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: /Dado Build/ }) })
+        .getByTestId('use-template')
+        .click();
+    await expect(page.getByTestId('parts-count')).not.toHaveText('0 parts');
+
+    // Two hinges on the door: two 35 mm cups, 12 mm deep, in its back face (however many times
+    // the scene is rebuilt).
+    type Sent = { face: string; x: number; y: number; diameter: number; depth?: number };
+    await expect
+        .poll(() =>
+            page.evaluate(() => {
+                const cups = (window as unknown as { __csgHoles: Sent[] }).__csgHoles.filter(
+                    (h) => h.face === 'back' && Math.abs(h.diameter - 35 / 25.4) < 0.001,
+                );
+                return [
+                    ...new Set(
+                        cups.map(
+                            (h) =>
+                                `${h.x.toFixed(2)},${h.y.toFixed(2)} @${Math.round((h.depth ?? 0) * 25.4)}mm`,
+                        ),
+                    ),
+                ].length;
+            }),
+        )
+        .toBe(2);
+});

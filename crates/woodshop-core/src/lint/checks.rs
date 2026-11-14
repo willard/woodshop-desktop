@@ -964,3 +964,149 @@ pub(super) fn hardware(spec: &Spec, issues: &mut Vec<LintIssue>) {
         }
     }
 }
+
+/// How closely a drawer box has to match the width its slides call for.
+const SLIDE_FIT_TOL: f64 = 1.0 / 32.0;
+
+/// Hardware that changes the woodwork: a concealed hinge's cup has to fit in the door's
+/// thickness, and a drawer box has to leave its slides exactly their clearance each side.
+pub(super) fn hardware_fit(spec: &Spec, issues: &mut Vec<LintIssue>) {
+    use crate::movables::{CUP_FLOOR, derived_borings};
+
+    // One finding per door, however many hinges it carries.
+    let mut bored: HashSet<&str> = HashSet::new();
+    let borings = derived_borings(spec);
+    for boring in &borings {
+        let Some(panel) = spec.part(&boring.part_id) else {
+            continue;
+        };
+        let Some(depth) = boring.hole.depth else { continue };
+        let panel_thickness = thickness(spec, panel);
+        if panel_thickness - depth < CUP_FLOOR - EPS && bored.insert(boring.movable_id.as_str()) {
+            let hinge = crate::hardware::find(&boring.item).map_or("Its hinge", |i| i.name.as_str());
+            issues.push(LintIssue::part(
+                Severity::Warn,
+                "movable.hinge-cup-deep",
+                format!(
+                    "\"{}\" is {}\" thick, too thin for its hinge cups: {hinge} bores {}\" deep and needs at least {}\" of door. Use thicker stock or a surface-mounted hinge.",
+                    panel.name,
+                    r3(panel_thickness),
+                    r3(depth),
+                    r3(depth + CUP_FLOOR)
+                ),
+                &panel.id,
+            ));
+        }
+    }
+
+    for movable in spec.movables() {
+        let Movable::Drawer {
+            part_ids,
+            front_part_id,
+            slide,
+            ..
+        } = movable
+        else {
+            continue;
+        };
+        let item = crate::hardware::find(slide.as_deref().unwrap_or(crate::hardware::DEFAULT_SLIDE));
+        let Some(item) = item else { continue };
+        // Only side-mount slides take their room beside the box.
+        if item.model.get("mount").and_then(|m| m.as_str()) != Some("side") {
+            continue;
+        }
+        let Some(clearance) = item.model.get("thickness").and_then(serde_json::Value::as_f64) else {
+            continue;
+        };
+        let Some(front) = spec.part(front_part_id) else {
+            continue;
+        };
+
+        // The drawer runs along its front's normal; its slides sit either side of the box, on
+        // the horizontal axis square to that. A tilted or upward-opening front has no such axis.
+        let normal = local_axes_world(front)[2];
+        let depth_axis = if normal[0].abs() > 0.999 {
+            0
+        } else if normal[2].abs() > 0.999 {
+            2
+        } else {
+            continue;
+        };
+        let side_axis = 2 - depth_axis;
+
+        // A front with a bottom hung behind it is a sketch, not a box: there are no sides for
+        // slides to mount on yet, so there is nothing to measure.
+        let box_parts: Vec<&Part> = part_ids
+            .iter()
+            .filter(|id| *id != front_part_id)
+            .filter_map(|id| spec.part(id))
+            .collect();
+        if box_parts.len() < 3 {
+            continue;
+        }
+        let mut box_bounds = Aabb::EMPTY;
+        for part in &box_parts {
+            box_bounds.union(&aabb(spec, part));
+        }
+
+        // The opening's walls: the nearest fixed parts beside the box that overlap it in height
+        // and depth.
+        let (mut left, mut right) = (f64::NEG_INFINITY, f64::INFINITY);
+        for other in spec.parts.iter().filter(|p| !part_ids.contains(&p.id)) {
+            let b = aabb(spec, other);
+            let overlaps = |axis: usize| {
+                b.min[axis] < box_bounds.max[axis] - TOUCH_TOL && b.max[axis] > box_bounds.min[axis] + TOUCH_TOL
+            };
+            if !overlaps(1) || !overlaps(depth_axis) {
+                continue;
+            }
+            let mid = (box_bounds.min[side_axis] + box_bounds.max[side_axis]) / 2.0;
+            if b.max[side_axis] <= mid {
+                left = left.max(b.max[side_axis]);
+            } else if b.min[side_axis] >= mid {
+                right = right.min(b.min[side_axis]);
+            }
+        }
+        if !left.is_finite() || !right.is_finite() {
+            continue;
+        }
+
+        let label = movable.name().unwrap_or(movable.id());
+        let opening = right - left;
+        let width = box_bounds.max[side_axis] - box_bounds.min[side_axis];
+        let wanted = opening - 2.0 * clearance;
+        let (gap_a, gap_b) = (box_bounds.min[side_axis] - left, right - box_bounds.max[side_axis]);
+        let message = if (width - wanted).abs() > SLIDE_FIT_TOL {
+            let fix = if wanted > 0.0 {
+                format!("make the box {}\" wide", r3(wanted))
+            } else {
+                "the opening is too narrow for these slides".to_string()
+            };
+            Some(format!(
+                "Drawer \"{label}\" has a {}\" wide box in a {}\" opening. {} need {}\" each side: {fix}.",
+                r3(width),
+                r3(opening),
+                item.name,
+                r3(clearance)
+            ))
+        } else if (gap_a - clearance).abs() > SLIDE_FIT_TOL || (gap_b - clearance).abs() > SLIDE_FIT_TOL {
+            Some(format!(
+                "Drawer \"{label}\" is off-centre in its opening: {}\" on one side and {}\" on the other. {} need {}\" each side.",
+                r3(gap_a),
+                r3(gap_b),
+                item.name,
+                r3(clearance)
+            ))
+        } else {
+            None
+        };
+        if let Some(message) = message {
+            issues.push(LintIssue::part(
+                Severity::Warn,
+                "movable.slide-clearance",
+                message,
+                front_part_id,
+            ));
+        }
+    }
+}
