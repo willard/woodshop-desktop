@@ -8,7 +8,7 @@
  */
 import * as THREE from 'three';
 import type { Spec, Part, Material, Vec3 } from '../spec/types';
-import { createFlatWoodMaterial, type MaterialProvider } from './materials';
+import { createFlatWoodMaterial, shadeGrain, type MaterialProvider } from './materials';
 import { buildPartGeometry } from './geometry/partGeometry';
 import {
     pocketScrewGeometry,
@@ -41,7 +41,12 @@ export function buildPartMesh(
     materialProvider: MaterialProvider,
 ): THREE.Mesh {
     const geometry = buildPartGeometry(part, material.thickness, material.type === 'round');
+    shadeGrain(geometry, part.grainAxis);
     const mesh = new THREE.Mesh(geometry, materialProvider(material, part));
+    // Parts cast onto the floor and onto each other: the shadow inside a cabinet is most of what
+    // makes it read as a box rather than a pile of panels.
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
 
     const [px, py, pz] = part.transform.pos;
     mesh.position.set(px, py, pz);

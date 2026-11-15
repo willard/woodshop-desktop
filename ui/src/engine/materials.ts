@@ -16,11 +16,11 @@ const WOOD_TONES = [0xb98a55, 0xc9a06a, 0xa9743f, 0xd8b483, 0x8a5a34, 0xcaa472] 
 /** Species tints (spec 1.3): pale pine → dark walnut, reddish cherry. */
 /** Per-species base tone. Exported so theming can assert wood stays legible (D74). */
 export const SPECIES_TONES: Record<Species, number> = {
-    pine: 0xd8b483,
-    oak: 0xc9a06a,
-    maple: 0xe4cf9e,
-    walnut: 0x6b4a2f,
-    cherry: 0x9c5a3c,
+    pine: 0xdcb07a,
+    oak: 0xc89a60,
+    maple: 0xe8cd98,
+    walnut: 0x7a5234,
+    cherry: 0xa85d3a,
 };
 
 /** A material factory the scene builder calls per part. */
@@ -47,9 +47,40 @@ export function woodColorFor(material: Material): number {
 export function createFlatWoodMaterial(material: Material): THREE.MeshStandardMaterial {
     return new THREE.MeshStandardMaterial({
         color: woodColorFor(material),
-        roughness: 0.72,
-        metalness: 0.02,
+        roughness: 0.68,
+        metalness: 0,
+        // Per-vertex shade from `shadeGrain`: end grain drinks light, so it reads darker.
+        vertexColors: true,
     });
+}
+
+/** How much darker end grain and long edges render than the faces. */
+export const END_GRAIN_SHADE = 0.72;
+export const EDGE_SHADE = 0.9;
+
+/**
+ * Shades a part's geometry by which way each face points relative to its grain: the faces stay
+ * as they are, the long edges a touch darker, and the end grain clearly darker, the way a board
+ * looks in the shop. Parts then separate from each other without outlines. Works on any part
+ * geometry (boxes, extrusions, CSG output) because it reads only the normals.
+ */
+export function shadeGrain(geometry: THREE.BufferGeometry, grainAxis: Part['grainAxis']): void {
+    const normals = geometry.getAttribute('normal');
+    if (normals === undefined) {
+        return;
+    }
+    // Local frame (§3.1): length along X, width along Y, thickness along Z.
+    const along = grainAxis === 'w' ? 1 : 0;
+    const across = along === 0 ? 1 : 0;
+    const colors = new Float32Array(normals.count * 3);
+    for (let i = 0; i < normals.count; i += 1) {
+        const n = [normals.getX(i), normals.getY(i), normals.getZ(i)];
+        const shade = Math.abs(n[along]) > 0.6 ? END_GRAIN_SHADE : Math.abs(n[across]) > 0.6 ? EDGE_SHADE : 1;
+        colors[i * 3] = shade;
+        colors[i * 3 + 1] = shade;
+        colors[i * 3 + 2] = shade;
+    }
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 }
 
 /**

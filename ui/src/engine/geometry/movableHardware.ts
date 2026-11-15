@@ -55,5 +55,6 @@ export function slideRailGeometry(length: number): THREE.BufferGeometry {
  * so a truly metallic surface renders near black and disappears against wood.
  */
 export function createHardwareMaterial(): THREE.MeshStandardMaterial {
-    return new THREE.MeshStandardMaterial({ color: 0xc4c8ce, metalness: 0.25, roughness: 0.42 });
+    // Brushed steel: a metal needs something to reflect, which the scene's room light provides.
+    return new THREE.MeshStandardMaterial({ color: 0xd4d7dc, metalness: 0.85, roughness: 0.45 });
 }

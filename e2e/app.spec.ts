@@ -55,6 +55,23 @@ test('a first run offers the sample and walks through the tour', async ({ page }
     await expect(page.getByTestId('tour')).toHaveCount(0);
 });
 
+test('the view buttons look from the front, side and top, and fit the design', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/#/projects/1');
+    const canvas = page.getByTestId('editor-shell').locator('canvas').first();
+    await expect(canvas).toBeVisible();
+    const before = await canvas.screenshot();
+    for (const view of ['front', 'side', 'top', 'three-quarter', 'fit']) {
+        await page.getByTestId(`view-${view}`).click();
+    }
+    await page.getByTestId('view-front').click();
+    await page.waitForTimeout(300);
+    // The front view is a different picture from the three-quarter one a design opens in.
+    expect(Buffer.compare(before, await canvas.screenshot())).not.toBe(0);
+    expect(errors).toEqual([]);
+});
+
 test('a template becomes a new project', async ({ page }) => {
     await page.goto('/#/templates');
     const card = page.getByTestId('template-card').filter({ hasText: 'Bookshelf' });

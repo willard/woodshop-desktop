@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { woodColorFor } from '@/engine/materials';
+import { SPECIES_TONES, woodColorFor } from '@/engine/materials';
 import type { Material } from '@/spec/types';
 
 const base: Material = {
@@ -21,7 +21,7 @@ describe('woodColorFor', () => {
         const walnutA = woodColorFor({ ...base, species: 'walnut' });
         const walnutB = woodColorFor({ ...base, id: 'mat_xyz', species: 'walnut' });
         expect(walnutA).toBe(walnutB);
-        expect(walnutA).toBe(0x6b4a2f);
+        expect(walnutA).toBe(SPECIES_TONES.walnut);
         // Distinct species read as visually distinct tones.
         const tones = (['pine', 'oak', 'maple', 'walnut', 'cherry'] as const).map((species) =>
             woodColorFor({ ...base, species }),

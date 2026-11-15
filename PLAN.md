@@ -387,8 +387,13 @@ From a review of the built app in its real window (both themes, 1560 × 780). Th
 consistent, but it reads as an engineer's tool. These are ordered by how much they affect a
 first-time user. Do 5b.1–5b.6 before any marketing screenshots are taken.
 
-**5b.1 The 3D view is the product; make it look like one.** (`ui/src/engine/EditorEngine.ts`,
-`buildScene.ts`, `engine/materials.ts`, `lib/theme.ts`)
+**5b.1 The 3D view is the product; make it look like one.** Done: soft room light (an
+environment map, so faces separate and hardware reads as brushed steel), a key light casting
+soft shadows onto the floor and between parts, warmer species tones with end grain and long
+edges shaded darker (`shadeGrain`), a cool blue selection tint that stands off every wood, framing
+that fits the box's corners to 60% of the view (`fitDistance`), and Fit / Front / Side / Top /
+3D buttons over the view. (`ui/src/engine/EditorEngine.ts`, `buildScene.ts`,
+`engine/materials.ts`, `engine/theme.ts`)
 - Dark theme: the model sits small and dim in a near-black void. Raise ambient and key light, add
   a soft contact shadow on the floor, and frame the model to fill about 60% of the viewport.
 - Wood reads olive-brown and flat in both themes. Warm the palette, raise contrast between faces,

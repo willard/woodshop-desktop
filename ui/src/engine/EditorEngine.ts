@@ -8,10 +8,11 @@ import * as THREE from 'three';
 import { buildHardwareGeometry } from './geometry/hardwareModels';
 import { findItem, mountFrame, sideExtent } from '@/hardware/catalog';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { Spec, Part, Material, Op, HardwareMount } from '../spec/types';
 import { derivedHoleOps } from '../spec/movables';
 import { buildSpecGroup } from './buildScene';
-import { woodMaterialProvider, createGrainTexture, type MaterialProvider } from './materials';
+import { woodMaterialProvider, createGrainTexture, shadeGrain, type MaterialProvider } from './materials';
 import { computeSnap, clampAnchorToWorkspace, aabbFromPart, type AABB, type Vec3 } from './snapping';
 import { DEFAULT_SNAP_CONFIG, WORKSPACE_POS_BOUND, type SnapConfig } from './config';
 import { explodedPositions } from './explode';
@@ -277,6 +278,8 @@ export class EditorEngine {
     /** Edge geometries behind the selection outlines, held so disposal frees each exactly once. */
     private selectionOutlineGeometries: THREE.BufferGeometry[] = [];
     private grid: THREE.GridHelper | null = null;
+    /** Catches the key light's shadow and draws nothing else: the model's contact with the floor. */
+    private shadowFloor: THREE.Mesh | null = null;
     private hemiLight: THREE.HemisphereLight | null = null;
     private keyLight: THREE.DirectionalLight | null = null;
     private fillLight: THREE.DirectionalLight | null = null;
@@ -296,6 +299,8 @@ export class EditorEngine {
             preserveDrawingBuffer: true,
         });
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(this.palette.background);
@@ -310,6 +315,7 @@ export class EditorEngine {
 
         this.addLighting();
         this.addGrid();
+        this.addShadowFloor();
         this.guides.name = 'snap-guides';
         this.scene.add(this.guides);
         this.highlights.name = 'ai-highlights';
@@ -1440,16 +1446,68 @@ export class EditorEngine {
     /** Amber-keyed workshop lighting. Colours and intensities come from the theme (D74). */
     private addLighting(): void {
         const light = this.palette.lighting;
+        // A soft room all round (image-based light): faces turned different ways separate, and
+        // metal has something to reflect. Built once; the palette only scales it.
+        const pmrem = new THREE.PMREMGenerator(this.renderer);
+        this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+        pmrem.dispose();
+        this.scene.environmentIntensity = light.environmentIntensity;
+
         this.hemiLight = new THREE.HemisphereLight(light.hemiSky, light.hemiGround, light.hemiIntensity);
         this.scene.add(this.hemiLight);
 
         this.keyLight = new THREE.DirectionalLight(light.keyColor, light.keyIntensity);
         this.keyLight.position.set(60, 90, 40);
+        this.keyLight.castShadow = true;
+        this.keyLight.shadow.mapSize.set(2048, 2048);
+        this.keyLight.shadow.radius = 4;
+        this.keyLight.shadow.bias = -0.0004;
+        this.keyLight.shadow.normalBias = 0.04;
         this.scene.add(this.keyLight);
+        this.scene.add(this.keyLight.target);
 
         this.fillLight = new THREE.DirectionalLight(light.fillColor, light.fillIntensity);
         this.fillLight.position.set(-50, 30, -40);
         this.scene.add(this.fillLight);
+    }
+
+    /** An invisible floor that only shows the shadow falling on it. */
+    private addShadowFloor(): void {
+        this.shadowFloor = new THREE.Mesh(
+            new THREE.PlaneGeometry(1000, 1000),
+            new THREE.ShadowMaterial({ opacity: this.palette.lighting.shadowOpacity }),
+        );
+        this.shadowFloor.rotation.x = -Math.PI / 2;
+        // A hair above the grid so the shadow is not cut by it.
+        this.shadowFloor.position.y = 0.01;
+        this.shadowFloor.receiveShadow = true;
+        this.shadowFloor.name = 'shadow-floor';
+        this.scene.add(this.shadowFloor);
+    }
+
+    /**
+     * Aims the key light's shadow at the model: its shadow camera has to cover the whole design
+     * and no more, or the shadow comes out either clipped or blurred into nothing.
+     */
+    private fitShadow(): void {
+        if (this.keyLight === null || this.partsGroup === null || this.partsGroup.children.length === 0) {
+            return;
+        }
+        const box = new THREE.Box3().setFromObject(this.partsGroup);
+        const centre = box.getCenter(new THREE.Vector3());
+        const radius = Math.max(box.getSize(new THREE.Vector3()).length() / 2, 12);
+        const direction = new THREE.Vector3(60, 90, 40).normalize();
+        this.keyLight.position.copy(centre).addScaledVector(direction, radius * 3);
+        this.keyLight.target.position.copy(centre);
+        const camera = this.keyLight.shadow.camera;
+        camera.left = -radius * 1.3;
+        camera.right = radius * 1.3;
+        camera.top = radius * 1.3;
+        camera.bottom = -radius * 1.3;
+        camera.near = radius * 0.5;
+        camera.far = radius * 6;
+        camera.updateProjectionMatrix();
+        this.keyLight.target.updateMatrixWorld();
     }
 
     /** Ground grid in inches, muted so parts read as the focus. */
@@ -1490,6 +1548,10 @@ export class EditorEngine {
         if (this.keyLight !== null) {
             this.keyLight.color.setHex(light.keyColor);
             this.keyLight.intensity = light.keyIntensity;
+        }
+        this.scene.environmentIntensity = light.environmentIntensity;
+        if (this.shadowFloor !== null) {
+            (this.shadowFloor.material as THREE.ShadowMaterial).opacity = light.shadowOpacity;
         }
         if (this.fillLight !== null) {
             this.fillLight.color.setHex(light.fillColor);
@@ -1539,6 +1601,11 @@ export class EditorEngine {
         }
         this.scene.add(this.partsGroup);
         this.currentSpec = spec;
+        // Hardware casts too (a caster's shadow is what puts it on the floor); fastener marks don't.
+        this.partsGroup.traverse((object) => {
+            if (object.userData.hardware !== undefined) object.castShadow = true;
+        });
+        this.fitShadow();
         this.applyPose();
         this.applyVisibility(); // hidden ids are keyed by part id, so they outlive a rebuild
         this.applyHardwareSelection();
@@ -1760,6 +1827,7 @@ export class EditorEngine {
                         geometry.dispose();
                         return;
                     }
+                    shadeGrain(geometry, part.grainAxis);
                     current.geometry.dispose();
                     current.geometry = geometry;
                     this.requestRender();
@@ -1978,18 +2046,48 @@ export class EditorEngine {
         if (this.partsGroup === null || this.partsGroup.children.length === 0) {
             return;
         }
+        this.viewFrom('three-quarter');
+    }
+
+    /**
+     * Looks at the whole design from a preset direction, filling about 60% of the view: from the
+     * front, the side (+X), straight down, or the three-quarter view a new design opens in.
+     */
+    viewFrom(view: 'front' | 'side' | 'top' | 'three-quarter' | 'fit'): void {
+        if (this.partsGroup === null || this.partsGroup.children.length === 0) {
+            return;
+        }
         const box = new THREE.Box3().setFromObject(this.partsGroup);
-        const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
-        const radius = Math.max(size.x, size.y, size.z, 1);
-        const distance = radius * 2.2;
+        let direction: THREE.Vector3;
+        switch (view) {
+            case 'front':
+                direction = new THREE.Vector3(0, 0, 1);
+                break;
+            case 'side':
+                direction = new THREE.Vector3(1, 0, 0);
+                break;
+            case 'top':
+                // A hair off vertical, so the orbit controls keep a sensible "up".
+                direction = new THREE.Vector3(0, 1, 0.001);
+                break;
+            case 'fit':
+                direction = this.camera.position.clone().sub(this.controls.target);
+                if (direction.lengthSq() < 1e-9) direction.set(1, 0.85, 1);
+                break;
+            default:
+                direction = new THREE.Vector3(1, 0.85, 1);
+        }
+        direction.normalize();
+        const distance = fitDistance(box, center, direction, this.camera.fov, this.camera.aspect, 0.6);
 
         this.controls.target.copy(center);
-        this.camera.position.copy(center).add(new THREE.Vector3(distance, distance * 0.85, distance));
-        this.camera.near = Math.max(radius / 100, 0.5);
-        this.camera.far = distance * 12;
+        this.camera.position.copy(center).addScaledVector(direction, distance);
+        this.camera.near = Math.max(distance / 200, 0.1);
+        this.camera.far = distance * 20;
         this.camera.updateProjectionMatrix();
         this.controls.update();
+        this.requestRender();
     }
 
     /** Schedules a single render on the next frame (dirty flag). */
@@ -2040,6 +2138,7 @@ export class EditorEngine {
             return;
         }
         this.disposed = true;
+        this.scene.environment?.dispose();
         this.cancelLongPress();
         this.clearDrag();
         this.placement = null;
@@ -2100,4 +2199,41 @@ function disposeMaterial(material: THREE.Material): void {
     const withMap = material as THREE.MeshStandardMaterial;
     withMap.map?.dispose();
     material.dispose();
+}
+
+/**
+ * How far back the camera stands so the box fills `fill` of the view: every corner, projected
+ * along the view direction, must land inside that share of both the vertical and the horizontal
+ * field of view. Exact for a box, so a long low console fills the view as well as a tall cabinet.
+ */
+export function fitDistance(
+    box: THREE.Box3,
+    center: THREE.Vector3,
+    direction: THREE.Vector3,
+    fovDegrees: number,
+    aspect: number,
+    fill: number,
+): number {
+    const back = direction.clone().normalize();
+    const worldUp = Math.abs(back.y) > 0.99 ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(0, 1, 0);
+    const right = new THREE.Vector3().crossVectors(worldUp, back).normalize();
+    const up = new THREE.Vector3().crossVectors(back, right);
+    const tanV = Math.tan(THREE.MathUtils.degToRad(fovDegrees / 2)) * fill;
+    const tanH = tanV * aspect;
+    let distance = 1;
+    for (const x of [box.min.x, box.max.x]) {
+        for (const y of [box.min.y, box.max.y]) {
+            for (const z of [box.min.z, box.max.z]) {
+                const corner = new THREE.Vector3(x, y, z).sub(center);
+                // A corner toward the camera (positive along `back`) is that much closer to it.
+                const toward = corner.dot(back);
+                distance = Math.max(
+                    distance,
+                    Math.abs(corner.dot(right)) / tanH + toward,
+                    Math.abs(corner.dot(up)) / tanV + toward,
+                );
+            }
+        }
+    }
+    return distance;
 }

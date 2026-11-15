@@ -14,7 +14,11 @@ export interface ScenePalette {
     /** Ground grid: the every-foot line, then the every-inch line. */
     gridMajor: number;
     gridMinor: number;
-    /** Emissive tint on a selected part, and its bounding-box helper for AI highlights. */
+    /**
+     * Emissive tint on a selected part, and its bounding-box helper for AI highlights. Cool blue:
+     * every wood is warm, so a blue tint reads as "selected" on pine and walnut alike, where an
+     * orange one disappeared into light wood.
+     */
     selection: number;
     /**
      * Selection outline, drawn as a two-tone pair (D75). One colour cannot clear 3:1 against
@@ -40,6 +44,10 @@ export interface ScenePalette {
         keyIntensity: number;
         fillColor: number;
         fillIntensity: number;
+        /** Soft room light from every direction (image-based), so faces separate and metal shines. */
+        environmentIntensity: number;
+        /** How dark the contact shadow on the floor is (0 = none). */
+        shadowOpacity: number;
     };
 }
 
@@ -47,7 +55,7 @@ export const DARK_SCENE: ScenePalette = {
     background: 0x1c1917,
     gridMajor: 0x5a4a38,
     gridMinor: 0x352b20,
-    selection: 0xf59e0b,
+    selection: 0x60a5fa,
     selectionCore: 0xffe6b0,
     selectionCasing: 0x140d02,
     ghost: 0xf59e0b,
@@ -55,13 +63,16 @@ export const DARK_SCENE: ScenePalette = {
     dimensionSize: 0x94a3b8,
     dimensionPoint: 0x38bdf8,
     lighting: {
+        // Brighter than the room around it: in the dark theme the model is the only lit thing.
         hemiSky: 0xfff2df,
         hemiGround: 0x2a2118,
-        hemiIntensity: 0.85,
-        keyColor: 0xffd9a0,
-        keyIntensity: 1.15,
+        hemiIntensity: 0.4,
+        keyColor: 0xffe2b8,
+        keyIntensity: 1.2,
         fillColor: 0x9fb4d6,
-        fillIntensity: 0.35,
+        fillIntensity: 0.25,
+        environmentIntensity: 0.35,
+        shadowOpacity: 0.5,
     },
 };
 
@@ -75,7 +86,7 @@ export const LIGHT_SCENE: ScenePalette = {
     background: 0xe9e5dc,
     gridMajor: 0xa89e8c,
     gridMinor: 0xc9c1b2,
-    selection: 0xb4631a,
+    selection: 0x2563eb,
     selectionCore: 0xffe6b0,
     selectionCasing: 0x140d02,
     ghost: 0xb4631a,
@@ -87,11 +98,13 @@ export const LIGHT_SCENE: ScenePalette = {
         // the key eases off so a light top face does not clip to flat white.
         hemiSky: 0xffffff,
         hemiGround: 0xcfc6b4,
-        hemiIntensity: 1.05,
+        hemiIntensity: 0.6,
         keyColor: 0xfff1d8,
-        keyIntensity: 0.9,
+        keyIntensity: 1.5,
         fillColor: 0xc6d2e4,
-        fillIntensity: 0.45,
+        fillIntensity: 0.3,
+        environmentIntensity: 0.5,
+        shadowOpacity: 0.32,
     },
 };
 

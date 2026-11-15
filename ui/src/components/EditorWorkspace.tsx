@@ -1589,6 +1589,33 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                             </div>
                         </div>
 
+                        <div
+                            className="bg-surface-1/85 border-fg/[0.08] absolute top-3 right-3 z-10 flex items-center gap-0.5 rounded-lg border p-0.5 backdrop-blur"
+                            role="group"
+                            aria-label="View"
+                            data-testid="view-presets"
+                        >
+                            {(
+                                [
+                                    ['fit', 'Fit', 'Fit the whole design in view'],
+                                    ['front', 'Front', 'Look from the front'],
+                                    ['side', 'Side', 'Look from the right side'],
+                                    ['top', 'Top', 'Look straight down'],
+                                    ['three-quarter', '3D', 'Back to the three-quarter view'],
+                                ] as const
+                            ).map(([view, label, title]) => (
+                                <button
+                                    key={view}
+                                    className="text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong h-7 rounded-md px-2 text-[12px] font-medium"
+                                    title={title}
+                                    data-testid={`view-${view}`}
+                                    onClick={() => engineRef.current?.viewFrom(view)}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+
                         {dragBlocked !== null ? (
                             // A press on a part orbits instead of dragging in these states; say so,
                             // or it looks like the part is stuck.
