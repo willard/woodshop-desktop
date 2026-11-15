@@ -162,6 +162,10 @@
             },
             {
                 "type": "p",
+                "text": "Drag a piece in the 3D view to slide it along the face it is on. It snaps to the face's centre lines, to the row or column other hardware on that face sits on, and to the same piece on a matching door or drawer front, so pulls line up across a run of drawers. The label shows how far it is from the two near edges. Hold Alt (Option on a Mac) to drag freely, press Esc to put it back, and Undo takes back the whole drag."
+            },
+            {
+                "type": "p",
                 "text": "Click a piece in the 3D view, or select its part, to see it in the inspector's Hardware section. There you can change which side it is on (front or back face, an edge, or an end), type its position in inches, turn it 90°, or remove it. Casters and feet usually go on an end: the end of a leg or the bottom edge of a base."
             },
             {

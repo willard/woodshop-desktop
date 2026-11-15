@@ -11,6 +11,12 @@ All notable changes to Woodshop are listed here. The format follows
 - Settings ▸ About: the version, the licence, links to the source and privacy note, and the
   licenses of the open-source software inside the app.
 - Report a problem opens the bug form with your version and system filled in.
+- Drag hardware along its face in the 3D view. It snaps to the face's centre lines and lines up
+  with matching hardware on the next drawer front or door; Alt drags freely, Esc puts it back.
+- Concealed (Euro) hinges bore their 35 mm cups in the door: shown in 3D, on the shop template
+  and in the plan's Drilling section.
+- Warnings for a door too thin for its hinge cups and for a drawer box that doesn't leave its
+  side-mount slides their clearance.
 
 ### Changed
 

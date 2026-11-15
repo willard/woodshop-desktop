@@ -94,6 +94,7 @@ import {
     uniquePartIdFrom,
     type AddPartOptions,
     type DragInfo,
+    type HardwareDragInfo,
     type MeasureLabel,
     type MeasureMode,
     type MovableOptions,
@@ -191,6 +192,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const [faceSnap, setFaceSnap] = useState(true);
         const [snapGap, setSnapGap] = useState(0);
         const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
+        const [hardwareDrag, setHardwareDrag] = useState<HardwareDragInfo | null>(null);
         const [mode, setMode] = useState<'view' | 'edit'>('edit');
         const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
         const [dockOpen, setDockOpen] = useState(true);
@@ -287,6 +289,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 recordJoints(detectDadoJoints(docRef.current.spec));
             };
             engine.dragUpdateHandler = (info) => setDragInfo(info);
+            engine.hardwareDragUpdateHandler = (info) => setHardwareDrag(info);
+            engine.hardwareDragCommitHandler = (id, pos) => {
+                docRef.current.execute(new UpdateHardware(id, { x: pos.x, y: pos.y }));
+            };
             engine.measureUpdateHandler = (labels) => setMeasureLabels(labels);
             engine.placementUpdateHandler = (preview) => setPlacementPreview(preview);
             engine.placementCommitHandler = (preview) => commitPlacementRef.current(preview);
@@ -933,6 +939,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 turnPlacing();
                 return;
             }
+            if (event.key === 'Escape' && engineRef.current?.cancelHardwareDrag() === true) {
+                event.preventDefault();
+                return;
+            }
             if (event.key === 'Escape' && placingRef.current !== null) {
                 event.preventDefault();
                 stopPlacing();
@@ -990,6 +1000,15 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 return `${len(Math.abs(dragInfo.nearestGap))} gap`;
             }
             return dragInfo.nearestGap === null ? null : `${len(Math.abs(dragInfo.nearestGap))} to neighbour`;
+        })();
+
+        // While a piece of hardware is dragged: how far it sits from the two low edges of its
+        // side, and which line it is sitting on.
+        const hardwareDragLabel = (() => {
+            if (hardwareDrag === null) return null;
+            const on = hardwareDrag.snaps.map((s) => (s.kind === 'centre' ? 'on centre' : 'lined up'));
+            const at = `${len(hardwareDrag.x)} × ${len(hardwareDrag.y)}`;
+            return on.length > 0 ? `${at} · ${[...new Set(on)].join(', ')}` : at;
         })();
 
         const measureText = (label: MeasureLabel): string => {
@@ -1692,6 +1711,15 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     ✕ Done
                                 </button>
                             </Chip>
+                        )}
+
+                        {hardwareDragLabel && (
+                            <div
+                                className={`pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 rounded-lg px-3 py-1 text-sm font-medium backdrop-blur ${hardwareDrag?.snaps.length ? 'bg-ok/25 text-ok-fg' : 'bg-surface-1/85 text-fg-strong'}`}
+                                data-testid="hardware-drag-label"
+                            >
+                                {hardwareDragLabel}
+                            </div>
                         )}
 
                         {dragLabel && (

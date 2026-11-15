@@ -3,6 +3,7 @@ export { EditorEngine } from './EditorEngine';
 export type {
     EditorEngineOptions,
     DragInfo,
+    HardwareDragInfo,
     PickModifiers,
     PlacementRequest,
     PlacementPreview,
@@ -13,6 +14,8 @@ export { DARK_SCENE, LIGHT_SCENE, scenePalette } from './theme';
 export type { ScenePalette, ThemeName } from './theme';
 export type { Dimension } from './measure';
 export { faceHitToOpCoords } from './placement';
+export { mountTargets, sideCoords, sidePlane, snapMount } from './hardwareDrag';
+export type { MountGuide, MountSnap, MountTargets } from './hardwareDrag';
 export type { FaceHit } from './placement';
 export { EditorDocument } from './EditorDocument';
 export type { DocumentListener } from './EditorDocument';

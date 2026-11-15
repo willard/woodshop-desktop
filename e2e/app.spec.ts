@@ -245,6 +245,56 @@ test('clicking hardware in the 3D view selects it in the inspector', async ({ pa
     await expect(page.getByTestId('properties')).toBeVisible();
 });
 
+test('hardware can be dragged along its face, and the drag is one undo step', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    const canvas = page.getByTestId('editor-shell').locator('canvas').first();
+    await expect(canvas).toBeVisible();
+    const box = (await canvas.boundingBox())!;
+    const cx = box.x + box.width / 2;
+    const cy = box.y + box.height / 2;
+
+    await page.getByTestId('add-menu-toggle').click();
+    await page.getByTestId('add-hardware-menu').click();
+    await page.locator('[data-item="knob.round-1-1-2"]').click();
+    await page.getByTestId('hardware-place').click();
+    await page.mouse.move(cx, cy);
+    await page.mouse.click(cx, cy);
+    await page.keyboard.press('Escape');
+    // Select it (and its part), so the inspector shows where it sits.
+    await page.mouse.click(cx, cy);
+
+    const row = page.locator('[data-testid="hardware-row"][data-selected]');
+    await expect(row).toBeVisible();
+    const x = row.getByTestId('hardware-x');
+    const y = row.getByTestId('hardware-y');
+    const before = [await x.inputValue(), await y.inputValue()];
+
+    // Press on the knob and drag it: a label follows, the part itself stays put.
+    await page.mouse.move(cx, cy);
+    await page.mouse.down();
+    await page.mouse.move(cx + 20, cy + 10, { steps: 4 });
+    await page.mouse.move(cx + 40, cy + 20, { steps: 4 });
+    await expect(page.getByTestId('hardware-drag-label')).toBeVisible();
+    await expect(page.getByTestId('drag-label')).toHaveCount(0);
+    await page.mouse.up();
+    await expect(page.getByTestId('hardware-drag-label')).toHaveCount(0);
+
+    await expect.poll(async () => [await x.inputValue(), await y.inputValue()]).not.toEqual(before);
+
+    await page.getByTestId('undo').click();
+    await expect(x).toHaveValue(before[0]);
+    await expect(y).toHaveValue(before[1]);
+
+    // Escape mid-drag puts the knob back and records nothing.
+    await page.mouse.move(cx, cy);
+    await page.mouse.down();
+    await page.mouse.move(cx + 40, cy + 20, { steps: 6 });
+    await page.keyboard.press('Escape');
+    await page.mouse.up();
+    await expect(x).toHaveValue(before[0]);
+    await expect(y).toHaveValue(before[1]);
+});
+
 test('working in millimetres, a design never shows an inch', async ({ page }) => {
     await page.goto('/#/settings');
     await page.getByTestId('units-metric').click();

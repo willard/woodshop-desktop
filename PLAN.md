@@ -206,8 +206,9 @@ rot, item), `RemoveHardware`. Then keep hardware in step with parts:
 - The cut list panel already shows the new rows; confirm the CSV and PDF do too.
 
 **1.7 Selecting hardware in the 3D view.** A click on a hardware mesh selects its part and scrolls
-the inspector to that mount's row, highlighting it. (Full hardware-as-selection, with drag to
-move, is Phase 6.)
+the inspector to that mount's row, highlighting it. Done: drag a piece along its side in edit
+mode; it snaps to the side's centre lines, to other hardware on the same side, and to the same
+item on a same-size sibling part; Alt drags freely, Esc cancels, the drop is one `UpdateHardware`.
 
 **1.8 MCP.**
 - New tools in `crates/woodshop-mcp/src/tools/` (a new `hardware.rs`): `list_hardware`
@@ -466,8 +467,6 @@ have to look up, and the editor screenshot would make someone want to try it fro
 
 ## Phase 6: After launch
 
-- Hardware as a first-class selection: click to select, drag along the face, snap to centre
-  lines and to matching hardware on a sibling part.
 - Branded hardware packs (Blum, Häfele, Accuride) with part numbers, once dimensional data and
   permission are sorted.
 - Community-contributed hardware and template packs (a documented data format and a review

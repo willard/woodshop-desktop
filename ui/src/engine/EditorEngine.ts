@@ -6,9 +6,9 @@
  */
 import * as THREE from 'three';
 import { buildHardwareGeometry } from './geometry/hardwareModels';
-import { findItem } from '@/hardware/catalog';
+import { findItem, mountFrame, sideExtent } from '@/hardware/catalog';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import type { Spec, Part, Material, Op } from '../spec/types';
+import type { Spec, Part, Material, Op, HardwareMount } from '../spec/types';
 import { derivedHoleOps } from '../spec/movables';
 import { buildSpecGroup } from './buildScene';
 import { woodMaterialProvider, createGrainTexture, type MaterialProvider } from './materials';
@@ -17,6 +17,7 @@ import { DEFAULT_SNAP_CONFIG, WORKSPACE_POS_BOUND, type SnapConfig } from './con
 import { explodedPositions } from './explode';
 import { openedPoses } from './open';
 import { faceHitToOpCoords, faceHitToEdge, type Edge } from './placement';
+import { mountTargets, sideCoords, sidePlane, snapMount, type MountTargets } from './hardwareDrag';
 import {
     heightDimension,
     gapDimension,
@@ -69,6 +70,35 @@ export interface DragInfo {
     snapped: boolean;
     /** Signed gap to the nearest neighbour face on the drag axes, in inches (null if none). */
     nearestGap: number | null;
+}
+
+/** Live state of a hardware drag, for the UI's position label. */
+export interface HardwareDragInfo {
+    id: string;
+    partId: string;
+    /** Where the piece sits now, in its side's `(x, y)`. */
+    x: number;
+    y: number;
+    /** The size of the side, so the label can say how far from each edge. */
+    extent: [number, number];
+    /** Which lines the piece has snapped onto, if any. */
+    snaps: { axis: 'x' | 'y'; kind: 'centre' | 'hardware' }[];
+}
+
+/** A mounted piece being dragged along its side (spec 1.15). */
+interface HardwareDragState {
+    id: string;
+    partId: string;
+    side: HardwareMount['side'];
+    piece: THREE.Object3D;
+    /** The piece's local position before the drag, restored on cancel. */
+    origin: THREE.Vector3;
+    start: { x: number; y: number };
+    current: { x: number; y: number };
+    /** Pointer hit minus the mount point at grab time, so the piece doesn't jump to the cursor. */
+    grab: { x: number; y: number } | null;
+    extent: [number, number];
+    targets: MountTargets;
 }
 
 /** What the user is placing in the 3D view (values come from the Inspector form). */
@@ -164,6 +194,13 @@ export class EditorEngine {
     /** Called each frame during a drag with live position/snap info for UI labels. */
     dragUpdateHandler: ((info: DragInfo | null) => void) | null = null;
     private armedDragId: string | null = null;
+    /** Mounted hardware pressed in edit mode; becomes a drag once the pointer moves. */
+    private armedHardware: { id: string; partId: string } | null = null;
+    private hardwareDrag: HardwareDragState | null = null;
+    /** Called on drop with the piece's new `(x, y)`; the app turns this into UpdateHardware. */
+    hardwareDragCommitHandler: ((id: string, pos: { x: number; y: number }) => void) | null = null;
+    /** Called as a piece of hardware is dragged (null when the drag ends). */
+    hardwareDragUpdateHandler: ((info: HardwareDragInfo | null) => void) | null = null;
     private drag: DragState | null = null;
     private ghost: THREE.Mesh | null = null;
     private readonly guides = new THREE.Group();
@@ -355,6 +392,18 @@ export class EditorEngine {
             }, 500);
         }
 
+        // Hardware under the pointer is grabbed in preference to the part it sits on. It lives in
+        // its part's own frame, so it can be slid along the face even with doors standing open.
+        this.armedHardware =
+            this.mode === 'edit' && this.placement === null && !this.measuring && event.button === 0
+                ? this.hardwareAt(event)
+                : null;
+        if (this.armedHardware !== null) {
+            this.armedDragId = null;
+            this.controls.enabled = false;
+            return;
+        }
+
         if (
             this.mode === 'edit' &&
             id !== null &&
@@ -373,6 +422,8 @@ export class EditorEngine {
     /** Aborts an in-progress or armed drag (e.g. when a long-press wins). */
     private cancelDrag(): void {
         this.armedDragId = null;
+        this.armedHardware = null;
+        this.clearHardwareDrag(true);
         if (this.drag !== null) {
             this.clearDrag();
         }
@@ -398,6 +449,21 @@ export class EditorEngine {
             this.updateDrag(event);
             return;
         }
+        if (this.hardwareDrag !== null) {
+            this.updateHardwareDrag(event);
+            return;
+        }
+        if (this.armedHardware !== null && this.pointerDownAt !== null) {
+            const far = Math.hypot(
+                event.clientX - this.pointerDownAt.x,
+                event.clientY - this.pointerDownAt.y,
+            );
+            if (far > 4) {
+                this.startHardwareDrag(this.armedHardware, event);
+                this.armedHardware = null;
+            }
+            return;
+        }
         if (this.armedDragId === null || this.pointerDownAt === null) {
             return;
         }
@@ -419,8 +485,13 @@ export class EditorEngine {
             this.armedDragId = null;
             return;
         }
+        if (this.hardwareDrag !== null) {
+            this.endHardwareDrag();
+            return;
+        }
 
         this.armedDragId = null;
+        this.armedHardware = null;
         if (this.suppressTap) {
             this.suppressTap = false;
             return; // a long-press already handled this gesture
@@ -847,6 +918,174 @@ export class EditorEngine {
         this.requestRender();
     }
 
+    // --- dragging mounted hardware ---
+
+    /** True while a piece of hardware is being dragged. */
+    isDraggingHardware(): boolean {
+        return this.hardwareDrag !== null;
+    }
+
+    /** Abandons a hardware drag, putting the piece back where it was. Returns whether one was on. */
+    cancelHardwareDrag(): boolean {
+        if (this.hardwareDrag === null) {
+            return false;
+        }
+        this.armedHardware = null;
+        this.clearHardwareDrag(true);
+        return true;
+    }
+
+    private startHardwareDrag(target: { id: string; partId: string }, event: PointerEvent): void {
+        const mount = (this.currentSpec?.hardware ?? []).find((h) => h.id === target.id);
+        const part = this.partById.get(target.partId);
+        const dims = this.partDims.get(target.partId);
+        const mesh = this.partsGroup?.getObjectByName(target.partId);
+        const piece = mesh?.children.find((child) => child.userData.hardwareId === target.id);
+        if (
+            this.currentSpec === null ||
+            mount === undefined ||
+            part === undefined ||
+            dims === undefined ||
+            piece === undefined
+        ) {
+            this.controls.enabled = true;
+            return;
+        }
+        // Dragging a piece selects it, exactly as clicking it does.
+        this.pickHandler?.(target.partId, { additive: false, hardwareId: target.id });
+        this.hardwareDrag = {
+            id: target.id,
+            partId: target.partId,
+            side: mount.side,
+            piece,
+            origin: piece.position.clone(),
+            start: { x: mount.x, y: mount.y },
+            current: { x: mount.x, y: mount.y },
+            grab: null,
+            extent: sideExtent(part, dims.thickness, mount.side),
+            targets: mountTargets(this.currentSpec, target.id),
+        };
+        this.updateHardwareDrag(event);
+    }
+
+    /** Where the pointer's ray meets the plane of the dragged piece's side, as that side's (x, y). */
+    private pointerOnSide(event: PointerEvent, drag: HardwareDragState): { x: number; y: number } | null {
+        const mesh = this.partsGroup?.getObjectByName(drag.partId);
+        const dims = this.partDims.get(drag.partId);
+        if (mesh === undefined || dims === undefined) {
+            return null;
+        }
+        mesh.updateMatrixWorld(true);
+        const local = sidePlane(dims, dims.thickness, drag.side);
+        const point = mesh.localToWorld(new THREE.Vector3(...local.point));
+        const normal = new THREE.Vector3(...local.normal).transformDirection(mesh.matrixWorld);
+        const hit = this.raycastPlane(event, new THREE.Plane().setFromNormalAndCoplanarPoint(normal, point));
+        if (hit === null) {
+            return null;
+        }
+        mesh.worldToLocal(hit);
+        return sideCoords(dims, dims.thickness, drag.side, [hit.x, hit.y, hit.z]);
+    }
+
+    private updateHardwareDrag(event: PointerEvent): void {
+        const drag = this.hardwareDrag;
+        if (drag === null) {
+            return;
+        }
+        const part = this.partById.get(drag.partId);
+        const dims = this.partDims.get(drag.partId);
+        const at = this.pointerOnSide(event, drag);
+        if (at === null || part === undefined || dims === undefined) {
+            return;
+        }
+        if (drag.grab === null) {
+            drag.grab = { x: at.x - drag.start.x, y: at.y - drag.start.y };
+        }
+        // Alt drags freely: no lines, no grid (the piece still stays on its side).
+        const free = event.altKey;
+        const snap = snapMount(
+            { x: at.x - drag.grab.x, y: at.y - drag.grab.y },
+            drag.extent,
+            free ? { x: [], y: [] } : drag.targets,
+            {
+                gridSize: free || !this.snapConfig.gridSnap ? 0 : this.snapConfig.gridSize,
+                tolerance: free ? -1 : this.snapConfig.alignThreshold,
+            },
+        );
+        drag.current = { x: snap.x, y: snap.y };
+        const frame = mountFrame(part, dims.thickness, { side: drag.side, x: snap.x, y: snap.y });
+        drag.piece.position.set(frame.point[0], frame.point[1], frame.point[2]);
+
+        // A guide line across the side for each line the piece is sitting on.
+        this.clearGuides();
+        const mesh = drag.piece.parent;
+        if (mesh !== null) {
+            const material = () =>
+                new THREE.LineBasicMaterial({ color: this.palette.snap, depthTest: false });
+            for (const guide of snap.guides) {
+                const ends = [0, guide.axis === 'x' ? drag.extent[1] : drag.extent[0]].map((across) => {
+                    const end = mountFrame(part, dims.thickness, {
+                        side: drag.side,
+                        x: guide.axis === 'x' ? guide.at : across,
+                        y: guide.axis === 'x' ? across : guide.at,
+                    });
+                    const lifted = new THREE.Vector3(...end.point).addScaledVector(
+                        new THREE.Vector3(...end.normal),
+                        0.02,
+                    );
+                    return mesh.localToWorld(lifted);
+                });
+                const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(ends), material());
+                line.renderOrder = 10;
+                this.guides.add(line);
+            }
+        }
+        this.hardwareDragUpdateHandler?.({
+            id: drag.id,
+            partId: drag.partId,
+            x: snap.x,
+            y: snap.y,
+            extent: drag.extent,
+            snaps: snap.guides.map((g) => ({ axis: g.axis, kind: g.kind })),
+        });
+        this.requestRender();
+    }
+
+    /** Commits the drop as one edit; a piece dropped where it started changes nothing. */
+    private endHardwareDrag(): void {
+        const drag = this.hardwareDrag;
+        if (drag === null) {
+            return;
+        }
+        const moved =
+            Math.abs(drag.current.x - drag.start.x) > 1e-9 || Math.abs(drag.current.y - drag.start.y) > 1e-9;
+        let committed = false;
+        try {
+            if (moved && this.hardwareDragCommitHandler !== null) {
+                this.hardwareDragCommitHandler(drag.id, { ...drag.current });
+                committed = true;
+            }
+        } finally {
+            // A commit the spec rejects leaves the old scene standing: put the piece back.
+            this.clearHardwareDrag(!committed);
+        }
+    }
+
+    private clearHardwareDrag(restore: boolean): void {
+        const drag = this.hardwareDrag;
+        if (drag === null) {
+            return;
+        }
+        this.hardwareDrag = null;
+        if (restore) {
+            drag.piece.position.copy(drag.origin);
+        }
+        this.clearGuides();
+        this.controls.enabled = true;
+        this.hardwareDragUpdateHandler?.(null);
+        this.requestRender();
+    }
+
     /** Translucent copy of the dragged mesh that follows the pointer. */
     private buildGhost(mesh: THREE.Mesh): THREE.Mesh {
         const material = new THREE.MeshStandardMaterial({
@@ -1270,6 +1509,12 @@ export class EditorEngine {
      * the camera). Re-applies the current selection highlight after rebuilding.
      */
     loadSpec(spec: Spec, options: { frame?: boolean } = {}): void {
+        // The dragged piece is about to be rebuilt; a drag can't outlive it.
+        if (this.hardwareDrag !== null) {
+            this.hardwareDrag = null;
+            this.clearGuides();
+            this.hardwareDragUpdateHandler?.(null);
+        }
         this.clearParts();
         this.partDims.clear();
         this.partById.clear();
