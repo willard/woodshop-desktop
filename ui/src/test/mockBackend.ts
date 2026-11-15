@@ -122,7 +122,8 @@ export function installMockBackend(): void {
             return create(a.name as string, structuredClone(spec));
         },
         create_project_from_spec: (a) => create(a.name as string, parse(a.spec)),
-        get_project: (a) => row(a.id as number).project,
+        // A copy, like a real IPC reply: callers must never see later saves through it.
+        get_project: (a) => structuredClone(row(a.id as number).project),
         rename_project: (a) => void (row(a.id as number).project.name = (a.name as string).trim()),
         trash_project: (a) => void (row(a.id as number).project.deletedAt = now()),
         restore_project: (a) => void (row(a.id as number).project.deletedAt = null),

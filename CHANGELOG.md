@@ -27,6 +27,12 @@ All notable changes to Woodshop are listed here. The format follows
   the plate stuck out through the cabinet side.
 - Woodshop is now free and open-source software under GPL-3.0-or-later.
 
+### Fixed
+
+- Leaving a project (for Settings, or the project list) and opening it again showed the design as
+  it was when first opened, not the latest edits. The edits were saved; the editor now reloads
+  them, after waiting for the last save to finish.
+
 ### Security
 
 - The bundled SQLite is updated to 3.54 (CVE-2026-119375), and `.woodshop` archives are read

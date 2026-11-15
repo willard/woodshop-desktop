@@ -26,6 +26,38 @@ test('a template becomes a new project', async ({ page }) => {
     await expect(page.getByTestId('project-row')).toHaveCount(2);
 });
 
+test('leaving the editor and coming back shows the latest edits', async ({ page }) => {
+    const reopen = async () => {
+        await page.getByRole('link', { name: 'Settings' }).click();
+        await expect(page).toHaveURL(/#\/settings$/);
+        await page.getByRole('link', { name: 'Projects' }).click();
+        await page
+            .getByTestId('project-row')
+            .filter({ hasText: 'Record stand' })
+            .getByTestId('open-project')
+            .click();
+    };
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+
+    // Saved, then away to Settings and back into the project.
+    await page.getByRole('button', { name: 'Add', exact: true }).click();
+    await page.getByTestId('add-board').click();
+    await expect(page.getByTestId('save-state')).toHaveText('Saved');
+    await page.getByRole('link', { name: 'Back to projects' }).click();
+    await reopen();
+    await expect(page.getByTestId('parts-count')).toHaveText('7 parts');
+
+    // Leaving before the autosave fires: the edit still comes back, and nothing conflicts.
+    await page.getByRole('button', { name: 'Add', exact: true }).click();
+    await page.getByTestId('add-board').click();
+    await expect(page.getByTestId('parts-count')).toHaveText('8 parts');
+    await page.getByRole('link', { name: 'Back to projects' }).click();
+    await reopen();
+    await expect(page.getByTestId('parts-count')).toHaveText('8 parts');
+    await expect(page.getByTestId('save-state')).toHaveText('All changes saved');
+});
+
 test('edits autosave, and undo is itself an edit', async ({ page }) => {
     await page.goto('/#/projects/1');
     await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
