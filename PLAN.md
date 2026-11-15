@@ -418,15 +418,12 @@ opens; the whole card opens the project and Rename, Duplicate, Save project file
 (in red) live in a ⋯ menu; search and sort (recently edited, name) appear past 12 projects. The
 empty state is the welcome card from Phase 5. (`ui/src/pages/ProjectsPage.tsx`)
 
-**5b.4 Templates page.** (`ui/src/pages/TemplatesPage.tsx`, `resources/templates/*.json`)
-- No pictures: eleven text cards. Add a rendered thumbnail to every template (generate them with
-  the same snapshot code as project thumbnails; commit the PNGs).
-- Descriptions are internal build notes ("§3.3 movable", "Dado variant.", "ends are drawn square
-  in the model"). Rewrite each `meta.notes` as one or two sentences for a customer: what it is,
-  overall size, sheets and boards needed. Keep the build notes in a separate field.
-- Eleven identical orange "Use template" buttons compete. Make the whole card clickable with one
-  quiet button, and show overall size and difficulty as small facts.
-- Two "Record Stand" entries; rename so they are distinguishable.
+**5b.4 Templates page.** Done: every template has a rendered picture in each theme
+(`npm run thumbnails` → `ui/public/templates/*.webp`, 640 × 400, 644 KB for all 50); a customer
+description per template in `resources/template-gallery.json` (build notes stay in `meta.notes`,
+and a test requires the gallery text); the listing carries overall size, sheets and board feet
+from the core; the whole card is the click target with a quiet "Use template" and the facts in a
+small line; the simple record stand is now "Simple Record Stand".
 
 **5b.5 Editor toolbar.** (`ui/src/components/EditorWorkspace.tsx`)
 - Two orange buttons, "Edit" and "Add", both look like the primary action. "Edit" is a mode

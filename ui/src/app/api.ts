@@ -59,9 +59,16 @@ export interface TemplateSummary {
     id: string;
     name: string;
     difficulty: 'beginner' | 'intermediate' | 'advanced' | null;
+    /** One or two sentences for someone choosing a design. */
+    summary: string | null;
+    /** The design's build notes (`meta.notes`). */
     notes: string | null;
     tags: string[];
     partCount: number;
+    /** Finished size in inches. */
+    overall: { width: number; depth: number; height: number } | null;
+    sheetCount: number;
+    boardFeet: number;
 }
 
 export type Author = 'user' | 'mcp';

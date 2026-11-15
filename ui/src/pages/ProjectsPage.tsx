@@ -8,6 +8,7 @@ import { importProjectFromDialog, chooseSavePath, fileStem, WOODSHOP_FILTER } fr
 import { plural, timeAgo } from '@/app/format';
 import { useToast } from '@/components/Toast';
 import { Popover } from '@/components/Popover';
+import { BlankThumbnail } from '@/components/BlankThumbnail';
 import { openSampleWithTour } from '@/app/tour';
 import { preloadEditor } from '@/app/pages';
 
@@ -405,31 +406,6 @@ function ProjectCard({
                 </div>
             )}
         </li>
-    );
-}
-
-/** What a project shows before it has a picture of itself: a cabinet, drawn in a few lines. */
-function BlankThumbnail() {
-    return (
-        <svg
-            viewBox="0 0 120 80"
-            className="text-fg/20 h-1/2 w-auto"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            data-testid="project-thumb-blank"
-        >
-            {/* Carcase in three-quarter view, a drawer line, a door line, two knobs. */}
-            <path d="M40 22 L76 14 L96 22 L60 30 Z" />
-            <path d="M40 22 L40 62 L60 70 L60 30" />
-            <path d="M60 70 L96 62 L96 22" />
-            <path d="M60 40 L96 32" />
-            <path d="M78 36 L78 66" />
-            <circle cx="70" cy="44" r="1.4" fill="currentColor" />
-            <circle cx="86" cy="42" r="1.4" fill="currentColor" />
-        </svg>
     );
 }
 

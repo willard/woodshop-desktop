@@ -1,15 +1,24 @@
 /** The template gallery: finished designs a new project can start from. */
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage } from '@/app/api';
+import { api, errorMessage, type TemplateSummary } from '@/app/api';
+import { plural } from '@/app/format';
+import { dims, useUnits } from '@/lib/display';
+import { activeTheme, onThemeChange } from '@/lib/theme';
 import { useToast } from '@/components/Toast';
+import { BlankThumbnail } from '@/components/BlankThumbnail';
 
 const DIFFICULTY_COLOR: Record<string, string> = {
-    beginner: 'bg-ok/20 text-ok-fg',
-    intermediate: 'bg-accent/20 text-accent',
-    advanced: 'bg-danger/20 text-danger-fg',
+    beginner: 'text-ok-fg',
+    intermediate: 'text-accent',
+    advanced: 'text-danger-fg',
 };
+
+/** The painted theme, re-rendering on a change, so each picture matches the page around it. */
+function useActiveTheme() {
+    return useSyncExternalStore(onThemeChange, activeTheme);
+}
 
 export function TemplatesPage() {
     const navigate = useNavigate();
@@ -34,43 +43,104 @@ export function TemplatesPage() {
     return (
         <>
             <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-xl font-semibold tracking-tight">Start from a template</h1>
+                <div>
+                    <h1 className="text-xl font-semibold tracking-tight">Start from a template</h1>
+                    <p className="text-muted mt-1 text-sm">
+                        A finished design to build as it is or change to fit. It opens as your own copy.
+                    </p>
+                </div>
                 <Link to="/" className="text-accent text-sm">
                     ← Your projects
                 </Link>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid [grid-template-columns:repeat(auto-fill,minmax(280px,1fr))] gap-4">
                 {(templates.data ?? []).map((t) => (
-                    <div
+                    <TemplateCard
                         key={t.id}
-                        className="border-fg/8 bg-surface-1/50 flex flex-col rounded-xl border p-4"
-                        data-testid="template-card"
-                    >
-                        <div className="mb-1 flex items-center justify-between">
-                            <h2 className="font-semibold">{t.name}</h2>
-                            {t.difficulty && (
-                                <span
-                                    className={`rounded px-2 py-0.5 text-xs capitalize ${DIFFICULTY_COLOR[t.difficulty] ?? 'bg-surface-3 text-muted'}`}
-                                >
-                                    {t.difficulty}
-                                </span>
-                            )}
-                        </div>
-                        <p className="text-muted mb-3 flex-1 text-sm">{t.notes || 'A starter design.'}</p>
-                        <div className="flex items-center justify-between">
-                            <span className="text-faint text-xs">{t.partCount} parts</span>
-                            <button
-                                className="bg-accent text-accent-ink hover:bg-accent-strong rounded-md px-3 py-1.5 text-sm font-medium disabled:opacity-50"
-                                disabled={using !== null}
-                                data-testid="use-template"
-                                onClick={() => startFromTemplate(t.id, t.name)}
-                            >
-                                {using === t.id ? 'Creating…' : 'Use template'}
-                            </button>
-                        </div>
-                    </div>
+                        template={t}
+                        busy={using === t.id}
+                        disabled={using !== null}
+                        onUse={() => void startFromTemplate(t.id, t.name)}
+                    />
                 ))}
-            </div>
+            </ul>
         </>
+    );
+}
+
+function TemplateCard({
+    template: t,
+    busy,
+    disabled,
+    onUse,
+}: {
+    template: TemplateSummary;
+    busy: boolean;
+    disabled: boolean;
+    onUse: () => void;
+}) {
+    const theme = useActiveTheme();
+    const units = useUnits();
+    const [missing, setMissing] = useState(false);
+    const facts = [
+        t.overall === null ? null : dims(t.overall.width, t.overall.depth, t.overall.height, units),
+        // Sheets for a design in sheet goods; board feet (a lumber measure) only for one in lumber.
+        t.sheetCount > 0 ? plural(t.sheetCount, 'sheet') : null,
+        t.sheetCount === 0 && t.boardFeet > 0 ? `${t.boardFeet.toFixed(1)} bd ft` : null,
+    ].filter((f): f is string => f !== null);
+
+    return (
+        <li
+            className="border-fg/8 bg-surface-1 hover:border-fg/20 focus-within:border-accent/60 relative flex flex-col overflow-hidden rounded-xl border transition-colors"
+            data-testid="template-card"
+        >
+            <div className="bg-surface-2 border-fg/8 flex aspect-[16/10] items-center justify-center overflow-hidden border-b">
+                {missing ? (
+                    <BlankThumbnail />
+                ) : (
+                    <img
+                        src={`/templates/${t.id}-${theme}.webp`}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        onError={() => setMissing(true)}
+                        data-testid="template-thumb"
+                    />
+                )}
+            </div>
+            <div className="flex flex-1 flex-col gap-1.5 p-4">
+                <div className="flex items-baseline justify-between gap-2">
+                    {/* The button's hit area covers the whole card: one click target, one name for it. */}
+                    <h2 className="font-semibold">
+                        <button
+                            className="text-left after:absolute after:inset-0 after:content-[''] focus:outline-none disabled:cursor-wait"
+                            disabled={disabled}
+                            onClick={onUse}
+                            data-testid="use-template"
+                        >
+                            {t.name}
+                        </button>
+                    </h2>
+                    {t.difficulty && (
+                        <span
+                            className={`flex-none text-xs font-medium capitalize ${DIFFICULTY_COLOR[t.difficulty] ?? 'text-muted'}`}
+                        >
+                            {t.difficulty}
+                        </span>
+                    )}
+                </div>
+                <p className="text-muted text-sm leading-snug">
+                    {t.summary ?? t.notes ?? 'A starter design.'}
+                </p>
+                <p className="text-faint mt-auto pt-2 text-xs" data-testid="template-facts">
+                    {facts.join(' · ')}
+                </p>
+                <span
+                    aria-hidden="true"
+                    className={`border-fg/12 text-fg/75 mt-2 self-start rounded-md border px-2.5 py-1 text-xs ${busy ? 'opacity-60' : ''}`}
+                >
+                    {busy ? 'Creating…' : 'Use template'}
+                </span>
+            </div>
+        </li>
     );
 }

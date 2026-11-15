@@ -1,7 +1,7 @@
 {
     "specVersion": "1.14",
     "units": "in",
-    "name": "Record Stand",
+    "name": "Simple Record Stand",
     "materials": [
         {
             "id": "mat_bb18",

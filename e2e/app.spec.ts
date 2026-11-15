@@ -148,7 +148,20 @@ test('a project card opens the project, and its menu renames, duplicates and tra
 
 test('a template becomes a new project', async ({ page }) => {
     await page.goto('/#/templates');
-    const card = page.getByTestId('template-card').filter({ hasText: 'Bookshelf' });
+    // Every card has its picture, a description for a customer, and the size and stock to buy.
+    const cards = page.getByTestId('template-card');
+    await expect(cards).toHaveCount(25);
+    const pictures = page.getByTestId('template-thumb');
+    await expect(pictures).toHaveCount(25);
+    for (const img of await pictures.all()) {
+        await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBe(640);
+    }
+    const card = cards.filter({ has: page.getByRole('heading', { name: 'Bookshelf', exact: true }) });
+    await expect(card).toContainText('A tall, open five-bay bookshelf');
+    await expect(card.getByTestId('template-facts')).toHaveText('32" × 11 1/4" × 72" · 2 sheets');
+    // The two record stands are told apart.
+    await expect(cards.filter({ hasText: 'Simple Record Stand' })).toHaveCount(1);
+    await expect(cards.filter({ hasText: 'Dado Build' })).toHaveCount(1);
     await card.getByTestId('use-template').click();
 
     await expect(page).toHaveURL(/#\/projects\/\d+$/);

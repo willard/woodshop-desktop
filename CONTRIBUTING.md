@@ -103,6 +103,11 @@ Some of the most useful contributions need no Rust:
   butt hinges"}`). `cargo test -p woodshop-core` checks that the catalog is well formed and that
   every inch-named item has one.
 - **Templates** live in `resources/templates/`. Each should lint clean and use catalog hardware.
+  Add a line for it to the lint contract (`crates/woodshop-core/tests/fixtures/lint-expected.json`),
+  to `crates/woodshop-core/src/templates.rs`, and one or two sentences for the gallery card to
+  `resources/template-gallery.json` (what it is, for someone choosing; build notes stay in the
+  design's `meta.notes`). Then render its pictures with `npm run thumbnails` (on a machine with a
+  GPU) and commit the two `.webp` files it writes to `ui/public/templates/`.
   `cargo test -p woodshop-core --test parity` lints every template against its recorded result in
   the lint fixture, so add an entry there for a new one. `resources/conventions.md` describes how
   designs are authored.

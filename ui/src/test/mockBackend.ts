@@ -7,6 +7,9 @@ import { mockIPC, mockWindows } from '@tauri-apps/api/mocks';
 import { wasm } from '@/domain';
 import type { Note, Project, ProjectSummary, TemplateSummary, VersionSummary } from '@/app/api';
 import type { Spec } from '@/spec';
+import { overallSize } from '@/spec/geometry';
+import { computeCutList } from '@/cutlist';
+import gallery from '../../../resources/template-gallery.json';
 
 const templateFiles = import.meta.glob('../../../resources/templates/*.json', {
     eager: true,
@@ -30,13 +33,20 @@ export function installMockBackend(): void {
     const templates: (TemplateSummary & { spec: Spec })[] = Object.entries(templateFiles)
         .map(([path, raw]) => {
             const spec = wasm.parseSpec(raw) as Spec;
+            const id = path.split('/').pop()!.replace('.json', '');
+            // The same facts the core's `templates::all` gives the real app.
+            const totals = computeCutList(spec, { kerf: 0.125, units: 'fraction' }).totals;
             return {
-                id: path.split('/').pop()!.replace('.json', ''),
+                id,
                 name: spec.name,
                 difficulty: spec.meta?.difficulty ?? null,
+                summary: (gallery as Record<string, string>)[id] ?? null,
                 notes: spec.meta?.notes ?? null,
                 tags: spec.meta?.tags ?? [],
                 partCount: spec.parts.length,
+                overall: overallSize(spec),
+                sheetCount: totals.sheetCount,
+                boardFeet: totals.boardFeet,
                 spec,
             };
         })

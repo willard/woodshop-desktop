@@ -19,7 +19,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "tauri": "tauri",
-    "notices": "node scripts/notices.mjs"
+    "notices": "node scripts/notices.mjs",
+    "thumbnails": "playwright test -c scripts/thumbnails/playwright.config.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.103.2",

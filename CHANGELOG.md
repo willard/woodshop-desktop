@@ -29,6 +29,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- The template gallery shows a picture of every design, a short description of what it is, and
+  its size and the sheets or board feet it needs.
 - The projects page uses the whole window, five cards across; each card opens its project, with
   Rename, Duplicate, Save and Move to trash in a ⋯ menu. Search and sort appear once there are
   more than a dozen projects, and a new project shows a drawing until it has a picture.

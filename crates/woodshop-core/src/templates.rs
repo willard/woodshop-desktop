@@ -1,9 +1,23 @@
 //! The template gallery: finished designs a new project can start from. Bundled into the binary
 //! (the app works offline) and parsed like any stored spec, so an older template is migrated.
 
+use std::collections::HashMap;
+use std::sync::OnceLock;
+
 use serde::Serialize;
 
+use crate::cutlist::{CutListConfig, compute_cut_list};
+use crate::geometry::{OverallSize, overall_size};
 use crate::spec::{self, Difficulty, Spec};
+
+/// What the gallery says about each template, for someone choosing one: kept apart from the
+/// design's own `meta.notes`, which are build notes for the maker (and for agents).
+const GALLERY_JSON: &str = include_str!("../../../resources/template-gallery.json");
+
+fn gallery() -> &'static HashMap<String, String> {
+    static GALLERY: OnceLock<HashMap<String, String>> = OnceLock::new();
+    GALLERY.get_or_init(|| serde_json::from_str(GALLERY_JSON).expect("bundled template gallery is valid"))
+}
 
 const TEMPLATES: &[(&str, &str)] = &[
     (
@@ -90,9 +104,17 @@ pub struct TemplateSummary {
     pub id: &'static str,
     pub name: String,
     pub difficulty: Option<Difficulty>,
+    /// One or two sentences for someone choosing a design (`resources/template-gallery.json`).
+    pub summary: Option<String>,
+    /// The design's build notes (`meta.notes`).
     pub notes: Option<String>,
     pub tags: Vec<String>,
     pub part_count: usize,
+    /// Finished size, inches: width × depth × height.
+    pub overall: Option<OverallSize>,
+    /// What to buy, from the cut list at the default kerf.
+    pub sheet_count: usize,
+    pub board_feet: f64,
 }
 
 /// Every template, sorted by name.
@@ -106,13 +128,18 @@ pub fn all() -> Vec<TemplateSummary> {
                 notes: None,
                 tags: None,
             });
+            let totals = compute_cut_list(&spec, CutListConfig::default()).totals;
             Some(TemplateSummary {
                 id,
                 name: spec.name.clone(),
                 difficulty: meta.difficulty,
+                summary: gallery().get(*id).cloned(),
                 notes: meta.notes,
                 tags: meta.tags.unwrap_or_default(),
                 part_count: spec.parts.len(),
+                overall: overall_size(&spec),
+                sheet_count: totals.sheet_count,
+                board_feet: totals.board_feet,
             })
         })
         .collect();
@@ -129,6 +156,29 @@ pub fn find(id: &str) -> Option<Spec> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn every_template_has_a_gallery_description() {
+        for (id, _) in super::TEMPLATES {
+            let summary = super::gallery()
+                .get(*id)
+                .unwrap_or_else(|| panic!("{id}: no gallery text"));
+            assert!(
+                (40..=260).contains(&summary.len()),
+                "{id}: one or two sentences, not {} characters",
+                summary.len()
+            );
+        }
+        assert_eq!(
+            super::gallery().len(),
+            super::TEMPLATES.len(),
+            "no gallery text for a missing template"
+        );
+        for t in super::all() {
+            assert!(t.overall.is_some(), "{}: overall size", t.id);
+            assert!(t.sheet_count > 0 || t.board_feet > 0.0, "{}: something to buy", t.id);
+        }
+    }
+
     #[test]
     fn every_template_parses() {
         for (id, _) in super::TEMPLATES {
