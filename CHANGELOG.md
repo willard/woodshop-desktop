@@ -29,6 +29,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- The projects page uses the whole window, five cards across; each card opens its project, with
+  Rename, Duplicate, Save and Move to trash in a ⋯ menu. Search and sort appear once there are
+  more than a dozen projects, and a new project shows a drawing until it has a picture.
 - Moving between screens no longer flashes a blank window: the current screen stays up until the
   next one is ready, and a project opens already drawn.
 - The 3D view looks like a shop photo rather than a diagram: soft room light and floor shadows,

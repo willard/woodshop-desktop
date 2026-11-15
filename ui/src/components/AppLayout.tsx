@@ -1,6 +1,6 @@
 /** The shell around every page except the editor: brand, primary nav, theme. */
 import { Suspense } from 'react';
-import { Link, Outlet } from '@tanstack/react-router';
+import { Link, Outlet, useRouterState } from '@tanstack/react-router';
 import { ThemeToggle } from './ThemeToggle';
 
 const LINKS = [
@@ -11,14 +11,19 @@ const LINKS = [
     { to: '/settings', label: 'Settings' },
 ] as const;
 
+/** Pages that are a grid of cards use the window's width; reading pages keep a readable measure. */
+const WIDE = new Set(['/', '/trash', '/templates']);
+
 export function AppLayout() {
+    const path = useRouterState({ select: (s) => s.location.pathname });
+    const width = WIDE.has(path) ? 'max-w-[1680px]' : 'max-w-6xl';
     return (
         <div className="flex h-full flex-col overflow-hidden">
             <header
                 className="border-fg/8 bg-surface-1/60 shrink-0 border-b backdrop-blur"
                 data-tauri-drag-region
             >
-                <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+                <div className={`mx-auto flex ${width} items-center justify-between px-6 py-3`}>
                     <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
                         <span className="text-accent">◧</span>
                         <span>Woodshop</span>
@@ -40,7 +45,7 @@ export function AppLayout() {
                 </div>
             </header>
             <main className="flex-1 overflow-y-auto">
-                <div className="mx-auto w-full max-w-6xl px-4 py-8">
+                <div className={`mx-auto w-full ${width} px-6 py-8`}>
                     {/* Inside the shell, so a page still loading never takes the nav bar with it. */}
                     <Suspense fallback={null}>
                         <Outlet />

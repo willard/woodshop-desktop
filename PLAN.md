@@ -409,17 +409,12 @@ screen stays up until the new one draws; the editor route also loads its project
 (`app/projectQuery.ts`), so it never opens on "Opening…". The suspense fallback sits inside the
 shell, so the nav bar never goes. An e2e test slows the page code down and checks.
 
-**5b.3 Projects page.** (`ui/src/pages/ProjectsPage.tsx`)
-- The content column is about 640 pt wide in a 1560 pt window; two thirds of the screen is empty.
-  Use a responsive grid that fills the width (4–5 cards across on a wide window).
-- A project created from a template has no thumbnail until its first edit, so the card shows an
-  empty box. Render the thumbnail on first open, and show a neutral illustration until then.
-- In the light theme the thumbnail area has no background and looks like a layout gap.
-- Card actions (Rename, Duplicate, Export, Delete) are four equal text links. Move them into a
-  "⋯" menu, keep the card itself as the open action, and make Delete visually distinct.
-- Empty state: one centred illustration, one sentence, two buttons (New project, Start from a
-  template). Today it is a dashed box with small text.
-- Add sort (recent, name) and search once there are more than about 12 projects.
+**5b.3 Projects page.** Done: card grids (projects, trash, templates) use the window's width
+(`AppLayout` WIDE pages; `auto-fill, minmax(250px, 1fr)`, five across at 1560); a project with no
+picture shows a line drawing on `surface-2` and gets its thumbnail two seconds after it first
+opens; the whole card opens the project and Rename, Duplicate, Save project file and Move to trash
+(in red) live in a ⋯ menu; search and sort (recently edited, name) appear past 12 projects. The
+empty state is the welcome card from Phase 5. (`ui/src/pages/ProjectsPage.tsx`)
 
 **5b.4 Templates page.** (`ui/src/pages/TemplatesPage.tsx`, `resources/templates/*.json`)
 - No pictures: eleven text cards. Add a rendered thumbnail to every template (generate them with

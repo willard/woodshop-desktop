@@ -100,6 +100,52 @@ test('moving between screens never shows a blank window', async ({ page }) => {
     await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
 });
 
+test('a project card opens the project, and its menu renames, duplicates and trashes it', async ({
+    page,
+}) => {
+    await page.goto('/#/');
+    const cards = page.getByTestId('project-row');
+    await expect(cards).toHaveCount(1);
+    // A card by its exact name: copies share the original's name as a prefix.
+    const menu = (name: string) =>
+        page
+            .getByRole('button', { name: `Actions for ${name}`, exact: true })
+            .first()
+            .click();
+
+    // Rename from the menu.
+    await menu('Record stand');
+    await page.getByTestId('project-menu').getByRole('button', { name: 'Rename' }).click();
+    await page.getByTestId('rename-input').fill('Hi-fi stand');
+    await page.getByTestId('rename-input').press('Enter');
+    await expect(cards.first()).toContainText('Hi-fi stand');
+
+    // Duplicate it up past a screenful: search and sort appear.
+    await expect(page.getByTestId('project-tools')).toHaveCount(0);
+    for (let i = 0; i < 12; i++) {
+        await menu('Hi-fi stand');
+        await page.getByTestId('project-menu').getByRole('button', { name: 'Duplicate' }).click();
+        await expect(cards).toHaveCount(i + 2);
+    }
+    await expect(page.getByTestId('project-tools')).toBeVisible();
+    await page.getByTestId('project-search').fill('(copy)');
+    await expect(cards).toHaveCount(12);
+    await page.getByTestId('project-search').fill('nothing like this');
+    await expect(cards).toHaveCount(0);
+    await expect(page.getByText('No project matches.')).toBeVisible();
+    await page.getByTestId('project-search').fill('');
+
+    // Trash one: it says so, and the trash has it.
+    await menu('Hi-fi stand (copy)');
+    await page.getByTestId('project-trash').click();
+    await expect(page.getByText(/Moved “Hi-fi stand \(copy\)” to the trash/)).toBeVisible();
+    await expect(cards).toHaveCount(12);
+
+    // The card itself opens the project.
+    await page.getByRole('link', { name: /^Hi-fi stand 6 parts/ }).click();
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+});
+
 test('a template becomes a new project', async ({ page }) => {
     await page.goto('/#/templates');
     const card = page.getByTestId('template-card').filter({ hasText: 'Bookshelf' });

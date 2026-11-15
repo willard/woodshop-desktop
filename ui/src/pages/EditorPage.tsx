@@ -105,6 +105,14 @@ function Editor({ project }: { project: Project }) {
         }
     }, [project.id, queryClient]);
 
+    // A project made from a template, or imported, has no picture until its first save. Take one
+    // once the view has drawn, so its card in the library shows the design, not a blank.
+    useEffect(() => {
+        if (project.thumbnailAt !== null) return;
+        const timer = window.setTimeout(() => void maybeThumbnail(), 2000);
+        return () => window.clearTimeout(timer);
+    }, [project.thumbnailAt, maybeThumbnail]);
+
     const writeDraft = useCallback(async () => {
         if (conflictRef.current !== null) return; // blocked until the user resolves it
         const sent = revision.current;
