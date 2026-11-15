@@ -18,31 +18,14 @@ import { VersionsPanel } from '@/components/VersionsPanel';
 import { CutListExportButtons, ExportMenuItems } from '@/components/ExportMenu';
 import { useToast } from '@/components/Toast';
 import { useDefaultKerf } from '@/app/settings';
+import { closeProject, projectQuery } from '@/app/projectQuery';
 import { clearTourRequest, isTourRequested, TOUR_DONE_SETTING } from '@/app/tour';
 import { GuidedTour } from '@/components/GuidedTour';
-
-/**
- * The last save of an editor that has just closed, per project. Reopening the project waits for
- * it, so the editor never loads a draft older than the edits it was just showing.
- */
-const closingSaves = new Map<number, Promise<void>>();
 
 export default function EditorPage() {
     const { id } = useParams({ strict: false }) as { id: string };
     const projectId = Number(id);
-    const project = useQuery({
-        queryKey: ['project', projectId],
-        queryFn: async () => {
-            await closingSaves.get(projectId);
-            return api.getProject(projectId);
-        },
-        // Fetched once per visit: while open, the editor owns the design and the autosave keeps
-        // the store in step. The cache must not outlive the visit — it holds the draft as it was
-        // when the editor opened, and reopening from it would show (and then try to save) that.
-        staleTime: Infinity,
-        gcTime: 0,
-        refetchOnWindowFocus: false,
-    });
+    const project = useQuery(projectQuery(projectId));
 
     if (project.isError) {
         return (
@@ -188,11 +171,10 @@ function Editor({ project }: { project: Project }) {
             await flush();
         });
         return () => {
-            const last = flush().catch(() => undefined);
-            closingSaves.set(project.id, last);
-            void last.then(() => {
-                if (closingSaves.get(project.id) === last) closingSaves.delete(project.id);
-            });
+            closeProject(
+                project.id,
+                flush().catch(() => undefined),
+            );
             void unlisten.then((fn) => fn());
         };
     }, [flush, project.id]);

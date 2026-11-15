@@ -1,4 +1,5 @@
 /** The shell around every page except the editor: brand, primary nav, theme. */
+import { Suspense } from 'react';
 import { Link, Outlet } from '@tanstack/react-router';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -40,7 +41,10 @@ export function AppLayout() {
             </header>
             <main className="flex-1 overflow-y-auto">
                 <div className="mx-auto w-full max-w-6xl px-4 py-8">
-                    <Outlet />
+                    {/* Inside the shell, so a page still loading never takes the nav bar with it. */}
+                    <Suspense fallback={null}>
+                        <Outlet />
+                    </Suspense>
                 </div>
             </main>
         </div>

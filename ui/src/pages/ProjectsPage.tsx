@@ -8,6 +8,7 @@ import { importProjectFromDialog, chooseSavePath, fileStem, WOODSHOP_FILTER } fr
 import { plural, timeAgo } from '@/app/format';
 import { useToast } from '@/components/Toast';
 import { openSampleWithTour } from '@/app/tour';
+import { preloadEditor } from '@/app/pages';
 
 export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
     const queryClient = useQueryClient();
@@ -203,7 +204,13 @@ function ProjectCard({
             {trashed ? (
                 card
             ) : (
-                <Link to="/projects/$id" params={{ id: String(project.id) }} data-testid="open-project">
+                <Link
+                    to="/projects/$id"
+                    params={{ id: String(project.id) }}
+                    data-testid="open-project"
+                    onMouseEnter={preloadEditor}
+                    onFocus={preloadEditor}
+                >
                     {card}
                 </Link>
             )}

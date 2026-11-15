@@ -2,7 +2,7 @@ import './app.css';
 
 import { StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import { isTauri } from '@tauri-apps/api/core';
 import { initDomain } from '@/domain';
@@ -11,17 +11,10 @@ import { installErrorCapture } from '@/app/diagnostics';
 import { isUnits, setUnits } from '@/lib/display';
 import { CrashScreen } from '@/components/CrashScreen';
 import { router } from '@/app/router';
+import { queryClient } from '@/app/queryClient';
 import { ToastProvider } from '@/components/Toast';
 import { AppEvents } from '@/components/AppEvents';
 import { watchSystemTheme } from '@/lib/theme';
-
-const queryClient = new QueryClient({
-    defaultOptions: {
-        // Local IPC: nothing to retry against, and a failure should surface at once.
-        queries: { retry: false, refetchOnWindowFocus: true, staleTime: 5_000 },
-        mutations: { retry: false },
-    },
-});
 
 async function boot(): Promise<void> {
     // The domain core (linter, cut list, outlines) is WebAssembly; nothing runs before it.
@@ -43,7 +36,8 @@ async function boot(): Promise<void> {
             <QueryClientProvider client={queryClient}>
                 <ToastProvider>
                     <AppEvents />
-                    <Suspense fallback={<div className="text-faint p-8 text-sm">Loading…</div>}>
+                    {/* Last resort only: pages load before they show (see app/router.tsx). */}
+                    <Suspense fallback={<div className="bg-surface-0 h-full w-full" />}>
                         <RouterProvider router={router} />
                     </Suspense>
                 </ToastProvider>

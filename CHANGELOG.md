@@ -29,6 +29,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- Moving between screens no longer flashes a blank window: the current screen stays up until the
+  next one is ready, and a project opens already drawn.
 - The 3D view looks like a shop photo rather than a diagram: soft room light and floor shadows,
   warmer wood with darker end grain, steel-looking hardware, a blue selection tint that shows on
   any wood, and the design framed to fill the view. Fit, Front, Side, Top and 3D buttons sit over

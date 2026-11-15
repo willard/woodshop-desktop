@@ -403,10 +403,11 @@ that fits the box's corners to 60% of the view (`fitDistance`), and Fit / Front 
 - Hardware (Phase 1) needs visibly metallic materials, not the current grey.
 - Add a view cube or three preset views (front, side, top) and a "fit" button.
 
-**5b.2 Navigation flashes a blank window.** Every lazy page (editor, tools, help) replaces the
-whole window, nav bar included, with an empty screen and a tiny "Loading…" or "Opening…". Keep the
-layout mounted and put the suspense boundary inside it (`ui/src/main.tsx`, `app/router.tsx`,
-`components/AppLayout.tsx`). Preload the editor chunk on hover of a project card.
+**5b.2 Navigation flashes a blank window.** Done: pages are `lazyRouteComponent`s
+(`app/pages.ts`), so the router fetches a page's code during navigation (and on hover) and the old
+screen stays up until the new one draws; the editor route also loads its project first
+(`app/projectQuery.ts`), so it never opens on "Opening…". The suspense fallback sits inside the
+shell, so the nav bar never goes. An e2e test slows the page code down and checks.
 
 **5b.3 Projects page.** (`ui/src/pages/ProjectsPage.tsx`)
 - The content column is about 640 pt wide in a 1560 pt window; two thirds of the screen is empty.

@@ -72,6 +72,34 @@ test('the view buttons look from the front, side and top, and fit the design', a
     expect(errors).toEqual([]);
 });
 
+test('moving between screens never shows a blank window', async ({ page }) => {
+    // Make the next pages' code slow to arrive, the way a cold start is.
+    const slow = async (route: import('@playwright/test').Route) => {
+        await new Promise((r) => setTimeout(r, 700));
+        await route.continue();
+    };
+    await page.route(/\/pages\/(HelpPage|EditorPage)\.tsx/, slow);
+    await page.goto('/#/');
+    const row = page.getByTestId('project-row').first();
+    await expect(row).toBeVisible();
+
+    // Help: the nav bar and the project list stay up until Help can draw.
+    await page.getByRole('link', { name: 'Help' }).click();
+    await page.waitForTimeout(250);
+    await expect(row).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
+    await expect(page.getByText('Loading…')).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Help Center' })).toBeVisible();
+
+    // The editor: the list stays until the editor opens drawn, never on "Opening…".
+    await page.getByRole('link', { name: 'Projects' }).click();
+    await page.getByTestId('project-row').first().getByTestId('open-project').click();
+    await page.waitForTimeout(250);
+    await expect(page.getByTestId('project-row').first()).toBeVisible();
+    await expect(page.getByText('Opening…')).toHaveCount(0);
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+});
+
 test('a template becomes a new project', async ({ page }) => {
     await page.goto('/#/templates');
     const card = page.getByTestId('template-card').filter({ hasText: 'Bookshelf' });

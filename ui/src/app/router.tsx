@@ -9,19 +9,12 @@ import {
     createRouter,
     Outlet,
 } from '@tanstack/react-router';
-import { lazy } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { CrashScreen } from '@/components/CrashScreen';
 import { ProjectsPage } from '@/pages/ProjectsPage';
 import { TemplatesPage } from '@/pages/TemplatesPage';
-
-// The editor pulls in three.js; load it only when a project opens.
-const EditorPage = lazy(() => import('@/pages/EditorPage'));
-const ToolsPage = lazy(() => import('@/pages/ToolsPage'));
-const ToolPage = lazy(() => import('@/pages/ToolPage'));
-const HelpPage = lazy(() => import('@/pages/HelpPage'));
-const HelpArticlePage = lazy(() => import('@/pages/HelpArticlePage'));
-const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
+import { EditorPage, HelpArticlePage, HelpPage, SettingsPage, ToolPage, ToolsPage } from './pages';
+import { prefetchProject } from './projectQuery';
 
 const rootRoute = createRootRoute({ component: Outlet });
 
@@ -43,7 +36,15 @@ const routeTree = rootRoute.addChildren([
         createRoute({ getParentRoute: () => shell, path: '/help/$slug', component: HelpArticlePage }),
         createRoute({ getParentRoute: () => shell, path: '/settings', component: SettingsPage }),
     ]),
-    createRoute({ getParentRoute: () => rootRoute, path: '/projects/$id', component: EditorPage }),
+    createRoute({
+        getParentRoute: () => rootRoute,
+        path: '/projects/$id',
+        component: EditorPage,
+        // The project arrives with the page, so the editor opens drawn rather than on "Opening…".
+        // A hover preload is never trusted at the click: an agent may have edited it meanwhile.
+        loader: ({ params }) => prefetchProject(Number(params.id)),
+        preloadStaleTime: 0,
+    }),
 ]);
 
 export const router = createRouter({
