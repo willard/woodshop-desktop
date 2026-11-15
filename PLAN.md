@@ -360,10 +360,13 @@ gating is built: there is nothing to unlock.
 
 - **Onboarding:** on an empty library, offer a sample project and a five-step guided tour
   (orbit, select, drag, cut list, export). Skippable, re-runnable from Help.
-- **Templates:** grow from 11 to about 25, covering what people actually build: garage shelving,
-  workbench with drawers, bed frame, bookcase with doors, shoe rack, planter, toy box with a lid
-  and lid stay, TV console, desk with drawers. Every template must lint clean and use catalog
-  hardware. Add a rendered thumbnail per template.
+- **Templates:** done: 11 → 25. New: step stool, entry shelf with hooks, shoe rack, raised
+  garden bed, sawhorse, entry bench, dining table, kitchen cart (casters), tool tote (dowel
+  handle in bored holes), toy chest (lid on hinges, lid stay), wall cabinet (inset doors, Euro
+  hinges), base cabinet (drawer over door, toe kick), three-drawer dresser, media console. Every
+  template lints clean (the parity test holds them to it) and uses catalog hardware. Still to
+  do: garage shelving, workbench with drawers, bed frame, bookcase with doors, desk with
+  drawers; a rendered thumbnail per template.
 - **Help:** articles for every major feature (there are 6 today), with screenshots. Include
   "Using Woodshop with an AI agent".
 - **Empty states and error messages:** read every one; each should say what to do next.

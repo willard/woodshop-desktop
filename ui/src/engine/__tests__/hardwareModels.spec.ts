@@ -42,6 +42,23 @@ describe('catalog hardware geometry', () => {
         expect(piano.max.x - piano.min.x).toBeCloseTo(30, 1); // cut to the lid, not the stock length
     });
 
+    it('keeps a concealed hinge inside the cabinet, whatever its overlay', () => {
+        // +X runs from the cup toward the hinge edge, +Z back into the cabinet; the side's inside
+        // face is at x = boring − overlay. The cup's flange lies on the door's back face, but the
+        // arm and plate behind it must stay inside that face, or the plate shows through the side.
+        for (const id of ['hinge.euro-inset', 'hinge.euro-half-overlay', 'hinge.euro-full-overlay']) {
+            const model = findItem(id)!.model;
+            const wall = (model.boring as number) - (model.overlay as number);
+            const position = buildHardwareGeometry(model).getAttribute('position');
+            let reach = -Infinity;
+            for (let v = 0; v < position.count; v += 1) {
+                if (position.getZ(v) > 0.15) reach = Math.max(reach, position.getX(v));
+            }
+            expect(reach, id).toBeLessThanOrEqual(wall + 1e-5); // float32 vertices
+            expect(reach, `${id}: plate on the side`).toBeGreaterThan(wall - 0.01);
+        }
+    });
+
     it('falls back to a placeholder for a shape this version does not know', () => {
         const g = buildHardwareGeometry({ shape: 'flux-capacitor' });
         expect(g.getAttribute('position').count).toBeGreaterThan(0);

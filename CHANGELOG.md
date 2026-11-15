@@ -11,6 +11,9 @@ All notable changes to Woodshop are listed here. The format follows
 - Settings ▸ About: the version, the licence, links to the source and privacy note, and the
   licenses of the open-source software inside the app.
 - Report a problem opens the bug form with your version and system filled in.
+- Fourteen new templates (25 in all): step stool, entry shelf with hooks, shoe rack, raised
+  garden bed, sawhorse, entry bench, dining table, kitchen cart, tool tote, toy chest, wall
+  cabinet, base cabinet, three-drawer dresser and media console.
 - Drag hardware along its face in the 3D view. It snaps to the face's centre lines and lines up
   with matching hardware on the next drawer front or door; Alt drags freely, Esc puts it back.
 - Concealed (Euro) hinges bore their 35 mm cups in the door: shown in 3D, on the shop template
@@ -20,6 +23,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- Concealed (Euro) hinges are drawn with their arm and mounting plate inside the cabinet; before,
+  the plate stuck out through the cabinet side.
 - Woodshop is now free and open-source software under GPL-3.0-or-later.
 
 ### Security

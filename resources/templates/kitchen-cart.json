@@ -1,0 +1,830 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Kitchen Cart",
+  "materials": [
+    {
+      "id": "ply_birch",
+      "name": "Birch Plywood",
+      "type": "sheet",
+      "species": "maple",
+      "thickness": 0.75,
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      }
+    },
+    {
+      "id": "maple_8_4",
+      "name": "Maple 8/4",
+      "type": "lumber",
+      "species": "maple",
+      "thickness": 1.5,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "maple_1x4",
+      "name": "Maple 1x4",
+      "type": "lumber",
+      "species": "maple",
+      "thickness": 0.75,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_top",
+      "name": "Top",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 30,
+        "w": 20
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          35.625,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_fl",
+      "name": "Leg FL",
+      "materialId": "maple_8_4",
+      "size": {
+        "l": 31.35,
+        "w": 1.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -13.25,
+          19.575,
+          8.25
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_fr",
+      "name": "Leg FR",
+      "materialId": "maple_8_4",
+      "size": {
+        "l": 31.35,
+        "w": 1.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          13.25,
+          19.575,
+          8.25
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_bl",
+      "name": "Leg BL",
+      "materialId": "maple_8_4",
+      "size": {
+        "l": 31.35,
+        "w": 1.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -13.25,
+          19.575,
+          -8.25
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_br",
+      "name": "Leg BR",
+      "materialId": "maple_8_4",
+      "size": {
+        "l": 31.35,
+        "w": 1.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          13.25,
+          19.575,
+          -8.25
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_upper_rail_front",
+      "name": "Upper Front Rail",
+      "materialId": "maple_1x4",
+      "size": {
+        "l": 25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          33.5,
+          8.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l1",
+          "count": 4,
+          "from": 1,
+          "to": 24,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_upper_rail_back",
+      "name": "Upper Back Rail",
+      "materialId": "maple_1x4",
+      "size": {
+        "l": 25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          33.5,
+          -8.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "l1",
+          "count": 4,
+          "from": 1,
+          "to": 24,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_upper_rail_l",
+      "name": "Upper Left Rail",
+      "materialId": "maple_1x4",
+      "size": {
+        "l": 15,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -13.625,
+          33.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "l0",
+          "count": 3,
+          "from": 1,
+          "to": 14,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_upper_rail_r",
+      "name": "Upper Right Rail",
+      "materialId": "maple_1x4",
+      "size": {
+        "l": 15,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          13.625,
+          33.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l0",
+          "count": 3,
+          "from": 1,
+          "to": 14,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_lower_rail_front",
+      "name": "Lower Front Rail",
+      "materialId": "maple_1x4",
+      "size": {
+        "l": 25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          9.75,
+          8.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_lower_rail_back",
+      "name": "Lower Back Rail",
+      "materialId": "maple_1x4",
+      "size": {
+        "l": 25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          9.75,
+          -8.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_lower_rail_l",
+      "name": "Lower Left Rail",
+      "materialId": "maple_1x4",
+      "size": {
+        "l": 15,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -13.625,
+          9.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_lower_rail_r",
+      "name": "Lower Right Rail",
+      "materialId": "maple_1x4",
+      "size": {
+        "l": 15,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          13.625,
+          9.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_shelf",
+      "name": "Lower Shelf",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 25,
+        "w": 16.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          10.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l0",
+          "count": 4,
+          "from": 1,
+          "to": 24,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l1",
+          "count": 4,
+          "from": 1,
+          "to": 24,
+          "thread": "fine",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_front",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_front",
+      "insertPartId": "p_leg_fr",
+      "opRef": 1,
+      "id": "j1"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_front",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j2"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_back",
+      "insertPartId": "p_leg_bl",
+      "opRef": 0,
+      "id": "j3"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_back",
+      "insertPartId": "p_leg_br",
+      "opRef": 1,
+      "id": "j4"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_back",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j5"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_l",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0,
+      "id": "j6"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_l",
+      "insertPartId": "p_leg_bl",
+      "opRef": 1,
+      "id": "j7"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_l",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j8"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_r",
+      "insertPartId": "p_leg_fr",
+      "opRef": 0,
+      "id": "j9"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_r",
+      "insertPartId": "p_leg_br",
+      "opRef": 1,
+      "id": "j10"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_upper_rail_r",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j11"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_front",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0,
+      "id": "j12"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_front",
+      "insertPartId": "p_shelf",
+      "opRef": 0,
+      "id": "j13"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_front",
+      "insertPartId": "p_leg_fr",
+      "opRef": 1,
+      "id": "j14"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_front",
+      "insertPartId": "p_shelf",
+      "opRef": 1,
+      "id": "j15"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_back",
+      "insertPartId": "p_leg_bl",
+      "opRef": 0,
+      "id": "j16"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_back",
+      "insertPartId": "p_shelf",
+      "opRef": 0,
+      "id": "j17"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_back",
+      "insertPartId": "p_leg_br",
+      "opRef": 1,
+      "id": "j18"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_back",
+      "insertPartId": "p_shelf",
+      "opRef": 1,
+      "id": "j19"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_l",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0,
+      "id": "j20"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_l",
+      "insertPartId": "p_leg_bl",
+      "opRef": 1,
+      "id": "j21"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_r",
+      "insertPartId": "p_leg_fr",
+      "opRef": 0,
+      "id": "j22"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_lower_rail_r",
+      "insertPartId": "p_leg_br",
+      "opRef": 1,
+      "id": "j23"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf",
+      "insertPartId": "p_lower_rail_front",
+      "opRef": 0,
+      "id": "j24"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf",
+      "insertPartId": "p_lower_rail_back",
+      "opRef": 1,
+      "id": "j25"
+    }
+  ],
+  "hardware": [
+    {
+      "id": "hw_caster_locking_3in_1",
+      "item": "caster.locking-3in",
+      "partId": "p_leg_fl",
+      "side": "w0",
+      "x": 0.75,
+      "y": 0.75
+    },
+    {
+      "id": "hw_caster_locking_3in_2",
+      "item": "caster.locking-3in",
+      "partId": "p_leg_fr",
+      "side": "w0",
+      "x": 0.75,
+      "y": 0.75
+    },
+    {
+      "id": "hw_caster_locking_3in_3",
+      "item": "caster.locking-3in",
+      "partId": "p_leg_bl",
+      "side": "w0",
+      "x": 0.75,
+      "y": 0.75
+    },
+    {
+      "id": "hw_caster_locking_3in_4",
+      "item": "caster.locking-3in",
+      "partId": "p_leg_br",
+      "side": "w0",
+      "x": 0.75,
+      "y": 0.75
+    }
+  ],
+  "meta": {
+    "difficulty": "intermediate",
+    "notes": "A 30 × 20 rolling kitchen cart at counter height (36\"), with a lower shelf. Maple frame, birch-plywood top, on four 3\" locking casters; the legs are cut short by the casters' height.",
+    "tags": [
+      "kitchen",
+      "cart",
+      "mobile",
+      "storage"
+    ]
+  }
+}

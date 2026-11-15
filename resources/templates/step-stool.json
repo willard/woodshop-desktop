@@ -1,0 +1,226 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Step Stool",
+  "materials": [
+    {
+      "id": "pine_1x12",
+      "name": "Pine 1x12",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 0.75,
+      "stockWidth": 11.25,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "pine_1x4",
+      "name": "Pine 1x4",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 0.75,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_leg_l",
+      "name": "Left Leg",
+      "materialId": "pine_1x12",
+      "size": {
+        "l": 11.25,
+        "w": 9
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -7.625,
+          4.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_r",
+      "name": "Right Leg",
+      "materialId": "pine_1x12",
+      "size": {
+        "l": 11.25,
+        "w": 9
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          7.625,
+          4.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_top",
+      "name": "Step",
+      "materialId": "pine_1x12",
+      "size": {
+        "l": 16,
+        "w": 11.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          9.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.375,
+          "count": 2,
+          "from": 1,
+          "to": 10.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 15.625,
+          "count": 2,
+          "from": 1,
+          "to": 10.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 3,
+          "from": 1.75,
+          "to": 14.25,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_stretcher",
+      "name": "Stretcher",
+      "materialId": "pine_1x4",
+      "size": {
+        "l": 14.5,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          7.25,
+          5.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_leg_l",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_leg_r",
+      "opRef": 1,
+      "id": "j1"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_stretcher",
+      "opRef": 2,
+      "id": "j2"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_stretcher",
+      "insertPartId": "p_leg_l",
+      "opRef": 0,
+      "id": "j3"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_stretcher",
+      "insertPartId": "p_leg_r",
+      "opRef": 1,
+      "id": "j4"
+    }
+  ],
+  "meta": {
+    "difficulty": "beginner",
+    "notes": "A sturdy 9 3/4\" step stool from one pine 1x12 and a scrap of 1x4. Screwed and pocket-screwed: a good first project, done in an afternoon.",
+    "tags": [
+      "beginner",
+      "stool",
+      "kitchen"
+    ]
+  }
+}

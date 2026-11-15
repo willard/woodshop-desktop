@@ -294,7 +294,7 @@
     "cup": 1.378,
     "cupDepth": 0.4724,
     "arm": 2.4,
-    "boring": 0.8858
+    "boring": 0.8858, "overlay": 0.5
    },
    "role": "hinge",
    "description": "35 mm cup bored 12 mm deep in the door, centred 22.5 mm in from its edge."
@@ -309,7 +309,7 @@
     "cup": 1.378,
     "cupDepth": 0.4724,
     "arm": 2.4,
-    "boring": 0.8858
+    "boring": 0.8858, "overlay": 0.25
    },
    "role": "hinge",
    "description": "For two doors sharing one partition."
@@ -324,7 +324,7 @@
     "cup": 1.378,
     "cupDepth": 0.4724,
     "arm": 2.4,
-    "boring": 0.8858
+    "boring": 0.8858, "overlay": 0
    },
    "role": "hinge",
    "description": "For a door that sits inside the opening."

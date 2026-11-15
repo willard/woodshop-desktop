@@ -1,0 +1,427 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Sawhorse",
+  "materials": [
+    {
+      "id": "pine_2x4",
+      "name": "Pine 2x4",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 1.5,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_beam",
+      "name": "Beam",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 36,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          31.25,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 1.75,
+          "count": 2,
+          "from": 2.875,
+          "to": 4.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 1.75,
+          "count": 2,
+          "from": 31.375,
+          "to": 33.125,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_cross_l",
+      "name": "Crosspiece L",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21.5,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -14.25,
+          29.75,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          -90
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_stretcher_l",
+      "name": "Stretcher L",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21.5,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -16.75,
+          7.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 20.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_leg_lf",
+      "name": "Leg L front",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 29,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -14.25,
+          14.5,
+          10
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_lb",
+      "name": "Leg L back",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 29,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -14.25,
+          14.5,
+          -10
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_cross_r",
+      "name": "Crosspiece R",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21.5,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          14.25,
+          29.75,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          -90
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_stretcher_r",
+      "name": "Stretcher R",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21.5,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          16.75,
+          7.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_leg_rf",
+      "name": "Leg R front",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 29,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          14.25,
+          14.5,
+          10
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_rb",
+      "name": "Leg R back",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 29,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          14.25,
+          14.5,
+          -10
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "screw",
+      "hostPartId": "p_beam",
+      "insertPartId": "p_cross_l",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_beam",
+      "insertPartId": "p_cross_r",
+      "opRef": 1,
+      "id": "j1"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_cross_l",
+      "insertPartId": "p_leg_lf",
+      "opRef": 0,
+      "id": "j2"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_cross_l",
+      "insertPartId": "p_leg_lb",
+      "opRef": 1,
+      "id": "j3"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_stretcher_l",
+      "insertPartId": "p_leg_lf",
+      "opRef": 0,
+      "id": "j4"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_stretcher_l",
+      "insertPartId": "p_leg_lb",
+      "opRef": 1,
+      "id": "j5"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_cross_r",
+      "insertPartId": "p_leg_rf",
+      "opRef": 0,
+      "id": "j6"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_cross_r",
+      "insertPartId": "p_leg_rb",
+      "opRef": 1,
+      "id": "j7"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_stretcher_r",
+      "insertPartId": "p_leg_rf",
+      "opRef": 0,
+      "id": "j8"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_stretcher_r",
+      "insertPartId": "p_leg_rb",
+      "opRef": 1,
+      "id": "j9"
+    }
+  ],
+  "meta": {
+    "difficulty": "beginner",
+    "notes": "A 32\" tall 2x4 sawhorse with a 36\" beam. Make two. Screwed throughout, so a damaged beam is easy to replace.",
+    "tags": [
+      "beginner",
+      "shop"
+    ]
+  }
+}

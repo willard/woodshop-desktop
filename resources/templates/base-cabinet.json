@@ -1,0 +1,725 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Base Cabinet",
+  "materials": [
+    {
+      "id": "ply_birch",
+      "name": "Birch Plywood",
+      "type": "sheet",
+      "species": "maple",
+      "thickness": 0.75,
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      }
+    },
+    {
+      "id": "ply_birch_half",
+      "name": "Birch Plywood 1/2\" (drawer box)",
+      "type": "sheet",
+      "species": "maple",
+      "thickness": 0.5,
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      }
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_side_l",
+      "name": "Left Side",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 34.5,
+        "w": 24
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -8.625,
+          17.25,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_side_r",
+      "name": "Right Side",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 34.5,
+        "w": 24
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          8.625,
+          17.25,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_bottom",
+      "name": "Bottom",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 24,
+        "w": 16.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          4.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          -90
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l0",
+          "count": 4,
+          "from": 1,
+          "to": 23,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l1",
+          "count": 4,
+          "from": 1,
+          "to": 23,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20.625,
+          "count": 3,
+          "from": 1,
+          "to": 15.5,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_toe_kick",
+      "name": "Toe Kick",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 16.5,
+        "w": 4
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          2,
+          8.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 3,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 1,
+          "to": 3,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_divider",
+      "name": "Drawer Rail",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 24,
+        "w": 16.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          27.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          -90
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l0",
+          "count": 4,
+          "from": 1,
+          "to": 23,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l1",
+          "count": 4,
+          "from": 1,
+          "to": 23,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_top",
+      "name": "Top",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 24,
+        "w": 16.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          34.125,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          -90
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l0",
+          "count": 4,
+          "from": 1,
+          "to": 23,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l1",
+          "count": 4,
+          "from": 1,
+          "to": 23,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_back",
+      "name": "Back",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 34.5,
+        "w": 18
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          17.25,
+          -12.375
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 17.625,
+          "count": 6,
+          "from": 1,
+          "to": 33.5,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 6,
+          "from": 1,
+          "to": 33.5,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 34.125,
+          "count": 3,
+          "from": 1.75,
+          "to": 16.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 4.375,
+          "count": 3,
+          "from": 1.75,
+          "to": 16.25,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_drawer_front",
+      "name": "Drawer Front",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 16.375,
+        "w": 5.875
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          30.75,
+          11.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_drawer_side_l",
+      "name": "Drawer Side L",
+      "materialId": "ply_birch_half",
+      "size": {
+        "l": 22,
+        "w": 5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -7.5,
+          30.75,
+          0.25
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "count": 2,
+          "face": "front",
+          "edge": "w0"
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_drawer_side_r",
+      "name": "Drawer Side R",
+      "materialId": "ply_birch_half",
+      "size": {
+        "l": 22,
+        "w": 5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          7.5,
+          30.75,
+          0.25
+        ],
+        "rot": [
+          0,
+          90,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "count": 2,
+          "face": "back",
+          "edge": "w0"
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_drawer_back",
+      "name": "Drawer Back",
+      "materialId": "ply_birch_half",
+      "size": {
+        "l": 14.5,
+        "w": 5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          30.75,
+          -10.5
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "count": 2,
+          "face": "back",
+          "edge": "w0"
+        },
+        {
+          "type": "pocketHoles",
+          "count": 2,
+          "face": "back",
+          "edge": "w1"
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_drawer_bottom",
+      "name": "Drawer Bottom",
+      "materialId": "ply_birch_half",
+      "size": {
+        "l": 15.5,
+        "w": 22
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          28,
+          0.25
+        ],
+        "rot": [
+          90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.25,
+          "count": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 15.25,
+          "count": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_door",
+      "name": "Door",
+      "materialId": "ply_birch",
+      "size": {
+        "l": 16.375,
+        "w": 22.125
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          15.875,
+          11.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_side_l",
+      "insertPartId": "p_drawer_front",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_side_r",
+      "insertPartId": "p_drawer_front",
+      "opRef": 0,
+      "id": "j1"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_back",
+      "insertPartId": "p_drawer_side_l",
+      "opRef": 0,
+      "id": "j2"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_drawer_back",
+      "insertPartId": "p_drawer_side_r",
+      "opRef": 1,
+      "id": "j3"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_drawer_bottom",
+      "insertPartId": "p_drawer_side_l",
+      "opRef": 0,
+      "id": "j4"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_drawer_bottom",
+      "insertPartId": "p_drawer_side_r",
+      "opRef": 1,
+      "id": "j5"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_toe_kick",
+      "opRef": 2,
+      "id": "j6"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j7"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j8"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j9"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_bottom",
+      "opRef": 3,
+      "id": "j10"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_drawer_bottom",
+      "insertPartId": "p_drawer_front",
+      "opRef": 0,
+      "id": "j11"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_drawer_bottom",
+      "insertPartId": "p_drawer_front",
+      "opRef": 1,
+      "id": "j12"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j13"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_toe_kick",
+      "opRef": 0,
+      "id": "j14"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j15"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_toe_kick",
+      "opRef": 1,
+      "id": "j16"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_toe_kick",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j17"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_toe_kick",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j18"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_divider",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j19"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_divider",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j20"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_top",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j21"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_top",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j22"
+    }
+  ],
+  "movables": [
+    {
+      "id": "mv_drawer",
+      "kind": "drawer",
+      "name": "Drawer",
+      "partIds": [
+        "p_drawer_front",
+        "p_drawer_side_l",
+        "p_drawer_side_r",
+        "p_drawer_back",
+        "p_drawer_bottom"
+      ],
+      "frontPartId": "p_drawer_front",
+      "style": "inset",
+      "slide": "slide.side-mount",
+      "pull": "pull.bar-128mm"
+    },
+    {
+      "id": "mv_door",
+      "kind": "door",
+      "name": "Door",
+      "partIds": [
+        "p_door"
+      ],
+      "panelPartId": "p_door",
+      "hingeEdge": "w0",
+      "style": "inset",
+      "hinge": "hinge.euro-inset",
+      "pull": "knob.round-1-1-4"
+    }
+  ],
+  "meta": {
+    "difficulty": "intermediate",
+    "notes": "An 18\" kitchen-style base cabinet, 34 1/2\" tall to take a countertop: a drawer on full-extension side-mount slides over a door on concealed hinges, with a recessed toe kick. 1/2\" plywood drawer box, 3/4\" everything else.",
+    "tags": [
+      "cabinet",
+      "kitchen",
+      "storage",
+      "drawer"
+    ]
+  }
+}

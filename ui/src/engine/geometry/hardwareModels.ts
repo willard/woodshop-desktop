@@ -118,12 +118,18 @@ const BUILDERS: Record<string, Builder> = {
 
     euroHinge: (m) => {
         const cup = num(m, 'cup', 1.378);
-        const arm = num(m, 'arm', 2.4);
-        // Seen from inside the cabinet: the cup's flange on the door, the arm reaching to the side.
+        const boring = num(m, 'boring', 0.886);
+        // Local +X runs from the cup toward the hinge edge, +Z back into the cabinet. The cabinet
+        // side's inside face sits `boring - overlay` from the cup: past the door edge on an inset
+        // door, under it on an overlay one. The arm crosses to that face and runs back along it
+        // to the mounting plate, so nothing pokes out through the side.
+        const wall = boring - num(m, 'overlay', 0.5);
+        const back = Math.min(num(m, 'arm', 2.4), 1.6);
         return [
             cyl(cup / 2 + 0.1, 0.1, 'z', 0, 0, 0.05, 24),
-            box(arm, 0.55, 0.5, arm / 2, 0, 0.3),
-            box(0.9, 1.5, 0.12, arm - 0.2, 0, 0.6),
+            box(Math.max(wall, 0.2), 0.55, 0.3, wall / 2, 0, 0.25),
+            box(0.4, 0.55, back, wall - 0.32, 0, 0.1 + back / 2),
+            box(0.12, 1.5, 1.4, wall - 0.06, 0, 0.3 + 0.7),
         ];
     },
 

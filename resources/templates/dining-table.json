@@ -1,0 +1,472 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Dining Table",
+  "materials": [
+    {
+      "id": "ply_oak",
+      "name": "Oak Plywood",
+      "type": "sheet",
+      "species": "oak",
+      "thickness": 0.75,
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      }
+    },
+    {
+      "id": "oak_leg",
+      "name": "Oak Leg Blank 3x3",
+      "type": "lumber",
+      "species": "oak",
+      "thickness": 2.5,
+      "stockWidth": 2.5,
+      "stockLengths": [
+        36
+      ]
+    },
+    {
+      "id": "oak_1x4",
+      "name": "Oak 1x4",
+      "type": "lumber",
+      "species": "oak",
+      "thickness": 0.75,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_top",
+      "name": "Top",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 72,
+        "w": 36
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          29.625,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_fl",
+      "name": "Leg FL",
+      "materialId": "oak_leg",
+      "size": {
+        "l": 29.25,
+        "w": 2.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -32.75,
+          14.625,
+          14.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_fr",
+      "name": "Leg FR",
+      "materialId": "oak_leg",
+      "size": {
+        "l": 29.25,
+        "w": 2.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          32.75,
+          14.625,
+          14.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_bl",
+      "name": "Leg BL",
+      "materialId": "oak_leg",
+      "size": {
+        "l": 29.25,
+        "w": 2.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -32.75,
+          14.625,
+          -14.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_br",
+      "name": "Leg BR",
+      "materialId": "oak_leg",
+      "size": {
+        "l": 29.25,
+        "w": 2.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          32.75,
+          14.625,
+          -14.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_apron_front",
+      "name": "Front Apron",
+      "materialId": "oak_1x4",
+      "size": {
+        "l": 63,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          27.5,
+          15.125
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l1",
+          "count": 11,
+          "from": 1,
+          "to": 62,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_apron_back",
+      "name": "Back Apron",
+      "materialId": "oak_1x4",
+      "size": {
+        "l": 63,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          27.5,
+          -15.125
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "l1",
+          "count": 11,
+          "from": 1,
+          "to": 62,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_apron_l",
+      "name": "Left Apron",
+      "materialId": "oak_1x4",
+      "size": {
+        "l": 27,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -33.125,
+          27.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "l0",
+          "count": 5,
+          "from": 1,
+          "to": 26,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_apron_r",
+      "name": "Right Apron",
+      "materialId": "oak_1x4",
+      "size": {
+        "l": 27,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          33.125,
+          27.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "fine",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "l0",
+          "count": 5,
+          "from": 1,
+          "to": 26,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_front",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_front",
+      "insertPartId": "p_leg_fr",
+      "opRef": 1,
+      "id": "j1"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_front",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j2"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_back",
+      "insertPartId": "p_leg_bl",
+      "opRef": 0,
+      "id": "j3"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_back",
+      "insertPartId": "p_leg_br",
+      "opRef": 1,
+      "id": "j4"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_back",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j5"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_l",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0,
+      "id": "j6"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_l",
+      "insertPartId": "p_leg_bl",
+      "opRef": 1,
+      "id": "j7"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_l",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j8"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_r",
+      "insertPartId": "p_leg_fr",
+      "opRef": 0,
+      "id": "j9"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_r",
+      "insertPartId": "p_leg_br",
+      "opRef": 1,
+      "id": "j10"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_apron_r",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j11"
+    }
+  ],
+  "meta": {
+    "difficulty": "intermediate",
+    "notes": "A 72 × 36 dining table for six: an oak-plywood top on 2 1/2\" oak legs and 1x4 aprons, all pocket-screwed. Seats at a standard 30\".",
+    "tags": [
+      "table",
+      "dining",
+      "kitchen"
+    ]
+  }
+}

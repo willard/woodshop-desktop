@@ -1,0 +1,973 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Media Console",
+  "materials": [
+    {
+      "id": "ply_walnut",
+      "name": "Walnut Plywood",
+      "type": "sheet",
+      "species": "walnut",
+      "thickness": 0.75,
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      }
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_side_l",
+      "name": "Left Side",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 19.25,
+        "w": 16
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -29.625,
+          9.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_side_r",
+      "name": "Right Side",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 19.25,
+        "w": 16
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          29.625,
+          9.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_top",
+      "name": "Top",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 60,
+        "w": 16.75
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          19.625,
+          -0.375
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.375,
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 59.625,
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 19.875,
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 40.125,
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 16.375,
+          "count": 10,
+          "from": 1,
+          "to": 59,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_back",
+      "name": "Back",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 60,
+        "w": 19.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          9.625,
+          -8.375
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 3.375,
+          "count": 3,
+          "from": 1.75,
+          "to": 18.5,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 3.375,
+          "count": 3,
+          "from": 21.25,
+          "to": 38.75,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 3.375,
+          "count": 3,
+          "from": 41.5,
+          "to": 58.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 0.375,
+          "count": 3,
+          "from": 1,
+          "to": 18.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 59.625,
+          "count": 3,
+          "from": 1,
+          "to": 18.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 19.875,
+          "count": 3,
+          "from": 1,
+          "to": 18.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 40.125,
+          "count": 3,
+          "from": 1,
+          "to": 18.25,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_divider_l",
+      "name": "Left Divider",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 19.25,
+        "w": 16
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -10.125,
+          9.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_divider_r",
+      "name": "Right Divider",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 19.25,
+        "w": 16
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          10.125,
+          9.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_bottom_l",
+      "name": "Left Bottom",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 18.75,
+        "w": 16
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -19.875,
+          3.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 3,
+          "from": 1,
+          "to": 17.75,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_kick_l",
+      "name": "Left Toe Board",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 18.75,
+        "w": 3
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -19.875,
+          1.5,
+          7.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.75,
+          "to": 2.25,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.75,
+          "to": 2.25,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_bottom_c",
+      "name": "Centre Bottom",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 19.5,
+        "w": 16
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          3.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 3,
+          "from": 1,
+          "to": 18.5,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_kick_c",
+      "name": "Centre Toe Board",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 19.5,
+        "w": 3
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          1.5,
+          7.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.75,
+          "to": 2.25,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.75,
+          "to": 2.25,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_bottom_r",
+      "name": "Right Bottom",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 18.75,
+        "w": 16
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          19.875,
+          3.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 3,
+          "from": 1,
+          "to": 15,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 3,
+          "from": 1,
+          "to": 17.75,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_kick_r",
+      "name": "Right Toe Board",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 18.75,
+        "w": 3
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          19.875,
+          1.5,
+          7.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.75,
+          "to": 2.25,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.75,
+          "to": 2.25,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_shelf",
+      "name": "Centre Shelf",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 19.5,
+        "w": 15.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          11.5,
+          -0.375
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 3,
+          "from": 1,
+          "to": 14.25,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 3,
+          "from": 1,
+          "to": 14.25,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_door_l",
+      "name": "Left Door",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 18.625,
+        "w": 15.375
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -19.875,
+          11.5,
+          7.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_door_r",
+      "name": "Right Door",
+      "materialId": "ply_walnut",
+      "size": {
+        "l": 18.625,
+        "w": 15.375
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          19.875,
+          11.5,
+          7.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j1"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_divider_l",
+      "opRef": 2,
+      "id": "j2"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_divider_r",
+      "opRef": 3,
+      "id": "j3"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_top",
+      "insertPartId": "p_back",
+      "opRef": 4,
+      "id": "j4"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_bottom_l",
+      "opRef": 0,
+      "id": "j5"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_bottom_c",
+      "opRef": 1,
+      "id": "j6"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_bottom_r",
+      "opRef": 2,
+      "id": "j7"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_side_l",
+      "opRef": 3,
+      "id": "j8"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_side_r",
+      "opRef": 4,
+      "id": "j9"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_divider_l",
+      "opRef": 5,
+      "id": "j10"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_divider_r",
+      "opRef": 6,
+      "id": "j11"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_bottom_l",
+      "insertPartId": "p_kick_l",
+      "opRef": 2,
+      "id": "j12"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_bottom_c",
+      "insertPartId": "p_kick_c",
+      "opRef": 2,
+      "id": "j13"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_bottom_r",
+      "insertPartId": "p_kick_r",
+      "opRef": 2,
+      "id": "j14"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_l",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j15"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_l",
+      "insertPartId": "p_kick_l",
+      "opRef": 0,
+      "id": "j16"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_l",
+      "insertPartId": "p_divider_l",
+      "opRef": 1,
+      "id": "j17"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_l",
+      "insertPartId": "p_kick_l",
+      "opRef": 1,
+      "id": "j18"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_kick_l",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j19"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_kick_l",
+      "insertPartId": "p_divider_l",
+      "opRef": 1,
+      "id": "j20"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_c",
+      "insertPartId": "p_divider_l",
+      "opRef": 0,
+      "id": "j21"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_c",
+      "insertPartId": "p_kick_c",
+      "opRef": 0,
+      "id": "j22"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_c",
+      "insertPartId": "p_divider_r",
+      "opRef": 1,
+      "id": "j23"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_c",
+      "insertPartId": "p_kick_c",
+      "opRef": 1,
+      "id": "j24"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_kick_c",
+      "insertPartId": "p_divider_l",
+      "opRef": 0,
+      "id": "j25"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_kick_c",
+      "insertPartId": "p_divider_r",
+      "opRef": 1,
+      "id": "j26"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_r",
+      "insertPartId": "p_divider_r",
+      "opRef": 0,
+      "id": "j27"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_r",
+      "insertPartId": "p_kick_r",
+      "opRef": 0,
+      "id": "j28"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_r",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j29"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom_r",
+      "insertPartId": "p_kick_r",
+      "opRef": 1,
+      "id": "j30"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_kick_r",
+      "insertPartId": "p_divider_r",
+      "opRef": 0,
+      "id": "j31"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_kick_r",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j32"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf",
+      "insertPartId": "p_divider_l",
+      "opRef": 0,
+      "id": "j33"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf",
+      "insertPartId": "p_divider_r",
+      "opRef": 1,
+      "id": "j34"
+    }
+  ],
+  "movables": [
+    {
+      "id": "mv_door_l",
+      "kind": "door",
+      "name": "Left Door",
+      "partIds": [
+        "p_door_l"
+      ],
+      "panelPartId": "p_door_l",
+      "hingeEdge": "w0",
+      "style": "inset",
+      "hinge": "hinge.euro-inset",
+      "pull": "knob.round-1-1-4"
+    },
+    {
+      "id": "mv_door_r",
+      "kind": "door",
+      "name": "Right Door",
+      "partIds": [
+        "p_door_r"
+      ],
+      "panelPartId": "p_door_r",
+      "hingeEdge": "w1",
+      "style": "inset",
+      "hinge": "hinge.euro-inset",
+      "pull": "knob.round-1-1-4"
+    }
+  ],
+  "meta": {
+    "difficulty": "intermediate",
+    "notes": "A 60\" low media console: an open centre bay with a shelf for the electronics, flanked by two cupboards behind inset doors on concealed hinges. Leave the back off the centre bay, or drill it, for cables.",
+    "tags": [
+      "cabinet",
+      "living-room",
+      "tv",
+      "storage"
+    ]
+  }
+}

@@ -1,0 +1,376 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Raised Garden Bed",
+  "materials": [
+    {
+      "id": "cedar_2x10",
+      "name": "Cedar 2x10",
+      "type": "lumber",
+      "thickness": 1.5,
+      "stockWidth": 9.25,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "cedar_4x4",
+      "name": "Cedar 4x4",
+      "type": "lumber",
+      "thickness": 3.5,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_side_front",
+      "name": "Front Side",
+      "materialId": "cedar_2x10",
+      "size": {
+        "l": 96,
+        "w": 9.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          4.625,
+          17.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 3.25,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 92.75,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_side_back",
+      "name": "Back Side",
+      "materialId": "cedar_2x10",
+      "size": {
+        "l": 96,
+        "w": 9.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          4.625,
+          -17.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 3.25,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 92.75,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_end_l",
+      "name": "Left End",
+      "materialId": "cedar_2x10",
+      "size": {
+        "l": 33,
+        "w": 9.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -47.25,
+          4.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 31.25,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 1.75,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_end_r",
+      "name": "Right End",
+      "materialId": "cedar_2x10",
+      "size": {
+        "l": 33,
+        "w": 9.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          47.25,
+          4.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 31.25,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 1.75,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_post_fl",
+      "name": "Corner Post FL",
+      "materialId": "cedar_4x4",
+      "size": {
+        "l": 9.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -44.75,
+          4.625,
+          14.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_post_fr",
+      "name": "Corner Post FR",
+      "materialId": "cedar_4x4",
+      "size": {
+        "l": 9.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          44.75,
+          4.625,
+          14.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_post_bl",
+      "name": "Corner Post BL",
+      "materialId": "cedar_4x4",
+      "size": {
+        "l": 9.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -44.75,
+          4.625,
+          -14.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_post_br",
+      "name": "Corner Post BR",
+      "materialId": "cedar_4x4",
+      "size": {
+        "l": 9.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          44.75,
+          4.625,
+          -14.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "screw",
+      "hostPartId": "p_side_front",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_side_front",
+      "insertPartId": "p_post_fr",
+      "opRef": 1,
+      "id": "j1"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_side_back",
+      "insertPartId": "p_post_bl",
+      "opRef": 0,
+      "id": "j2"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_side_back",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j3"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_l",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j4"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_l",
+      "insertPartId": "p_post_bl",
+      "opRef": 1,
+      "id": "j5"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_r",
+      "insertPartId": "p_post_fr",
+      "opRef": 0,
+      "id": "j6"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_r",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j7"
+    }
+  ],
+  "meta": {
+    "difficulty": "beginner",
+    "notes": "An 8 × 3 ft raised bed, 9 1/4\" deep, from cedar 2x10s screwed to 4x4 corner posts. Use exterior screws; cedar needs no finish.",
+    "tags": [
+      "beginner",
+      "outdoor",
+      "garden"
+    ]
+  }
+}

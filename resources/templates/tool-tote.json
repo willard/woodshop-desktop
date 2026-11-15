@@ -1,0 +1,374 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Tool Tote",
+  "materials": [
+    {
+      "id": "pine_1x8",
+      "name": "Pine 1x8",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 0.75,
+      "stockWidth": 7.25,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "pine_1x4",
+      "name": "Pine 1x4",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 0.75,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "oak_dowel",
+      "name": "Oak Dowel 1\"",
+      "type": "round",
+      "species": "oak",
+      "thickness": 1,
+      "stockLengths": [
+        36
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_end_l",
+      "name": "Left End",
+      "materialId": "pine_1x8",
+      "size": {
+        "l": 12,
+        "w": 7.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -7.875,
+          6,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 0.375,
+          "count": 2,
+          "from": 1.75,
+          "to": 5.5,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 6.875,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "hole",
+          "face": "front",
+          "x": 10.5,
+          "y": 3.6250000000000004,
+          "diameter": 1,
+          "depth": 0.375,
+          "purpose": "dowel"
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_end_r",
+      "name": "Right End",
+      "materialId": "pine_1x8",
+      "size": {
+        "l": 12,
+        "w": 7.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          7.875,
+          6,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.375,
+          "count": 2,
+          "from": 1.75,
+          "to": 5.5,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 6.875,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "hole",
+          "face": "back",
+          "x": 10.5,
+          "y": 3.6250000000000004,
+          "diameter": 1,
+          "depth": 0.375,
+          "purpose": "dowel"
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_bottom",
+      "name": "Bottom",
+      "materialId": "pine_1x8",
+      "size": {
+        "l": 15,
+        "w": 5.75
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          0.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_side_front",
+      "name": "Front Side",
+      "materialId": "pine_1x4",
+      "size": {
+        "l": 16.5,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          1.75,
+          3.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 3,
+          "from": 1.75,
+          "to": 14.75,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_side_back",
+      "name": "Back Side",
+      "materialId": "pine_1x4",
+      "size": {
+        "l": 16.5,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          1.75,
+          -3.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 3,
+          "from": 1.75,
+          "to": 14.75,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_handle",
+      "name": "Handle",
+      "materialId": "oak_dowel",
+      "size": {
+        "l": 15.75,
+        "w": 1
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          10.5,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "dowel",
+      "hostPartId": "p_end_l",
+      "insertPartId": "p_handle",
+      "opRef": 3,
+      "id": "j0"
+    },
+    {
+      "type": "dowel",
+      "hostPartId": "p_end_r",
+      "insertPartId": "p_handle",
+      "opRef": 3,
+      "id": "j1"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_l",
+      "insertPartId": "p_bottom",
+      "opRef": 0,
+      "id": "j2"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_l",
+      "insertPartId": "p_side_front",
+      "opRef": 1,
+      "id": "j3"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_l",
+      "insertPartId": "p_side_back",
+      "opRef": 2,
+      "id": "j4"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_r",
+      "insertPartId": "p_bottom",
+      "opRef": 0,
+      "id": "j5"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_r",
+      "insertPartId": "p_side_front",
+      "opRef": 1,
+      "id": "j6"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_end_r",
+      "insertPartId": "p_side_back",
+      "opRef": 2,
+      "id": "j7"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_side_front",
+      "insertPartId": "p_bottom",
+      "opRef": 0,
+      "id": "j8"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_side_back",
+      "insertPartId": "p_bottom",
+      "opRef": 0,
+      "id": "j9"
+    }
+  ],
+  "meta": {
+    "difficulty": "beginner",
+    "notes": "A 16 1/2\" open tool tote with a 1\" oak dowel handle. Pine 1x8 ends and 1x4 sides, glued and screwed.",
+    "tags": [
+      "beginner",
+      "shop",
+      "storage"
+    ]
+  }
+}

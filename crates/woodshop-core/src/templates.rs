@@ -6,12 +6,37 @@ use serde::Serialize;
 use crate::spec::{self, Difficulty, Spec};
 
 const TEMPLATES: &[(&str, &str)] = &[
+    (
+        "base-cabinet",
+        include_str!("../../../resources/templates/base-cabinet.json"),
+    ),
     ("bookshelf", include_str!("../../../resources/templates/bookshelf.json")),
     (
         "coffee-table",
         include_str!("../../../resources/templates/coffee-table.json"),
     ),
     ("desk", include_str!("../../../resources/templates/desk.json")),
+    (
+        "dining-table",
+        include_str!("../../../resources/templates/dining-table.json"),
+    ),
+    ("dresser", include_str!("../../../resources/templates/dresser.json")),
+    (
+        "entry-bench",
+        include_str!("../../../resources/templates/entry-bench.json"),
+    ),
+    (
+        "entry-shelf",
+        include_str!("../../../resources/templates/entry-shelf.json"),
+    ),
+    (
+        "kitchen-cart",
+        include_str!("../../../resources/templates/kitchen-cart.json"),
+    ),
+    (
+        "media-console",
+        include_str!("../../../resources/templates/media-console.json"),
+    ),
     (
         "mobile-workbench",
         include_str!("../../../resources/templates/mobile-workbench.json"),
@@ -29,6 +54,10 @@ const TEMPLATES: &[(&str, &str)] = &[
         include_str!("../../../resources/templates/planter-box.json"),
     ),
     (
+        "raised-bed",
+        include_str!("../../../resources/templates/raised-bed.json"),
+    ),
+    (
         "record-stand",
         include_str!("../../../resources/templates/record-stand.json"),
     ),
@@ -36,9 +65,21 @@ const TEMPLATES: &[(&str, &str)] = &[
         "record-stand-dado",
         include_str!("../../../resources/templates/record-stand-dado.json"),
     ),
+    ("sawhorse", include_str!("../../../resources/templates/sawhorse.json")),
+    ("shoe-rack", include_str!("../../../resources/templates/shoe-rack.json")),
     (
         "side-table",
         include_str!("../../../resources/templates/side-table.json"),
+    ),
+    (
+        "step-stool",
+        include_str!("../../../resources/templates/step-stool.json"),
+    ),
+    ("tool-tote", include_str!("../../../resources/templates/tool-tote.json")),
+    ("toy-chest", include_str!("../../../resources/templates/toy-chest.json")),
+    (
+        "wall-cabinet",
+        include_str!("../../../resources/templates/wall-cabinet.json"),
     ),
     ("workbench", include_str!("../../../resources/templates/workbench.json")),
 ];
