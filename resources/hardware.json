@@ -47,6 +47,7 @@
    "category": "pulls",
    "name": "Round knob 1 1/4\"",
    "list": "1 1/4\" round cabinet knobs",
+   "metric": {"name": "Round knob 32 mm", "list": "32 mm round cabinet knobs"},
    "model": {
     "shape": "knob",
     "diameter": 1.25,
@@ -59,6 +60,7 @@
    "category": "pulls",
    "name": "Round knob 1 1/2\"",
    "list": "1 1/2\" round cabinet knobs",
+   "metric": {"name": "Round knob 38 mm", "list": "38 mm round cabinet knobs"},
    "model": {
     "shape": "knob",
     "diameter": 1.5,
@@ -71,6 +73,7 @@
    "category": "pulls",
    "name": "Square knob 1 1/4\"",
    "list": "1 1/4\" square cabinet knobs",
+   "metric": {"name": "Square knob 32 mm", "list": "32 mm square cabinet knobs"},
    "model": {
     "shape": "knob",
     "diameter": 1.25,
@@ -84,6 +87,7 @@
    "category": "pulls",
    "name": "Bar pull, 3\" centers",
    "list": "bar pulls, 3\" centers",
+   "metric": {"name": "Bar pull, 76 mm centers", "list": "bar pulls, 76 mm centers"},
    "model": {
     "shape": "barPull",
     "centers": 3,
@@ -154,6 +158,7 @@
    "category": "pulls",
    "name": "Arch pull, 3\" centers",
    "list": "arch pulls, 3\" centers",
+   "metric": {"name": "Arch pull, 76 mm centers", "list": "arch pulls, 76 mm centers"},
    "model": {
     "shape": "archPull",
     "centers": 3,
@@ -193,6 +198,7 @@
    "category": "pulls",
    "name": "Cup (bin) pull, 3\" centers",
    "list": "cup pulls, 3\" centers",
+   "metric": {"name": "Cup (bin) pull, 76 mm centers", "list": "cup pulls, 76 mm centers"},
    "model": {
     "shape": "cupPull",
     "width": 3.75,
@@ -219,6 +225,7 @@
    "category": "hinges",
    "name": "Butt hinge 2\"",
    "list": "2\" butt hinges",
+   "metric": {"name": "Butt hinge 50 mm", "list": "50 mm butt hinges"},
    "model": {
     "shape": "buttHinge",
     "height": 2,
@@ -233,6 +240,7 @@
    "category": "hinges",
    "name": "Butt hinge 2 1/2\"",
    "list": "2 1/2\" butt hinges",
+   "metric": {"name": "Butt hinge 64 mm", "list": "64 mm butt hinges"},
    "model": {
     "shape": "buttHinge",
     "height": 2.5,
@@ -247,6 +255,7 @@
    "category": "hinges",
    "name": "Butt hinge 3\"",
    "list": "3\" butt hinges",
+   "metric": {"name": "Butt hinge 75 mm", "list": "75 mm butt hinges"},
    "model": {
     "shape": "buttHinge",
     "height": 3,
@@ -261,6 +270,7 @@
    "category": "hinges",
    "name": "Butt hinge 3 1/2\"",
    "list": "3 1/2\" butt hinges",
+   "metric": {"name": "Butt hinge 89 mm", "list": "89 mm butt hinges"},
    "model": {
     "shape": "buttHinge",
     "height": 3.5,
@@ -275,6 +285,7 @@
    "category": "hinges",
    "name": "Butt hinge 4\"",
    "list": "4\" butt hinges",
+   "metric": {"name": "Butt hinge 100 mm", "list": "100 mm butt hinges"},
    "model": {
     "shape": "buttHinge",
     "height": 4,
@@ -334,6 +345,7 @@
    "category": "hinges",
    "name": "Piano hinge 12\"",
    "list": "12\" piano (continuous) hinges",
+   "metric": {"name": "Piano hinge 300 mm", "list": "300 mm piano (continuous) hinges"},
    "model": {
     "shape": "pianoHinge",
     "length": 12,
@@ -348,6 +360,7 @@
    "category": "hinges",
    "name": "Piano hinge 24\"",
    "list": "24\" piano (continuous) hinges",
+   "metric": {"name": "Piano hinge 600 mm", "list": "600 mm piano (continuous) hinges"},
    "model": {
     "shape": "pianoHinge",
     "length": 24,
@@ -362,6 +375,7 @@
    "category": "hinges",
    "name": "Piano hinge 36\"",
    "list": "36\" piano (continuous) hinges",
+   "metric": {"name": "Piano hinge 900 mm", "list": "900 mm piano (continuous) hinges"},
    "model": {
     "shape": "pianoHinge",
     "length": 36,
@@ -376,6 +390,7 @@
    "category": "hinges",
    "name": "Piano hinge 48\"",
    "list": "48\" piano (continuous) hinges",
+   "metric": {"name": "Piano hinge 1200 mm", "list": "1200 mm piano (continuous) hinges"},
    "model": {
     "shape": "pianoHinge",
     "length": 48,
@@ -390,6 +405,7 @@
    "category": "hinges",
    "name": "T-hinge 4\"",
    "list": "4\" T-hinges",
+   "metric": {"name": "T-hinge 100 mm", "list": "100 mm T-hinges"},
    "model": {
     "shape": "teeHinge",
     "length": 4,
@@ -404,6 +420,7 @@
    "category": "hinges",
    "name": "T-hinge 6\"",
    "list": "6\" T-hinges",
+   "metric": {"name": "T-hinge 150 mm", "list": "150 mm T-hinges"},
    "model": {
     "shape": "teeHinge",
     "length": 6,
@@ -418,6 +435,7 @@
    "category": "hinges",
    "name": "T-hinge 8\"",
    "list": "8\" T-hinges",
+   "metric": {"name": "T-hinge 200 mm", "list": "200 mm T-hinges"},
    "model": {
     "shape": "teeHinge",
     "length": 8,
@@ -492,6 +510,7 @@
    "category": "casters",
    "name": "Swivel caster 2\"",
    "list": "2\" swivel plate casters",
+   "metric": {"name": "Swivel caster 50 mm", "list": "50 mm swivel plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 2,
@@ -506,6 +525,7 @@
    "category": "casters",
    "name": "Locking swivel caster 2\"",
    "list": "2\" locking swivel plate casters",
+   "metric": {"name": "Locking swivel caster 50 mm", "list": "50 mm locking swivel plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 2,
@@ -520,6 +540,7 @@
    "category": "casters",
    "name": "Fixed caster 2\"",
    "list": "2\" fixed (rigid) plate casters",
+   "metric": {"name": "Fixed caster 50 mm", "list": "50 mm fixed (rigid) plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 2,
@@ -534,6 +555,7 @@
    "category": "casters",
    "name": "Swivel caster 3\"",
    "list": "3\" swivel plate casters",
+   "metric": {"name": "Swivel caster 75 mm", "list": "75 mm swivel plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 3,
@@ -548,6 +570,7 @@
    "category": "casters",
    "name": "Locking swivel caster 3\"",
    "list": "3\" locking swivel plate casters",
+   "metric": {"name": "Locking swivel caster 75 mm", "list": "75 mm locking swivel plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 3,
@@ -562,6 +585,7 @@
    "category": "casters",
    "name": "Fixed caster 3\"",
    "list": "3\" fixed (rigid) plate casters",
+   "metric": {"name": "Fixed caster 75 mm", "list": "75 mm fixed (rigid) plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 3,
@@ -576,6 +600,7 @@
    "category": "casters",
    "name": "Swivel caster 4\"",
    "list": "4\" swivel plate casters",
+   "metric": {"name": "Swivel caster 100 mm", "list": "100 mm swivel plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 4,
@@ -590,6 +615,7 @@
    "category": "casters",
    "name": "Locking swivel caster 4\"",
    "list": "4\" locking swivel plate casters",
+   "metric": {"name": "Locking swivel caster 100 mm", "list": "100 mm locking swivel plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 4,
@@ -604,6 +630,7 @@
    "category": "casters",
    "name": "Fixed caster 4\"",
    "list": "4\" fixed (rigid) plate casters",
+   "metric": {"name": "Fixed caster 100 mm", "list": "100 mm fixed (rigid) plate casters"},
    "model": {
     "shape": "caster",
     "wheel": 4,
@@ -618,6 +645,7 @@
    "category": "feet",
    "name": "Leveling foot 1 1/2\"",
    "list": "1 1/2\" leveling feet with T-nut",
+   "metric": {"name": "Leveling foot 38 mm", "list": "38 mm leveling feet with T-nut"},
    "model": {
     "shape": "leveler",
     "base": 1.5,
@@ -630,6 +658,7 @@
    "category": "feet",
    "name": "Leveling foot 2\"",
    "list": "2\" heavy-duty leveling feet with T-nut",
+   "metric": {"name": "Leveling foot 50 mm", "list": "50 mm heavy-duty leveling feet with T-nut"},
    "model": {
     "shape": "leveler",
     "base": 2.0,
@@ -642,6 +671,7 @@
    "category": "feet",
    "name": "Furniture glide 1\"",
    "list": "1\" nail-on furniture glides",
+   "metric": {"name": "Furniture glide 25 mm", "list": "25 mm nail-on furniture glides"},
    "model": {
     "shape": "leveler",
     "base": 1.0,
@@ -654,6 +684,7 @@
    "category": "brackets",
    "name": "Corner brace 1 1/2\"",
    "list": "1 1/2\" corner braces",
+   "metric": {"name": "Corner brace 38 mm", "list": "38 mm corner braces"},
    "model": {
     "shape": "cornerBracket",
     "leg": 1.5,
@@ -667,6 +698,7 @@
    "category": "brackets",
    "name": "Corner brace 2\"",
    "list": "2\" corner braces",
+   "metric": {"name": "Corner brace 50 mm", "list": "50 mm corner braces"},
    "model": {
     "shape": "cornerBracket",
     "leg": 2,
@@ -680,6 +712,7 @@
    "category": "brackets",
    "name": "Corner brace 3\"",
    "list": "3\" corner braces",
+   "metric": {"name": "Corner brace 75 mm", "list": "75 mm corner braces"},
    "model": {
     "shape": "cornerBracket",
     "leg": 3,
@@ -693,6 +726,7 @@
    "category": "brackets",
    "name": "Corner brace 4\"",
    "list": "4\" corner braces",
+   "metric": {"name": "Corner brace 100 mm", "list": "100 mm corner braces"},
    "model": {
     "shape": "cornerBracket",
     "leg": 4,
@@ -706,6 +740,7 @@
    "category": "brackets",
    "name": "Mending plate 2\"",
    "list": "2\" mending plates",
+   "metric": {"name": "Mending plate 50 mm", "list": "50 mm mending plates"},
    "model": {
     "shape": "flatPlate",
     "length": 2,
@@ -718,6 +753,7 @@
    "category": "brackets",
    "name": "Mending plate 3\"",
    "list": "3\" mending plates",
+   "metric": {"name": "Mending plate 75 mm", "list": "75 mm mending plates"},
    "model": {
     "shape": "flatPlate",
     "length": 3,
@@ -730,6 +766,7 @@
    "category": "brackets",
    "name": "Mending plate 4\"",
    "list": "4\" mending plates",
+   "metric": {"name": "Mending plate 100 mm", "list": "100 mm mending plates"},
    "model": {
     "shape": "flatPlate",
     "length": 4,
@@ -779,6 +816,7 @@
    "category": "shelf",
    "name": "Shelf pin 1/4\"",
    "list": "1/4\" shelf pins",
+   "metric": {"name": "Shelf pin 6.35 mm", "list": "6.35 mm shelf pins"},
    "model": {
     "shape": "shelfPin",
     "diameter": 0.25,
@@ -791,6 +829,7 @@
    "category": "shelf",
    "name": "Shelf standard 24\"",
    "list": "24\" shelf standards (pilaster strips)",
+   "metric": {"name": "Shelf standard 600 mm", "list": "600 mm shelf standards (pilaster strips)"},
    "model": {
     "shape": "flatPlate",
     "length": 24,
@@ -803,6 +842,7 @@
    "category": "latches",
    "name": "Barrel bolt 3\"",
    "list": "3\" barrel bolts",
+   "metric": {"name": "Barrel bolt 75 mm", "list": "75 mm barrel bolts"},
    "model": {
     "shape": "barrelBolt",
     "length": 3,
@@ -815,6 +855,7 @@
    "category": "latches",
    "name": "Barrel bolt 4\"",
    "list": "4\" barrel bolts",
+   "metric": {"name": "Barrel bolt 100 mm", "list": "100 mm barrel bolts"},
    "model": {
     "shape": "barrelBolt",
     "length": 4,
@@ -827,6 +868,7 @@
    "category": "latches",
    "name": "Safety hasp 3\"",
    "list": "3\" safety hasps",
+   "metric": {"name": "Safety hasp 75 mm", "list": "75 mm safety hasps"},
    "model": {
     "shape": "hasp",
     "length": 3,
@@ -839,6 +881,7 @@
    "category": "latches",
    "name": "Safety hasp 4 1/2\"",
    "list": "4 1/2\" safety hasps",
+   "metric": {"name": "Safety hasp 115 mm", "list": "115 mm safety hasps"},
    "model": {
     "shape": "hasp",
     "length": 4.5,
@@ -900,6 +943,7 @@
    "category": "lids",
    "name": "Lid chain 12\"",
    "list": "12\" lid chains",
+   "metric": {"name": "Lid chain 300 mm", "list": "300 mm lid chains"},
    "model": {
     "shape": "lidStay",
     "length": 12,
@@ -912,6 +956,7 @@
    "category": "lids",
    "name": "Chest handle 4\"",
    "list": "4\" chest handles",
+   "metric": {"name": "Chest handle 100 mm", "list": "100 mm chest handles"},
    "model": {
     "shape": "chestHandle",
     "width": 4,

@@ -14,7 +14,7 @@ import {
     type StockSuggestion,
 } from '@/cutlist';
 import { overallSize, type Material, type Spec } from '@/spec';
-import { dims, len, lenValue, parseLen, size as sizeOf } from '@/lib/display';
+import { dims, len, lenValue, parseLen, size as sizeOf, useUnits } from '@/lib/display';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -81,7 +81,8 @@ const FLAG_BADGES: {
 
 export function CutListPanel(props: CutListPanelProps) {
     const { spec, kerf, readonly = false, selectedIds = [], hiddenIds } = props;
-    const cutList = useMemo(() => computeCutList(spec, { kerf }), [spec, kerf]);
+    const units = useUnits();
+    const cutList = useMemo(() => computeCutList(spec, { kerf, units }), [spec, kerf, units]);
     const sections = useMemo(() => groupCutList(cutList), [cutList]);
     const advice = useMemo(() => stockAdvice(cutList, spec), [cutList, spec]);
     const overall = useMemo(() => overallSize(spec), [spec]);

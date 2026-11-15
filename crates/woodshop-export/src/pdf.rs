@@ -440,7 +440,13 @@ impl World for PlanWorld {
 
 /// Typeset the plan to PDF bytes.
 pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
-    let cut_list = compute_cut_list(input.spec, CutListConfig { kerf: input.kerf });
+    let cut_list = compute_cut_list(
+        input.spec,
+        CutListConfig {
+            kerf: input.kerf,
+            units: input.units,
+        },
+    );
     let view = plan_view(input, &cut_list);
     let data = serde_json::to_string(&view).map_err(|e| ExportError::Render(e.to_string()))?;
 

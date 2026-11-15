@@ -109,6 +109,8 @@ export interface CutList {
 export interface CutListConfig {
     /** Saw kerf between adjacent pieces (build-plan §5 default 1/8"). */
     kerf: number;
+    /** How the hardware list words sizes; the numbers stay inches. Defaults to the setting. */
+    units?: 'fraction' | 'decimal' | 'metric';
 }
 
 export const DEFAULT_CUTLIST_CONFIG: CutListConfig = {

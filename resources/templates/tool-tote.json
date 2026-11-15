@@ -99,7 +99,7 @@
           "y": 3.6250000000000004,
           "diameter": 1,
           "depth": 0.375,
-          "purpose": "dowel"
+          "purpose": "other"
         }
       ],
       "qty": 1
@@ -166,7 +166,7 @@
           "y": 3.6250000000000004,
           "diameter": 1,
           "depth": 0.375,
-          "purpose": "dowel"
+          "purpose": "other"
         }
       ],
       "qty": 1

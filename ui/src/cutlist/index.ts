@@ -5,14 +5,16 @@
  * Pure and derived: never stored, recompute from the spec.
  */
 import { wasm } from '@/domain';
+import { getUnits } from '@/lib/display';
 import type { Spec } from '../spec/types';
 import { DEFAULT_CUTLIST_CONFIG, type CutList, type CutListConfig } from './types';
 
 export * from './types';
 export * from './grouping';
 
+/** The hardware list is worded in the reader's units unless `config.units` says otherwise. */
 export function computeCutList(spec: Spec, config: CutListConfig = DEFAULT_CUTLIST_CONFIG): CutList {
-    return wasm.computeCutList(spec, config) as CutList;
+    return wasm.computeCutList(spec, { units: getUnits(), ...config }) as CutList;
 }
 
 /** Smaller panel to buy when a single sheet is mostly offcut (advisory only). */

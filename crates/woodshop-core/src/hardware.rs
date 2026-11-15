@@ -40,6 +40,10 @@ pub struct Item {
     pub name: String,
     /// Several of them, for the hardware list: `bar pulls, 96 mm centers`.
     pub list: String,
+    /// The same item as a metric shop stocks it (`Butt hinge 64 mm`), for an item whose name
+    /// gives an inch size. The model stays in inches; only the words change.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub metric: Option<Names>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub role: Option<Role>,
     /// `false` for items that only make sense on a movable (drawer slides).
@@ -49,6 +53,30 @@ pub struct Item {
     pub description: Option<String>,
     /// `shape` plus that shape's dimensions in inches; the 3D view builds geometry from it.
     pub model: Map<String, Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Names {
+    pub name: String,
+    pub list: String,
+}
+
+impl Item {
+    /// The picker name in the reader's units.
+    pub fn name_in(&self, units: crate::units::Units) -> &str {
+        match (&self.metric, units) {
+            (Some(m), crate::units::Units::Metric) => &m.name,
+            _ => &self.name,
+        }
+    }
+
+    /// The hardware-list phrase in the reader's units.
+    pub fn list_in(&self, units: crate::units::Units) -> &str {
+        match (&self.metric, units) {
+            (Some(m), crate::units::Units::Metric) => &m.list,
+            _ => &self.list,
+        }
+    }
 }
 
 fn yes() -> bool {

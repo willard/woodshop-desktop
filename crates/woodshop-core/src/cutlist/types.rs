@@ -137,10 +137,16 @@ pub struct CutList {
 pub struct CutListConfig {
     /// Saw kerf between adjacent pieces.
     pub kerf: f64,
+    /// How the hardware list words its sizes. The cut list's numbers are inches regardless.
+    #[serde(default)]
+    pub units: crate::units::Units,
 }
 
 impl Default for CutListConfig {
     fn default() -> Self {
-        Self { kerf: 0.125 }
+        Self {
+            kerf: 0.125,
+            units: crate::units::Units::Fraction,
+        }
     }
 }

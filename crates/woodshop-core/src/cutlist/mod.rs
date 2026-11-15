@@ -9,7 +9,7 @@ pub mod stock_advice;
 pub mod types;
 
 pub use grouping::{CutListSection, group_cut_list};
-pub use hardware::compute_hardware;
+pub use hardware::{compute_hardware, compute_hardware_in};
 pub use stock_advice::{StockSuggestion, stock_advice};
 pub use types::*;
 
@@ -83,7 +83,7 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
         parts,
         sheets,
         lumber,
-        hardware: compute_hardware(spec),
+        hardware: compute_hardware_in(spec, config.units),
         totals,
     }
 }

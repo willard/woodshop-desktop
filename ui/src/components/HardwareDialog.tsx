@@ -3,7 +3,7 @@
  * chosen part, centred on its front face; the inspector then moves it to where it belongs.
  */
 import { useState } from 'react';
-import { catalog, type HardwareItem } from '@/hardware/catalog';
+import { catalog, itemName, type HardwareItem } from '@/hardware/catalog';
 import { Modal } from './Modal';
 import { PrimaryButton, Select, TextInput } from './form';
 import { HardwarePreview } from './HardwarePreview';
@@ -90,7 +90,11 @@ export function HardwareDialog(props: {
     const shown =
         q === ''
             ? placeable.filter((i) => i.category === category)
-            : placeable.filter((i) => `${i.name} ${i.list} ${i.description ?? ''}`.toLowerCase().includes(q));
+            : placeable.filter((i) =>
+                  `${i.name} ${i.list} ${i.metric?.name ?? ''} ${i.description ?? ''}`
+                      .toLowerCase()
+                      .includes(q),
+              );
     const pickedItem = placeable.find((i) => i.id === picked) ?? null;
     const tabs = categories.filter((c) => placeable.some((i) => i.category === c.id));
 
@@ -143,7 +147,7 @@ export function HardwareDialog(props: {
                                         : partId !== '' && props.onAdd(item.id, partId)
                                 }
                             >
-                                <div className="text-[13px] font-medium">{item.name}</div>
+                                <div className="text-[13px] font-medium">{itemName(item)}</div>
                                 <div className="text-muted text-[11.5px]">{keySize(item)}</div>
                             </button>
                         </li>
@@ -166,7 +170,7 @@ export function HardwareDialog(props: {
                         </p>
                     ) : (
                         <>
-                            <p className="text-fg-strong text-[13px] font-semibold">{pickedItem.name}</p>
+                            <p className="text-fg-strong text-[13px] font-semibold">{itemName(pickedItem)}</p>
                             <p className="text-muted mt-0.5">{keySize(pickedItem)}</p>
                             {pickedItem.description && (
                                 <p className="text-muted mt-1.5">{pickedItem.description}</p>

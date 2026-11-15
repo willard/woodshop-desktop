@@ -445,6 +445,31 @@ test('working in millimetres, a design never shows an inch', async ({ page }) =>
     await expect(page.locator('body')).not.toContainText('"');
 });
 
+test('in millimetres, hardware is named the way a metric shop sells it', async ({ page }) => {
+    await page.goto('/#/settings');
+    await page.getByTestId('units-metric').click();
+    await page.getByRole('link', { name: 'Templates' }).click();
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Toy Chest', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+
+    await page.getByTestId('cutlist-toggle').click();
+    const hardware = page.getByTestId('cutlist-hardware');
+    await expect(hardware).toContainText('75 mm butt hinges');
+    await expect(hardware).toContainText('100 mm chest handles');
+    await expect(hardware).toContainText('wood screws');
+
+    // The catalog, too: every item by its metric name, and not an inch mark anywhere.
+    await page.getByTestId('add-menu-toggle').click();
+    await page.getByTestId('add-hardware-menu').click();
+    await expect(page.locator('[data-item="knob.round-1-1-4"]')).toContainText('Round knob 32 mm');
+    await expect(page.locator('[data-item="pull.bar-3in"]')).toContainText('Bar pull, 76 mm centers');
+    await expect(page.locator('body')).not.toContainText('"');
+});
+
 test('a project comes back out of a backup', async ({ page }) => {
     await page.goto('/#/settings');
     await page.getByTestId('backup-now').click();

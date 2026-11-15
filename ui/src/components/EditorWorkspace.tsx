@@ -115,7 +115,7 @@ import { AddPartDialog } from './AddPartDialog';
 import { CutListPanel } from './CutListPanel';
 import { GroupInspector } from './GroupInspector';
 import { HardwareDialog } from './HardwareDialog';
-import { findItem } from '@/hardware/catalog';
+import { findItem, itemName } from '@/hardware/catalog';
 import { PartInspector } from './PartInspector';
 import { Popover } from './Popover';
 import { SnapSettings } from './SnapSettings';
@@ -1617,8 +1617,12 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 <span className="text-fg/80">
                                     {placing.kind === 'hardware' ? (
                                         <>
-                                            Placing {findItem(placing.item)?.name ?? 'hardware'} — click a
-                                            face of a part
+                                            Placing{' '}
+                                            {(() => {
+                                                const item = findItem(placing.item);
+                                                return item === undefined ? 'hardware' : itemName(item);
+                                            })()}{' '}
+                                            — click a face of a part
                                         </>
                                     ) : (
                                         <>

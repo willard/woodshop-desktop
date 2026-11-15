@@ -271,9 +271,12 @@ and CSV and confirm the hardware rows, export the HTML viewer and confirm the mo
 - Browser test: switch to mm, create a project, resize it, and nothing on screen shows an inch.
 
 **Not done, by choice:**
-- Hardware names keep their inch product sizes (`#8 × 1 1/2" wood screws`, `12" drawer slides`,
-  `3" casters`). Metric equivalents need metric fastener tables (screw gauge × length in mm,
-  300 mm slides): a domain change, not a display one.
+- ~~Hardware names keep their inch product sizes.~~ Done later: catalog items sized in inches
+  carry a `metric` name and list phrase in the trade size a metric shop stocks (2 1/2" butt
+  hinge → 64 mm, 3" caster → 75 mm). The hardware list (cut list, CSV, PDF, 3D plan) words
+  screws and slides by the nearest metric trade size (#8 × 1 1/2" → 4 × 40 mm, 12" slides →
+  300 mm) and dowels by exact conversion, since a dowel must fit the drilled hole. The models
+  stay in inches. A test holds every inch-named item to having a metric name.
 - Linter and MCP messages, and the MCP tools' numbers, stay in inches.
 - The shop calculators keep their own per-tool unit picker.
 - Template material names that carry a size ("Birch Plywood 3/4\"") are data and stay as written.

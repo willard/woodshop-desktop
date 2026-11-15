@@ -11,6 +11,8 @@ All notable changes to Woodshop are listed here. The format follows
 - Settings ▸ About: the version, the licence, links to the source and privacy note, and the
   licenses of the open-source software inside the app.
 - Report a problem opens the bug form with your version and system filled in.
+- Working in millimetres, hardware is named the way a metric shop sells it: 64 mm butt hinges,
+  75 mm casters, 4 × 40 mm wood screws, 300 mm drawer slides.
 - Export parts for a CNC router as DXF (outlines, holes and dados on layers named by depth), and
   the assembled model as glTF for other 3D software.
 - A first run starts with a welcome: open a sample nightstand and take a five-step tour of the

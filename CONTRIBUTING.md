@@ -98,7 +98,10 @@ Some of the most useful contributions need no Rust:
 
 - **Hardware** lives in `resources/hardware.json` (hinges, slides, pulls, casters, fasteners).
   Use dimensions from the manufacturer's data sheet and say where they came from in the pull
-  request. `cargo test -p woodshop-core` checks that the catalog is well formed.
+  request. An item whose name gives an inch size also needs a `metric` name and list phrase in
+  the size a metric shop sells it as (`"metric": {"name": "Butt hinge 64 mm", "list": "64 mm
+  butt hinges"}`). `cargo test -p woodshop-core` checks that the catalog is well formed and that
+  every inch-named item has one.
 - **Templates** live in `resources/templates/`. Each should lint clean and use catalog hardware.
   `cargo test -p woodshop-core --test parity` lints every template against its recorded result in
   the lint fixture, so add an entry there for a new one. `resources/conventions.md` describes how

@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Part, Side } from '@/spec';
-import { findItem, itemsForRole, sideExtent } from '@/hardware/catalog';
+import { findItem, itemName, itemsForRole, sideExtent } from '@/hardware/catalog';
 import type { HardwarePatch } from '@/engine';
 import { Field, Select, TextInput } from './form';
 import { lenValue, parseLen } from '@/lib/display';
@@ -91,7 +91,7 @@ export function PartHardware(props: {
                     >
                         <div className="mb-2 flex items-center justify-between gap-2">
                             <span className="text-fg/85 min-w-0 truncate text-[12.5px] font-semibold">
-                                {item?.name ?? mount.item}
+                                {item === undefined ? mount.item : itemName(item)}
                             </span>
                             <span className="flex flex-none gap-2">
                                 <button
@@ -196,7 +196,7 @@ export function MovableFittings(props: { movable: Movable; onChange(patch: Recor
                     {withNone && <option value="none">None</option>}
                     {itemsForRole(field).map((item) => (
                         <option key={item.id} value={item.id}>
-                            {item.name}
+                            {itemName(item)}
                         </option>
                     ))}
                     {/* Keep a choice this version's catalog doesn't know visible rather than silently swapping it. */}

@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import type { HardwareItem } from '@/hardware/catalog';
+import { itemName, type HardwareItem } from '@/hardware/catalog';
 import { buildHardwareGeometry } from '@/engine/geometry/hardwareModels';
 import { createHardwareMaterial } from '@/engine/geometry/movableHardware';
 
@@ -74,7 +74,7 @@ export function HardwarePreview({ item, className = '' }: { item: HardwareItem |
             ref={canvas}
             className={`bg-surface-0 border-fg/8 rounded-lg border ${className}`}
             data-testid="hardware-preview"
-            aria-label={item ? `Preview of ${item.name}` : 'No hardware selected'}
+            aria-label={item ? `Preview of ${itemName(item)}` : 'No hardware selected'}
         />
     );
 }

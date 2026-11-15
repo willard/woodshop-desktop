@@ -4,6 +4,7 @@
  * the 3D view builds its geometry from (`engine/geometry/hardwareModels.ts`).
  */
 import { wasm } from '@/domain';
+import { getUnits, type Units } from '@/lib/display';
 import type { HardwareMount, Part, Vec3 } from '@/spec/types';
 
 export type HardwareRole = 'hinge' | 'slide' | 'pull';
@@ -18,6 +19,8 @@ export interface HardwareItem {
     name: string;
     /** Several of them, for the hardware list. */
     list: string;
+    /** The same item as a metric shop stocks it, where the name gives an inch size. */
+    metric?: { name: string; list: string };
     role?: HardwareRole;
     /** `false` for items that only belong to a door or drawer (drawer slides). */
     placeable?: boolean;
@@ -42,6 +45,11 @@ export function findItem(id: string | undefined | null): HardwareItem | undefine
     if (id === undefined || id === null) return undefined;
     byId ??= new Map(catalog().items.map((item) => [item.id, item]));
     return byId.get(id);
+}
+
+/** An item's picker name in the reader's units: `Butt hinge 2 1/2"` or `Butt hinge 64 mm`. */
+export function itemName(item: HardwareItem, units: Units = getUnits()): string {
+    return units === 'metric' && item.metric !== undefined ? item.metric.name : item.name;
 }
 
 /** Items a door or drawer can use in the given role. */

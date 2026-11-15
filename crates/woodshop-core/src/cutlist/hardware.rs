@@ -8,7 +8,7 @@ use crate::fasteners::{pocket_screw_length, pocket_screw_thread, screw_gauge, wo
 use crate::hardware;
 use crate::movables::{extent_along, front_normal, hinge_count_for, hinge_edge_length, slide_length_for};
 use crate::spec::{HolePurpose, JointType, Movable, MovableStyle, Op, Part, Spec};
-use crate::units::format_fraction;
+use crate::units::{Units, format_fraction};
 
 /// Dowel stock lengths; a dowel spans both holes plus a little glue room.
 const DOWEL_LENGTHS: [f64; 4] = [1.0, 1.5, 2.0, 3.0];
@@ -23,6 +23,100 @@ struct Sized {
 
 fn inches(v: f64) -> String {
     format_fraction(v, 16)
+}
+
+/// Sizes worded for the buyer: shop fractions, or the metric trade size a metric hardware store
+/// stocks. Fasteners and slides go to the nearest trade size (a 1 1/4" screw is bought as 30 mm);
+/// a dowel converts exactly, because it has to fit the hole the design drills.
+#[derive(Clone, Copy)]
+struct Words {
+    metric: bool,
+}
+
+/// Nearest stocked length from a trade table, else the plain conversion to `step` mm.
+fn trade_mm(inches: f64, table: &[(f64, u32)], step: f64) -> String {
+    match table.iter().find(|(i, _)| (i - inches).abs() < 1e-6) {
+        Some((_, mm)) => mm.to_string(),
+        None => mm_text((inches * 25.4 / step).round() * step),
+    }
+}
+
+fn mm_text(v: f64) -> String {
+    let s = format!("{v:.1}");
+    s.trim_end_matches('0').trim_end_matches('.').to_string()
+}
+
+const POCKET_MM: [(f64, u32); 6] = [(0.75, 20), (1.0, 25), (1.25, 30), (1.5, 38), (2.0, 50), (2.5, 63)];
+const SCREW_MM: [(f64, u32); 11] = [
+    (0.5, 12),
+    (0.625, 16),
+    (0.75, 20),
+    (1.0, 25),
+    (1.25, 30),
+    (1.5, 40),
+    (1.75, 45),
+    (2.0, 50),
+    (2.5, 60),
+    (3.0, 75),
+    (3.5, 90),
+];
+
+impl Words {
+    fn new(units: Units) -> Self {
+        Self {
+            metric: units == Units::Metric,
+        }
+    }
+
+    /// `1 1/4"` or `30 mm`.
+    fn pocket_length(self, length: f64) -> String {
+        if self.metric {
+            format!("{} mm", trade_mm(length, &POCKET_MM, 1.0))
+        } else {
+            format!("{}\"", inches(length))
+        }
+    }
+
+    /// `#8 × 1 1/4"` or `4 × 30 mm`.
+    fn wood_screw(self, gauge: &str, length: f64) -> String {
+        if self.metric {
+            let diameter = match gauge {
+                "#4" => "3",
+                "#6" => "3.5",
+                "#8" => "4",
+                "#10" => "5",
+                "#12" => "5.5",
+                "#14" => "6",
+                other => other,
+            };
+            format!("{diameter} × {} mm", trade_mm(length, &SCREW_MM, 5.0))
+        } else {
+            format!("{gauge} × {}\"", inches(length))
+        }
+    }
+
+    /// `3/8" × 1 1/2"` or `9.5 × 38.1 mm`, to a tenth of a millimetre.
+    fn dowel(self, diameter: f64, length: f64) -> String {
+        if self.metric {
+            format!("{} × {} mm", mm_text(diameter * 25.4), mm_text(length * 25.4))
+        } else {
+            format!("{}\" × {}\"", inches(diameter), inches(length))
+        }
+    }
+
+    /// `18"` or `450 mm`: metric slides come in 50 mm steps.
+    fn slide_length(self, length: f64) -> String {
+        if self.metric {
+            format!("{} mm", mm_text((length * 25.4 / 50.0).round() * 50.0))
+        } else {
+            format!("{}\"", inches(length))
+        }
+    }
+
+    fn list(self, item: &hardware::Item) -> String {
+        item.list_in(if self.metric { Units::Metric } else { Units::Fraction })
+            .to_string()
+    }
 }
 
 /// Keys embed numbers the way JS stringifies them (1.25, 2), so merges match the web app.
@@ -71,6 +165,12 @@ fn mate_of<'a>(spec: &'a Spec, host: &Part, joint_type: JointType) -> Option<&'a
 }
 
 pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
+    compute_hardware_in(spec, Units::Fraction)
+}
+
+/// [`compute_hardware`], worded in the buyer's units.
+pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
+    let words = Words::new(units);
     let thickness_of = |p: &Part| spec.thickness_of(p).unwrap_or(0.0);
     let mut rows: Vec<Sized> = Vec::new();
 
@@ -90,7 +190,7 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                     rows.push(Sized {
                         key: format!("pocketScrew|{}|{t}", key_num(length)),
                         kind: HardwareKind::PocketScrew,
-                        description: format!("{}\" {t}-thread pocket screws", inches(length)),
+                        description: format!("{} {t}-thread pocket screws", words.pocket_length(length)),
                         qty: o.count * qty,
                         derived: false,
                     });
@@ -105,7 +205,7 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                     rows.push(Sized {
                         key: format!("woodScrew|{}|{gauge}", key_num(length)),
                         kind: HardwareKind::WoodScrew,
-                        description: format!("{gauge} × {}\" wood screws", inches(length)),
+                        description: format!("{} wood screws", words.wood_screw(gauge, length)),
                         qty: o.count * qty,
                         derived: false,
                     });
@@ -116,7 +216,7 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                     rows.push(Sized {
                         key: format!("dowel|{}|{}", key_num(h.diameter), key_num(length)),
                         kind: HardwareKind::Dowel,
-                        description: format!("{}\" × {}\" dowels", inches(h.diameter), inches(length)),
+                        description: format!("{} dowels", words.dowel(h.diameter, length)),
                         qty,
                         derived: false,
                     });
@@ -145,8 +245,8 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                     key: format!("dowel|estimated|{}", key_num(length)),
                     kind: HardwareKind::Dowel,
                     description: format!(
-                        "3/8\" × {}\" dowels (estimated — no dowel holes placed)",
-                        inches(length)
+                        "{} dowels (estimated — no dowel holes placed)",
+                        words.dowel(0.375, length)
                     ),
                     qty: count,
                     derived: true,
@@ -159,8 +259,8 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                     key: format!("pocketScrew|estimated|{}|{t}", key_num(length)),
                     kind: HardwareKind::PocketScrew,
                     description: format!(
-                        "{}\" {t}-thread pocket screws (estimated — no pocketHoles op)",
-                        inches(length)
+                        "{} {t}-thread pocket screws (estimated — no pocketHoles op)",
+                        words.pocket_length(length)
                     ),
                     qty: count,
                     derived: true,
@@ -172,7 +272,10 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                 rows.push(Sized {
                     key: format!("woodScrew|estimated|{}|{gauge}", key_num(length)),
                     kind: HardwareKind::WoodScrew,
-                    description: format!("{gauge} × {}\" wood screws (estimated — no screws op)", inches(length)),
+                    description: format!(
+                        "{} wood screws (estimated — no screws op)",
+                        words.wood_screw(gauge, length)
+                    ),
                     qty: count,
                     derived: true,
                 });
@@ -201,7 +304,7 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                     chosen.is_some_and(|i| i.model.get("shape").and_then(|s| s.as_str()) == Some("pianoHinge"));
                 let count = if continuous { 1 } else { count };
                 let (key, desc) = match chosen {
-                    Some(item) => (format!("hinge|{}", item.id), item.list.clone()),
+                    Some(item) => (format!("hinge|{}", item.id), words.list(item)),
                     None => match style {
                         MovableStyle::Overlay => ("hinge|overlay".into(), "overlay cabinet hinges".into()),
                         MovableStyle::Inset => ("hinge|inset".into(), "inset butt hinges".into()),
@@ -220,13 +323,13 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                 let depth = extent_along(&members, thickness_of, front_normal(anchor));
                 let length = slide_length_for(depth);
                 let (id, list) = match slide.as_deref().and_then(hardware::find) {
-                    Some(item) => (item.id.as_str(), item.list.as_str()),
-                    None => ("default", "side-mount drawer slides (pairs)"),
+                    Some(item) => (item.id.as_str(), words.list(item)),
+                    None => ("default", "side-mount drawer slides (pairs)".to_string()),
                 };
                 rows.push(Sized {
                     key: format!("drawerSlide|{id}|{}", key_num(length)),
                     kind: HardwareKind::DrawerSlide,
-                    description: format!("{}\" {list}", inches(length)),
+                    description: format!("{} {list}", words.slide_length(length)),
                     qty: 1,
                     derived: false,
                 });
@@ -239,7 +342,7 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                 rows.push(Sized {
                     key: format!("item|{}", item.id),
                     kind: HardwareKind::Knob,
-                    description: item.list.clone(),
+                    description: words.list(item),
                     qty: 1,
                     derived: false,
                 });
@@ -264,7 +367,7 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
                     Some(hardware::Role::Pull) => HardwareKind::Knob,
                     _ => HardwareKind::Other,
                 },
-                item.list.clone(),
+                words.list(item),
             ),
             None => (
                 HardwareKind::Other,
