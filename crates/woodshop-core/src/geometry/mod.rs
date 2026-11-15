@@ -2,6 +2,7 @@
 //! renderer); the linter, cut list, MCP `explain_part` and the SVG shop drawing all resolve
 //! positions through here so they quote the same numbers.
 
+pub mod dxf;
 pub mod frame;
 pub mod op_extent;
 pub mod outline;

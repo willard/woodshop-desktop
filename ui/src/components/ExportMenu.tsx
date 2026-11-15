@@ -21,6 +21,8 @@ export interface ExportTarget {
     kerf: number;
     /** Writes any pending autosave first, so the backend renders what is on screen. */
     flush(): Promise<void>;
+    /** The assembly as glTF, from the 3D view (absent where there is no view). */
+    getGltf?: (name: string) => Promise<string>;
 }
 
 export function useProjectExports(target: ExportTarget) {
@@ -77,6 +79,25 @@ export function useProjectExports(target: ExportTarget) {
                 'Spec JSON',
                 (path) => api.writeTextFile(path, JSON.stringify(target.getSpec(), null, 2)),
                 'Spec JSON saved.',
+            ),
+        /** Every part laid flat for a CNC router: outlines, holes and channels by layer. */
+        dxf: () =>
+            exportTo(
+                'dxf',
+                'DXF for CNC',
+                (path) => api.writeTextFile(path, wasm.specDxf(target.getSpec(), getUnits())),
+                'DXF saved.',
+            ),
+        /** The assembled model for other 3D software. */
+        gltf: () =>
+            exportTo(
+                'gltf',
+                '3D model (glTF)',
+                async (path) => {
+                    if (target.getGltf === undefined) throw new Error('The 3D view is not ready.');
+                    await api.writeTextFile(path, await target.getGltf(target.projectName));
+                },
+                '3D model saved.',
             ),
         /** Every shaped or drilled part as a 1:1 printable SVG template, in one file per part. */
         templates: () =>
@@ -153,6 +174,22 @@ export function ExportMenuItems(props: ExportTarget & { close(): void }) {
                 onClick={run(exports.templates)}
             >
                 Export shop templates (SVG)…
+            </button>
+            <button
+                className={item}
+                data-testid="export-dxf"
+                title="Every part laid flat for a CNC router: outlines, holes and dados on layers named by depth"
+                onClick={run(exports.dxf)}
+            >
+                Export parts for CNC (DXF)…
+            </button>
+            <button
+                className={item}
+                data-testid="export-gltf"
+                title="The assembled model for Blender, SketchUp, Fusion and other 3D software"
+                onClick={run(exports.gltf)}
+            >
+                Export 3D model (glTF)…
             </button>
             <button className={item} onClick={run(exports.spec)}>
                 Export spec (JSON)…

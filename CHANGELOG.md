@@ -11,6 +11,8 @@ All notable changes to Woodshop are listed here. The format follows
 - Settings ▸ About: the version, the licence, links to the source and privacy note, and the
   licenses of the open-source software inside the app.
 - Report a problem opens the bug form with your version and system filled in.
+- Export parts for a CNC router as DXF (outlines, holes and dados on layers named by depth), and
+  the assembled model as glTF for other 3D software.
 - A first run starts with a welcome: open a sample nightstand and take a five-step tour of the
   editor (look around, select, move, the cut list, export). Run it again from Help.
 - Fourteen new templates (25 in all): step stool, entry shelf with hooks, shoe rack, raised

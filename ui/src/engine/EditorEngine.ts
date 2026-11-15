@@ -1767,6 +1767,58 @@ export class EditorEngine {
         }
     }
 
+    /**
+     * The assembly as a glTF 2.0 file (JSON, buffers embedded), for other 3D software. Every part
+     * as built: holes cut, hardware on, in its assembled pose (never exploded, doors shut), hidden
+     * parts included. glTF counts in metres with +Y up, so the inch scene is scaled to suit.
+     */
+    async exportGltf(name: string): Promise<string> {
+        if (this.partsGroup === null) {
+            throw new Error('Nothing to export yet.');
+        }
+        const { GLTFExporter } = await import('three/addons/exporters/GLTFExporter.js');
+        const root = new THREE.Group();
+        root.name = name;
+        root.scale.setScalar(0.0254);
+        for (const child of this.partsGroup.children) {
+            const copy = child.clone(true);
+            const pos = child.userData.basePos as Vec3 | undefined;
+            const quat = child.userData.baseQuat as [number, number, number, number] | undefined;
+            if (pos !== undefined) copy.position.set(pos[0], pos[1], pos[2]);
+            if (quat !== undefined) copy.quaternion.set(quat[0], quat[1], quat[2], quat[3]);
+            copy.visible = true;
+            const lines: THREE.Object3D[] = [];
+            copy.traverse((object) => {
+                // Selection outlines, other line work, and the marks painted on a face where a
+                // pocket hole or countersink goes are editor chrome, not the model.
+                const fastener = object.userData.fastener as string | undefined;
+                if (
+                    (object as THREE.Line).isLine === true ||
+                    (object as THREE.Points).isPoints === true ||
+                    fastener === 'pocketMouth' ||
+                    fastener === 'countersink'
+                ) {
+                    lines.push(object);
+                    return;
+                }
+                if (fastener !== undefined) object.name = fastener === 'screw' ? 'Screw' : 'Pocket screw';
+                // A selected hardware piece wears a highlight; export what it is made of.
+                const base = object.userData.baseMaterial as THREE.Material | undefined;
+                if (base !== undefined) (object as THREE.Mesh).material = base;
+                const item = object.userData.itemId as string | undefined;
+                if (object !== copy && item !== undefined) object.name = findItem(item)?.name ?? item;
+                object.userData = {};
+            });
+            for (const line of lines) line.removeFromParent();
+            const part = this.partById.get(child.name);
+            copy.name = part?.name ?? child.name;
+            copy.userData = { partId: child.name };
+            root.add(copy);
+        }
+        const gltf = await new GLTFExporter().parseAsync(root, { binary: false, onlyVisible: true });
+        return JSON.stringify(gltf);
+    }
+
     /** Captures the current 3D view as a downscaled PNG for the project thumbnail (§7.2). */
     async snapshot(maxSize = 512): Promise<Blob | null> {
         if (this.disposed) {

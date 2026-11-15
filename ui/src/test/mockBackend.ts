@@ -263,6 +263,14 @@ export function installMockBackend(): void {
                 'claude mcp add woodshop -- /Applications/Woodshop.app/Contents/MacOS/woodshop --mcp',
         }),
         // Event plumbing used by listen()/emit().
+        // Exports: the save dialog picks a fixed folder; written files are kept for the tests.
+        'plugin:dialog|save': (a) =>
+            `/mock/exports/${String((a.options as { defaultPath?: string } | undefined)?.defaultPath ?? 'file')}`,
+        write_text_file: (a) => {
+            const file = a.file as { path: string; contents: string };
+            const store = window as unknown as { __written?: Record<string, string> };
+            store.__written = { ...(store.__written ?? {}), [file.path]: file.contents };
+        },
         'plugin:event|listen': () => nextId++,
         'plugin:event|unlisten': () => undefined,
     };

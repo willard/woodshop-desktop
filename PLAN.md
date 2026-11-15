@@ -477,7 +477,10 @@ have to look up, and the editor screenshot would make someone want to try it fro
   permission are sorted.
 - Community-contributed hardware and template packs (a documented data format and a review
   checklist, so contributions need no Rust).
-- DXF export of part outlines for CNC; STEP or glTF export of the assembly.
+- DXF and glTF: done. DXF (R12) lays every part flat with the outline on CUT_OUTSIDE and holes
+  and channels on layers named by depth (`_BACK` for back-face work), hinge cups included; glTF
+  is the assembled model with hardware, in metres. STEP is not done: it needs a B-rep kernel
+  (OpenCascade or similar), which is far heavier than anything else the app ships.
 - In-app AI design chat (bring-your-own API key), reusing the MCP tool layer.
 - iPad companion viewer for the shop.
 

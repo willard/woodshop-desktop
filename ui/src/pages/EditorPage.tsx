@@ -336,6 +336,10 @@ function Editor({ project }: { project: Project }) {
                             projectId={project.id}
                             projectName={name}
                             getSpec={() => docRef.current.spec}
+                            getGltf={(n) =>
+                                workspace.current?.gltf(n) ??
+                                Promise.reject(new Error('The 3D view is not ready.'))
+                            }
                             kerf={kerf ?? defaultKerf}
                             flush={flush}
                             close={close}

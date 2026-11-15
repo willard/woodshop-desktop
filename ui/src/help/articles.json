@@ -16,7 +16,7 @@
             {
                 "type": "ol",
                 "items": [
-                    "Take the tour. Help \u25b8 Take the tour opens a sample nightstand and walks through the editor in five short steps.",
+                    "Take the tour. Help ▸ Take the tour opens a sample nightstand and walks through the editor in five short steps.",
                     "Start from a template. The Templates gallery has 25 ready-made designs (side table, bookshelf, dresser, workbench, and more). Pick one and it opens in the editor as your own copy.",
                     "Start blank. Create a project and build it up part by part from the Add menu.",
                     "Import a file. Open a .woodshop project someone sent you (or double-click it), or a spec JSON exported from the web version of Woodshop.",
@@ -127,6 +127,23 @@
             {
                 "type": "p",
                 "text": "Export a PDF plan to take to the shop or the lumberyard — it includes the parts table and layouts."
+            },
+            {
+                "type": "h",
+                "text": "Other exports"
+            },
+            {
+                "type": "p",
+                "text": "The ⋯ menu in the editor's toolbar has every export."
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "Cut list (CSV): one row per blank, in your units, for a spreadsheet.",
+                    "Shop templates (SVG): full-size printable patterns for shaped and drilled parts.",
+                    "Parts for CNC (DXF): every part laid flat, front face up, for CAM software such as VCarve, Fusion or Easel. The outline is on layer CUT_OUTSIDE; holes and dados are on layers named by depth (HOLE_0.5, POCKET_0.375, HOLE_THROUGH), and _BACK marks one cut from the back face, which means flipping the part. Concealed-hinge cups are included. Sizes are in millimetres if you work in metric, inches otherwise.",
+                    "3D model (glTF): the assembled design, hardware included, for Blender, SketchUp, Fusion or a 3D viewer."
+                ]
             },
             {
                 "type": "note",

@@ -166,6 +166,15 @@ pub fn outline_svg(
     ))
 }
 
+/// Every part laid flat as an R12 DXF for CNC: outlines, holes and channels on layers named by
+/// operation and depth. Millimetres for `metric`, inches otherwise.
+#[wasm_bindgen(js_name = specDxf)]
+pub fn spec_dxf(spec: JsValue, units: Option<String>) -> JsResult<String> {
+    let spec = spec_from_js(spec)?;
+    let units = units_of(units.as_deref().unwrap_or("fraction"));
+    Ok(geometry::dxf::spec_dxf(&spec, units))
+}
+
 #[wasm_bindgen(js_name = fastenerSegments)]
 pub fn fastener_segments(part: JsValue, thickness: f64, op: JsValue) -> JsResult<JsValue> {
     let part: Part = from_js(part)?;

@@ -125,6 +125,50 @@ test('the cut list totals the design', async ({ page }) => {
     }
 });
 
+test('parts export as DXF for a CNC, and the assembly as glTF', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Wall Cabinet', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await expect(page.getByTestId('parts-count')).toHaveText('8 parts');
+    const written = () =>
+        page.evaluate(() => (window as unknown as { __written?: Record<string, string> }).__written ?? {});
+
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('export-dxf').click();
+    await expect(page.getByText('DXF saved.')).toBeVisible();
+    const dxf = (await written())['/mock/exports/Wall Cabinet.dxf'];
+    expect(dxf).toContain('AC1009');
+    // One closed outline per part, and the doors' hinge cups on their own layer, drilled from
+    // the back: 35 mm across, 12 mm deep.
+    expect(dxf.match(/\nCUT_OUTSIDE\n66\n/g)).toHaveLength(8);
+    const cups = dxf.split('\n0\nCIRCLE\n').slice(1);
+    expect(cups).toHaveLength(4);
+    for (const cup of cups) {
+        expect(cup).toMatch(/^8\nHOLE_0\.4724_BACK\n/);
+        expect(cup).toMatch(/\n40\n0\.689(\n|$)/); // the catalog's 1.378" cup
+    }
+
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('export-gltf').click();
+    await expect(page.getByText('3D model saved.')).toBeVisible();
+    const gltf = JSON.parse((await written())['/mock/exports/Wall Cabinet.gltf']) as {
+        asset: { version: string };
+        nodes: { name?: string; matrix?: number[] }[];
+        meshes: unknown[];
+    };
+    expect(gltf.asset.version).toBe('2.0');
+    const names = gltf.nodes.map((n) => n.name);
+    for (const part of ['Left Side', 'Back', 'Left Door', 'Right Door']) expect(names).toContain(part);
+    // Inches to metres on the root; every node has a name a 3D app can show.
+    const root = gltf.nodes.find((n) => n.name === 'Wall Cabinet')!;
+    expect([root.matrix![0], root.matrix![5], root.matrix![10]]).toEqual([0.0254, 0.0254, 0.0254]);
+    expect(names.filter((n) => n === undefined)).toEqual([]);
+    expect(gltf.meshes.length).toBeGreaterThan(8); // the parts and their hardware
+});
+
 test('notes are kept with the project', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('notes-tab').click();
