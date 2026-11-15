@@ -392,7 +392,9 @@ environment map, so faces separate and hardware reads as brushed steel), a key l
 soft shadows onto the floor and between parts, warmer species tones with end grain and long
 edges shaded darker (`shadeGrain`), a cool blue selection tint that stands off every wood, framing
 that fits the box's corners to 60% of the view (`fitDistance`), and Fit / Front / Side / Top /
-3D buttons over the view. (`ui/src/engine/EditorEngine.ts`, `buildScene.ts`,
+3D buttons over the view. On WebGL drawn in software (SwiftShader, llvmpipe: VMs, CI) room light
+and shadows are skipped, which took opening a design from 4 s to under 1 s there
+(`isSoftwareRenderer`). (`ui/src/engine/EditorEngine.ts`, `buildScene.ts`,
 `engine/materials.ts`, `engine/theme.ts`)
 - Dark theme: the model sits small and dim in a near-black void. Raise ambient and key light, add
   a soft contact shadow on the floor, and frame the model to fill about 60% of the viewport.

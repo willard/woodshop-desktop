@@ -280,6 +280,8 @@ export class EditorEngine {
     private grid: THREE.GridHelper | null = null;
     /** Catches the key light's shadow and draws nothing else: the model's contact with the floor. */
     private shadowFloor: THREE.Mesh | null = null;
+    /** Room light and shadows on; off when WebGL is drawn in software (see the constructor). */
+    private readonly rich: boolean;
     private hemiLight: THREE.HemisphereLight | null = null;
     private keyLight: THREE.DirectionalLight | null = null;
     private fillLight: THREE.DirectionalLight | null = null;
@@ -299,8 +301,12 @@ export class EditorEngine {
             preserveDrawingBuffer: true,
         });
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        // Room light and soft shadows cost little on a GPU and a lot without one: WebGL drawn in
+        // software (a VM, a machine with no usable GPU, CI) took four seconds to open a design.
+        // There the view falls back to plain lights, which look flatter but stay quick.
+        this.rich = !isSoftwareRenderer(this.renderer);
+        this.renderer.shadowMap.enabled = this.rich;
+        this.renderer.shadowMap.type = THREE.PCFShadowMap;
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(this.palette.background);
@@ -1448,17 +1454,19 @@ export class EditorEngine {
         const light = this.palette.lighting;
         // A soft room all round (image-based light): faces turned different ways separate, and
         // metal has something to reflect. Built once; the palette only scales it.
-        const pmrem = new THREE.PMREMGenerator(this.renderer);
-        this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-        pmrem.dispose();
-        this.scene.environmentIntensity = light.environmentIntensity;
+        if (this.rich) {
+            const pmrem = new THREE.PMREMGenerator(this.renderer);
+            this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+            pmrem.dispose();
+            this.scene.environmentIntensity = light.environmentIntensity;
+        }
 
-        this.hemiLight = new THREE.HemisphereLight(light.hemiSky, light.hemiGround, light.hemiIntensity);
+        this.hemiLight = new THREE.HemisphereLight(light.hemiSky, light.hemiGround, this.ambientOf(light));
         this.scene.add(this.hemiLight);
 
         this.keyLight = new THREE.DirectionalLight(light.keyColor, light.keyIntensity);
         this.keyLight.position.set(60, 90, 40);
-        this.keyLight.castShadow = true;
+        this.keyLight.castShadow = this.rich;
         this.keyLight.shadow.mapSize.set(2048, 2048);
         this.keyLight.shadow.radius = 4;
         this.keyLight.shadow.bias = -0.0004;
@@ -1471,8 +1479,16 @@ export class EditorEngine {
         this.scene.add(this.fillLight);
     }
 
+    /** Without the room light, the ambient light carries its share so the model is as bright. */
+    private ambientOf(light: ScenePalette['lighting']): number {
+        return this.rich ? light.hemiIntensity : light.hemiIntensity + light.environmentIntensity;
+    }
+
     /** An invisible floor that only shows the shadow falling on it. */
     private addShadowFloor(): void {
+        if (!this.rich) {
+            return;
+        }
         this.shadowFloor = new THREE.Mesh(
             new THREE.PlaneGeometry(1000, 1000),
             new THREE.ShadowMaterial({ opacity: this.palette.lighting.shadowOpacity }),
@@ -1543,7 +1559,7 @@ export class EditorEngine {
         if (this.hemiLight !== null) {
             this.hemiLight.color.setHex(light.hemiSky);
             this.hemiLight.groundColor.setHex(light.hemiGround);
-            this.hemiLight.intensity = light.hemiIntensity;
+            this.hemiLight.intensity = this.ambientOf(light);
         }
         if (this.keyLight !== null) {
             this.keyLight.color.setHex(light.keyColor);
@@ -2236,4 +2252,19 @@ export function fitDistance(
         }
     }
     return distance;
+}
+
+/**
+ * Whether WebGL is being drawn on the CPU (SwiftShader, llvmpipe, Microsoft Basic Render): a VM, a
+ * machine with no usable GPU driver, or CI. Browsers may hide the renderer's name; then assume a GPU.
+ */
+export function isSoftwareRenderer(renderer: THREE.WebGLRenderer): boolean {
+    try {
+        const gl = renderer.getContext();
+        const info = gl.getExtension('WEBGL_debug_renderer_info');
+        const name = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? '');
+        return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
+    } catch {
+        return false;
+    }
 }
