@@ -15,6 +15,46 @@ test('the library lists projects and opens one in the editor', async ({ page }) 
     await expect(page.getByTestId('lint-badge')).toBeVisible();
 });
 
+test('a first run offers the sample and walks through the tour', async ({ page }) => {
+    await page.goto('/?empty#/');
+    const welcome = page.getByTestId('welcome');
+    await expect(welcome).toContainText('Welcome to Woodshop');
+    await welcome.getByTestId('open-sample').click();
+
+    await expect(page).toHaveURL(/#\/projects\/\d+$/);
+    await expect(page.getByTestId('parts-count')).toHaveText('20 parts');
+    const tour = page.getByTestId('tour');
+    await expect(page.getByTestId('tour-progress')).toHaveText('Step 1 of 5');
+    for (const title of ['Select a part', 'Move it', 'The cut list']) {
+        await tour.getByTestId('tour-next').click();
+        await expect(page.getByTestId('tour-title')).toHaveText(title);
+    }
+    // A step about a control rings it.
+    await expect(page.getByTestId('tour-ring')).toBeVisible();
+    await tour.getByTestId('tour-back').click();
+    await expect(page.getByTestId('tour-ring')).toHaveCount(0);
+    await tour.getByTestId('tour-next').click();
+    await tour.getByTestId('tour-next').click();
+    await expect(page.getByTestId('tour-title')).toHaveText('Take it to the shop');
+    await tour.getByTestId('tour-next').click();
+    await expect(tour).toHaveCount(0);
+
+    // Re-run from Help: it reopens the same sample instead of making another.
+    await page.getByRole('link', { name: 'Back to projects' }).click();
+    await page.getByRole('link', { name: 'Help' }).click();
+    await page.getByTestId('start-tour').click();
+    await expect(page.getByTestId('tour')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('tour')).toHaveCount(0);
+    await page.getByRole('link', { name: 'Back to projects' }).click();
+    await expect(page.getByTestId('project-row')).toHaveCount(1);
+
+    // Opening a project normally never starts the tour.
+    await page.getByTestId('project-row').getByTestId('open-project').click();
+    await expect(page.getByTestId('parts-count')).toHaveText('20 parts');
+    await expect(page.getByTestId('tour')).toHaveCount(0);
+});
+
 test('a template becomes a new project', async ({ page }) => {
     await page.goto('/#/templates');
     const card = page.getByTestId('template-card').filter({ hasText: 'Bookshelf' });

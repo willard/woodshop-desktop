@@ -18,6 +18,8 @@ import { VersionsPanel } from '@/components/VersionsPanel';
 import { CutListExportButtons, ExportMenuItems } from '@/components/ExportMenu';
 import { useToast } from '@/components/Toast';
 import { useDefaultKerf } from '@/app/settings';
+import { clearTourRequest, isTourRequested, TOUR_DONE_SETTING } from '@/app/tour';
+import { GuidedTour } from '@/components/GuidedTour';
 
 /**
  * The last save of an editor that has just closed, per project. Reopening the project waits for
@@ -91,6 +93,8 @@ function Editor({ project }: { project: Project }) {
     const defaultKerf = useDefaultKerf();
     const [kerf, setKerf] = useState<number | null>(null);
     const [name, setName] = useState(project.name);
+    const [touring, setTouring] = useState(isTourRequested);
+    useEffect(clearTourRequest, []);
 
     // The draft stamp our on-screen edits are based on (the conflict guard's base).
     const base = useRef<number>(project.draftUpdatedAt);
@@ -364,6 +368,15 @@ function Editor({ project }: { project: Project }) {
                         setShowVersions(false);
                     }}
                     onClose={() => setShowVersions(false)}
+                />
+            )}
+
+            {touring && (
+                <GuidedTour
+                    onClose={() => {
+                        setTouring(false);
+                        void api.setSetting(TOUR_DONE_SETTING, true).catch(() => undefined);
+                    }}
                 />
             )}
 

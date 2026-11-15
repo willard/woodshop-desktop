@@ -358,8 +358,11 @@ gating is built: there is nothing to unlock.
 
 ## Phase 5: First-run experience and content
 
-- **Onboarding:** on an empty library, offer a sample project and a five-step guided tour
-  (orbit, select, drag, cut list, export). Skippable, re-runnable from Help.
+- **Onboarding:** done. An empty library shows a welcome card: "Open the sample and take the
+  tour" (the nightstand template as "Sample nightstand", reused if it is already there) or the
+  template gallery. The five-step tour (look around, select, move, cut list, export) rings the
+  control a step is about; Skip, Esc or Done close it and set the `tourDone` setting. Help has
+  "Take the tour" to run it again.
 - **Templates:** done: 11 → 25. New: step stool, entry shelf with hooks, shoe rack, raised
   garden bed, sawhorse, entry bench, dining table, kitchen cart (casters), tool tote (dowel
   handle in bored holes), toy chest (lid on hinges, lid stay), wall cabinet (inset doors, Euro

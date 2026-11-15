@@ -11,6 +11,8 @@ All notable changes to Woodshop are listed here. The format follows
 - Settings ▸ About: the version, the licence, links to the source and privacy note, and the
   licenses of the open-source software inside the app.
 - Report a problem opens the bug form with your version and system filled in.
+- A first run starts with a welcome: open a sample nightstand and take a five-step tour of the
+  editor (look around, select, move, the cut list, export). Run it again from Help.
 - Fourteen new templates (25 in all): step stool, entry shelf with hooks, shoe rack, raised
   garden bed, sawhorse, entry bench, dining table, kitchen cart, tool tote, toy chest, wall
   cabinet, base cabinet, three-drawer dresser and media console.

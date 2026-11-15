@@ -7,6 +7,7 @@ import { api, errorMessage, thumbnailUrl, type ProjectSummary } from '@/app/api'
 import { importProjectFromDialog, chooseSavePath, fileStem, WOODSHOP_FILTER } from '@/app/files';
 import { plural, timeAgo } from '@/app/format';
 import { useToast } from '@/components/Toast';
+import { openSampleWithTour } from '@/app/tour';
 
 export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
     const queryClient = useQueryClient();
@@ -113,28 +114,14 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
                     ))}
                 </ul>
             ) : (
-                projects.isSuccess && (
+                projects.isSuccess &&
+                (trashed ? (
                     <div className="border-fg/8 rounded-lg border border-dashed px-4 py-12 text-center">
-                        <p className="text-muted">{trashed ? 'The trash is empty.' : 'No projects yet.'}</p>
-                        {!trashed && (
-                            <p className="text-faint mt-1 text-sm">
-                                Name one above,{' '}
-                                <Link to="/templates" className="text-accent">
-                                    start from a template
-                                </Link>
-                                , or see{' '}
-                                <Link
-                                    to="/help/$slug"
-                                    params={{ slug: 'getting-started' }}
-                                    className="text-accent"
-                                >
-                                    getting started
-                                </Link>
-                                .
-                            </p>
-                        )}
+                        <p className="text-muted">The trash is empty.</p>
                     </div>
-                )
+                ) : (
+                    <Welcome />
+                ))
             )}
 
             {!trashed && (
@@ -294,5 +281,53 @@ function ProjectCard({
                 </div>
             </div>
         </li>
+    );
+}
+
+/** An empty library: the sample and its tour first, then the other ways in. */
+function Welcome() {
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
+    const toast = useToast();
+    const sample = useMutation({
+        mutationFn: () => openSampleWithTour(queryClient),
+        onSuccess: (project) => navigate({ to: '/projects/$id', params: { id: String(project.id) } }),
+        onError: (e) => toast.error(errorMessage(e)),
+    });
+    return (
+        <div
+            className="border-fg/10 bg-surface-1/50 rounded-xl border px-6 py-10 text-center"
+            data-testid="welcome"
+        >
+            <h2 className="text-fg-strong mb-1 text-lg font-semibold">Welcome to Woodshop</h2>
+            <p className="text-muted mx-auto mb-6 max-w-md text-sm">
+                Design furniture in 3D and get a cut list, a printable plan and the hardware to buy. The
+                quickest way in is the sample nightstand and a two-minute tour of the editor.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+                <button
+                    type="button"
+                    onClick={() => sample.mutate()}
+                    disabled={sample.isPending}
+                    className="bg-accent text-accent-ink hover:bg-accent-strong rounded-md px-4 py-2 text-sm font-medium disabled:opacity-50"
+                    data-testid="open-sample"
+                >
+                    Open the sample and take the tour
+                </button>
+                <Link
+                    to="/templates"
+                    className="border-fg/12 text-accent hover:bg-surface-2 rounded-md border px-4 py-2 text-sm"
+                >
+                    Browse 25 templates
+                </Link>
+            </div>
+            <p className="text-faint mt-5 text-sm">
+                Or name a new project above, or read{' '}
+                <Link to="/help/$slug" params={{ slug: 'getting-started' }} className="text-accent">
+                    getting started
+                </Link>
+                .
+            </p>
+        </div>
     );
 }

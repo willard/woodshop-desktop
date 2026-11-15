@@ -79,12 +79,15 @@ export function installMockBackend(): void {
         return result.data;
     };
 
-    // Seed one project so the library is not empty on first load.
-    create(
-        'Record stand',
-        templates.find((t) => t.id === 'record-stand')?.spec ??
-            (wasm.starterSpec('Record stand', undefined) as Spec),
-    );
+    // Seed one project so the library is not empty on first load — unless `?empty` asks for a
+    // first run.
+    if (!new URLSearchParams(window.location.search).has('empty')) {
+        create(
+            'Record stand',
+            templates.find((t) => t.id === 'record-stand')?.spec ??
+                (wasm.starterSpec('Record stand', undefined) as Spec),
+        );
+    }
 
     type Args = Record<string, unknown>;
     const handlers: Record<string, (a: Args) => unknown> = {
