@@ -22,7 +22,34 @@ export interface ShortcutActions {
     hide(): void;
     isolate(): void;
     showAll(): void;
+    /** Single-key view tools (no modifier): E explode, O open, M measure, F fit, V edit/view, P
+     *  parts list, ? the shortcut list. Optional: a caller without the tool leaves it out. */
+    toggleExplode?(): void;
+    toggleOpen?(): void;
+    toggleMeasure?(): void;
+    fit?(): void;
+    toggleMode?(): void;
+    toggleOutline?(): void;
+    showShortcuts?(): void;
 }
+
+/** Every shortcut, for the "?" list. Keep in step with `handleEditorKeydown`. */
+export const SHORTCUTS: { keys: string; does: string }[] = [
+    { keys: '⌘Z / ⇧⌘Z', does: 'Undo / redo' },
+    { keys: '⌘D', does: 'Duplicate the selection' },
+    { keys: 'Delete', does: 'Delete the selection' },
+    { keys: '⌘G / ⇧⌘G', does: 'Group / ungroup' },
+    { keys: 'Arrows', does: 'Nudge (⇧ coarse, ⌥ fine); PageUp/PageDown for height' },
+    { keys: 'H / ⇧H / ⌥H', does: 'Hide / show only this / show all' },
+    { keys: 'E', does: 'Explode the view' },
+    { keys: 'O', does: 'Open the doors and drawers' },
+    { keys: 'M', does: 'Measure' },
+    { keys: 'F', does: 'Fit the design in view' },
+    { keys: 'V', does: 'Switch between Edit and View' },
+    { keys: 'P', does: 'Show or hide the parts list' },
+    { keys: 'Esc', does: 'Deselect, or leave a tool' },
+    { keys: '?', does: 'This list' },
+];
 
 /** Viewer-relative directions the arrow keys ask for; the engine maps them to world axes. */
 export type NudgeDirection = 'left' | 'right' | 'forward' | 'back' | 'up' | 'down';
@@ -107,6 +134,24 @@ export function handleEditorKeydown(event: KeyboardEvent, actions: ShortcutActio
             }
         }
         return true;
+    }
+    // Single-key tools: only bare keys, so ⌘O, ⌘M and the like stay the system's.
+    if (!mod && !event.altKey) {
+        const tool: Record<string, (() => void) | undefined> = {
+            e: actions.toggleExplode,
+            o: actions.toggleOpen,
+            m: actions.toggleMeasure,
+            f: actions.fit,
+            v: actions.toggleMode,
+            p: actions.toggleOutline,
+            '?': actions.showShortcuts,
+        };
+        const run = tool[key];
+        if (run !== undefined && !(event.shiftKey && key !== '?')) {
+            event.preventDefault();
+            run();
+            return true;
+        }
     }
     // Nudge. No modifier key of its own — mod+arrow is a browser/OS navigation gesture, so only
     // shift (coarse) and alt (fine) change the step. However, mod+up/down is mapped to height

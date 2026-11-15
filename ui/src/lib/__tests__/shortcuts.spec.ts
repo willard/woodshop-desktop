@@ -195,4 +195,48 @@ describe('visibility shortcuts', () => {
         handleEditorKeydown(key({ key: 'h', target }), a);
         expect(a.hide).not.toHaveBeenCalled();
     });
+
+    it('runs the single-key view tools, and only on a bare key', () => {
+        const tools = {
+            toggleExplode: vi.fn(),
+            toggleOpen: vi.fn(),
+            toggleMeasure: vi.fn(),
+            fit: vi.fn(),
+            toggleMode: vi.fn(),
+            toggleOutline: vi.fn(),
+            showShortcuts: vi.fn(),
+        };
+        const a = actions(tools);
+        const pairs: [string, keyof typeof tools][] = [
+            ['e', 'toggleExplode'],
+            ['o', 'toggleOpen'],
+            ['m', 'toggleMeasure'],
+            ['f', 'fit'],
+            ['v', 'toggleMode'],
+            ['p', 'toggleOutline'],
+        ];
+        for (const [k, tool] of pairs) {
+            expect(handleEditorKeydown(key({ key: k }), a), k).toBe(true);
+            expect(tools[tool], k).toHaveBeenCalledOnce();
+            // ⌘O, ⌥M, ⇧E: not ours.
+            handleEditorKeydown(key({ key: k, metaKey: true }), a);
+            handleEditorKeydown(key({ key: k, altKey: true }), a);
+            handleEditorKeydown(key({ key: k.toUpperCase(), shiftKey: true }), a);
+            expect(tools[tool], k).toHaveBeenCalledOnce();
+        }
+        // ? is typed with Shift on most keyboards.
+        expect(handleEditorKeydown(key({ key: '?', shiftKey: true }), a)).toBe(true);
+        expect(tools.showShortcuts).toHaveBeenCalledOnce();
+    });
+
+    it('leaves a tool key alone when the caller has no such tool, or the key is typed in a field', () => {
+        const a = actions();
+        expect(handleEditorKeydown(key({ key: 'e' }), a)).toBe(false);
+        const explode = vi.fn();
+        handleEditorKeydown(key({ key: 'e', target: { tagName: 'INPUT' } as unknown as EventTarget }), {
+            ...a,
+            toggleExplode: explode,
+        });
+        expect(explode).not.toHaveBeenCalled();
+    });
 });

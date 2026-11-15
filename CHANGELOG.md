@@ -29,6 +29,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- The editor has a parts list on the left: select, hide or rename any part, including one hidden
+  inside the design. Edit and View are a two-way switch, the main tools have icons and labels, and
+  new single keys (E, O, M, F, V, P) and a "?" list every shortcut.
 - The template gallery shows a picture of every design, a short description of what it is, and
   its size and the sheets or board feet it needs.
 - The projects page uses the whole window, five cards across; each card opens its project, with

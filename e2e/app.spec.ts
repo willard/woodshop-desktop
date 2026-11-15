@@ -334,16 +334,82 @@ test('settings say what licence Woodshop is under and list the open-source licen
     await expect(dialog).toHaveCount(0);
 });
 
+test('the parts list selects, hides and renames parts, and folds away', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    const outline = page.getByTestId('outline');
+    await expect(outline).toBeVisible();
+    const rows = outline.getByTestId('outline-row');
+    await expect(rows).toHaveCount(6);
+
+    // Select from the list: the inspector follows.
+    const top = rows.filter({ hasText: 'Top' });
+    await top.getByRole('button', { name: 'Top', exact: true }).click();
+    await expect(top).toHaveAttribute('data-selected', 'true');
+    await expect(page.getByTestId('properties')).toBeVisible();
+
+    // Hide and show it again.
+    await top.getByTestId('outline-eye').click();
+    await expect(top).toHaveAttribute('data-hidden', 'true');
+    await expect(page.getByTestId('hidden-chip')).toBeVisible();
+    await top.getByTestId('outline-eye').click();
+    await expect(top).not.toHaveAttribute('data-hidden', 'true');
+
+    // Rename by double-click: one undoable edit.
+    await top.getByRole('button', { name: 'Top', exact: true }).dblclick();
+    await page.getByTestId('outline-rename').fill('Lid');
+    await page.getByTestId('outline-rename').press('Enter');
+    await expect(rows.filter({ hasText: 'Lid' })).toHaveCount(1);
+    await page.getByTestId('undo').click();
+    await expect(rows.filter({ hasText: 'Top' })).toHaveCount(1);
+
+    // P folds it away, and the choice is remembered.
+    await page
+        .locator('canvas')
+        .first()
+        .click({ position: { x: 5, y: 5 } });
+    await page.keyboard.press('p');
+    await expect(outline).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByTestId('parts-count')).toBeVisible();
+    await expect(outline).toHaveCount(0);
+    await page.getByTestId('outline-toggle').click();
+    await expect(outline).toBeVisible();
+});
+
+test('? lists the shortcuts, and the tool keys work', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+    await page.getByTestId('shortcuts-toggle').click();
+    const list = page.getByTestId('shortcuts');
+    await expect(list).toContainText('Explode the view');
+    await page.keyboard.press('Escape');
+    await expect(list).toHaveCount(0);
+    await page.keyboard.press('?');
+    await expect(list).toBeVisible();
+    await page.keyboard.press('Escape');
+
+    await page.keyboard.press('e');
+    await expect(page.getByTestId('explode-toggle')).toHaveAttribute('aria-pressed', 'true');
+    await page.keyboard.press('e');
+    await expect(page.getByTestId('explode-toggle')).toHaveAttribute('aria-pressed', 'false');
+    await page.keyboard.press('m');
+    await expect(page.getByTestId('measure-toggle')).toHaveAttribute('aria-pressed', 'true');
+    await page.keyboard.press('m');
+    await page.keyboard.press('v');
+    await expect(page.getByTestId('mode-view')).toHaveAttribute('aria-checked', 'true');
+});
+
 test('when parts cannot be dragged, the editor says why and how to fix it', async ({ page }) => {
     await page.goto('/#/projects/1');
     const blocked = page.getByTestId('drag-blocked');
     await expect(blocked).toHaveCount(0);
 
-    await page.getByTestId('mode-toggle').click();
+    await page.getByTestId('mode-view').click();
+    await expect(page.getByTestId('mode-view')).toHaveAttribute('aria-checked', 'true');
     await expect(blocked).toContainText('View mode');
     await blocked.getByRole('button').click();
     await expect(blocked).toHaveCount(0);
-    await expect(page.getByTestId('mode-toggle')).toHaveText('Edit');
+    await expect(page.getByTestId('mode-edit')).toHaveAttribute('aria-checked', 'true');
 
     await page.getByTestId('explode-toggle').click();
     await expect(blocked).toContainText('Exploded view');

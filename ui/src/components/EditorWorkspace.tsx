@@ -108,7 +108,8 @@ import type { Joint, Material, Movable, Op, Part, Spec, Species } from '@/spec';
 import type { CutList } from '@/cutlist';
 import { assessSturdiness } from '@/struct';
 import { dowelLabelOf, nominalOf } from '@/lib/lumberSizes';
-import { handleEditorKeydown, type NudgeDirection, type NudgeStep } from '@/lib/shortcuts';
+import { handleEditorKeydown, SHORTCUTS, type NudgeDirection, type NudgeStep } from '@/lib/shortcuts';
+import { Modal } from './Modal';
 import { activeTheme, onThemeChange, sceneFor } from '@/lib/theme';
 import { AddMovableDialog } from './AddMovableDialog';
 import { AddPartDialog } from './AddPartDialog';
@@ -120,6 +121,7 @@ import { PartInspector } from './PartInspector';
 import { Popover } from './Popover';
 import { SnapSettings } from './SnapSettings';
 import { ToolbarOverflow } from './ToolbarOverflow';
+import { PartsOutline } from './PartsOutline';
 import { ToolsOverlay } from './tools/ToolsOverlay';
 import { getUnits, len, useUnits } from '@/lib/display';
 
@@ -202,6 +204,25 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const [issuesOpen, setIssuesOpen] = useState(false);
         const [explode, setExplode] = useState(0);
         const [explodeOpen, setExplodeOpen] = useState(false);
+        // The parts list: open on a wide window unless the user closed it; remembered per device.
+        const [outlineOpen, setOutlineOpenState] = useState(() => {
+            try {
+                const stored = window.localStorage.getItem('woodshop.outline');
+                if (stored !== null) return stored === '1';
+            } catch {
+                // Storage unavailable: fall back to the window's width.
+            }
+            return window.innerWidth >= 1280;
+        });
+        const setOutlineOpen = (open: boolean) => {
+            setOutlineOpenState(open);
+            try {
+                window.localStorage.setItem('woodshop.outline', open ? '1' : '0');
+            } catch {
+                // Not remembered; fine.
+            }
+        };
+        const [shortcutsOpen, setShortcutsOpen] = useState(false);
         const [doorsOpen, setDoorsOpen] = useState(0);
         const [doorsOpenVisible, setDoorsOpenVisible] = useState(false);
         const [measuring, setMeasuring] = useState(false);
@@ -976,6 +997,15 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 hide: hideSelection,
                 isolate: isolateSelection,
                 showAll: showAllParts,
+                toggleExplode,
+                toggleOpen: hasMovables ? toggleOpen : undefined,
+                toggleMeasure: () => {
+                    if (measuring || (explode === 0 && doorsOpen === 0)) toggleMeasure();
+                },
+                fit: () => engineRef.current?.viewFrom('fit'),
+                toggleMode,
+                toggleOutline: () => setOutlineOpen(!outlineOpen),
+                showShortcuts: () => setShortcutsOpen(true),
             });
         };
         useEffect(() => {
@@ -1028,7 +1058,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                   : 'bg-info/25 text-info-fg';
 
         const toolBtn = (active: boolean) =>
-            `h-[30px] flex-none rounded-lg px-3 text-[12.5px] font-semibold ${active ? 'bg-accent/20 text-accent' : 'text-fg/65 hover:bg-fg/5'}`;
+            `flex h-[30px] flex-none items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] font-semibold disabled:opacity-40 ${active ? 'bg-fg/[0.1] text-fg-strong' : 'text-fg/65 hover:bg-fg/5'}`;
         const iconBtn =
             'enabled:hover:text-fg-strong text-muted enabled:hover:bg-fg/5 disabled:text-faint flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg';
         const tabClass = (tab: DockTab) =>
@@ -1218,13 +1248,54 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         >
                             {props.toolbar}
                             <div className="bg-fg/[0.08] mx-1 h-6 w-px flex-none" />
-                            <button
-                                className={`h-[30px] flex-none rounded-lg px-3 text-[12.5px] font-semibold ${mode === 'edit' ? 'bg-accent text-accent-ink' : 'text-fg/65 hover:bg-fg/5'}`}
-                                data-testid="mode-toggle"
-                                title={mode === 'edit' ? 'Edit: drag parts' : 'View: orbit only'}
-                                onClick={toggleMode}
+                            {/* A mode, not an action: a neutral two-way switch. Orange is for Add. */}
+                            <div
+                                role="radiogroup"
+                                aria-label="Mode"
+                                className="bg-fg/[0.06] flex h-[30px] flex-none items-center rounded-lg p-0.5"
+                                data-testid="mode-switch"
                             >
-                                {mode === 'edit' ? 'Edit' : 'View'}
+                                {(
+                                    [
+                                        ['edit', 'Edit', 'Edit: drag parts to move them (V)'],
+                                        ['view', 'View', 'View: look around without moving anything (V)'],
+                                    ] as const
+                                ).map(([value, label, title]) => (
+                                    <button
+                                        key={value}
+                                        role="radio"
+                                        aria-checked={mode === value}
+                                        title={title}
+                                        className={`h-full rounded-md px-2.5 text-[12.5px] font-semibold ${mode === value ? 'bg-surface-0 text-fg-strong shadow-sm' : 'text-fg/60 hover:text-fg-strong'}`}
+                                        data-testid={`mode-${value}`}
+                                        onClick={() => mode !== value && toggleMode()}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                className={toolBtn(outlineOpen)}
+                                aria-pressed={outlineOpen}
+                                title={outlineOpen ? 'Hide the parts list (P)' : 'Show the parts list (P)'}
+                                onClick={() => setOutlineOpen(!outlineOpen)}
+                                data-testid="outline-toggle"
+                            >
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"
+                                        stroke="currentColor"
+                                        strokeWidth="2.2"
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                                Parts
                             </button>
                         </div>
 
@@ -1286,11 +1357,27 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 data-testid="explode-toggle"
                                 title={
                                     explode > 0
-                                        ? 'Reassemble the parts'
-                                        : 'Explode the view to see every part'
+                                        ? 'Reassemble the parts (E)'
+                                        : 'Explode the view to see every part (E)'
                                 }
+                                aria-pressed={explode > 0}
                                 onClick={toggleExplode}
                             >
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M9 9 4 4m0 0v4m0-4h4M15 9l5-5m0 0v4m0-4h-4M9 15l-5 5m0 0v-4m0 4h4M15 15l5 5m0 0v-4m0 4h-4"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
                                 Explode
                             </button>
                             {explodeOpen && (
@@ -1312,11 +1399,27 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     data-testid="open-toggle"
                                     title={
                                         doorsOpen > 0
-                                            ? 'Close the doors and drawers'
-                                            : 'Swing the doors and drawers open'
+                                            ? 'Close the doors and drawers (O)'
+                                            : 'Swing the doors and drawers open (O)'
                                     }
+                                    aria-pressed={doorsOpen > 0}
                                     onClick={toggleOpen}
                                 >
+                                    <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="M4 20V4h9v16M13 4l6 2.5v15L13 20M10 12h.01"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
                                     Open
                                 </button>
                             )}
@@ -1338,10 +1441,28 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 data-testid="measure-toggle"
                                 disabled={!measuring && (explode > 0 || doorsOpen > 0)}
                                 title={
-                                    measuring ? 'Stop measuring' : 'Measure heights and gaps between parts'
+                                    measuring
+                                        ? 'Stop measuring (M)'
+                                        : 'Measure heights and gaps between parts (M)'
                                 }
+                                aria-pressed={measuring}
                                 onClick={toggleMeasure}
                             >
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M3 16 16 3l5 5L8 21l-5-5Zm4-1 2 2m1-5 2 2m1-5 2 2"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
                                 Measure
                             </button>
                             {canGroup && (
@@ -1384,6 +1505,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     <button
                                         className="bg-accent text-accent-ink hover:bg-accent-strong flex h-[30px] items-center gap-1.5 rounded-lg px-3 text-[12.5px] font-semibold"
                                         data-testid="add-menu-toggle"
+                                        title="Add a part, a door or drawer, or hardware"
                                         onClick={toggle}
                                     >
                                         Add
@@ -1466,7 +1588,12 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                             <button
                                 className="hover:text-fg-strong text-muted hover:bg-fg/5 flex h-7 w-7 flex-none items-center justify-center rounded-lg"
                                 data-testid="dock-toggle"
-                                title="Toggle panel"
+                                title={
+                                    dockOpen
+                                        ? 'Hide the side panel'
+                                        : 'Show the cut list, inspector and notes'
+                                }
+                                aria-label={dockOpen ? 'Hide the side panel' : 'Show the side panel'}
                                 onClick={() => setDockOpen(!dockOpen)}
                             >
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
@@ -1489,282 +1616,314 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         </div>
                     </div>
 
-                    {/* Canvas */}
-                    <div className="relative flex-1 overflow-hidden">
-                        <canvas ref={canvas} className="block h-full w-full touch-none" />
-
-                        {hiddenPresent.length > 0 && (
-                            <div
-                                className="border-warn/30 bg-warn/10 text-warn-fg absolute right-4 bottom-4 z-10 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[11.5px]"
-                                data-testid="hidden-chip"
+                    <div className="flex min-h-0 flex-1">
+                        {outlineOpen && (
+                            <aside
+                                className="bg-surface-1 border-fg/[0.07] flex w-56 flex-none flex-col border-r"
+                                aria-label="Parts list"
                             >
-                                <span>
-                                    {hiddenPresent.length} part{hiddenPresent.length === 1 ? '' : 's'} hidden
-                                </span>
-                                <button
-                                    className="text-warn-fg hover:bg-warn/20 rounded px-1.5 py-0.5 font-semibold"
-                                    data-testid="show-all"
-                                    title="Show every part (⌥H)"
-                                    onClick={showAllParts}
-                                >
-                                    Show all
-                                </button>
-                            </div>
-                        )}
-
-                        <div
-                            className="absolute bottom-4 left-4 z-10 flex items-end gap-1.5"
-                            data-testid="linter"
-                        >
-                            <div className="flex flex-col items-start">
-                                {issuesOpen && (issues.length > 0 || structIssues.length > 0) && (
-                                    <div className="bg-surface-1/90 border-fg/10 mb-2 max-h-56 w-96 max-w-[70vw] overflow-auto rounded-xl border p-3 text-xs backdrop-blur">
-                                        <ul>
-                                            {issues.map((issue, i) => (
-                                                <li
-                                                    key={i}
-                                                    className={`hover:text-accent cursor-pointer py-0.5 ${issue.severity === 'error' ? 'text-danger-fg' : 'text-warn-fg'}`}
-                                                    onClick={() => revealAndSelect(issue.partId ?? null)}
-                                                >
-                                                    {issue.severity === 'error' ? '✖' : '⚠'} {issue.message}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        {structIssues.length > 0 && (
-                                            <div data-testid="struct-advisories">
-                                                {issues.length > 0 && (
-                                                    <div className="text-muted pt-1.5 text-[10px] font-semibold tracking-wider uppercase">
-                                                        Sturdiness
-                                                    </div>
-                                                )}
-                                                <ul>
-                                                    {structIssues.map((issue, i) => (
-                                                        <li
-                                                            key={i}
-                                                            className="hover:text-accent text-warn-fg cursor-pointer py-0.5"
-                                                            onClick={() =>
-                                                                revealAndSelect(issue.partId ?? null)
-                                                            }
-                                                        >
-                                                            ⚠ {issue.message}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                                <div className="flex items-center gap-1.5">
-                                    <button
-                                        className={`bg-surface-1/85 border-fg/[0.08] flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-semibold backdrop-blur ${errorCount > 0 ? 'text-danger-fg' : 'text-ok-fg'}`}
-                                        data-testid="lint-badge"
-                                        onClick={() => setIssuesOpen(!issuesOpen)}
-                                    >
-                                        {errorCount === 0 && (
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                                                <path
-                                                    d="M20 6L9 17l-5-5"
-                                                    stroke="currentColor"
-                                                    strokeWidth="3"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
-                                        )}
-                                        {errorCount > 0 ? `${errorCount} error(s)` : 'Buildable'}
-                                        {errorCount === 0 && advisoryCount > 0 && (
-                                            <span className="text-warn-fg font-medium">
-                                                · {advisoryCount}{' '}
-                                                {advisoryCount === 1 ? 'advisory' : 'advisories'}
-                                            </span>
-                                        )}
-                                    </button>
-                                    <span
-                                        className="bg-surface-1/85 border-fg/[0.08] text-muted rounded-lg border px-2.5 py-1.5 text-[12.5px] backdrop-blur"
-                                        data-testid="parts-count"
-                                    >
-                                        {spec.parts.length} parts
+                                <div className="text-muted flex items-center justify-between px-3 pt-2.5 pb-1 text-[11.5px] font-semibold tracking-wide uppercase">
+                                    Parts
+                                    <span className="text-faint font-normal normal-case">
+                                        {spec.parts.length}
                                     </span>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div
-                            className="bg-surface-1/85 border-fg/[0.08] absolute top-3 right-3 z-10 flex items-center gap-0.5 rounded-lg border p-0.5 backdrop-blur"
-                            role="group"
-                            aria-label="View"
-                            data-testid="view-presets"
-                        >
-                            {(
-                                [
-                                    ['fit', 'Fit', 'Fit the whole design in view'],
-                                    ['front', 'Front', 'Look from the front'],
-                                    ['side', 'Side', 'Look from the right side'],
-                                    ['top', 'Top', 'Look straight down'],
-                                    ['three-quarter', '3D', 'Back to the three-quarter view'],
-                                ] as const
-                            ).map(([view, label, title]) => (
-                                <button
-                                    key={view}
-                                    className="text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong h-7 rounded-md px-2 text-[12px] font-medium"
-                                    title={title}
-                                    data-testid={`view-${view}`}
-                                    onClick={() => engineRef.current?.viewFrom(view)}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-
-                        {dragBlocked !== null ? (
-                            // A press on a part orbits instead of dragging in these states; say so,
-                            // or it looks like the part is stuck.
-                            <div
-                                className="bg-surface-1/90 border-fg/[0.08] absolute right-5 bottom-4 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[12px] backdrop-blur"
-                                data-testid="drag-blocked"
-                            >
-                                <span className="text-muted">{dragBlocked.reason}</span>
-                                <button
-                                    className="text-accent font-medium hover:underline"
-                                    onClick={dragBlocked.fix}
-                                >
-                                    {dragBlocked.action}
-                                </button>
-                            </div>
-                        ) : (
-                            hiddenPresent.length === 0 && (
-                                <div className="text-muted pointer-events-none absolute right-5 bottom-4 text-[11.5px]">
-                                    click a part to inspect · drag to move · shift to lift · ⌘Z undo
-                                </div>
-                            )
+                                <PartsOutline
+                                    spec={spec}
+                                    selectedIds={selectedIds}
+                                    hiddenIds={hiddenIds}
+                                    onSelect={revealAndPick}
+                                    onToggleHidden={toggleHidden}
+                                    onRename={(id, name) => doc.execute(new RenamePart(id, name))}
+                                />
+                            </aside>
                         )}
+                        {/* Canvas */}
+                        <div className="relative flex-1 overflow-hidden">
+                            <canvas ref={canvas} className="block h-full w-full touch-none" />
 
-                        {placing && (
-                            <Chip testId="placement-chip">
-                                <span className="text-fg/80">
-                                    {placing.kind === 'hardware' ? (
-                                        <>
-                                            Placing{' '}
-                                            {(() => {
-                                                const item = findItem(placing.item);
-                                                return item === undefined ? 'hardware' : itemName(item);
-                                            })()}{' '}
-                                            — click a face of a part
-                                        </>
-                                    ) : (
-                                        <>
-                                            Placing {placing.kind} —{' '}
-                                            {placing.kind === 'dado'
-                                                ? 'click a face to set the offset'
-                                                : 'click a face to drill'}
-                                        </>
+                            {hiddenPresent.length > 0 && (
+                                <div
+                                    className="border-warn/30 bg-warn/10 text-warn-fg absolute right-4 bottom-4 z-10 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[11.5px]"
+                                    data-testid="hidden-chip"
+                                >
+                                    <span>
+                                        {hiddenPresent.length} part{hiddenPresent.length === 1 ? '' : 's'}{' '}
+                                        hidden
+                                    </span>
+                                    <button
+                                        className="text-warn-fg hover:bg-warn/20 rounded px-1.5 py-0.5 font-semibold"
+                                        data-testid="show-all"
+                                        title="Show every part (⌥H)"
+                                        onClick={showAllParts}
+                                    >
+                                        Show all
+                                    </button>
+                                </div>
+                            )}
+
+                            <div
+                                className="absolute bottom-4 left-4 z-10 flex items-end gap-1.5"
+                                data-testid="linter"
+                            >
+                                <div className="flex flex-col items-start">
+                                    {issuesOpen && (issues.length > 0 || structIssues.length > 0) && (
+                                        <div className="bg-surface-1/90 border-fg/10 mb-2 max-h-56 w-96 max-w-[70vw] overflow-auto rounded-xl border p-3 text-xs backdrop-blur">
+                                            <ul>
+                                                {issues.map((issue, i) => (
+                                                    <li
+                                                        key={i}
+                                                        className={`hover:text-accent cursor-pointer py-0.5 ${issue.severity === 'error' ? 'text-danger-fg' : 'text-warn-fg'}`}
+                                                        onClick={() => revealAndSelect(issue.partId ?? null)}
+                                                    >
+                                                        {issue.severity === 'error' ? '✖' : '⚠'}{' '}
+                                                        {issue.message}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            {structIssues.length > 0 && (
+                                                <div data-testid="struct-advisories">
+                                                    {issues.length > 0 && (
+                                                        <div className="text-muted pt-1.5 text-[10px] font-semibold tracking-wider uppercase">
+                                                            Sturdiness
+                                                        </div>
+                                                    )}
+                                                    <ul>
+                                                        {structIssues.map((issue, i) => (
+                                                            <li
+                                                                key={i}
+                                                                className="hover:text-accent text-warn-fg cursor-pointer py-0.5"
+                                                                onClick={() =>
+                                                                    revealAndSelect(issue.partId ?? null)
+                                                                }
+                                                            >
+                                                                ⚠ {issue.message}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
-                                    <span className="text-muted">
-                                        {placing.kind === 'hardware' ? ' · R to turn' : ''} · Esc to finish
-                                    </span>
-                                </span>
-                                {placementLabel && (
-                                    <span className="text-accent font-semibold whitespace-nowrap">
-                                        {placementLabel}
-                                    </span>
-                                )}
-                                {placing.kind === 'hardware' && (
-                                    <button
-                                        className="border-fg/15 text-fg/75 hover:bg-fg/5 rounded-md border px-2 py-0.5 text-[11.5px]"
-                                        data-testid="placement-turn"
-                                        onClick={turnPlacing}
-                                    >
-                                        Turn 90°
-                                    </button>
-                                )}
-                                <button
-                                    className="border-fg/15 text-fg/75 hover:bg-fg/5 min-h-6 rounded-lg border px-2 py-0.5"
-                                    data-testid="placement-done"
-                                    onClick={stopPlacing}
-                                >
-                                    ✕ Done
-                                </button>
-                            </Chip>
-                        )}
-
-                        {measureLabels.map((label, i) => (
-                            <div
-                                key={`measure-${i}`}
-                                className={`pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-[11px] font-semibold whitespace-nowrap backdrop-blur ${measureChipClass(label)}`}
-                                style={{ left: `${label.x}px`, top: `${label.y}px` }}
-                                data-testid="measure-label"
-                            >
-                                {measureText(label)}
-                            </div>
-                        ))}
-
-                        {focus && (
-                            <Chip testId="focus-banner" className="border-info/50">
-                                <span className="text-info font-medium">Focusing on group</span>
-                                <button
-                                    className="bg-info text-accent-ink hover:bg-info/80 h-7 rounded-lg px-3 text-xs font-semibold"
-                                    data-testid="focus-done"
-                                    onClick={() => exitFocus(true)}
-                                >
-                                    Done
-                                </button>
-                                <button
-                                    className="text-muted hover:text-fg h-7 rounded-lg px-2 text-xs font-medium"
-                                    data-testid="focus-cancel"
-                                    onClick={() => exitFocus(false)}
-                                >
-                                    Cancel
-                                </button>
-                            </Chip>
-                        )}
-
-                        {measuring && (
-                            <Chip testId="measure-chip">
-                                <div className="border-fg/10 flex flex-none overflow-hidden rounded-lg border">
-                                    {(['parts', 'points'] as const).map((m) => (
+                                    <div className="flex items-center gap-1.5">
                                         <button
-                                            key={m}
-                                            className={`min-h-6 px-2 text-[11px] font-semibold capitalize ${measureMode === m ? 'bg-accent/20 text-accent' : 'text-muted hover:bg-fg/5'}`}
-                                            data-testid={`measure-mode-${m}`}
-                                            onClick={() => setMeasureMode(m)}
+                                            className={`bg-surface-1/85 border-fg/[0.08] flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-semibold backdrop-blur ${errorCount > 0 ? 'text-danger-fg' : 'text-ok-fg'}`}
+                                            data-testid="lint-badge"
+                                            onClick={() => setIssuesOpen(!issuesOpen)}
                                         >
-                                            {m}
+                                            {errorCount === 0 && (
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                                    <path
+                                                        d="M20 6L9 17l-5-5"
+                                                        stroke="currentColor"
+                                                        strokeWidth="3"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                    />
+                                                </svg>
+                                            )}
+                                            {errorCount > 0 ? `${errorCount} error(s)` : 'Buildable'}
+                                            {errorCount === 0 && advisoryCount > 0 && (
+                                                <span className="text-warn-fg font-medium">
+                                                    · {advisoryCount}{' '}
+                                                    {advisoryCount === 1 ? 'advisory' : 'advisories'}
+                                                </span>
+                                            )}
                                         </button>
-                                    ))}
+                                        <span
+                                            className="bg-surface-1/85 border-fg/[0.08] text-muted rounded-lg border px-2.5 py-1.5 text-[12.5px] backdrop-blur"
+                                            data-testid="parts-count"
+                                        >
+                                            {spec.parts.length} parts
+                                        </span>
+                                    </div>
                                 </div>
-                                <span className="text-fg/75">
-                                    {measureMode === 'parts'
-                                        ? 'Click two parts for the gap'
-                                        : 'Click two points for the distance'}
-                                    <span className="text-muted"> · Esc to finish</span>
-                                </span>
-                                <button
-                                    className="border-fg/15 text-fg/75 hover:bg-fg/5 min-h-6 flex-none rounded-lg border px-2"
-                                    data-testid="measure-done"
-                                    onClick={toggleMeasure}
+                            </div>
+
+                            <div
+                                className="bg-surface-1/85 border-fg/[0.08] absolute top-3 right-3 z-10 flex items-center gap-0.5 rounded-lg border p-0.5 backdrop-blur"
+                                role="group"
+                                aria-label="View"
+                                data-testid="view-presets"
+                            >
+                                {(
+                                    [
+                                        ['fit', 'Fit', 'Fit the whole design in view'],
+                                        ['front', 'Front', 'Look from the front'],
+                                        ['side', 'Side', 'Look from the right side'],
+                                        ['top', 'Top', 'Look straight down'],
+                                        ['three-quarter', '3D', 'Back to the three-quarter view'],
+                                    ] as const
+                                ).map(([view, label, title]) => (
+                                    <button
+                                        key={view}
+                                        className="text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong h-7 rounded-md px-2 text-[12px] font-medium"
+                                        title={title}
+                                        data-testid={`view-${view}`}
+                                        onClick={() => engineRef.current?.viewFrom(view)}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {dragBlocked !== null ? (
+                                // A press on a part orbits instead of dragging in these states; say so,
+                                // or it looks like the part is stuck.
+                                <div
+                                    className="bg-surface-1/90 border-fg/[0.08] absolute right-5 bottom-4 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[12px] backdrop-blur"
+                                    data-testid="drag-blocked"
                                 >
-                                    ✕ Done
-                                </button>
-                            </Chip>
-                        )}
+                                    <span className="text-muted">{dragBlocked.reason}</span>
+                                    <button
+                                        className="text-accent font-medium hover:underline"
+                                        onClick={dragBlocked.fix}
+                                    >
+                                        {dragBlocked.action}
+                                    </button>
+                                </div>
+                            ) : (
+                                hiddenPresent.length === 0 && (
+                                    <button
+                                        className="bg-surface-1/85 border-fg/[0.08] text-muted hover:text-fg-strong absolute right-4 bottom-4 z-10 flex h-8 w-8 items-center justify-center rounded-full border text-[13px] font-semibold backdrop-blur"
+                                        title="Keyboard shortcuts (?)"
+                                        aria-label="Keyboard shortcuts"
+                                        onClick={() => setShortcutsOpen(true)}
+                                        data-testid="shortcuts-toggle"
+                                    >
+                                        ?
+                                    </button>
+                                )
+                            )}
 
-                        {hardwareDragLabel && (
-                            <div
-                                className={`pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 rounded-lg px-3 py-1 text-sm font-medium backdrop-blur ${hardwareDrag?.snaps.length ? 'bg-ok/25 text-ok-fg' : 'bg-surface-1/85 text-fg-strong'}`}
-                                data-testid="hardware-drag-label"
-                            >
-                                {hardwareDragLabel}
-                            </div>
-                        )}
+                            {placing && (
+                                <Chip testId="placement-chip">
+                                    <span className="text-fg/80">
+                                        {placing.kind === 'hardware' ? (
+                                            <>
+                                                Placing{' '}
+                                                {(() => {
+                                                    const item = findItem(placing.item);
+                                                    return item === undefined ? 'hardware' : itemName(item);
+                                                })()}{' '}
+                                                — click a face of a part
+                                            </>
+                                        ) : (
+                                            <>
+                                                Placing {placing.kind} —{' '}
+                                                {placing.kind === 'dado'
+                                                    ? 'click a face to set the offset'
+                                                    : 'click a face to drill'}
+                                            </>
+                                        )}
+                                        <span className="text-muted">
+                                            {placing.kind === 'hardware' ? ' · R to turn' : ''} · Esc to
+                                            finish
+                                        </span>
+                                    </span>
+                                    {placementLabel && (
+                                        <span className="text-accent font-semibold whitespace-nowrap">
+                                            {placementLabel}
+                                        </span>
+                                    )}
+                                    {placing.kind === 'hardware' && (
+                                        <button
+                                            className="border-fg/15 text-fg/75 hover:bg-fg/5 rounded-md border px-2 py-0.5 text-[11.5px]"
+                                            data-testid="placement-turn"
+                                            onClick={turnPlacing}
+                                        >
+                                            Turn 90°
+                                        </button>
+                                    )}
+                                    <button
+                                        className="border-fg/15 text-fg/75 hover:bg-fg/5 min-h-6 rounded-lg border px-2 py-0.5"
+                                        data-testid="placement-done"
+                                        onClick={stopPlacing}
+                                    >
+                                        ✕ Done
+                                    </button>
+                                </Chip>
+                            )}
 
-                        {dragLabel && (
-                            <div
-                                className={`pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 rounded-lg px-3 py-1 text-sm font-medium backdrop-blur ${dragInfo?.snapped ? 'bg-ok/25 text-ok-fg' : 'bg-surface-1/85 text-fg-strong'}`}
-                                data-testid="drag-label"
-                            >
-                                {dragLabel}
-                            </div>
-                        )}
+                            {measureLabels.map((label, i) => (
+                                <div
+                                    key={`measure-${i}`}
+                                    className={`pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-[11px] font-semibold whitespace-nowrap backdrop-blur ${measureChipClass(label)}`}
+                                    style={{ left: `${label.x}px`, top: `${label.y}px` }}
+                                    data-testid="measure-label"
+                                >
+                                    {measureText(label)}
+                                </div>
+                            ))}
+
+                            {focus && (
+                                <Chip testId="focus-banner" className="border-info/50">
+                                    <span className="text-info font-medium">Focusing on group</span>
+                                    <button
+                                        className="bg-info text-accent-ink hover:bg-info/80 h-7 rounded-lg px-3 text-xs font-semibold"
+                                        data-testid="focus-done"
+                                        onClick={() => exitFocus(true)}
+                                    >
+                                        Done
+                                    </button>
+                                    <button
+                                        className="text-muted hover:text-fg h-7 rounded-lg px-2 text-xs font-medium"
+                                        data-testid="focus-cancel"
+                                        onClick={() => exitFocus(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                </Chip>
+                            )}
+
+                            {measuring && (
+                                <Chip testId="measure-chip">
+                                    <div className="border-fg/10 flex flex-none overflow-hidden rounded-lg border">
+                                        {(['parts', 'points'] as const).map((m) => (
+                                            <button
+                                                key={m}
+                                                className={`min-h-6 px-2 text-[11px] font-semibold capitalize ${measureMode === m ? 'bg-accent/20 text-accent' : 'text-muted hover:bg-fg/5'}`}
+                                                data-testid={`measure-mode-${m}`}
+                                                onClick={() => setMeasureMode(m)}
+                                            >
+                                                {m}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <span className="text-fg/75">
+                                        {measureMode === 'parts'
+                                            ? 'Click two parts for the gap'
+                                            : 'Click two points for the distance'}
+                                        <span className="text-muted"> · Esc to finish</span>
+                                    </span>
+                                    <button
+                                        className="border-fg/15 text-fg/75 hover:bg-fg/5 min-h-6 flex-none rounded-lg border px-2"
+                                        data-testid="measure-done"
+                                        onClick={toggleMeasure}
+                                    >
+                                        ✕ Done
+                                    </button>
+                                </Chip>
+                            )}
+
+                            {hardwareDragLabel && (
+                                <div
+                                    className={`pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 rounded-lg px-3 py-1 text-sm font-medium backdrop-blur ${hardwareDrag?.snaps.length ? 'bg-ok/25 text-ok-fg' : 'bg-surface-1/85 text-fg-strong'}`}
+                                    data-testid="hardware-drag-label"
+                                >
+                                    {hardwareDragLabel}
+                                </div>
+                            )}
+
+                            {dragLabel && (
+                                <div
+                                    className={`pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 rounded-lg px-3 py-1 text-sm font-medium backdrop-blur ${dragInfo?.snapped ? 'bg-ok/25 text-ok-fg' : 'bg-surface-1/85 text-fg-strong'}`}
+                                    data-testid="drag-label"
+                                >
+                                    {dragLabel}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -1926,6 +2085,25 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                     />
                 )}
                 {toolsOpen && <ToolsOverlay onClose={() => setToolsOpen(false)} />}
+                {shortcutsOpen && (
+                    <Modal onClose={() => setShortcutsOpen(false)} testId="shortcuts" className="max-w-md">
+                        <h2 className="mb-1 text-base font-semibold">Keyboard shortcuts</h2>
+                        <p className="text-muted mb-3 text-[12.5px]">
+                            Click a part to inspect it, drag it to move it, and hold Shift while dragging to
+                            lift it.
+                        </p>
+                        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12.5px]">
+                            {SHORTCUTS.map(({ keys, does }) => (
+                                <div key={keys} className="contents">
+                                    <dt className="text-fg-strong font-mono text-[12px] whitespace-nowrap">
+                                        {keys}
+                                    </dt>
+                                    <dd className="text-muted">{does}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </Modal>
+                )}
             </div>
         );
     },

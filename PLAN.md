@@ -425,16 +425,14 @@ and a test requires the gallery text); the listing carries overall size, sheets 
 from the core; the whole card is the click target with a quiet "Use template" and the facts in a
 small line; the simple record stand is now "Simple Record Stand".
 
-**5b.5 Editor toolbar.** (`ui/src/components/EditorWorkspace.tsx`)
-- Two orange buttons, "Edit" and "Add", both look like the primary action. "Edit" is a mode
-  toggle: make it a two-segment switch (Edit | View) in neutral colours. Keep orange for Add only.
-- Explode, Open and Measure are text-only; the snap, panel-toggle and overflow buttons are
-  icon-only with no labels. Pick one style: icon plus label for the main tools, and tooltips with
-  the keyboard shortcut on every button.
-- The bottom-right hint is very low contrast. Raise it, or replace it with a "?" that lists
-  shortcuts.
-- There is no part list. Add a collapsible outline on the left (parts, groups, doors and drawers)
-  so a part hidden inside the piece can be selected, renamed, hidden or locked without hunting.
+**5b.5 Editor toolbar.** Done: Edit | View is a neutral two-way switch and orange is Add's alone;
+active tools are a neutral tint; Parts, Explode, Open and Measure carry an icon and a label; every
+toolbar button has a tooltip, with its key where it has one (new bare keys: E explode, O open, M
+measure, F fit, V edit/view, P parts list, ? shortcuts; `SHORTCUTS` in `lib/shortcuts.ts` lists them
+all). The faint hint became a "?" that opens the shortcut list. A parts list on the left
+(`PartsOutline`: doors and drawers, groups, then loose parts) selects, hides and renames (double-click)
+any part; it opens on wide windows and remembers being closed. Not done: locking a part from the
+list, since nothing in the editor enforces `locked` yet.
 
 **5b.6 Cut list panel.** (`ui/src/components/CutListPanel.tsx`)
 - The hardware list (ten rows of screws) sits above the actual cut list, which is below the fold.
