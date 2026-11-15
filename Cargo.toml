@@ -17,8 +17,13 @@ woodshop-store = { path = "crates/woodshop-store" }
 woodshop-export = { path = "crates/woodshop-export" }
 woodshop-mcp = { path = "crates/woodshop-mcp" }
 
-# Debug builds keep full debug info for our own crates only. Typst, Tauri and rmcp with full DWARF
-# put tens of gigabytes in target/ (copied into every test binary) and slowed every link.
+# Debug builds keep only file and line numbers for our own crates (enough for a readable
+# backtrace) and no debug info for dependencies. Full DWARF, for Typst, Tauri and rmcp and then
+# for our crates too, is copied into every test binary: it put 20+ GB in target/debug and slowed
+# every link. Set `debug = true` locally if you need a debugger to show variables.
+[profile.dev]
+debug = "line-tables-only"
+
 [profile.dev.package."*"]
 debug = false
 
