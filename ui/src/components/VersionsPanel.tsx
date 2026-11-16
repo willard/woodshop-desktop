@@ -1,4 +1,5 @@
 /** Version history: named snapshots of the design, append-only, each restorable. */
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, errorMessage } from '@/app/api';
@@ -64,8 +65,11 @@ export function VersionsPanel(props: {
         >
             <div className="border-fg/[0.07] flex items-center justify-between border-b px-4 py-3">
                 <h2 className="font-semibold">Version history</h2>
-                <button className="text-muted hover:bg-fg/5 rounded-lg px-2 py-1" onClick={props.onClose}>
-                    Close ✕
+                <button
+                    className="text-muted hover:bg-fg/5 flex items-center gap-1 rounded-lg px-2 py-1"
+                    onClick={props.onClose}
+                >
+                    Close <X size={14} aria-hidden="true" />
                 </button>
             </div>
             <div className="border-fg/[0.07] border-b p-4">

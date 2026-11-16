@@ -44,7 +44,7 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
             >
                 <div className="min-w-0 flex-1">
                     <h1 className="truncate text-[15px] font-semibold">{payload.projectName}</h1>
-                    <p className="text-faint text-[11.5px]">
+                    <p className="text-faint text-xs">
                         {exportedOn && <span>Exported {exportedOn} · </span>}Woodshop · view-only plan
                     </p>
                 </div>
@@ -138,7 +138,7 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                     data-testid="viewer-notes"
                     data-print="keep"
                 >
-                    <h2 className="text-muted mb-2 text-[11.5px] font-semibold tracking-wider uppercase">
+                    <h2 className="text-muted mb-2 text-xs font-semibold tracking-wider uppercase">
                         Shop notes
                     </h2>
                     <ul className="space-y-1.5">

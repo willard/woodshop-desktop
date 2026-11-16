@@ -30,6 +30,9 @@ async function boot(): Promise<void> {
     if (isUnits(settings.units)) setUnits(settings.units);
     setThumbnailsDir(info.thumbnailsDir);
     watchSystemTheme(() => undefined);
+    // macOS draws no title bar (tauri.conf.json: titleBarStyle Overlay); the app's own header sits
+    // beside the traffic lights, so headers leave room for them (`.titlebar-gutter` in app.css).
+    if (isTauri() && /Mac/i.test(navigator.userAgent)) document.documentElement.dataset.titlebar = 'overlay';
 
     createRoot(document.getElementById('root')!).render(
         <StrictMode>

@@ -283,14 +283,14 @@ function Editor({ project }: { project: Project }) {
             <div className="flex min-w-0 flex-col px-1.5">
                 <span className="truncate text-[13.5px] leading-tight font-semibold">{name}</span>
                 <span
-                    className={`text-[11.5px] leading-tight ${saveState === 'error' || saveState === 'conflict' ? 'text-danger-fg' : 'text-muted'}`}
+                    className={`text-xs leading-tight ${saveState === 'error' || saveState === 'conflict' ? 'text-danger-fg' : 'text-muted'}`}
                     data-testid="save-state"
                 >
                     {SAVE_LABEL[saveState]}
                 </span>
             </div>
             <button
-                className="border-fg/10 text-fg/75 hover:bg-fg/5 h-[30px] flex-none rounded-lg border px-3 text-[12.5px]"
+                className="border-fg/10 text-fg/75 hover:bg-fg/5 h-[30px] flex-none rounded-lg border px-3 text-[13px]"
                 data-testid="versions-toggle"
                 onClick={() => setShowVersions(true)}
             >
@@ -335,7 +335,7 @@ function Editor({ project }: { project: Project }) {
                             close={close}
                         />
                         <button
-                            className="enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[12.5px]"
+                            className="enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
                             onClick={() => {
                                 close();
                                 void exportProjectFile();

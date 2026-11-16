@@ -6,6 +6,7 @@
  * The engine is imperative and long-lived, so it lives in a ref and its handlers read the current
  * document through refs too — never through a closure that a re-render could leave stale.
  */
+import { Ellipsis, TriangleAlert, X } from 'lucide-react';
 import * as THREE from 'three';
 import {
     forwardRef,
@@ -1058,11 +1059,11 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                   : 'bg-info/25 text-info-fg';
 
         const toolBtn = (active: boolean) =>
-            `flex h-[30px] flex-none items-center gap-1.5 rounded-lg px-2.5 text-[12.5px] font-semibold disabled:opacity-40 ${active ? 'bg-fg/[0.1] text-fg-strong' : 'text-fg/65 hover:bg-fg/5'}`;
+            `flex h-[30px] flex-none items-center gap-1.5 rounded-lg px-2.5 text-[13px] font-semibold disabled:opacity-40 ${active ? 'bg-fg/[0.1] text-fg-strong' : 'text-fg/65 hover:bg-fg/5'}`;
         const iconBtn =
             'enabled:hover:text-fg-strong text-muted enabled:hover:bg-fg/5 disabled:text-faint flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg';
         const tabClass = (tab: DockTab) =>
-            `h-[30px] rounded-t-lg px-3 text-[12.5px] ${activeTab === tab ? 'bg-surface-2 text-fg-strong font-semibold' : 'text-muted hover:text-fg/80 font-medium'}`;
+            `h-[30px] rounded-t-lg px-3 text-[13px] ${activeTab === tab ? 'bg-surface-2 text-fg-strong font-semibold' : 'text-muted hover:text-fg/80 font-medium'}`;
 
         const inspector = (
             <>
@@ -1239,7 +1240,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 <div className="flex min-w-0 flex-1 flex-col">
                     {/* Toolbar */}
                     <div
-                        className="bg-surface-1 border-fg/[0.07] flex min-h-[52px] flex-none items-center gap-2 border-b px-3 py-2"
+                        className="bg-surface-1 border-fg/[0.07] titlebar-gutter @container/toolbar flex min-h-[52px] flex-none items-center gap-2 border-b px-3 py-2"
+                        data-tauri-drag-region
                         data-testid="editor-toolbar"
                     >
                         <div
@@ -1266,7 +1268,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         role="radio"
                                         aria-checked={mode === value}
                                         title={title}
-                                        className={`h-full rounded-md px-2.5 text-[12.5px] font-semibold ${mode === value ? 'bg-surface-0 text-fg-strong shadow-sm' : 'text-fg/60 hover:text-fg-strong'}`}
+                                        className={`h-full rounded-md px-2.5 text-[13px] font-semibold ${mode === value ? 'bg-surface-0 text-fg-strong shadow-sm' : 'text-fg/65 hover:text-fg-strong'}`}
                                         data-testid={`mode-${value}`}
                                         onClick={() => mode !== value && toggleMode()}
                                     >
@@ -1280,6 +1282,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 title={outlineOpen ? 'Hide the parts list (P)' : 'Show the parts list (P)'}
                                 onClick={() => setOutlineOpen(!outlineOpen)}
                                 data-testid="outline-toggle"
+                                aria-label="Parts list"
                             >
                                 <svg
                                     width="14"
@@ -1295,13 +1298,14 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         strokeLinecap="round"
                                     />
                                 </svg>
-                                Parts
+                                <span className="hidden @[1100px]/toolbar:inline">Parts</span>
                             </button>
                         </div>
 
                         <div
                             className="toolbar-scroll flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto"
                             data-testid="toolbar-middle"
+                            data-tauri-drag-region
                         >
                             <button
                                 className={iconBtn}
@@ -1355,6 +1359,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                             <button
                                 className={toolBtn(explode > 0)}
                                 data-testid="explode-toggle"
+                                aria-label="Explode"
                                 title={
                                     explode > 0
                                         ? 'Reassemble the parts (E)'
@@ -1378,7 +1383,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         strokeLinejoin="round"
                                     />
                                 </svg>
-                                Explode
+                                <span className="hidden @[1100px]/toolbar:inline">Explode</span>
                             </button>
                             {explodeOpen && (
                                 <input
@@ -1397,6 +1402,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 <button
                                     className={toolBtn(doorsOpen > 0)}
                                     data-testid="open-toggle"
+                                    aria-label="Open doors and drawers"
                                     title={
                                         doorsOpen > 0
                                             ? 'Close the doors and drawers (O)'
@@ -1420,7 +1426,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                             strokeLinejoin="round"
                                         />
                                     </svg>
-                                    Open
+                                    <span className="hidden @[1100px]/toolbar:inline">Open</span>
                                 </button>
                             )}
                             {hasMovables && doorsOpenVisible && (
@@ -1439,6 +1445,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                             <button
                                 className={toolBtn(measuring)}
                                 data-testid="measure-toggle"
+                                aria-label="Measure"
                                 disabled={!measuring && (explode > 0 || doorsOpen > 0)}
                                 title={
                                     measuring
@@ -1463,11 +1470,11 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         strokeLinejoin="round"
                                     />
                                 </svg>
-                                Measure
+                                <span className="hidden @[1100px]/toolbar:inline">Measure</span>
                             </button>
                             {canGroup && (
                                 <button
-                                    className="bg-accent/20 text-accent hover:bg-accent/30 h-[30px] flex-none rounded-lg px-3 text-[12.5px] font-semibold"
+                                    className="bg-accent/20 text-accent hover:bg-accent/30 h-[30px] flex-none rounded-lg px-3 text-[13px] font-semibold"
                                     data-testid="group"
                                     title={`Group ${selectedIds.length} parts (⌘G)`}
                                     onClick={group}
@@ -1503,7 +1510,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 panelClassName="flex w-44 flex-col gap-px p-1.5"
                                 trigger={({ toggle }) => (
                                     <button
-                                        className="bg-accent text-accent-ink hover:bg-accent-strong flex h-[30px] items-center gap-1.5 rounded-lg px-3 text-[12.5px] font-semibold"
+                                        className="bg-accent text-accent-ink hover:bg-accent-strong flex h-[30px] items-center gap-1.5 rounded-lg px-3 text-[13px] font-semibold"
                                         data-testid="add-menu-toggle"
                                         title="Add a part, a door or drawer, or hardware"
                                         onClick={toggle}
@@ -1526,7 +1533,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         {PART_KINDS.map((kind: PartKind) => (
                                             <div key={kind} className="flex items-stretch gap-px">
                                                 <button
-                                                    className="hover:bg-fg/[0.07] flex-1 rounded-md px-2.5 py-2 text-left text-[12.5px]"
+                                                    className="hover:bg-fg/[0.07] flex-1 rounded-md px-2.5 py-2 text-left text-[13px]"
                                                     data-testid={`add-${kind}`}
                                                     onClick={() => {
                                                         addPart(defaultOptions(kind));
@@ -1549,8 +1556,13 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                                         setAddDialog(defaultOptions(kind));
                                                         close();
                                                     }}
+                                                    aria-label={`${PART_PRESETS[kind].label}: choose size, orientation and how many`}
                                                 >
-                                                    ⋯
+                                                    <Ellipsis
+                                                        size={14}
+                                                        aria-hidden="true"
+                                                        className="mx-auto"
+                                                    />
                                                 </button>
                                             </div>
                                         ))}
@@ -1558,7 +1570,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         {(['door', 'drawer'] as const).map((kind) => (
                                             <button
                                                 key={kind}
-                                                className="hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[12.5px]"
+                                                className="hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
                                                 data-testid={`add-${kind}`}
                                                 title="Sized from the opening the selected parts frame"
                                                 onClick={() => {
@@ -1572,7 +1584,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         ))}
                                         <div className="bg-fg/[0.08] my-1 h-px" />
                                         <button
-                                            className="hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[12.5px]"
+                                            className="hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
                                             data-testid="add-hardware-menu"
                                             title="Pulls, hinges, casters, brackets, latches and more"
                                             onClick={() => {
@@ -1622,7 +1634,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 className="bg-surface-1 border-fg/[0.07] flex w-56 flex-none flex-col border-r"
                                 aria-label="Parts list"
                             >
-                                <div className="text-muted flex items-center justify-between px-3 pt-2.5 pb-1 text-[11.5px] font-semibold tracking-wide uppercase">
+                                <div className="text-muted flex items-center justify-between px-3 pt-2.5 pb-1 text-xs font-semibold tracking-wide uppercase">
                                     Parts
                                     <span className="text-faint font-normal normal-case">
                                         {spec.parts.length}
@@ -1644,7 +1656,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
 
                             {hiddenPresent.length > 0 && (
                                 <div
-                                    className="border-warn/30 bg-warn/10 text-warn-fg absolute right-4 bottom-4 z-10 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-[11.5px]"
+                                    className="border-warn/30 bg-warn/10 text-warn-fg absolute right-4 bottom-4 z-10 flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs"
                                     data-testid="hidden-chip"
                                 >
                                     <span>
@@ -1676,7 +1688,19 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                                         className={`hover:text-accent cursor-pointer py-0.5 ${issue.severity === 'error' ? 'text-danger-fg' : 'text-warn-fg'}`}
                                                         onClick={() => revealAndSelect(issue.partId ?? null)}
                                                     >
-                                                        {issue.severity === 'error' ? '✖' : '⚠'}{' '}
+                                                        {issue.severity === 'error' ? (
+                                                            <X
+                                                                size={13}
+                                                                aria-label="Error"
+                                                                className="mr-1 inline align-[-2px]"
+                                                            />
+                                                        ) : (
+                                                            <TriangleAlert
+                                                                size={13}
+                                                                aria-label="Warning"
+                                                                className="mr-1 inline align-[-2px]"
+                                                            />
+                                                        )}
                                                         {issue.message}
                                                     </li>
                                                 ))}
@@ -1684,7 +1708,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                             {structIssues.length > 0 && (
                                                 <div data-testid="struct-advisories">
                                                     {issues.length > 0 && (
-                                                        <div className="text-muted pt-1.5 text-[10px] font-semibold tracking-wider uppercase">
+                                                        <div className="text-muted pt-1.5 text-xs font-semibold tracking-wider uppercase">
                                                             Sturdiness
                                                         </div>
                                                     )}
@@ -1697,7 +1721,12 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                                                     revealAndSelect(issue.partId ?? null)
                                                                 }
                                                             >
-                                                                ⚠ {issue.message}
+                                                                <TriangleAlert
+                                                                    size={13}
+                                                                    aria-label="Warning"
+                                                                    className="mr-1 inline align-[-2px]"
+                                                                />
+                                                                {issue.message}
                                                             </li>
                                                         ))}
                                                     </ul>
@@ -1707,7 +1736,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     )}
                                     <div className="flex items-center gap-1.5">
                                         <button
-                                            className={`bg-surface-1/85 border-fg/[0.08] flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-semibold backdrop-blur ${errorCount > 0 ? 'text-danger-fg' : 'text-ok-fg'}`}
+                                            className={`bg-surface-1/85 border-fg/[0.08] flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-semibold backdrop-blur ${errorCount > 0 ? 'text-danger-fg' : 'text-ok-fg'}`}
                                             data-testid="lint-badge"
                                             onClick={() => setIssuesOpen(!issuesOpen)}
                                         >
@@ -1731,7 +1760,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                             )}
                                         </button>
                                         <span
-                                            className="bg-surface-1/85 border-fg/[0.08] text-muted rounded-lg border px-2.5 py-1.5 text-[12.5px] backdrop-blur"
+                                            className="bg-surface-1/85 border-fg/[0.08] text-muted rounded-lg border px-2.5 py-1.5 text-[13px] backdrop-blur"
                                             data-testid="parts-count"
                                         >
                                             {spec.parts.length} parts
@@ -1828,7 +1857,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     )}
                                     {placing.kind === 'hardware' && (
                                         <button
-                                            className="border-fg/15 text-fg/75 hover:bg-fg/5 rounded-md border px-2 py-0.5 text-[11.5px]"
+                                            className="border-fg/15 text-fg/75 hover:bg-fg/5 rounded-md border px-2 py-0.5 text-xs"
                                             data-testid="placement-turn"
                                             onClick={turnPlacing}
                                         >
@@ -1840,7 +1869,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         data-testid="placement-done"
                                         onClick={stopPlacing}
                                     >
-                                        ✕ Done
+                                        <X size={13} aria-hidden="true" className="inline align-[-2px]" />{' '}
+                                        Done
                                     </button>
                                 </Chip>
                             )}
@@ -1848,7 +1878,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                             {measureLabels.map((label, i) => (
                                 <div
                                     key={`measure-${i}`}
-                                    className={`pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-[11px] font-semibold whitespace-nowrap backdrop-blur ${measureChipClass(label)}`}
+                                    className={`pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap backdrop-blur ${measureChipClass(label)}`}
                                     style={{ left: `${label.x}px`, top: `${label.y}px` }}
                                     data-testid="measure-label"
                                 >
@@ -1882,7 +1912,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         {(['parts', 'points'] as const).map((m) => (
                                             <button
                                                 key={m}
-                                                className={`min-h-6 px-2 text-[11px] font-semibold capitalize ${measureMode === m ? 'bg-accent/20 text-accent' : 'text-muted hover:bg-fg/5'}`}
+                                                className={`min-h-6 px-2 text-xs font-semibold capitalize ${measureMode === m ? 'bg-accent/20 text-accent' : 'text-muted hover:bg-fg/5'}`}
                                                 data-testid={`measure-mode-${m}`}
                                                 onClick={() => setMeasureMode(m)}
                                             >
@@ -1901,7 +1931,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         data-testid="measure-done"
                                         onClick={toggleMeasure}
                                     >
-                                        ✕ Done
+                                        <X size={13} aria-hidden="true" className="inline align-[-2px]" />{' '}
+                                        Done
                                     </button>
                                 </Chip>
                             )}
@@ -2088,11 +2119,11 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 {shortcutsOpen && (
                     <Modal onClose={() => setShortcutsOpen(false)} testId="shortcuts" className="max-w-md">
                         <h2 className="mb-1 text-base font-semibold">Keyboard shortcuts</h2>
-                        <p className="text-muted mb-3 text-[12.5px]">
+                        <p className="text-muted mb-3 text-[13px]">
                             Click a part to inspect it, drag it to move it, and hold Shift while dragging to
                             lift it.
                         </p>
-                        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12.5px]">
+                        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[13px]">
                             {SHORTCUTS.map(({ keys, does }) => (
                                 <div key={keys} className="contents">
                                     <dt className="text-fg-strong font-mono text-[12px] whitespace-nowrap">

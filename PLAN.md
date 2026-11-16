@@ -451,16 +451,15 @@ door or a drawer. Use Open in the toolbar to see it move."; Position, Orientatio
 Hardware and Cuts fold away and stay folded (`InspectorSection`). Not done: editing a cut in
 place (today: delete it and add it again).
 
-**5b.8 System-wide.**
-- Type sizes run 11–12.5 px in panels. Set a 13 px floor for body text and 12 px for labels.
-- Check contrast of muted text on both themes against WCAG AA (4.5:1); the dark theme's muted
-  grey on near-black fails in several places (hints, card meta, section labels).
-- Use the window: on macOS use an overlay title bar so the nav sits beside the traffic lights
-  instead of under a separate title strip (`tauri.conf.json` `titleBarStyle: "Overlay"`).
-- Settings is one long narrow column; the MCP block dominates it. Group into tabs or a left list
-  (General, Library, AI agents, Updates, Diagnostics).
-- Give the app a real icon and wordmark; the current mark is a placeholder glyph.
-- Add a consistent set of icons (`lucide-react` is already a dependency) instead of text glyphs.
+**5b.8 System-wide.** Done: text sizes floor at 12 px for labels and 13 px for body (no 10–11.5
+or 12.5 px left), with tool labels in the editor toolbar dropping to icons when the toolbar is
+narrow (a container query) rather than clipping; `faint` text now clears WCAG AA on every surface
+in both themes (it was 3.1–3.8:1), held there by `lib/__tests__/contrast.spec.ts`, which reads the
+tokens from app.css; Settings is a left list of groups (General, Library, AI agents, Updates,
+Diagnostics, About) that remembers the last one; glyphs (✕ ▶ ▼ ⋯ 🙈 👁 ⚠) are lucide icons with
+accessible names; macOS uses an overlay title bar (`titleBarStyle: "Overlay"`, traffic lights at
+18, 22) with the header and editor toolbar padded clear of them and draggable. Still to do: a
+real icon and wordmark, which wait on the name decision.
 
 Done when: a first-time user can go from launch to an exported PDF without meeting a word they
 have to look up, and the editor screenshot would make someone want to try it from the README.

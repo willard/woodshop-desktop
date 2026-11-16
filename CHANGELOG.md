@@ -29,6 +29,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- Larger, higher-contrast text throughout; Settings is split into sections; icons replace text
+  symbols; on macOS the window's own header sits beside the traffic lights, with no separate
+  title bar.
 - The inspector describes each cut in plain words with an icon, adds cuts from one menu, names
   rotations by what they do (tip, turn, roll), and lets you fold away the sections you don't use.
 - The cut list shows what to cut first and the hardware after it, with screws and dowels folded

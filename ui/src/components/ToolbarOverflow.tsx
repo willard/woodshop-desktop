@@ -17,7 +17,7 @@ export function ToolbarOverflow({
     extra?: (close: () => void) => React.ReactNode;
 }) {
     const item =
-        'enabled:hover:bg-fg/[0.07] disabled:text-faint rounded-md px-2.5 py-2 text-left text-[12.5px]';
+        'enabled:hover:bg-fg/[0.07] disabled:text-faint rounded-md px-2.5 py-2 text-left text-[13px]';
     return (
         <Popover
             testId="toolbar-overflow-panel"
@@ -72,7 +72,7 @@ export function ToolbarOverflow({
                     </button>
                     {extra?.(close)}
                     <div className="bg-fg/[0.08] my-1 h-px" />
-                    <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 text-[12.5px]">
+                    <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 text-[13px]">
                         <span className="text-fg/75">Theme</span>
                         <ThemeToggle />
                     </div>

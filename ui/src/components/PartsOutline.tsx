@@ -3,6 +3,7 @@
  * A part hidden deep inside a cabinet can be selected, renamed or hidden from here without
  * hunting for it in the 3D view.
  */
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { Spec } from '@/spec';
 
@@ -54,13 +55,15 @@ export function PartsOutline(props: Props) {
                 ) : (
                     <div key={section.key} className="mb-1" data-testid="outline-section">
                         <button
-                            className="text-muted hover:text-fg-strong flex w-full items-center gap-1.5 px-3 py-1 text-left text-[11.5px] font-semibold"
+                            className="text-muted hover:text-fg-strong flex w-full items-center gap-1.5 px-3 py-1 text-left text-xs font-semibold"
                             aria-expanded={!collapsed.has(section.key)}
                             onClick={() => toggle(section.key)}
                         >
-                            <span aria-hidden="true" className="w-3 text-[9px]">
-                                {collapsed.has(section.key) ? '▶' : '▼'}
-                            </span>
+                            {collapsed.has(section.key) ? (
+                                <ChevronRight size={13} aria-hidden="true" className="flex-none" />
+                            ) : (
+                                <ChevronDown size={13} aria-hidden="true" className="flex-none" />
+                            )}
                             <span className="truncate">{section.title}</span>
                             <span className="text-faint ml-auto font-normal">{section.partIds.length}</span>
                         </button>
@@ -123,12 +126,12 @@ function Row({
                             setEditing(false);
                         }
                     }}
-                    className="border-accent bg-surface-0 my-0.5 min-w-0 flex-1 rounded border px-1.5 py-0.5 text-[12.5px] focus:outline-none"
+                    className="border-accent bg-surface-0 my-0.5 min-w-0 flex-1 rounded border px-1.5 py-0.5 text-[13px] focus:outline-none"
                     data-testid="outline-rename"
                 />
             ) : (
                 <button
-                    className={`min-w-0 flex-1 truncate py-1 text-left text-[12.5px] ${hidden ? 'text-faint line-through' : selected ? 'text-fg-strong font-medium' : 'text-fg/80'}`}
+                    className={`min-w-0 flex-1 truncate py-1 text-left text-[13px] ${hidden ? 'text-faint line-through' : selected ? 'text-fg-strong font-medium' : 'text-fg/80'}`}
                     title={`${name} — double-click to rename`}
                     onClick={(e) => onSelect(id, e.shiftKey || e.metaKey || e.ctrlKey)}
                     onDoubleClick={() => {

@@ -27,7 +27,7 @@ export function SnapSettings(props: {
             panelClassName="flex w-56 flex-col gap-3 p-3"
             trigger={({ open, toggle }) => (
                 <button
-                    className={`border-fg/10 text-fg/75 hover:bg-fg/5 flex h-[30px] items-center gap-1.5 rounded-lg border px-2.5 text-[12.5px] ${open ? 'bg-fg/5' : ''}`}
+                    className={`border-fg/10 text-fg/75 hover:bg-fg/5 flex h-[30px] items-center gap-1.5 rounded-lg border px-2.5 text-[13px] ${open ? 'bg-fg/5' : ''}`}
                     data-testid="snap-settings-toggle"
                     title={title}
                     aria-expanded={open}
@@ -47,7 +47,7 @@ export function SnapSettings(props: {
         >
             {() => (
                 <>
-                    <label className="flex items-center justify-between gap-3 text-[12.5px]">
+                    <label className="flex items-center justify-between gap-3 text-[13px]">
                         <span className="text-fg/75">Grid</span>
                         <select
                             value={props.gridSize}
@@ -62,7 +62,7 @@ export function SnapSettings(props: {
                             ))}
                         </select>
                     </label>
-                    <label className="flex cursor-pointer items-center justify-between gap-3 text-[12.5px]">
+                    <label className="flex cursor-pointer items-center justify-between gap-3 text-[13px]">
                         <span className="text-fg/75">Snap to faces &amp; edges</span>
                         <input
                             checked={props.faceSnap}
@@ -72,7 +72,7 @@ export function SnapSettings(props: {
                             onChange={(e) => props.onFaceSnap(e.target.checked)}
                         />
                     </label>
-                    <label className="flex items-center justify-between gap-3 text-[12.5px]">
+                    <label className="flex items-center justify-between gap-3 text-[13px]">
                         <span className="text-fg/75">Gap</span>
                         <select
                             value={props.snapGap}
@@ -87,7 +87,7 @@ export function SnapSettings(props: {
                             ))}
                         </select>
                     </label>
-                    <p className="text-muted text-[11px] leading-snug">
+                    <p className="text-muted text-xs leading-snug">
                         Gap spaces parts instead of seating them flush — slats, for instance.
                     </p>
                 </>

@@ -45,7 +45,7 @@ export function AddPartDialog({
             <h2 className="mb-3 text-[15px] font-semibold">Add {preset.label.toLowerCase()}</h2>
             <div className="mb-3 flex items-end gap-2">
                 <label className="flex-1">
-                    <span className="text-muted mb-1 block text-[11px]">Length</span>
+                    <span className="text-muted mb-1 block text-xs">Length</span>
                     <input
                         autoFocus
                         value={lengthText}
@@ -57,7 +57,7 @@ export function AddPartDialog({
                 </label>
                 <span className="text-muted pb-3">×</span>
                 <label className="flex-1">
-                    <span className="text-muted mb-1 block text-[11px]">Width</span>
+                    <span className="text-muted mb-1 block text-xs">Width</span>
                     <input
                         value={widthText}
                         onChange={(e) => setWidthText(e.target.value)}
@@ -68,7 +68,7 @@ export function AddPartDialog({
                 </label>
             </div>
             <div className="mb-3">
-                <span className="text-muted mb-1 block text-[11px]">How it stands</span>
+                <span className="text-muted mb-1 block text-xs">How it stands</span>
                 <div className="flex gap-1">
                     {ORIENTATIONS.map((o) => (
                         <button
@@ -84,7 +84,7 @@ export function AddPartDialog({
                 </div>
             </div>
             <div className="mb-3">
-                <span className="text-muted mb-1 block text-[11px]">How many</span>
+                <span className="text-muted mb-1 block text-xs">How many</span>
                 <div className="flex items-center gap-2">
                     <button
                         className="bg-surface-2 hover:bg-fg/10 h-10 w-10 flex-none rounded-lg text-lg"
@@ -105,7 +105,7 @@ export function AddPartDialog({
                     </button>
                 </div>
             </div>
-            <p className="text-muted mb-3 text-[11.5px]" data-testid="add-summary">
+            <p className="text-muted mb-3 text-xs" data-testid="add-summary">
                 {summary}
             </p>
             <div className="flex gap-2">

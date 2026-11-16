@@ -133,7 +133,7 @@ export default function ShelfSagPanel() {
                         <p className="mb-1 text-[15px] font-semibold">
                             {r ? VERDICT[r.verdict].title : 'Fill in the shelf'}
                         </p>
-                        <p className="text-[12.5px] leading-snug opacity-90">{verdictText}</p>
+                        <p className="text-[13px] leading-snug opacity-90">{verdictText}</p>
                     </div>
                     <ResultGrid
                         testid="sg-results"

@@ -20,7 +20,7 @@ export function PartDetail({ spec, part }: { spec: Spec; part: Part }) {
             };
         });
     const rotated = part.transform.rot.some((d) => d !== 0);
-    const heading = 'text-muted mb-2 text-[11.5px] font-semibold tracking-wider uppercase';
+    const heading = 'text-muted mb-2 text-xs font-semibold tracking-wider uppercase';
 
     return (
         <div className="px-4 pt-3.5 pb-5 text-sm" data-testid="part-detail">

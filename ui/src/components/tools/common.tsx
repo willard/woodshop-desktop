@@ -40,7 +40,7 @@ export function Check({
 export function Tile({ label, value, testid }: { label: string; value: ReactNode; testid?: string }) {
     return (
         <div className="bg-surface-2 mt-3 rounded-lg px-3 py-2.5" data-testid={testid}>
-            <div className="text-muted text-[11.5px]">{label}</div>
+            <div className="text-muted text-xs">{label}</div>
             <div className="text-fg-strong mt-0.5 text-lg font-semibold tabular-nums">{value}</div>
         </div>
     );

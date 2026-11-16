@@ -58,7 +58,7 @@ export function NotesPanel({ projectId }: { projectId: number }) {
         <section className="flex h-full min-h-0 w-full flex-col" data-testid="notes-panel">
             <div className="flex-none px-4 pt-3.5 pb-2">
                 <h2 className="text-[15px] font-semibold">Shop notes</h2>
-                <p className="text-muted text-[11px]">
+                <p className="text-muted text-xs">
                     Build steps, reminders, anything to remember for this project.
                 </p>
             </div>
@@ -78,7 +78,7 @@ export function NotesPanel({ projectId }: { projectId: number }) {
                     }}
                 />
                 <div className="flex items-center justify-between gap-2">
-                    <span className="text-muted text-[11px]">⌘ / Ctrl + Enter to add</span>
+                    <span className="text-muted text-xs">⌘ / Ctrl + Enter to add</span>
                     <button
                         type="button"
                         className="bg-accent text-accent-ink hover:bg-accent-strong shrink-0 rounded-lg px-3.5 py-1.5 text-[13px] font-semibold disabled:opacity-40"
@@ -149,7 +149,7 @@ export function NotesPanel({ projectId }: { projectId: number }) {
                             <>
                                 <p className="text-[13px] leading-snug whitespace-pre-wrap">{note.body}</p>
                                 <div className="mt-2 flex items-center gap-1.5">
-                                    <span className="text-muted flex-1 truncate text-[11px]">
+                                    <span className="text-muted flex-1 truncate text-xs">
                                         {timeAgo(note.updatedAt)}
                                     </span>
                                     <button

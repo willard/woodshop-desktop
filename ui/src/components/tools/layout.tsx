@@ -22,7 +22,7 @@ export function CalcPanel({
 }
 
 export function Heading({ children }: { children: ReactNode }) {
-    return <p className="text-muted mb-3 text-[11.5px] font-semibold tracking-wider uppercase">{children}</p>;
+    return <p className="text-muted mb-3 text-xs font-semibold tracking-wider uppercase">{children}</p>;
 }
 
 export function Footnote({ children }: { children: ReactNode }) {
@@ -43,7 +43,7 @@ export function Segmented<T extends string>({
 }) {
     return (
         <div className="flex flex-col gap-1.5">
-            {label && <span className="text-muted text-[12.5px] font-medium">{label}</span>}
+            {label && <span className="text-muted text-[13px] font-medium">{label}</span>}
             <div className="flex gap-1.5">
                 {options.map((o) => (
                     <button
@@ -80,7 +80,7 @@ export function SelectField({
 }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-muted text-[12.5px] font-medium" htmlFor={id}>
+            <label className="text-muted text-[13px] font-medium" htmlFor={id}>
                 {label}
             </label>
             <select

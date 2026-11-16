@@ -3,6 +3,7 @@
  * Inspector can take over; shift/⌘-click extends the selection. `readonly` is the exported-plan
  * viewer: the same panel with nothing to change.
  */
+import { ChevronDown, ChevronRight, Eye, EyeOff, X } from 'lucide-react';
 import { useMemo, useState, type MouseEvent } from 'react';
 import {
     computeCutList,
@@ -153,7 +154,7 @@ export function CutListPanel(props: CutListPanelProps) {
                         className="bg-surface-2 col-span-2 rounded-lg px-3 py-2.5"
                         data-testid="cutlist-overall"
                     >
-                        <div className="text-muted text-[11.5px]">Overall (W × D × H)</div>
+                        <div className="text-muted text-xs">Overall (W × D × H)</div>
                         <div className="mt-0.5 text-lg font-semibold">
                             {dims(overall.width, overall.depth, overall.height)}
                         </div>
@@ -167,7 +168,7 @@ export function CutListPanel(props: CutListPanelProps) {
                         onClick={focusFirstPrice}
                         data-testid="cutlist-add-prices"
                     >
-                        <div className="text-muted text-[11.5px]">Est. cost</div>
+                        <div className="text-muted text-xs">Est. cost</div>
                         <div className="text-accent mt-0.5 text-[13px] font-semibold">
                             Add prices to see cost
                         </div>
@@ -200,10 +201,10 @@ export function CutListPanel(props: CutListPanelProps) {
                         <SectionHeading>{kindLabel(section.kind)}</SectionHeading>
                     )}
                     <div className="bg-surface-2 mb-1.5 rounded-lg px-2.5 py-2">
-                        <div className="truncate text-[12.5px] font-semibold">
+                        <div className="truncate text-[13px] font-semibold">
                             {section.species && (
                                 <span
-                                    className="bg-accent/15 text-accent mr-1 rounded-full px-1.5 py-px text-[10px] font-semibold capitalize"
+                                    className="bg-accent/15 text-accent mr-1 rounded-full px-1.5 py-px text-xs font-semibold capitalize"
                                     data-testid="species-badge"
                                 >
                                     {section.species}
@@ -211,7 +212,7 @@ export function CutListPanel(props: CutListPanelProps) {
                             )}
                             {section.materialName}
                         </div>
-                        <div className="text-muted mt-0.5 text-[11px]">
+                        <div className="text-muted mt-0.5 text-xs">
                             <span data-testid="cutlist-stock">{stockLine(section)}</span>
                             {section.cost !== null && <span> · {money(section.cost)}</span>}
                             <span> · {section.boardFeet.toFixed(1)} bd ft</span>
@@ -236,7 +237,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                             onClick={(e) => groupClick(group, e)}
                                         >
                                             <span
-                                                className={`bg-surface-3 flex-none rounded-md px-1.5 py-0.5 text-[12.5px] font-semibold tabular-nums ${group.qty > 1 ? 'text-fg' : 'text-muted'}`}
+                                                className={`bg-surface-3 flex-none rounded-md px-1.5 py-0.5 text-[13px] font-semibold tabular-nums ${group.qty > 1 ? 'text-fg' : 'text-muted'}`}
                                                 data-testid="cutlist-qty"
                                             >
                                                 ×{group.qty}
@@ -245,11 +246,11 @@ export function CutListPanel(props: CutListPanelProps) {
                                                 <span className="block truncate text-[13px] font-semibold">
                                                     {group.label}
                                                 </span>
-                                                <span className="text-muted block truncate text-[11px]">
+                                                <span className="text-muted block truncate text-xs">
                                                     {FLAG_BADGES.filter((b) => group[b.key]).map((b) => (
                                                         <span
                                                             key={b.key}
-                                                            className="bg-fg/10 text-muted mr-1 rounded-full px-1.5 py-px text-[10px] font-medium"
+                                                            className="bg-fg/10 text-muted mr-1 rounded-full px-1.5 py-px text-xs font-medium"
                                                             title={b.title}
                                                         >
                                                             {b.label}
@@ -311,13 +312,13 @@ export function CutListPanel(props: CutListPanelProps) {
                                                         {member.name}
                                                     </span>
                                                     <span className="flex flex-none items-center gap-1.5">
-                                                        <span className="text-muted text-[11px]">
+                                                        <span className="text-muted text-xs">
                                                             ×{member.qty}
                                                         </span>
                                                         {props.onToggleHidden && (
                                                             <span
                                                                 role="button"
-                                                                className={`hover:bg-fg/10 flex h-5 w-5 items-center justify-center rounded text-[11px] ${hidden ? 'text-muted' : 'text-faint'}`}
+                                                                className={`hover:bg-fg/10 flex h-5 w-5 items-center justify-center rounded text-xs ${hidden ? 'text-muted' : 'text-faint'}`}
                                                                 title={
                                                                     hidden
                                                                         ? 'Show in the 3D view'
@@ -329,7 +330,11 @@ export function CutListPanel(props: CutListPanelProps) {
                                                                     props.onToggleHidden?.(member.partId);
                                                                 }}
                                                             >
-                                                                {hidden ? '🙈' : '👁'}
+                                                                {hidden ? (
+                                                                    <EyeOff size={14} aria-hidden="true" />
+                                                                ) : (
+                                                                    <Eye size={14} aria-hidden="true" />
+                                                                )}
                                                             </span>
                                                         )}
                                                     </span>
@@ -369,9 +374,19 @@ export function CutListPanel(props: CutListPanelProps) {
                                     data-testid="cutlist-fasteners"
                                 >
                                     <span className="text-fg/70">
-                                        <span aria-hidden="true" className="text-faint mr-1.5 text-[9px]">
-                                            {fastenersOpen ? '▼' : '▶'}
-                                        </span>
+                                        {fastenersOpen ? (
+                                            <ChevronDown
+                                                size={13}
+                                                aria-hidden="true"
+                                                className="text-faint mr-1 inline"
+                                            />
+                                        ) : (
+                                            <ChevronRight
+                                                size={13}
+                                                aria-hidden="true"
+                                                className="text-faint mr-1 inline"
+                                            />
+                                        )}
                                         Fasteners{' '}
                                         <span className="text-faint">
                                             ({fasteners.length} {fasteners.length === 1 ? 'kind' : 'kinds'})
@@ -448,14 +463,15 @@ export function CutListPanel(props: CutListPanelProps) {
                                             title={blocked ?? 'Remove this material'}
                                             data-testid={`material-delete-${material.id}`}
                                             className="text-muted enabled:hover:bg-danger/15 enabled:hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs disabled:cursor-not-allowed disabled:opacity-30"
+                                            aria-label="Remove this material"
                                             onClick={() => props.onDeleteMaterial?.(material.id)}
                                         >
-                                            ✕
+                                            <X size={14} aria-hidden="true" />
                                         </button>
                                     </>
                                 )}
                             </div>
-                            <div className="text-muted mb-2 text-[11px]">
+                            <div className="text-muted mb-2 text-xs">
                                 <span data-testid={`material-use-${material.id}`}>
                                     {uses === 0 ? 'Unused' : `Used by ${uses}`}
                                 </span>{' '}
@@ -577,7 +593,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: 'wa
             className={`rounded-lg px-3 py-2.5 ${tone === 'warn' ? 'bg-warn/10 border-warn/30 border' : 'bg-surface-2'}`}
             data-tone={tone}
         >
-            <div className={`text-[11.5px] ${tone === 'warn' ? 'text-warn-fg' : 'text-muted'}`}>{label}</div>
+            <div className={`text-xs ${tone === 'warn' ? 'text-warn-fg' : 'text-muted'}`}>{label}</div>
             <div className={`mt-0.5 text-lg font-semibold ${tone === 'warn' ? 'text-warn-fg' : ''}`}>
                 {value}
             </div>
@@ -602,9 +618,7 @@ function HardwareLine({ row, indent = false }: { row: CutList['hardware'][number
 const FASTENER_KINDS = new Set(['pocketScrew', 'woodScrew', 'dowel']);
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-    return (
-        <h3 className="text-muted mb-2 text-[11.5px] font-semibold tracking-wider uppercase">{children}</h3>
-    );
+    return <h3 className="text-muted mb-2 text-xs font-semibold tracking-wider uppercase">{children}</h3>;
 }
 
 /** A fraction input that commits on blur/Enter and snaps back when the value is rejected. */

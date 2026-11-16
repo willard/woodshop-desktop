@@ -2,6 +2,7 @@
  * Selection-driven part editor (right dock "Inspector"). Purely presentational: every change is
  * reported through a callback and the workspace executes the Command.
  */
+import { X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Op, Part, Species } from '@/spec';
 import type { HardwarePatch, PlacementRequest } from '@/engine';
@@ -552,7 +553,7 @@ export function PartInspector(p: PartInspectorProps) {
                     </button>
                 )}
                 {part.locked && (
-                    <span className="bg-accent/15 text-accent flex-none rounded-full px-2 py-0.5 text-[11.5px] font-semibold">
+                    <span className="bg-accent/15 text-accent flex-none rounded-full px-2 py-0.5 text-xs font-semibold">
                         locked
                     </span>
                 )}
@@ -687,9 +688,7 @@ export function PartInspector(p: PartInspectorProps) {
                         );
                     })}
                 </div>
-                <p className="text-muted mb-4 text-[11px]">
-                    Centre of the part. Y is height; negatives allowed.
-                </p>
+                <p className="text-muted mb-4 text-xs">Centre of the part. Y is height; negatives allowed.</p>
             </Section>
 
             <Section id="orientation" title="Orientation">
@@ -710,7 +709,7 @@ export function PartInspector(p: PartInspectorProps) {
                     {ROTATIONS.map((r) => (
                         <div key={r.axis} className="flex items-center gap-1">
                             <button
-                                className="border-fg/10 text-muted hover:bg-fg/5 h-8 w-7 flex-none rounded-lg border text-[11px]"
+                                className="border-fg/10 text-muted hover:bg-fg/5 h-8 w-7 flex-none rounded-lg border text-xs"
                                 data-testid={`rot-minus-${r.axis}`}
                                 title={`${r.label} back 15°`}
                                 onClick={() => p.onRotateBy(r.axis, -15)}
@@ -729,7 +728,7 @@ export function PartInspector(p: PartInspectorProps) {
                                 onKeyDown={onEnter(() => commitRotation(r.axis))}
                             />
                             <button
-                                className="border-fg/10 text-muted hover:bg-fg/5 h-8 w-7 flex-none rounded-lg border text-[11px]"
+                                className="border-fg/10 text-muted hover:bg-fg/5 h-8 w-7 flex-none rounded-lg border text-xs"
                                 data-testid={`rot-plus-${r.axis}`}
                                 title={`${r.label} on 15°`}
                                 onClick={() => p.onRotateBy(r.axis, 15)}
@@ -744,7 +743,7 @@ export function PartInspector(p: PartInspectorProps) {
             <Section id="movable" title="Door or drawer">
                 {p.movable === null ? (
                     <div className="mb-4" data-testid="movable-none">
-                        <p className="text-muted mb-2 text-[11px]">
+                        <p className="text-muted mb-2 text-xs">
                             Turn this part into a door or a drawer. Use Open in the toolbar to see it move.
                         </p>
                         <div className="grid grid-cols-2 gap-2">
@@ -763,19 +762,16 @@ export function PartInspector(p: PartInspectorProps) {
                 ) : (
                     <div className="bg-surface-2/60 mb-4 rounded-lg p-2.5" data-testid="movable-panel">
                         <div className="mb-2 flex items-center justify-between gap-2">
-                            <span
-                                className="text-fg/80 text-[12.5px] font-semibold"
-                                data-testid="movable-kind"
-                            >
+                            <span className="text-fg/80 text-[13px] font-semibold" data-testid="movable-kind">
                                 {p.movable.kind === 'door' ? 'Door' : 'Drawer'}
-                                <span className="text-muted text-[11px] font-normal">
+                                <span className="text-muted text-xs font-normal">
                                     {' '}
                                     · {p.movable.partIds.length}{' '}
                                     {p.movable.partIds.length === 1 ? 'part' : 'parts'}
                                 </span>
                             </span>
                             <button
-                                className="text-muted hover:text-danger-fg text-[11px]"
+                                className="text-muted hover:text-danger-fg text-xs"
                                 data-testid="movable-dissolve"
                                 onClick={p.onDissolveMovable}
                             >
@@ -849,9 +845,10 @@ export function PartInspector(p: PartInspectorProps) {
                                     className="text-muted hover:bg-danger/15 hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs"
                                     data-testid={`ops-delete-${i}`}
                                     title="Delete this cut"
+                                    aria-label="Delete this cut"
                                     onClick={() => p.onRemoveOp(i)}
                                 >
-                                    ✕
+                                    <X size={14} aria-hidden="true" />
                                 </button>
                             </div>
                         ))}
@@ -860,7 +857,7 @@ export function PartInspector(p: PartInspectorProps) {
 
                 {p.round ? (
                     <p
-                        className="border-fg/10 text-muted mb-2.5 rounded-lg border border-dashed px-2.5 py-2 text-[11px]"
+                        className="border-fg/10 text-muted mb-2.5 rounded-lg border border-dashed px-2.5 py-2 text-xs"
                         data-testid="round-no-ops"
                     >
                         Dowel stock takes no dados, holes or edges — cut features on square stock.
@@ -898,8 +895,8 @@ export function PartInspector(p: PartInspectorProps) {
                                             <OpIcon type={b.icon} />
                                         </span>
                                         <span>
-                                            <span className="block text-[12.5px] font-medium">{b.label}</span>
-                                            <span className="text-muted block text-[11.5px]">{b.does}</span>
+                                            <span className="block text-[13px] font-medium">{b.label}</span>
+                                            <span className="text-muted block text-xs">{b.does}</span>
                                         </span>
                                     </button>
                                 ))
@@ -1127,10 +1124,10 @@ export function PartInspector(p: PartInspectorProps) {
                 {p.overlaps.length > 0 && (
                     <div className="mb-3" data-testid="overlap-list">
                         <div className="mb-2 flex items-center justify-between">
-                            <span className="text-muted text-[11.5px] font-semibold tracking-wider uppercase">
+                            <span className="text-muted text-xs font-semibold tracking-wider uppercase">
                                 Overlapping parts
                             </span>
-                            <label className="text-muted flex items-center gap-1.5 text-[11px]">
+                            <label className="text-muted flex items-center gap-1.5 text-xs">
                                 clearance
                                 <input
                                     value={clearance}
@@ -1396,7 +1393,7 @@ function FormBox({ testId, children }: { testId: string; children: React.ReactNo
 }
 
 function Hint({ children }: { children: React.ReactNode }) {
-    return <p className="text-muted mb-2 text-[11px]">{children}</p>;
+    return <p className="text-muted mb-2 text-xs">{children}</p>;
 }
 
 function EdgeField({
@@ -1446,7 +1443,7 @@ function Checkbox({
     children: React.ReactNode;
 }) {
     return (
-        <label className="text-muted mb-2 flex items-center gap-2 text-[11px]">
+        <label className="text-muted mb-2 flex items-center gap-2 text-xs">
             <input
                 type="checkbox"
                 checked={checked}
@@ -1502,7 +1499,7 @@ function MateButton({
 }) {
     return (
         <button
-            className="border-accent/40 text-accent hover:bg-accent/10 min-h-[30px] flex-1 rounded-lg border px-2 py-1 text-[11px] font-semibold"
+            className="border-accent/40 text-accent hover:bg-accent/10 min-h-[30px] flex-1 rounded-lg border px-2 py-1 text-xs font-semibold"
             data-testid={testId}
             onClick={onClick}
         >

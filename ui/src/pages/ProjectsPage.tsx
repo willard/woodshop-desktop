@@ -280,7 +280,7 @@ function ProjectCard({
         );
     }
 
-    const item = 'hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[12.5px]';
+    const item = 'hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]';
     return (
         <li
             className="border-fg/8 bg-surface-1 hover:border-fg/20 focus-within:border-accent/60 relative flex flex-col overflow-hidden rounded-xl border transition-colors"

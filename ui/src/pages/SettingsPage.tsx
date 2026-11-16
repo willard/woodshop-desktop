@@ -1,5 +1,5 @@
 /** App settings: appearance, cut-list defaults, where the library lives, MCP setup, updates. */
-import { useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { openUrl, revealItemInDir } from '@tauri-apps/plugin-opener';
 import { check } from '@tauri-apps/plugin-updater';
@@ -14,15 +14,31 @@ import { BackupsPanel } from '@/components/BackupsPanel';
 import { AboutPanel } from '@/components/AboutPanel';
 import { KERF_OPTIONS, useDefaultKerf } from '@/app/settings';
 
+/** The groups Settings is split into, in the order the list shows them. */
+const GROUPS = [
+    { id: 'general', label: 'General' },
+    { id: 'library', label: 'Library' },
+    { id: 'agents', label: 'AI agents' },
+    { id: 'updates', label: 'Updates' },
+    { id: 'diagnostics', label: 'Diagnostics' },
+    { id: 'about', label: 'About' },
+] as const;
+type GroupId = (typeof GROUPS)[number]['id'];
+const GROUP_KEY = 'woodshop.settings.group';
+const ActiveGroup = createContext<GroupId>('general');
+
 function Section({
+    group,
     title,
     description,
     children,
 }: {
+    group: GroupId;
     title: string;
     description?: string;
     children: ReactNode;
 }) {
+    if (useContext(ActiveGroup) !== group) return null;
     return (
         <section className="border-fg/8 bg-surface-1/50 mb-5 rounded-xl border p-5">
             <h2 className="mb-1 font-semibold">{title}</h2>
@@ -53,6 +69,23 @@ function Copyable({ text, testId }: { text: string; testId?: string }) {
 }
 
 export default function SettingsPage() {
+    const [group, setGroup] = useState<GroupId>(() => {
+        try {
+            const stored = window.localStorage.getItem(GROUP_KEY);
+            if (GROUPS.some((g) => g.id === stored)) return stored as GroupId;
+        } catch {
+            // Storage unavailable: start at General.
+        }
+        return 'general';
+    });
+    function chooseGroup(id: GroupId): void {
+        setGroup(id);
+        try {
+            window.localStorage.setItem(GROUP_KEY, id);
+        } catch {
+            // Not remembered; fine.
+        }
+    }
     const toast = useToast();
     const queryClient = useQueryClient();
     const info = useQuery({ queryKey: ['library-info'], queryFn: api.libraryInfo, staleTime: Infinity });
@@ -106,167 +139,198 @@ export default function SettingsPage() {
         `h-9 flex-1 rounded-lg border px-3 text-sm ${active ? 'border-accent bg-accent/12 text-accent font-medium' : 'border-fg/12 text-muted hover:bg-surface-2'}`;
 
     return (
-        <div className="max-w-3xl">
-            <h1 className="mb-6 text-xl font-semibold tracking-tight">Settings</h1>
+        <div className="flex max-w-4xl gap-8">
+            <nav aria-label="Settings" className="w-44 flex-none">
+                <h1 className="mb-4 text-xl font-semibold tracking-tight">Settings</h1>
+                <ul className="flex flex-col gap-0.5">
+                    {GROUPS.map((g) => (
+                        <li key={g.id}>
+                            <button
+                                className={`w-full rounded-md px-3 py-1.5 text-left text-sm ${group === g.id ? 'bg-fg/[0.08] text-fg-strong font-medium' : 'text-muted hover:text-fg-strong hover:bg-fg/[0.04]'}`}
+                                aria-current={group === g.id ? 'page' : undefined}
+                                onClick={() => chooseGroup(g.id)}
+                                data-testid={`settings-group-${g.id}`}
+                            >
+                                {g.label}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+            <div className="min-w-0 flex-1 pt-11">
+                <ActiveGroup.Provider value={group}>
+                    <Section group="general" title="Appearance">
+                        <div className="flex gap-2">
+                            {(['system', 'light', 'dark'] as const).map((t) => (
+                                <button
+                                    key={t}
+                                    className={choice(theme === t)}
+                                    onClick={() => {
+                                        setPreference(t);
+                                        setTheme(t);
+                                    }}
+                                >
+                                    {t === 'system' ? 'Match system' : t === 'light' ? 'Light' : 'Dark'}
+                                </button>
+                            ))}
+                        </div>
+                    </Section>
 
-            <Section title="Appearance">
-                <div className="flex gap-2">
-                    {(['system', 'light', 'dark'] as const).map((t) => (
+                    <Section
+                        group="general"
+                        title="Units"
+                        description="How sizes are shown and typed everywhere: the editor, cut list, PDF, CSV and 3D plan. Any field also takes a size with its unit, such as 450 mm or 17 3/4 in. Designs are stored the same way whichever you pick, so you can switch at any time."
+                    >
+                        <div className="flex gap-2" data-testid="units-choice">
+                            {UNITS_OPTIONS.map((o) => (
+                                <button
+                                    key={o.value}
+                                    className={choice(units === o.value)}
+                                    data-testid={`units-${o.value}`}
+                                    onClick={() => void chooseUnits(o.value)}
+                                >
+                                    {o.label} <span className="opacity-60">{o.example}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </Section>
+
+                    <Section
+                        group="general"
+                        title="Cut list"
+                        description="The saw kerf every new editor session starts with. You can still change it per session in the Cut list panel."
+                    >
+                        <div className="flex gap-2">
+                            {KERF_OPTIONS.map((k) => (
+                                <button
+                                    key={k}
+                                    className={choice(kerf === k)}
+                                    onClick={() => void setKerf(k)}
+                                >
+                                    {units === 'fraction' ? `${formatFraction(k, 32)}"` : len(k)}
+                                </button>
+                            ))}
+                        </div>
+                    </Section>
+
+                    <Section
+                        group="library"
+                        title="Project library"
+                        description="Every project, version, note and thumbnail is stored in one folder on this computer. Back it up with the rest of your files, or export single projects as .woodshop files."
+                    >
+                        {info.data && (
+                            <div className="flex items-center gap-2">
+                                <code className="bg-surface-0 border-fg/8 min-w-0 flex-1 truncate rounded-lg border px-3 py-2 text-xs">
+                                    {info.data.dataDir}
+                                </code>
+                                <button
+                                    className="border-fg/12 hover:bg-surface-2 flex-none rounded-lg border px-3 py-2 text-sm"
+                                    onClick={() =>
+                                        void revealItemInDir(`${info.data.dataDir}/woodshop.db`).catch((e) =>
+                                            toast.error(errorMessage(e)),
+                                        )
+                                    }
+                                >
+                                    Show in folder
+                                </button>
+                            </div>
+                        )}
+                    </Section>
+
+                    <Section
+                        group="library"
+                        title="Backups"
+                        description="Woodshop copies your whole library once a day and keeps the last week. If a project goes wrong or is deleted, look inside a backup and restore it."
+                    >
+                        <BackupsPanel />
+                    </Section>
+
+                    <Section
+                        group="agents"
+                        title="AI agents (MCP)"
+                        description="Let Claude Desktop, Claude Code or any MCP client design in your library. The server runs locally from this app — no account, no token, nothing sent anywhere by Woodshop itself."
+                    >
+                        {mcp.data ? (
+                            <>
+                                <p className="text-muted mb-2 text-xs font-semibold tracking-wider uppercase">
+                                    Claude Desktop — claude_desktop_config.json
+                                </p>
+                                <Copyable text={mcp.data.claudeDesktopConfig} testId="mcp-desktop-config" />
+                                <p className="text-muted mt-4 mb-2 text-xs font-semibold tracking-wider uppercase">
+                                    Claude Code
+                                </p>
+                                <Copyable text={mcp.data.claudeCodeCommand} testId="mcp-code-command" />
+                                <p className="text-faint mt-3 text-xs">
+                                    Every agent edit is snapshotted as a version first, and an open editor
+                                    picks the change up.
+                                </p>
+                            </>
+                        ) : (
+                            mcp.isError && <p className="text-danger-fg text-sm">{errorMessage(mcp.error)}</p>
+                        )}
+                    </Section>
+
+                    <Section
+                        group="updates"
+                        title="Updates"
+                        description={`Woodshop ${info.data?.version ?? ''}. Updates are signed and downloaded from the project's releases — nothing else is sent.`}
+                    >
+                        <div className="flex items-center gap-3">
+                            <button
+                                className="bg-accent text-accent-ink hover:bg-accent-strong rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"
+                                disabled={checking}
+                                onClick={() => void checkForUpdates()}
+                            >
+                                {checking ? 'Checking…' : 'Check for updates'}
+                            </button>
+                            {updateStatus && <span className="text-muted text-sm">{updateStatus}</span>}
+                        </div>
+                    </Section>
+
+                    <Section
+                        group="diagnostics"
+                        title="Diagnostics"
+                        description="If something goes wrong, Woodshop writes what happened to a log file on this computer. Nothing is sent anywhere on its own: Report a problem opens a new issue in your browser, and you choose whether to attach the log."
+                    >
+                        {info.data?.logDir && (
+                            <div className="flex items-center gap-2">
+                                <code className="bg-surface-0 border-fg/8 min-w-0 flex-1 truncate rounded-lg border px-3 py-2 text-xs">
+                                    {info.data.logDir}
+                                </code>
+                                <button
+                                    className="border-fg/12 hover:bg-surface-2 flex-none rounded-lg border px-3 py-2 text-sm"
+                                    data-testid="show-logs"
+                                    onClick={() =>
+                                        void revealItemInDir(info.data.logDir!).catch((e) =>
+                                            toast.error(errorMessage(e)),
+                                        )
+                                    }
+                                >
+                                    Show log files
+                                </button>
+                            </div>
+                        )}
                         <button
-                            key={t}
-                            className={choice(theme === t)}
+                            className="border-fg/12 hover:bg-surface-2 mt-2 rounded-lg border px-3 py-2 text-sm"
+                            data-testid="report-problem"
                             onClick={() => {
-                                setPreference(t);
-                                setTheme(t);
+                                // The log goes along only if the person attaches it, so show where it is.
+                                if (info.data?.logDir)
+                                    void revealItemInDir(info.data.logDir).catch(() => undefined);
+                                void openUrl(problemReportUrl(info.data?.version ?? 'unknown')).catch((e) =>
+                                    toast.error(errorMessage(e)),
+                                );
                             }}
                         >
-                            {t === 'system' ? 'Match system' : t === 'light' ? 'Light' : 'Dark'}
+                            Report a problem…
                         </button>
-                    ))}
-                </div>
-            </Section>
+                    </Section>
 
-            <Section
-                title="Units"
-                description="How sizes are shown and typed everywhere: the editor, cut list, PDF, CSV and 3D plan. Any field also takes a size with its unit, such as 450 mm or 17 3/4 in. Designs are stored the same way whichever you pick, so you can switch at any time."
-            >
-                <div className="flex gap-2" data-testid="units-choice">
-                    {UNITS_OPTIONS.map((o) => (
-                        <button
-                            key={o.value}
-                            className={choice(units === o.value)}
-                            data-testid={`units-${o.value}`}
-                            onClick={() => void chooseUnits(o.value)}
-                        >
-                            {o.label} <span className="opacity-60">{o.example}</span>
-                        </button>
-                    ))}
-                </div>
-            </Section>
-
-            <Section
-                title="Cut list"
-                description="The saw kerf every new editor session starts with. You can still change it per session in the Cut list panel."
-            >
-                <div className="flex gap-2">
-                    {KERF_OPTIONS.map((k) => (
-                        <button key={k} className={choice(kerf === k)} onClick={() => void setKerf(k)}>
-                            {units === 'fraction' ? `${formatFraction(k, 32)}"` : len(k)}
-                        </button>
-                    ))}
-                </div>
-            </Section>
-
-            <Section
-                title="Project library"
-                description="Every project, version, note and thumbnail is stored in one folder on this computer. Back it up with the rest of your files, or export single projects as .woodshop files."
-            >
-                {info.data && (
-                    <div className="flex items-center gap-2">
-                        <code className="bg-surface-0 border-fg/8 min-w-0 flex-1 truncate rounded-lg border px-3 py-2 text-xs">
-                            {info.data.dataDir}
-                        </code>
-                        <button
-                            className="border-fg/12 hover:bg-surface-2 flex-none rounded-lg border px-3 py-2 text-sm"
-                            onClick={() =>
-                                void revealItemInDir(`${info.data.dataDir}/woodshop.db`).catch((e) =>
-                                    toast.error(errorMessage(e)),
-                                )
-                            }
-                        >
-                            Show in folder
-                        </button>
-                    </div>
-                )}
-            </Section>
-
-            <Section
-                title="Backups"
-                description="Woodshop copies your whole library once a day and keeps the last week. If a project goes wrong or is deleted, look inside a backup and restore it."
-            >
-                <BackupsPanel />
-            </Section>
-
-            <Section
-                title="AI agents (MCP)"
-                description="Let Claude Desktop, Claude Code or any MCP client design in your library. The server runs locally from this app — no account, no token, nothing sent anywhere by Woodshop itself."
-            >
-                {mcp.data ? (
-                    <>
-                        <p className="text-muted mb-2 text-xs font-semibold tracking-wider uppercase">
-                            Claude Desktop — claude_desktop_config.json
-                        </p>
-                        <Copyable text={mcp.data.claudeDesktopConfig} testId="mcp-desktop-config" />
-                        <p className="text-muted mt-4 mb-2 text-xs font-semibold tracking-wider uppercase">
-                            Claude Code
-                        </p>
-                        <Copyable text={mcp.data.claudeCodeCommand} testId="mcp-code-command" />
-                        <p className="text-faint mt-3 text-xs">
-                            Every agent edit is snapshotted as a version first, and an open editor picks the
-                            change up.
-                        </p>
-                    </>
-                ) : (
-                    mcp.isError && <p className="text-danger-fg text-sm">{errorMessage(mcp.error)}</p>
-                )}
-            </Section>
-
-            <Section
-                title="Updates"
-                description={`Woodshop ${info.data?.version ?? ''}. Updates are signed and downloaded from the project's releases — nothing else is sent.`}
-            >
-                <div className="flex items-center gap-3">
-                    <button
-                        className="bg-accent text-accent-ink hover:bg-accent-strong rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"
-                        disabled={checking}
-                        onClick={() => void checkForUpdates()}
-                    >
-                        {checking ? 'Checking…' : 'Check for updates'}
-                    </button>
-                    {updateStatus && <span className="text-muted text-sm">{updateStatus}</span>}
-                </div>
-            </Section>
-
-            <Section
-                title="Diagnostics"
-                description="If something goes wrong, Woodshop writes what happened to a log file on this computer. Nothing is sent anywhere on its own: Report a problem opens a new issue in your browser, and you choose whether to attach the log."
-            >
-                {info.data?.logDir && (
-                    <div className="flex items-center gap-2">
-                        <code className="bg-surface-0 border-fg/8 min-w-0 flex-1 truncate rounded-lg border px-3 py-2 text-xs">
-                            {info.data.logDir}
-                        </code>
-                        <button
-                            className="border-fg/12 hover:bg-surface-2 flex-none rounded-lg border px-3 py-2 text-sm"
-                            data-testid="show-logs"
-                            onClick={() =>
-                                void revealItemInDir(info.data.logDir!).catch((e) =>
-                                    toast.error(errorMessage(e)),
-                                )
-                            }
-                        >
-                            Show log files
-                        </button>
-                    </div>
-                )}
-                <button
-                    className="border-fg/12 hover:bg-surface-2 mt-2 rounded-lg border px-3 py-2 text-sm"
-                    data-testid="report-problem"
-                    onClick={() => {
-                        // The log goes along only if the person attaches it, so show where it is.
-                        if (info.data?.logDir) void revealItemInDir(info.data.logDir).catch(() => undefined);
-                        void openUrl(problemReportUrl(info.data?.version ?? 'unknown')).catch((e) =>
-                            toast.error(errorMessage(e)),
-                        );
-                    }}
-                >
-                    Report a problem…
-                </button>
-            </Section>
-
-            <Section title="About">
-                <AboutPanel version={info.data?.version} />
-            </Section>
+                    <Section group="about" title="About">
+                        <AboutPanel version={info.data?.version} />
+                    </Section>
+                </ActiveGroup.Provider>
+            </div>
         </div>
     );
 }

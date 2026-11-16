@@ -344,11 +344,13 @@ test('a calculator works offline', async ({ page }) => {
 
 test('settings show how to connect an MCP client', async ({ page }) => {
     await page.goto('/#/settings');
+    await page.getByTestId('settings-group-agents').click();
     await expect(page.getByText('claude mcp add woodshop', { exact: false })).toBeVisible();
 });
 
 test('settings say what licence Woodshop is under and list the open-source licenses', async ({ page }) => {
     await page.goto('/#/settings');
+    await page.getByTestId('settings-group-about').click();
     await expect(page.getByText('GNU General Public License, version 3 or later')).toBeVisible();
     await page.getByTestId('about-notices').click();
     const dialog = page.getByTestId('notices');
@@ -699,6 +701,7 @@ test('in millimetres, hardware is named the way a metric shop sells it', async (
 
 test('a project comes back out of a backup', async ({ page }) => {
     await page.goto('/#/settings');
+    await page.getByTestId('settings-group-library').click();
     await page.getByTestId('backup-now').click();
     await expect(page.getByTestId('backup-row')).toHaveCount(1);
 

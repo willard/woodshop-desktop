@@ -46,7 +46,7 @@ function NoticesDialog({ onClose }: { onClose: () => void }) {
                 </p>
             ) : (
                 <pre
-                    className="bg-surface-0 border-fg/8 h-[60vh] overflow-auto rounded-lg border p-3 text-[11px] leading-snug whitespace-pre-wrap"
+                    className="bg-surface-0 border-fg/8 h-[60vh] overflow-auto rounded-lg border p-3 text-xs leading-snug whitespace-pre-wrap"
                     data-testid="notices-text"
                 >
                     {text ?? 'Loading…'}

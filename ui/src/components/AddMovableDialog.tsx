@@ -51,7 +51,7 @@ export function AddMovableDialog({
             <h2 className="mb-1 text-[15px] font-semibold">
                 Add {draft.kind === 'door' ? 'a door' : 'a drawer'}
             </h2>
-            <p className="text-muted mb-3 text-[11px]">
+            <p className="text-muted mb-3 text-xs">
                 {detected
                     ? 'Sized from the opening your selection frames.'
                     : 'Nothing selected — type the opening it has to fill.'}
@@ -70,7 +70,7 @@ export function AddMovableDialog({
             </div>
             <div className="mb-3 flex items-end gap-2">
                 <label className="flex-1">
-                    <span className="text-muted mb-1 block text-[11px]">Opening width</span>
+                    <span className="text-muted mb-1 block text-xs">Opening width</span>
                     <input
                         autoFocus
                         value={widthText}
@@ -82,7 +82,7 @@ export function AddMovableDialog({
                 </label>
                 <span className="text-muted pb-3">×</span>
                 <label className="flex-1">
-                    <span className="text-muted mb-1 block text-[11px]">Opening height</span>
+                    <span className="text-muted mb-1 block text-xs">Opening height</span>
                     <input
                         value={heightText}
                         onChange={(e) => setHeightText(e.target.value)}
@@ -94,7 +94,7 @@ export function AddMovableDialog({
             </div>
             <div className="mb-3 grid grid-cols-2 gap-2">
                 <label className="block">
-                    <span className="text-muted mb-1 block text-[11px]">Style</span>
+                    <span className="text-muted mb-1 block text-xs">Style</span>
                     <select
                         value={draft.style}
                         className={select}
@@ -109,7 +109,7 @@ export function AddMovableDialog({
                 </label>
                 {draft.kind === 'door' && (
                     <label className="block">
-                        <span className="text-muted mb-1 block text-[11px]">Hinges on</span>
+                        <span className="text-muted mb-1 block text-xs">Hinges on</span>
                         <select
                             value={draft.hingeSide}
                             className={select}
@@ -130,7 +130,7 @@ export function AddMovableDialog({
                     </label>
                 )}
             </div>
-            <p className="text-muted mb-3 text-[11px]">{summary}</p>
+            <p className="text-muted mb-3 text-xs">{summary}</p>
             <div className="grid grid-cols-2 gap-2">
                 <button
                     className="border-fg/10 text-fg/70 hover:bg-fg/5 h-10 rounded-lg border text-xs font-semibold"

@@ -12,7 +12,7 @@ export function Field({
 }) {
     return (
         <label className={`block ${className}`}>
-            <span className="text-muted mb-1 block text-[11px]">{label}</span>
+            <span className="text-muted mb-1 block text-xs">{label}</span>
             {children}
         </label>
     );
@@ -51,9 +51,7 @@ export function Select({
 }
 
 export function SectionLabel({ children }: { children: ReactNode }) {
-    return (
-        <div className="text-muted mb-2 text-[11.5px] font-semibold tracking-wider uppercase">{children}</div>
-    );
+    return <div className="text-muted mb-2 text-xs font-semibold tracking-wider uppercase">{children}</div>;
 }
 
 export function PrimaryButton({ className = '', ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) {

@@ -148,7 +148,7 @@ export function HardwareDialog(props: {
                                 }
                             >
                                 <div className="text-[13px] font-medium">{itemName(item)}</div>
-                                <div className="text-muted text-[11.5px]">{keySize(item)}</div>
+                                <div className="text-muted text-xs">{keySize(item)}</div>
                             </button>
                         </li>
                     ))}
@@ -182,7 +182,7 @@ export function HardwareDialog(props: {
 
             <div className="mt-3 flex items-end gap-2">
                 <label className="min-w-0 flex-1">
-                    <span className="text-muted mb-1 block text-[11.5px]">Or add to the centre of</span>
+                    <span className="text-muted mb-1 block text-xs">Or add to the centre of</span>
                     <span className="flex gap-2">
                         <Select
                             h="md"

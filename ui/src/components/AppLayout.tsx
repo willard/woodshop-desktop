@@ -20,10 +20,15 @@ export function AppLayout() {
     return (
         <div className="flex h-full flex-col overflow-hidden">
             <header
-                className="border-fg/8 bg-surface-1/60 shrink-0 border-b backdrop-blur"
+                className="border-fg/8 bg-surface-1/60 titlebar-gutter shrink-0 border-b backdrop-blur"
                 data-tauri-drag-region
             >
-                <div className={`mx-auto flex ${width} items-center justify-between px-6 py-3`}>
+                {/* Every empty stretch of the header drags the window: the attribute only counts on
+                    the element actually under the pointer. */}
+                <div
+                    className={`mx-auto flex ${width} items-center justify-between px-6 py-3`}
+                    data-tauri-drag-region
+                >
                     <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
                         <span className="text-accent">◧</span>
                         <span>Woodshop</span>

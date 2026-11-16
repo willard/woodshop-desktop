@@ -90,12 +90,12 @@ export function PartHardware(props: {
                         onClick={() => props.onSelect?.(mount.id)}
                     >
                         <div className="mb-2 flex items-center justify-between gap-2">
-                            <span className="text-fg/85 min-w-0 truncate text-[12.5px] font-semibold">
+                            <span className="text-fg/85 min-w-0 truncate text-[13px] font-semibold">
                                 {item === undefined ? mount.item : itemName(item)}
                             </span>
                             <span className="flex flex-none gap-2">
                                 <button
-                                    className="text-muted hover:text-fg-strong text-[11px]"
+                                    className="text-muted hover:text-fg-strong text-xs"
                                     title="Turn a quarter turn"
                                     data-testid="hardware-rotate"
                                     onClick={() =>
@@ -107,7 +107,7 @@ export function PartHardware(props: {
                                     Turn 90°
                                 </button>
                                 <button
-                                    className="text-muted hover:text-danger-fg text-[11px]"
+                                    className="text-muted hover:text-danger-fg text-xs"
                                     data-testid="hardware-remove"
                                     onClick={() => props.onRemove(mount.id)}
                                 >
@@ -160,7 +160,7 @@ export function PartHardware(props: {
                             </Field>
                         </div>
                         {item === undefined && (
-                            <p className="text-warn-fg mt-1.5 text-[11px]">
+                            <p className="text-warn-fg mt-1.5 text-xs">
                                 Not in this version's catalog; shown as a plain block.
                             </p>
                         )}

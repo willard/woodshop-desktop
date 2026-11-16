@@ -140,7 +140,7 @@ export function useProjectExports(target: ExportTarget) {
 
 export function ExportMenuItems(props: ExportTarget & { close(): void }) {
     const exports = useProjectExports(props);
-    const item = 'enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[12.5px]';
+    const item = 'enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]';
     const run = (action: () => Promise<void>) => () => {
         props.close();
         void action();
@@ -202,7 +202,7 @@ export function ExportMenuItems(props: ExportTarget & { close(): void }) {
 export function CutListExportButtons(props: ExportTarget & { cutList: CutList }) {
     const exports = useProjectExports(props);
     const button =
-        'border-fg/10 text-fg/75 hover:bg-fg/5 h-7 rounded-lg border px-2.5 text-[11.5px] whitespace-nowrap';
+        'border-fg/10 text-fg/75 hover:bg-fg/5 h-7 rounded-lg border px-2.5 text-xs whitespace-nowrap';
     return (
         <>
             <button className={button} data-testid="cutlist-export-pdf" onClick={() => void exports.pdf()}>

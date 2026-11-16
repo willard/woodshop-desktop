@@ -126,9 +126,7 @@ export default function ProportionPanel() {
                                         className="bg-surface-2 text-fg-strong flex items-center justify-between rounded-lg px-3 text-[13px] font-semibold tabular-nums"
                                         style={{ height: `${Math.max(28, h * 4)}px` }}
                                     >
-                                        <span className="text-muted text-[11.5px] font-normal">
-                                            Drawer {i + 1}
-                                        </span>
+                                        <span className="text-muted text-xs font-normal">Drawer {i + 1}</span>
                                         <span>{frac16(h)}</span>
                                     </div>
                                 ))}

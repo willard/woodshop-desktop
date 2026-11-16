@@ -65,7 +65,7 @@ export function MeasureField(props: {
 
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-muted text-[12.5px] font-medium" htmlFor={props.testid}>
+            <label className="text-muted text-[13px] font-medium" htmlFor={props.testid}>
                 {props.label}
             </label>
             <div className="flex gap-1.5">
@@ -123,7 +123,7 @@ export function MeasureField(props: {
                     {error}
                 </p>
             ) : (
-                props.hint && <p className="text-faint text-[11px]">{props.hint}</p>
+                props.hint && <p className="text-faint text-xs">{props.hint}</p>
             )}
         </div>
     );
@@ -153,7 +153,7 @@ export function NumberField(props: {
         'border-fg/12 text-fg-strong hover:bg-fg/6 h-11 w-11 flex-none rounded-md border text-lg leading-none';
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-muted text-[12.5px] font-medium" htmlFor={props.testid}>
+            <label className="text-muted text-[13px] font-medium" htmlFor={props.testid}>
                 {props.label}
             </label>
             <div className="flex items-center gap-1.5">
@@ -197,7 +197,7 @@ export function NumberField(props: {
                 )}
                 {props.suffix && <span className="text-faint flex-none text-[13px]">{props.suffix}</span>}
             </div>
-            {props.hint && <p className="text-faint text-[11px]">{props.hint}</p>}
+            {props.hint && <p className="text-faint text-xs">{props.hint}</p>}
         </div>
     );
 }
@@ -231,7 +231,7 @@ export function ResultGrid({
                     key={tile.label}
                     className={`bg-surface-2 rounded-lg px-3 py-2.5 ${tile.wide ? 'col-span-2' : ''}`}
                 >
-                    <div className="text-muted text-[11.5px]">{tile.label}</div>
+                    <div className="text-muted text-xs">{tile.label}</div>
                     <div
                         className={`mt-0.5 font-semibold tabular-nums ${tile.emphasis ? 'text-xl' : 'text-lg'} ${tile.tone ? TONE_CLASS[tile.tone] : 'text-fg-strong'}`}
                     >
@@ -259,7 +259,7 @@ export function SpeciesSelect(props: {
     ];
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-muted text-[12.5px] font-medium" htmlFor={props.testid}>
+            <label className="text-muted text-[13px] font-medium" htmlFor={props.testid}>
                 {props.label}
             </label>
             <select
@@ -281,7 +281,7 @@ export function SpeciesSelect(props: {
                         </optgroup>
                     ))}
             </select>
-            {props.hint && <p className="text-faint text-[11px]">{props.hint}</p>}
+            {props.hint && <p className="text-faint text-xs">{props.hint}</p>}
         </div>
     );
 }

@@ -58,7 +58,7 @@ export function ToolsOverlay({ onClose, startAt = null }: { onClose: () => void;
                     </svg>
                 </button>
             </div>
-            <p className="text-muted mb-4 text-[12.5px] leading-snug">
+            <p className="text-muted mb-4 text-[13px] leading-snug">
                 {meta?.summary ??
                     'Your project stays exactly as you left it — nothing here reads or changes the design.'}
             </p>
@@ -85,7 +85,7 @@ export function CalculatorIndex({ onOpen, filter = '' }: { onOpen: (id: string) 
                 if (items.length === 0) return null;
                 return (
                     <div key={group.id} className="mb-4">
-                        <p className="text-faint mb-2 text-[10.5px] font-semibold tracking-wider uppercase">
+                        <p className="text-faint mb-2 text-xs font-semibold tracking-wider uppercase">
                             {group.title}
                         </p>
                         <div className="grid gap-1.5 sm:grid-cols-2">

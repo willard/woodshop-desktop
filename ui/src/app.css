@@ -23,10 +23,11 @@
     --fg-strong: #f2f0ec;
     /* Opaque, because an alpha ladder does not survive a theme flip: white at 50% over near-black
        is 5.3:1, but black at 50% over near-white is only 3.5:1. Both tuned against the *worst*
-       surface they sit on. `muted` clears AA (4.5:1) for body text; `faint` clears 3:1 for
-       disabled and placeholder text. */
+       surface they sit on. Both clear WCAG AA (4.5:1) on every surface, because `faint` carries
+       real text too (card details, hints); `muted` stays the stronger of the two.
+       ui/src/lib/__tests__/contrast.spec.ts holds every text tone to that. */
     --muted: #9a9892;
-    --faint: #707074;
+    --faint: #8e8e92;
     --accent: #e8933a;
     --accent-strong: #f4a44e;
     --accent-ink: #1a1206;
@@ -54,7 +55,7 @@
         --fg: #141210;
         --fg-strong: #1b1815;
         --muted: #5d574c;
-        --faint: #857f71;
+        --faint: #686358;
         --accent: #98500f;
         --accent-strong: #7d4109;
         --accent-ink: #fff8ef;
@@ -77,7 +78,7 @@
     --fg: #141210;
     --fg-strong: #1b1815;
     --muted: #5d574c;
-    --faint: #857f71;
+    --faint: #686358;
     --accent: #98500f;
     --accent-strong: #7d4109;
     --accent-ink: #fff8ef;
@@ -212,4 +213,10 @@ body {
     color: var(--fg-strong);
     /* A desktop app: no rubber-band bounce, no accidental text selection on chrome. */
     overscroll-behavior: none;
+}
+
+/* The macOS window's traffic lights sit over the left of the app's own header (main.tsx sets
+   data-titlebar). Headers that reach the window's left edge keep clear of them. */
+:root[data-titlebar='overlay'] .titlebar-gutter {
+    padding-left: 84px;
 }

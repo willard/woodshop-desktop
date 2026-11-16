@@ -117,7 +117,7 @@ export default function MovementPanel() {
                                     {r.quartersawnChange.toFixed(3)} in
                                 </span>
                             </div>
-                            <p className="text-faint mt-2 text-[11px] leading-relaxed">
+                            <p className="text-faint mt-2 text-xs leading-relaxed">
                                 Shown whichever you picked, so a wrong guess about the sawing is visible.
                             </p>
                         </div>

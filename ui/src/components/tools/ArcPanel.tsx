@@ -122,7 +122,7 @@ export default function ArcPanel() {
                         <>
                             <div className="bg-surface-2 mt-3 rounded-lg p-3" data-testid="ar-ordinates">
                                 <Heading>Offsets from the chord</Heading>
-                                <div className="grid grid-cols-3 gap-x-3 gap-y-1 text-[12.5px] tabular-nums">
+                                <div className="grid grid-cols-3 gap-x-3 gap-y-1 text-[13px] tabular-nums">
                                     {r.ordinates.map((o) => (
                                         <div key={o.along} className="flex justify-between gap-2">
                                             <span className="text-faint">{formatFraction(o.along, 8)}</span>
@@ -132,7 +132,7 @@ export default function ArcPanel() {
                                         </div>
                                     ))}
                                 </div>
-                                <p className="text-faint mt-2 text-[11px]">
+                                <p className="text-faint mt-2 text-xs">
                                     Step along the chord, measure up, bend a batten through the marks.
                                 </p>
                             </div>

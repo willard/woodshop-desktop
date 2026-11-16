@@ -38,7 +38,7 @@ export default function BoardFeetPanel() {
                     <Heading>The stack</Heading>
                     <div className="grid gap-3.5 sm:grid-cols-2">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-muted text-[12.5px] font-medium" htmlFor="bf-quarter">
+                            <label className="text-muted text-[13px] font-medium" htmlFor="bf-quarter">
                                 Rough thickness
                             </label>
                             <select

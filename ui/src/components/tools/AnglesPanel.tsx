@@ -40,7 +40,7 @@ export default function AnglesPanel() {
                             hint="3 to 24"
                         />
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-muted text-[12.5px] font-medium" htmlFor="an-tilt">
+                            <label className="text-muted text-[13px] font-medium" htmlFor="an-tilt">
                                 How far each side leans out from vertical
                             </label>
                             <input
@@ -54,7 +54,7 @@ export default function AnglesPanel() {
                                 data-testid="an-tilt"
                                 className="accent-accent h-11 w-full"
                             />
-                            <p className="text-faint text-[11px]">
+                            <p className="text-faint text-xs">
                                 {tilt === 0 ? '0° — sides stand straight up' : `${tilt}° out from vertical`}
                             </p>
                         </div>

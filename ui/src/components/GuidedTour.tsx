@@ -107,7 +107,7 @@ export function GuidedTour({ onClose }: { onClose: (finished: boolean) => void }
                 className="bg-surface-1/95 border-fg/12 absolute top-16 left-1/2 z-40 w-[min(92vw,380px)] -translate-x-1/2 rounded-2xl border p-4 shadow-xl backdrop-blur"
                 data-testid="tour"
             >
-                <div className="text-faint mb-1 text-[11.5px]" data-testid="tour-progress">
+                <div className="text-faint mb-1 text-xs" data-testid="tour-progress">
                     Step {index + 1} of {TOUR_STEPS.length}
                 </div>
                 <h2 className="text-fg-strong mb-1 text-[15px] font-semibold" data-testid="tour-title">
@@ -118,7 +118,7 @@ export function GuidedTour({ onClose }: { onClose: (finished: boolean) => void }
                 </p>
                 <div className="flex items-center gap-2">
                     <button
-                        className="text-muted hover:text-fg-strong mr-auto rounded-md px-1 py-1 text-[12.5px]"
+                        className="text-muted hover:text-fg-strong mr-auto rounded-md px-1 py-1 text-[13px]"
                         onClick={skip}
                         data-testid="tour-skip"
                     >
@@ -126,7 +126,7 @@ export function GuidedTour({ onClose }: { onClose: (finished: boolean) => void }
                     </button>
                     {index > 0 && (
                         <button
-                            className="border-fg/12 hover:bg-fg/5 rounded-lg border px-3 py-1.5 text-[12.5px]"
+                            className="border-fg/12 hover:bg-fg/5 rounded-lg border px-3 py-1.5 text-[13px]"
                             onClick={() => setIndex(index - 1)}
                             data-testid="tour-back"
                         >
@@ -135,7 +135,7 @@ export function GuidedTour({ onClose }: { onClose: (finished: boolean) => void }
                     )}
                     <button
                         ref={next}
-                        className="bg-accent text-accent-ink hover:bg-accent-strong rounded-lg px-3 py-1.5 text-[12.5px] font-semibold"
+                        className="bg-accent text-accent-ink hover:bg-accent-strong rounded-lg px-3 py-1.5 text-[13px] font-semibold"
                         onClick={() => (last ? onClose(true) : setIndex(index + 1))}
                         data-testid="tour-next"
                     >

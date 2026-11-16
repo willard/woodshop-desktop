@@ -90,7 +90,7 @@ export function GroupInspector(p: GroupInspectorProps) {
                         {name}
                     </button>
                 )}
-                <span className="bg-fg/10 text-fg/70 rounded-full px-2 py-0.5 text-[11.5px] font-semibold">
+                <span className="bg-fg/10 text-fg/70 rounded-full px-2 py-0.5 text-xs font-semibold">
                     {p.parts.length} parts
                 </span>
             </div>
@@ -105,7 +105,7 @@ export function GroupInspector(p: GroupInspectorProps) {
                         onClick={() => p.onDrill(part.id)}
                     >
                         <span className="text-fg/80 min-w-0 truncate text-xs">{part.name}</span>
-                        <span className="text-muted flex-none text-[11px]">{size(part)}</span>
+                        <span className="text-muted flex-none text-xs">{size(part)}</span>
                     </button>
                 ))}
             </div>
@@ -113,7 +113,7 @@ export function GroupInspector(p: GroupInspectorProps) {
             <SectionLabel>Door</SectionLabel>
             {p.movable === null ? (
                 <div className="mb-4" data-testid="group-movable-none">
-                    <p className="text-muted mb-2 text-[11px]">
+                    <p className="text-muted mb-2 text-xs">
                         Turn this group into a door that swings open as one piece. Use Open in the toolbar to
                         see it move.
                     </p>
@@ -130,18 +130,18 @@ export function GroupInspector(p: GroupInspectorProps) {
                     <div className="bg-surface-2/60 mb-4 rounded-lg p-2.5" data-testid="group-movable-panel">
                         <div className="mb-2 flex items-center justify-between gap-2">
                             <span
-                                className="text-fg/80 text-[12.5px] font-semibold"
+                                className="text-fg/80 text-[13px] font-semibold"
                                 data-testid="group-movable-kind"
                             >
                                 Door
-                                <span className="text-muted text-[11px] font-normal">
+                                <span className="text-muted text-xs font-normal">
                                     {' '}
                                     · {p.movable.partIds.length}{' '}
                                     {p.movable.partIds.length === 1 ? 'part' : 'parts'}
                                 </span>
                             </span>
                             <button
-                                className="text-muted hover:text-danger-fg text-[11px]"
+                                className="text-muted hover:text-danger-fg text-xs"
                                 data-testid="group-movable-dissolve"
                                 onClick={p.onDissolveMovable}
                             >
@@ -213,7 +213,7 @@ export function GroupInspector(p: GroupInspectorProps) {
                         {[-15, 15].map((d) => (
                             <button
                                 key={d}
-                                className="border-fg/10 text-muted hover:bg-fg/5 h-8 flex-1 rounded-lg border text-[11px]"
+                                className="border-fg/10 text-muted hover:bg-fg/5 h-8 flex-1 rounded-lg border text-xs"
                                 data-testid={`group-rot-${r.axis}-${d < 0 ? 'minus' : 'plus'}`}
                                 title={`${r.label} ${d < 0 ? '−' : '+'}15°`}
                                 onClick={() => p.onRotateBy(r.axis, d)}
