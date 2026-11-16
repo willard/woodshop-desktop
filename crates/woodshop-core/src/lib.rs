@@ -5,6 +5,7 @@
 //! Every dimension is decimal inches. Metric and fractions are display-only conversions
 //! (`units`).
 
+pub mod assembly;
 pub mod cutlist;
 pub mod fasteners;
 pub mod geometry;

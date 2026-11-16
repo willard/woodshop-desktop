@@ -502,6 +502,9 @@ have to look up, and the editor screenshot would make someone want to try it fro
 - **Mirrored copies**: a part, group or selection reflected across the design's middle
   (`engine/mirror.ts`, `MirrorCopy`): each copy is turned over across its length or width so cuts
   keep their face, with joints, hardware and doors carried over; agents use `mirror_parts`.
+- **Assembly order** in the PDF (`woodshop-core::assembly`): steps up from the floor by
+  connection, twins together, back panels last, then drawers, doors and hardware; each line says
+  how the part is fastened, from the recorded joints, or that it only touches its neighbours.
 
 ## Phase 6: After launch
 

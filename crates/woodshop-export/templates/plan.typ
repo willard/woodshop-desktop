@@ -126,3 +126,19 @@
     ..plan.cuts.map(c => (c.name, str(c.stick), c.length)).flatten(),
   )
 ]
+
+#if data.assembly.len() > 0 [
+  == Assembly order
+  #text(fill: muted)[A suggested order: up from the floor, the back last, then drawers, doors and hardware. Dry-fit before you glue.]
+  #v(2pt)
+  #enum(
+    tight: false,
+    ..data.assembly.map(step => [
+      *#step.heading*
+      #if step.lines.len() > 0 [
+        #v(-4pt)
+        #list(marker: text(fill: muted, "–"), ..step.lines.map(line => text(size: 9pt, line)))
+      ]
+    ]),
+  )
+]

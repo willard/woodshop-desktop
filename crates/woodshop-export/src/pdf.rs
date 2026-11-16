@@ -12,6 +12,7 @@ use typst::text::{Font, FontBook};
 use typst::utils::LazyHash;
 use typst::{Library, LibraryExt, World};
 use typst_layout::PagedDocument;
+use woodshop_core::assembly::{AssemblyStep, assembly_order};
 use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 use woodshop_core::cutlist::{CutList, CutListConfig, CutListSection, compute_cut_list, group_cut_list};
 use woodshop_core::geometry::overall_size;
@@ -61,6 +62,8 @@ struct PlanView {
     drilling: Vec<String>,
     sheets: Vec<SheetView>,
     lumber: Vec<LumberView>,
+    /// The order to put it together: up from the floor, the back, then drawers, doors, hardware.
+    assembly: Vec<AssemblyStep>,
 }
 
 #[derive(Serialize)]
@@ -318,6 +321,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             })
             .collect(),
         drilling: drilling_notes(input.spec, units),
+        assembly: assembly_order(input.spec),
         sheets: cut_list
             .sheets
             .iter()
@@ -528,6 +532,38 @@ mod tests {
             units: Units::Metric,
         })
         .unwrap();
+        assert!(pdf.starts_with(b"%PDF-"));
+    }
+
+    #[test]
+    fn a_plan_with_an_assembly_order_renders() {
+        let raw = include_str!("../../../resources/templates/dresser.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let input = PlanInput {
+            title: "Dresser",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 16, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Fraction,
+        };
+        let cut_list = compute_cut_list(
+            &spec,
+            CutListConfig {
+                kerf: 0.125,
+                units: Units::Fraction,
+            },
+        );
+        let view = plan_view(&input, &cut_list);
+        assert_eq!(
+            view.assembly.first().map(|s| s.heading.as_str()),
+            Some("Start with Toe Board")
+        );
+        let pdf = render_plan_pdf(&input).unwrap();
+        if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
+            std::fs::write(format!("{dir}/dresser.pdf"), &pdf).unwrap();
+        }
         assert!(pdf.starts_with(b"%PDF-"));
     }
 
