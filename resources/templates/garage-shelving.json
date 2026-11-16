@@ -1,0 +1,1914 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Garage Shelving",
+  "materials": [
+    {
+      "id": "pine_4x4",
+      "name": "Pine 4x4",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 3.5,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "pine_2x4",
+      "name": "Pine 2x4",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 1.5,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "ply_pine",
+      "name": "Pine Plywood",
+      "type": "sheet",
+      "species": "pine",
+      "thickness": 0.75,
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      }
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_post_fl",
+      "name": "Post FL",
+      "materialId": "pine_4x4",
+      "size": {
+        "l": 72,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -22.25,
+          36,
+          10.25
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_post_fr",
+      "name": "Post FR",
+      "materialId": "pine_4x4",
+      "size": {
+        "l": 72,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          22.25,
+          36,
+          10.25
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_post_bl",
+      "name": "Post BL",
+      "materialId": "pine_4x4",
+      "size": {
+        "l": 72,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -22.25,
+          36,
+          -10.25
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_post_br",
+      "name": "Post BR",
+      "materialId": "pine_4x4",
+      "size": {
+        "l": 72,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          22.25,
+          36,
+          -10.25
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_rail_bottom_front",
+      "name": "Bottom Front Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 41,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          4.75,
+          11.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_bottom_back",
+      "name": "Bottom Back Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 41,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          4.75,
+          -11.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_bottom_l",
+      "name": "Bottom Left Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -19.75,
+          4.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 1,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_bottom_r",
+      "name": "Bottom Right Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          19.75,
+          4.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 20,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 1,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_bottom_mid",
+      "name": "Bottom Centre Support",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          4.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_shelf_bottom",
+      "name": "Bottom Shelf",
+      "materialId": "ply_pine",
+      "size": {
+        "l": 41,
+        "w": 24
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          6.875,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.75,
+          "count": 7,
+          "from": 1,
+          "to": 40,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 23.25,
+          "count": 7,
+          "from": 1,
+          "to": 40,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 40.25,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20.5,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_lower_front",
+      "name": "Lower Front Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 41,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          25.75,
+          11.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_lower_back",
+      "name": "Lower Back Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 41,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          25.75,
+          -11.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_lower_l",
+      "name": "Lower Left Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -19.75,
+          25.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 1,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_lower_r",
+      "name": "Lower Right Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          19.75,
+          25.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 20,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 1,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_lower_mid",
+      "name": "Lower Centre Support",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          25.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_shelf_lower",
+      "name": "Lower Shelf",
+      "materialId": "ply_pine",
+      "size": {
+        "l": 41,
+        "w": 24
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          27.875,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.75,
+          "count": 7,
+          "from": 1,
+          "to": 40,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 23.25,
+          "count": 7,
+          "from": 1,
+          "to": 40,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 40.25,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20.5,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_upper_front",
+      "name": "Upper Front Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 41,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          46.75,
+          11.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_upper_back",
+      "name": "Upper Back Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 41,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          46.75,
+          -11.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_upper_l",
+      "name": "Upper Left Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -19.75,
+          46.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 1,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_upper_r",
+      "name": "Upper Right Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          19.75,
+          46.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 20,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 1,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_upper_mid",
+      "name": "Upper Centre Support",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          46.75,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_shelf_upper",
+      "name": "Upper Shelf",
+      "materialId": "ply_pine",
+      "size": {
+        "l": 41,
+        "w": 24
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          48.875,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.75,
+          "count": 7,
+          "from": 1,
+          "to": 40,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 23.25,
+          "count": 7,
+          "from": 1,
+          "to": 40,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 40.25,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20.5,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_top_front",
+      "name": "Top Front Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 41,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          70.25,
+          11.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_top_back",
+      "name": "Top Back Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 41,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          70.25,
+          -11.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "front",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_top_l",
+      "name": "Top Left Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -19.75,
+          70.25,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 1,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_top_r",
+      "name": "Top Right Rail",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          19.75,
+          70.25,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 20,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 1,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_top_mid",
+      "name": "Top Centre Support",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 21,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          70.25,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "thread": "coarse",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_shelf_top",
+      "name": "Top Shelf",
+      "materialId": "ply_pine",
+      "size": {
+        "l": 41,
+        "w": 24
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          72.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.75,
+          "count": 7,
+          "from": 1,
+          "to": 40,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 23.25,
+          "count": 7,
+          "from": 1,
+          "to": 40,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 40.25,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 20.5,
+          "count": 4,
+          "from": 2.5,
+          "to": 21.5,
+          "gauge": "#8",
+          "length": 1.5
+        }
+      ],
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_bottom_l",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_bottom_l",
+      "insertPartId": "p_post_bl",
+      "opRef": 1,
+      "id": "j1"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_bottom_r",
+      "insertPartId": "p_post_fr",
+      "opRef": 0,
+      "id": "j2"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_bottom_r",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j3"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_bottom",
+      "insertPartId": "p_rail_bottom_front",
+      "opRef": 0,
+      "id": "j4"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_bottom",
+      "insertPartId": "p_rail_bottom_back",
+      "opRef": 1,
+      "id": "j5"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_bottom",
+      "insertPartId": "p_rail_bottom_l",
+      "opRef": 2,
+      "id": "j6"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_bottom",
+      "insertPartId": "p_rail_bottom_r",
+      "opRef": 3,
+      "id": "j7"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_bottom",
+      "insertPartId": "p_rail_bottom_mid",
+      "opRef": 4,
+      "id": "j8"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_lower_l",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j9"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_lower_l",
+      "insertPartId": "p_post_bl",
+      "opRef": 1,
+      "id": "j10"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_lower_r",
+      "insertPartId": "p_post_fr",
+      "opRef": 0,
+      "id": "j11"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_lower_r",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j12"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_lower",
+      "insertPartId": "p_rail_lower_front",
+      "opRef": 0,
+      "id": "j13"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_lower",
+      "insertPartId": "p_rail_lower_back",
+      "opRef": 1,
+      "id": "j14"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_lower",
+      "insertPartId": "p_rail_lower_l",
+      "opRef": 2,
+      "id": "j15"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_lower",
+      "insertPartId": "p_rail_lower_r",
+      "opRef": 3,
+      "id": "j16"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_lower",
+      "insertPartId": "p_rail_lower_mid",
+      "opRef": 4,
+      "id": "j17"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_upper_l",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j18"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_upper_l",
+      "insertPartId": "p_post_bl",
+      "opRef": 1,
+      "id": "j19"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_upper_r",
+      "insertPartId": "p_post_fr",
+      "opRef": 0,
+      "id": "j20"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_upper_r",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j21"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_upper",
+      "insertPartId": "p_rail_upper_front",
+      "opRef": 0,
+      "id": "j22"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_upper",
+      "insertPartId": "p_rail_upper_back",
+      "opRef": 1,
+      "id": "j23"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_upper",
+      "insertPartId": "p_rail_upper_l",
+      "opRef": 2,
+      "id": "j24"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_upper",
+      "insertPartId": "p_rail_upper_r",
+      "opRef": 3,
+      "id": "j25"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_upper",
+      "insertPartId": "p_rail_upper_mid",
+      "opRef": 4,
+      "id": "j26"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_top_l",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j27"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_top_l",
+      "insertPartId": "p_post_bl",
+      "opRef": 1,
+      "id": "j28"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_top_r",
+      "insertPartId": "p_post_fr",
+      "opRef": 0,
+      "id": "j29"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_top_r",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j30"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_top",
+      "insertPartId": "p_rail_top_front",
+      "opRef": 0,
+      "id": "j31"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_top",
+      "insertPartId": "p_rail_top_back",
+      "opRef": 1,
+      "id": "j32"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_top",
+      "insertPartId": "p_rail_top_l",
+      "opRef": 2,
+      "id": "j33"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_top",
+      "insertPartId": "p_rail_top_r",
+      "opRef": 3,
+      "id": "j34"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_shelf_top",
+      "insertPartId": "p_rail_top_mid",
+      "opRef": 4,
+      "id": "j35"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_front",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j36"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_front",
+      "insertPartId": "p_rail_bottom_l",
+      "opRef": 0,
+      "id": "j37"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_front",
+      "insertPartId": "p_post_fr",
+      "opRef": 1,
+      "id": "j38"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_front",
+      "insertPartId": "p_rail_bottom_r",
+      "opRef": 1,
+      "id": "j39"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_back",
+      "insertPartId": "p_post_bl",
+      "opRef": 0,
+      "id": "j40"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_back",
+      "insertPartId": "p_rail_bottom_l",
+      "opRef": 0,
+      "id": "j41"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_back",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j42"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_back",
+      "insertPartId": "p_rail_bottom_r",
+      "opRef": 1,
+      "id": "j43"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_mid",
+      "insertPartId": "p_rail_bottom_front",
+      "opRef": 0,
+      "id": "j44"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_bottom_mid",
+      "insertPartId": "p_rail_bottom_back",
+      "opRef": 1,
+      "id": "j45"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_front",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j46"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_front",
+      "insertPartId": "p_rail_lower_l",
+      "opRef": 0,
+      "id": "j47"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_front",
+      "insertPartId": "p_post_fr",
+      "opRef": 1,
+      "id": "j48"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_front",
+      "insertPartId": "p_rail_lower_r",
+      "opRef": 1,
+      "id": "j49"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_back",
+      "insertPartId": "p_post_bl",
+      "opRef": 0,
+      "id": "j50"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_back",
+      "insertPartId": "p_rail_lower_l",
+      "opRef": 0,
+      "id": "j51"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_back",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j52"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_back",
+      "insertPartId": "p_rail_lower_r",
+      "opRef": 1,
+      "id": "j53"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_mid",
+      "insertPartId": "p_rail_lower_front",
+      "opRef": 0,
+      "id": "j54"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_lower_mid",
+      "insertPartId": "p_rail_lower_back",
+      "opRef": 1,
+      "id": "j55"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_front",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j56"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_front",
+      "insertPartId": "p_rail_upper_l",
+      "opRef": 0,
+      "id": "j57"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_front",
+      "insertPartId": "p_post_fr",
+      "opRef": 1,
+      "id": "j58"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_front",
+      "insertPartId": "p_rail_upper_r",
+      "opRef": 1,
+      "id": "j59"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_back",
+      "insertPartId": "p_post_bl",
+      "opRef": 0,
+      "id": "j60"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_back",
+      "insertPartId": "p_rail_upper_l",
+      "opRef": 0,
+      "id": "j61"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_back",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j62"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_back",
+      "insertPartId": "p_rail_upper_r",
+      "opRef": 1,
+      "id": "j63"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_mid",
+      "insertPartId": "p_rail_upper_front",
+      "opRef": 0,
+      "id": "j64"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_upper_mid",
+      "insertPartId": "p_rail_upper_back",
+      "opRef": 1,
+      "id": "j65"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_front",
+      "insertPartId": "p_post_fl",
+      "opRef": 0,
+      "id": "j66"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_front",
+      "insertPartId": "p_rail_top_l",
+      "opRef": 0,
+      "id": "j67"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_front",
+      "insertPartId": "p_post_fr",
+      "opRef": 1,
+      "id": "j68"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_front",
+      "insertPartId": "p_rail_top_r",
+      "opRef": 1,
+      "id": "j69"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_back",
+      "insertPartId": "p_post_bl",
+      "opRef": 0,
+      "id": "j70"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_back",
+      "insertPartId": "p_rail_top_l",
+      "opRef": 0,
+      "id": "j71"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_back",
+      "insertPartId": "p_post_br",
+      "opRef": 1,
+      "id": "j72"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_back",
+      "insertPartId": "p_rail_top_r",
+      "opRef": 1,
+      "id": "j73"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_mid",
+      "insertPartId": "p_rail_top_front",
+      "opRef": 0,
+      "id": "j74"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_rail_top_mid",
+      "insertPartId": "p_rail_top_back",
+      "opRef": 1,
+      "id": "j75"
+    }
+  ],
+  "meta": {
+    "difficulty": "beginner",
+    "notes": "A 48 × 72 × 24 freestanding garage shelf: four plywood shelves, each on a frame of 2x4 rails with a centre support, between 4x4 posts. Holds heavy bins. Screw it to a wall stud so it cannot tip.",
+    "tags": [
+      "beginner",
+      "garage",
+      "shop",
+      "storage"
+    ]
+  }
+}

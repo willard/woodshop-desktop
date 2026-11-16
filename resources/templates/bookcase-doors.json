@@ -1,0 +1,653 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Bookcase with Doors",
+  "materials": [
+    {
+      "id": "ply_oak",
+      "name": "Oak Plywood",
+      "type": "sheet",
+      "species": "oak",
+      "thickness": 0.75,
+      "sheetSize": {
+        "l": 96,
+        "w": 48
+      }
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_side_l",
+      "name": "Left Side",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 72,
+        "w": 12
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -15.625,
+          36,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_side_r",
+      "name": "Right Side",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 72,
+        "w": 12
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          15.625,
+          36,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_bottom",
+      "name": "Bottom",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 30.5,
+        "w": 12
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          3.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 11,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 1,
+          "to": 11,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 5,
+          "from": 1,
+          "to": 29.5,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_toe",
+      "name": "Toe Board",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 30.5,
+        "w": 3
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          1.5,
+          5.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 0.75,
+          "to": 2.25,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 0.75,
+          "to": 2.25,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_divider",
+      "name": "Cupboard Top",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 30.5,
+        "w": 12
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          30.375,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 11,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 1,
+          "to": 11,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_shelf_low",
+      "name": "Lower Shelf",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 30.5,
+        "w": 11.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          44.125,
+          -0.375
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 10.25,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 1,
+          "to": 10.25,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_shelf_high",
+      "name": "Upper Shelf",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 30.5,
+        "w": 11.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          57.875,
+          -0.375
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 10.25,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 1,
+          "to": 10.25,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_top",
+      "name": "Top",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 30.5,
+        "w": 12
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          71.625,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w0",
+          "count": 2,
+          "from": 1,
+          "to": 11,
+          "thread": "coarse",
+          "length": 1.25
+        },
+        {
+          "type": "pocketHoles",
+          "face": "back",
+          "edge": "w1",
+          "count": 2,
+          "from": 1,
+          "to": 11,
+          "thread": "coarse",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_back",
+      "name": "Back",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 72,
+        "w": 32
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          36,
+          -6.375
+        ],
+        "rot": [
+          0,
+          0,
+          90
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 31.625,
+          "count": 12,
+          "from": 1,
+          "to": 71,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 0.375,
+          "count": 12,
+          "from": 1,
+          "to": 71,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 71.625,
+          "count": 5,
+          "from": 1.75,
+          "to": 30.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 3.375,
+          "count": 5,
+          "from": 1.75,
+          "to": 30.25,
+          "gauge": "#8",
+          "length": 1.25
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 30.375,
+          "count": 5,
+          "from": 1.75,
+          "to": 30.25,
+          "gauge": "#8",
+          "length": 1.25
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_door_l",
+      "name": "Left Door",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 15.125,
+        "w": 26.125
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -7.625,
+          16.875,
+          5.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_door_r",
+      "name": "Right Door",
+      "materialId": "ply_oak",
+      "size": {
+        "l": 15.125,
+        "w": 26.125
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          7.625,
+          16.875,
+          5.625
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "screw",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_toe",
+      "opRef": 2,
+      "id": "j0"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j1"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j2"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_top",
+      "opRef": 2,
+      "id": "j3"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_bottom",
+      "opRef": 3,
+      "id": "j4"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_back",
+      "insertPartId": "p_divider",
+      "opRef": 4,
+      "id": "j5"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j6"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_toe",
+      "opRef": 0,
+      "id": "j7"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j8"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_bottom",
+      "insertPartId": "p_toe",
+      "opRef": 1,
+      "id": "j9"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_toe",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j10"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_toe",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j11"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_divider",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j12"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_divider",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j13"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf_low",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j14"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf_low",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j15"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf_high",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j16"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_shelf_high",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j17"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_top",
+      "insertPartId": "p_side_l",
+      "opRef": 0,
+      "id": "j18"
+    },
+    {
+      "type": "pocketScrew",
+      "hostPartId": "p_top",
+      "insertPartId": "p_side_r",
+      "opRef": 1,
+      "id": "j19"
+    }
+  ],
+  "movables": [
+    {
+      "id": "mv_door_l",
+      "kind": "door",
+      "name": "Left Door",
+      "partIds": [
+        "p_door_l"
+      ],
+      "panelPartId": "p_door_l",
+      "hingeEdge": "w0",
+      "style": "inset",
+      "hinge": "hinge.euro-inset",
+      "pull": "knob.round-1-1-4"
+    },
+    {
+      "id": "mv_door_r",
+      "kind": "door",
+      "name": "Right Door",
+      "partIds": [
+        "p_door_r"
+      ],
+      "panelPartId": "p_door_r",
+      "hingeEdge": "w1",
+      "style": "inset",
+      "hinge": "hinge.euro-inset",
+      "pull": "knob.round-1-1-4"
+    }
+  ],
+  "meta": {
+    "difficulty": "intermediate",
+    "notes": "A 32 × 72 × 12 plywood bookcase: two open shelves up top, a closed cupboard below behind a pair of inset doors on concealed hinges. Anchor it to the wall.",
+    "tags": [
+      "bookcase",
+      "cabinet",
+      "living-room",
+      "storage"
+    ]
+  }
+}

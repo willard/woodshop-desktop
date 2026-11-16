@@ -8,6 +8,13 @@ const WIDTH = 640;
 const HEIGHT = 400;
 /** The editor frames a design to 60% of its view; a card wants it bigger, so crop to this share. */
 const ZOOM = 0.8;
+/**
+ * A design much taller than it is wide fills the view's height, which a 16:10 crop of a squarer
+ * view cuts into; those take a crop this share of the view's height instead.
+ */
+const TALL_CROP = 0.76;
+/** Set ONLY=id,id to render just those templates. */
+const ONLY = process.env.ONLY?.split(',');
 
 test.use({ viewport: { width: 1360, height: 860 }, deviceScaleFactor: 1 });
 test.setTimeout(10 * 60_000);
@@ -20,16 +27,20 @@ test('render every template', async ({ page }) => {
         const invoke = (
             window as unknown as { __TAURI_INTERNALS__: { invoke: (c: string) => Promise<unknown> } }
         ).__TAURI_INTERNALS__.invoke;
-        return ((await invoke('list_templates')) as { id: string; name: string }[]).map((t) => [
-            t.name,
-            t.id,
-        ]);
+        type Summary = { id: string; name: string; overall?: { width: number; height: number } };
+        return ((await invoke('list_templates')) as Summary[]).map((t) => ({
+            name: t.name,
+            id: t.id,
+            tall: t.overall !== undefined && t.overall.height > 1.4 * t.overall.width,
+        }));
     });
-    const idOf = new Map(ids as [string, string][]);
+    const byName = new Map(ids.map((t) => [t.name, t]));
     expect(names.length).toBeGreaterThan(0);
 
     for (const theme of ['light', 'dark'] as const) {
         for (const name of names) {
+            const { id, tall } = byName.get(name)!;
+            if (ONLY && !ONLY.includes(id)) continue;
             await page.evaluate((t) => localStorage.setItem('woodshop.theme', t), theme);
             await page.goto('/#/templates');
             await page.reload();
@@ -42,7 +53,7 @@ test('render every template', async ({ page }) => {
             // Let holes be cut and the first frames settle.
             await page.waitForTimeout(2500);
             const data = await page.evaluate(
-                ({ width, height, zoom }) => {
+                ({ width, height, zoom, tallCrop }) => {
                     const source = document.querySelector(
                         '[data-testid="editor-shell"] canvas',
                     ) as HTMLCanvasElement;
@@ -53,6 +64,11 @@ test('render every template', async ({ page }) => {
                     if (sh > source.height * zoom) {
                         sh = source.height * zoom;
                         sw = sh * aspect;
+                    }
+                    if (tallCrop !== null && sh < source.height * tallCrop) {
+                        sh = source.height * tallCrop;
+                        sw = Math.min(sh * aspect, source.width);
+                        sh = sw / aspect;
                     }
                     const out = document.createElement('canvas');
                     out.width = width;
@@ -72,9 +88,8 @@ test('render every template', async ({ page }) => {
                     );
                     return out.toDataURL('image/webp', 0.82);
                 },
-                { width: WIDTH, height: HEIGHT, zoom: ZOOM },
+                { width: WIDTH, height: HEIGHT, zoom: ZOOM, tallCrop: tall ? TALL_CROP : null },
             );
-            const id = idOf.get(name)!;
             writeFileSync(`${OUT}${id}-${theme}.webp`, Buffer.from(data.split(',')[1], 'base64'));
         }
     }

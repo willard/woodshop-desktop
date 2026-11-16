@@ -24,12 +24,21 @@ const TEMPLATES: &[(&str, &str)] = &[
         "base-cabinet",
         include_str!("../../../resources/templates/base-cabinet.json"),
     ),
+    ("bed-frame", include_str!("../../../resources/templates/bed-frame.json")),
+    (
+        "bookcase-doors",
+        include_str!("../../../resources/templates/bookcase-doors.json"),
+    ),
     ("bookshelf", include_str!("../../../resources/templates/bookshelf.json")),
     (
         "coffee-table",
         include_str!("../../../resources/templates/coffee-table.json"),
     ),
     ("desk", include_str!("../../../resources/templates/desk.json")),
+    (
+        "desk-drawers",
+        include_str!("../../../resources/templates/desk-drawers.json"),
+    ),
     (
         "dining-table",
         include_str!("../../../resources/templates/dining-table.json"),
@@ -42,6 +51,10 @@ const TEMPLATES: &[(&str, &str)] = &[
     (
         "entry-shelf",
         include_str!("../../../resources/templates/entry-shelf.json"),
+    ),
+    (
+        "garage-shelving",
+        include_str!("../../../resources/templates/garage-shelving.json"),
     ),
     (
         "kitchen-cart",
@@ -96,6 +109,10 @@ const TEMPLATES: &[(&str, &str)] = &[
         include_str!("../../../resources/templates/wall-cabinet.json"),
     ),
     ("workbench", include_str!("../../../resources/templates/workbench.json")),
+    (
+        "workbench-drawers",
+        include_str!("../../../resources/templates/workbench-drawers.json"),
+    ),
 ];
 
 #[derive(Debug, Clone, PartialEq, Serialize)]

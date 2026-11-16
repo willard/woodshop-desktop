@@ -1,0 +1,1446 @@
+{
+  "specVersion": "1.15",
+  "units": "in",
+  "name": "Queen Platform Bed",
+  "materials": [
+    {
+      "id": "pine_2x10",
+      "name": "Pine 2x10",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 1.5,
+      "stockWidth": 9.25,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "pine_4x4",
+      "name": "Pine 4x4",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 3.5,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    },
+    {
+      "id": "pine_2x4",
+      "name": "Pine 2x4",
+      "type": "lumber",
+      "species": "pine",
+      "thickness": 1.5,
+      "stockWidth": 3.5,
+      "stockLengths": [
+        96
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "p_rail_l",
+      "name": "Left Rail",
+      "materialId": "pine_2x10",
+      "size": {
+        "l": 82,
+        "w": 9.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -30.25,
+          10.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 78.75,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 3.25,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_r",
+      "name": "Right Rail",
+      "materialId": "pine_2x10",
+      "size": {
+        "l": 82,
+        "w": 9.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          30.25,
+          10.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 78.75,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 3.25,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_head",
+      "name": "Head Rail",
+      "materialId": "pine_2x10",
+      "size": {
+        "l": 59,
+        "w": 9.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          10.625,
+          -40.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 1.75,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 57.25,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 4.625,
+          "to": 6.375,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_rail_foot",
+      "name": "Foot Rail",
+      "materialId": "pine_2x10",
+      "size": {
+        "l": 59,
+        "w": 9.25
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          10.625,
+          40.25
+        ],
+        "rot": [
+          0,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 1.75,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 57.25,
+          "count": 2,
+          "from": 1,
+          "to": 8.25,
+          "gauge": "#8",
+          "length": 3
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 4.625,
+          "to": 6.375,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_leg_fl",
+      "name": "Leg FL",
+      "materialId": "pine_4x4",
+      "size": {
+        "l": 15.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -27.75,
+          7.625,
+          37.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_fr",
+      "name": "Leg FR",
+      "materialId": "pine_4x4",
+      "size": {
+        "l": 15.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          27.75,
+          7.625,
+          37.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_bl",
+      "name": "Leg BL",
+      "materialId": "pine_4x4",
+      "size": {
+        "l": 15.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -27.75,
+          7.625,
+          -37.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_leg_br",
+      "name": "Leg BR",
+      "materialId": "pine_4x4",
+      "size": {
+        "l": 15.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          27.75,
+          7.625,
+          -37.75
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_ledger_l",
+      "name": "Left Ledger",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 72,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          -28.75,
+          11.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 1.75,
+          "count": 12,
+          "from": 1,
+          "to": 71,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_ledger_r",
+      "name": "Right Ledger",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 72,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          28.75,
+          11.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "back",
+          "axis": "l",
+          "offset": 1.75,
+          "count": 12,
+          "from": 1,
+          "to": 71,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_beam",
+      "name": "Centre Beam",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 79,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          11.5,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          180
+        ]
+      },
+      "qty": 1
+    },
+    {
+      "id": "p_beam_leg",
+      "name": "Centre Leg",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 13.25,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          1.5,
+          6.625,
+          0
+        ],
+        "rot": [
+          0,
+          90,
+          90
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "l",
+          "offset": 1.75,
+          "count": 2,
+          "from": 10.625,
+          "to": 12.375,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_1",
+      "name": "Slat 1",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          -32.5
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_2",
+      "name": "Slat 2",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          -26
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_3",
+      "name": "Slat 3",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          -19.5
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_4",
+      "name": "Slat 4",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          -13
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_5",
+      "name": "Slat 5",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          -6.5
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_6",
+      "name": "Slat 6",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          0
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_7",
+      "name": "Slat 7",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          6.5
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_8",
+      "name": "Slat 8",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          13
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_9",
+      "name": "Slat 9",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          19.5
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_10",
+      "name": "Slat 10",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          26
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    },
+    {
+      "id": "p_slat_11",
+      "name": "Slat 11",
+      "materialId": "pine_2x4",
+      "size": {
+        "l": 59,
+        "w": 3.5
+      },
+      "grainAxis": "l",
+      "transform": {
+        "pos": [
+          0,
+          14,
+          32.5
+        ],
+        "rot": [
+          -90,
+          0,
+          0
+        ]
+      },
+      "ops": [
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 0.75,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 58.25,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        },
+        {
+          "type": "screws",
+          "face": "front",
+          "axis": "w",
+          "offset": 29.5,
+          "count": 2,
+          "from": 0.875,
+          "to": 2.625,
+          "gauge": "#8",
+          "length": 2.5
+        }
+      ],
+      "qty": 1
+    }
+  ],
+  "joints": [
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_l",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0,
+      "id": "j0"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_l",
+      "insertPartId": "p_leg_bl",
+      "opRef": 1,
+      "id": "j1"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_r",
+      "insertPartId": "p_leg_fr",
+      "opRef": 0,
+      "id": "j2"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_r",
+      "insertPartId": "p_leg_br",
+      "opRef": 1,
+      "id": "j3"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_head",
+      "insertPartId": "p_leg_bl",
+      "opRef": 0,
+      "id": "j4"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_head",
+      "insertPartId": "p_leg_br",
+      "opRef": 1,
+      "id": "j5"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_head",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j6"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_foot",
+      "insertPartId": "p_leg_fl",
+      "opRef": 0,
+      "id": "j7"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_foot",
+      "insertPartId": "p_leg_fr",
+      "opRef": 1,
+      "id": "j8"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_rail_foot",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j9"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_ledger_l",
+      "insertPartId": "p_rail_l",
+      "opRef": 0,
+      "id": "j10"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_ledger_r",
+      "insertPartId": "p_rail_r",
+      "opRef": 0,
+      "id": "j11"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_beam_leg",
+      "insertPartId": "p_beam",
+      "opRef": 0,
+      "id": "j12"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_1",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j13"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_1",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j14"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_1",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j15"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_2",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j16"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_2",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j17"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_2",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j18"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_3",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j19"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_3",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j20"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_3",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j21"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_4",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j22"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_4",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j23"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_4",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j24"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_5",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j25"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_5",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j26"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_5",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j27"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_6",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j28"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_6",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j29"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_6",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j30"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_7",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j31"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_7",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j32"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_7",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j33"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_8",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j34"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_8",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j35"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_8",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j36"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_9",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j37"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_9",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j38"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_9",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j39"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_10",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j40"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_10",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j41"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_10",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j42"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_11",
+      "insertPartId": "p_ledger_l",
+      "opRef": 0,
+      "id": "j43"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_11",
+      "insertPartId": "p_ledger_r",
+      "opRef": 1,
+      "id": "j44"
+    },
+    {
+      "type": "screw",
+      "hostPartId": "p_slat_11",
+      "insertPartId": "p_beam",
+      "opRef": 2,
+      "id": "j45"
+    }
+  ],
+  "meta": {
+    "difficulty": "intermediate",
+    "notes": "A platform bed for a 60 × 80 queen mattress, no box spring needed: 2x10 rails on 4x4 corner legs, 2x4 ledgers and a centre beam on its own leg, and eleven 2x4 slats laid flat and screwed down. Breaks down into rails and slats to move.",
+    "tags": [
+      "bed",
+      "bedroom",
+      "furniture"
+    ]
+  }
+}

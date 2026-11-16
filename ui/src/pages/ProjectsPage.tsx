@@ -443,7 +443,7 @@ function Welcome() {
                     to="/templates"
                     className="border-fg/12 text-accent hover:bg-surface-2 rounded-md border px-4 py-2 text-sm"
                 >
-                    Browse 25 templates
+                    Browse templates
                 </Link>
             </div>
             <p className="text-faint mt-5 text-sm">

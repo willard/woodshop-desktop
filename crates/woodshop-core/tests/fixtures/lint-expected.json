@@ -253,13 +253,17 @@
         "warn|op.fastener-partial-miss|p_top|0|"
     ],
     "template:base-cabinet": [],
+    "template:bed-frame": [],
+    "template:bookcase-doors": [],
     "template:bookshelf": [],
     "template:coffee-table": [],
     "template:desk": [],
+    "template:desk-drawers": [],
     "template:dining-table": [],
     "template:dresser": [],
     "template:entry-bench": [],
     "template:entry-shelf": [],
+    "template:garage-shelving": [],
     "template:kitchen-cart": [],
     "template:media-console": [],
     "template:mobile-workbench": [],
@@ -276,5 +280,6 @@
     "template:tool-tote": [],
     "template:toy-chest": [],
     "template:wall-cabinet": [],
-    "template:workbench": []
+    "template:workbench": [],
+    "template:workbench-drawers": []
 }

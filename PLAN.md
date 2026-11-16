@@ -368,13 +368,16 @@ gating is built: there is nothing to unlock.
   template gallery. The five-step tour (look around, select, move, cut list, export) rings the
   control a step is about; Skip, Esc or Done close it and set the `tourDone` setting. Help has
   "Take the tour" to run it again.
-- **Templates:** done: 11 → 25. New: step stool, entry shelf with hooks, shoe rack, raised
+- **Templates:** done: 11 → 30. New: step stool, entry shelf with hooks, shoe rack, raised
   garden bed, sawhorse, entry bench, dining table, kitchen cart (casters), tool tote (dowel
   handle in bored holes), toy chest (lid on hinges, lid stay), wall cabinet (inset doors, Euro
-  hinges), base cabinet (drawer over door, toe kick), three-drawer dresser, media console. Every
-  template lints clean (the parity test holds them to it) and uses catalog hardware. Still to
-  do: garage shelving, workbench with drawers, bed frame, bookcase with doors, desk with
-  drawers; a rendered thumbnail per template.
+  hinges), base cabinet (drawer over door, toe kick), three-drawer dresser, media console,
+  garage shelving (4x4 posts, framed shelves), workbench with drawers (doubled top, drawer case
+  hung under it), queen platform bed (slats on ledgers and a centre beam), bookcase with doors,
+  desk with a drawer pedestal. Every template lints clean (the parity test holds them to it),
+  uses catalog hardware, and has a rendered picture in each theme. The five newest also pass the
+  sturdiness advisory, apart from the anchor-to-the-wall note on the bookcase and the racking
+  note on the desk that the existing desk shares.
 - **Help:** articles for every major feature (there are 6 today), with screenshots. Include
   "Using Woodshop with an AI agent".
 - **Empty states and error messages:** read every one; each should say what to do next.
