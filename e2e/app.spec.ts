@@ -471,6 +471,52 @@ test('a rabbet is added from the cut menu and changed in place', async ({ page }
     await expect(rows.last()).toContainText('Rabbet 1/4" wide × 1/4" deep');
 });
 
+test('copies of a part are made in a row, then spaced evenly', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    const outline = page.getByTestId('outline');
+    await outline.getByRole('button', { name: 'Middle Shelf', exact: true }).click();
+    await page.getByTestId('copies-toggle').click();
+    await page.getByTestId('copies-count').fill('2');
+    await page.getByTestId('copies-gap').fill('1');
+    await page.getByTestId('copies-submit').click();
+    await expect(page.getByTestId('parts-count')).toHaveText('8 parts');
+    await expect(outline.getByRole('button', { name: 'Middle Shelf 3', exact: true })).toBeVisible();
+
+    // Bottom, the three shelves and the top, spread evenly up and down.
+    for (const name of ['Bottom', 'Middle Shelf', 'Middle Shelf 2', 'Middle Shelf 3', 'Top']) {
+        await outline
+            .getByRole('button', { name, exact: true })
+            .click({ modifiers: name === 'Bottom' ? [] : ['Shift'] });
+    }
+    await expect(page.getByTestId('multi-panel')).toContainText('5 parts selected');
+    await page.getByTestId('space-evenly-1').click();
+
+    // Same stock throughout, so equal gaps means equal steps between the parts' heights.
+    const inches = (t: string) =>
+        t
+            .trim()
+            .split(/\s+/)
+            .reduce(
+                (sum, w) =>
+                    sum + (w.includes('/') ? Number(w.split('/')[0]) / Number(w.split('/')[1]) : Number(w)),
+                0,
+            );
+    const heights: number[] = [];
+    for (const name of ['Bottom', 'Middle Shelf', 'Middle Shelf 2', 'Middle Shelf 3', 'Top']) {
+        await outline.getByRole('button', { name, exact: true }).click();
+        await page.getByTestId('inspector-tab').click();
+        heights.push(inches(await page.getByTestId('pos-input-1').inputValue()));
+    }
+    heights.sort((a, b) => a - b);
+    const steps = heights.slice(1).map((h, i) => h - heights[i]);
+    for (const step of steps) expect(Math.abs(step - steps[0])).toBeLessThan(1 / 16 + 1e-6);
+
+    // One undo puts the spacing back, another removes the copies.
+    await page.getByTestId('undo').click();
+    await page.getByTestId('undo').click();
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+});
+
 test('the inspector adds a cut from one menu, says it in plain words, and remembers folded sections', async ({
     page,
 }) => {

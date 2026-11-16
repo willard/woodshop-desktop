@@ -46,6 +46,8 @@ export interface PartInspectorProps {
     onRotateBy(axis: Axis3, delta: number): void;
     onRotateTo(axis: Axis3, deg: number): void;
     onDuplicate(): void;
+    /** `count` copies along world `axis` (0 x, 1 y, 2 z), `gap` apart edge to edge. */
+    onCopies(count: number, axis: 0 | 1 | 2, gap: number): void;
     onRemove(): void;
     onRename(name: string): void;
     onAddOp(op: Op): void;
@@ -640,6 +642,28 @@ export function PartInspector(p: PartInspectorProps) {
     }
 
     const hasOps = (part.ops ?? []).length > 0;
+
+    // --- Copies: a run of this part along an axis ---
+    const [copiesOpen, setCopiesOpen] = useState(false);
+    const [copiesError, setCopiesError] = useState<string | null>(null);
+    const [copies, setCopies] = useState({ count: '3', axis: '1', gap: lenValue(2) });
+    useEffect(() => setCopiesOpen(false), [part.id]);
+
+    function submitCopies(): void {
+        setCopiesError(null);
+        const count = Math.round(Number(copies.count));
+        if (!Number.isFinite(count) || count < 1 || count > 50) {
+            setCopiesError('How many must be a whole number from 1 to 50');
+            return;
+        }
+        const gap = parseLen(copies.gap.trim());
+        if (gap === null || gap < 0 || gap > 240) {
+            setCopiesError('Gap needs a dimension of 0 or more (e.g. 2 1/2)');
+            return;
+        }
+        p.onCopies(count, Number(copies.axis) as 0 | 1 | 2, gap);
+        setCopiesOpen(false);
+    }
     const placeTitle = p.canPlace
         ? 'Click a face in the 3D view to position it'
         : 'Reassemble (leave the exploded view) to place cuts';
@@ -1550,12 +1574,63 @@ export function PartInspector(p: PartInspectorProps) {
                 )}
             </Section>
 
-            <div className="grid grid-cols-2 gap-2">
+            {copiesOpen && (
+                <FormBox testId="copies-form">
+                    <div className="mb-2 grid grid-cols-3 gap-2">
+                        <Field label="How many">
+                            <TextInput
+                                value={copies.count}
+                                inputMode="numeric"
+                                data-testid="copies-count"
+                                onChange={(e) => setCopies({ ...copies, count: e.target.value })}
+                            />
+                        </Field>
+                        <Field label="Direction">
+                            <Select
+                                value={copies.axis}
+                                data-testid="copies-axis"
+                                onChange={(e) => setCopies({ ...copies, axis: e.target.value })}
+                            >
+                                <option value="1">Up</option>
+                                <option value="0">Right</option>
+                                <option value="2">Forward</option>
+                            </Select>
+                        </Field>
+                        <Field label={`Gap (${unitSuffix()})`}>
+                            <TextInput
+                                value={copies.gap}
+                                data-testid="copies-gap"
+                                onChange={(e) => setCopies({ ...copies, gap: e.target.value })}
+                            />
+                        </Field>
+                    </div>
+                    <Hint>
+                        Copies of this part in a row, each the gap away from the last, edge to edge. Select
+                        the row afterwards and use Space evenly to fit it between two parts.
+                    </Hint>
+                    {copiesError && <p className="text-danger-fg mb-2 text-xs">{copiesError}</p>}
+                    <PrimaryButton className="w-full" data-testid="copies-submit" onClick={submitCopies}>
+                        Make copies
+                    </PrimaryButton>
+                </FormBox>
+            )}
+            <div className="grid grid-cols-3 gap-2">
                 <button
                     className="border-fg/10 text-fg/75 hover:bg-fg/5 h-9 rounded-lg border text-xs"
                     onClick={p.onDuplicate}
                 >
                     Duplicate
+                </button>
+                <button
+                    className={`border-fg/10 hover:bg-fg/5 h-9 rounded-lg border text-xs ${copiesOpen ? 'border-accent text-accent' : 'text-fg/75'}`}
+                    aria-expanded={copiesOpen}
+                    data-testid="copies-toggle"
+                    onClick={() => {
+                        setCopiesError(null);
+                        setCopiesOpen(!copiesOpen);
+                    }}
+                >
+                    Copies…
                 </button>
                 <button
                     className="border-danger/40 bg-danger/10 text-danger-fg hover:bg-danger/20 h-9 rounded-lg border text-xs"

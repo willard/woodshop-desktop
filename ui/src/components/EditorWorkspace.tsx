@@ -29,7 +29,11 @@ import {
     DEFAULT_NUDGE_CONFIG,
     DeleteMaterial,
     DissolveMovable,
+    CopyPart,
+    copyStep,
     DuplicateGroup,
+    evenPositions,
+    SetPositions,
     DuplicatePart,
     EditorDocument,
     EditorEngine,
@@ -616,6 +620,32 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             d.select(newId);
         };
 
+        /** A run of copies of the selected part; the original stays selected. */
+        const makeCopies = (count: number, axis: 0 | 1 | 2, gap: number): void => {
+            const d = docRef.current;
+            const part = d.selectedPart;
+            if (part === null) return;
+            const used = new Set(d.spec.parts.map((p) => p.id));
+            for (const p of props.doc.spec.parts) used.add(p.id); // focus mode: ids stay unique overall
+            const ids: string[] = [];
+            for (let i = 0; i < count; i++) {
+                const id = uniquePartIdFrom(used, `${part.id}_${i + 2}`);
+                used.add(id);
+                ids.push(id);
+            }
+            tryExecute(() => d.execute(new CopyPart(part.id, ids, copyStep(d.spec, part, axis, gap))));
+        };
+
+        /** Spreads the selected parts out so the gaps between them along `axis` are all equal. */
+        const spaceEvenly = (axis: 0 | 1 | 2): void => {
+            const d = docRef.current;
+            const parts = d.selectedIds
+                .map((id) => d.spec.parts.find((p) => p.id === id))
+                .filter((p): p is Part => p !== undefined);
+            const moves = evenPositions(d.spec, parts, axis);
+            if (moves.size > 0) tryExecute(() => d.execute(new SetPositions(moves)));
+        };
+
         const remove = (): void => {
             const d = docRef.current;
             const ids = d.selectedIds;
@@ -1158,6 +1188,31 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 New project from {selectedIds.length} parts
                             </button>
                         )}
+                        {selectedIds.length >= 3 && (
+                            <div data-testid="space-evenly">
+                                <div className="text-muted mb-1.5 text-xs">
+                                    Space evenly, keeping the two outer parts where they are
+                                </div>
+                                <div className="grid grid-cols-3 gap-1.5">
+                                    {(
+                                        [
+                                            [1, 'Up and down'],
+                                            [0, 'Left to right'],
+                                            [2, 'Front to back'],
+                                        ] as const
+                                    ).map(([axis, label]) => (
+                                        <button
+                                            key={axis}
+                                            className="border-fg/10 text-fg/75 hover:bg-fg/5 h-9 rounded-lg border text-xs"
+                                            data-testid={`space-evenly-${axis}`}
+                                            onClick={() => spaceEvenly(axis)}
+                                        >
+                                            {label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                         <button
                             className="border-fg/10 text-muted hover:bg-fg/5 h-9 rounded-lg border text-xs"
                             data-testid="multi-hide"
@@ -1213,6 +1268,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         onRotateBy={rotateBy}
                         onRotateTo={rotateTo}
                         onDuplicate={duplicate}
+                        onCopies={makeCopies}
                         onRemove={remove}
                         onRename={(name) => doc.execute(new RenamePart(selected.id, name))}
                         onAddOp={(op) => executeAddOp(selected.id, op)}

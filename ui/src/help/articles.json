@@ -73,6 +73,8 @@
                     "Move a part by dragging it, by typing its position, or with the arrow keys (Shift for bigger steps, Alt for smaller, Page Up and Page Down for height).",
                     "Turn it with Tip, Turn and Roll in the Inspector.",
                     "Add parts from the Add menu: legs, aprons, slats, panels, shelves, boards and dowel rails, each at a sensible starting size.",
+                    "Make a row of the same part, such as slats, shelves or legs, with Copies… in the Inspector: how many, which way, and the gap between them.",
+                    "Select three or more parts and choose Space evenly to spread them out with equal gaps, keeping the two outer ones where they are. Handy for shelves between a bottom and a top.",
                     "Select several parts and press ⌘G to group them, so they select and move together."
                 ]
             },
