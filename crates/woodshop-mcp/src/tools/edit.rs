@@ -311,6 +311,63 @@ pub const RENAME_PART: ToolDef = ToolDef {
     },
 };
 
+pub const SET_EDGE_BANDING: ToolDef = ToolDef {
+    name: "set_edge_banding",
+    description: "Choose which edges of a part are covered with edge banding (iron-on veneer tape for \
+        plywood edges that show). `edges` lists them: l0/l1 are the two edges along the part's \
+        length, w0/w1 the two ends. An empty list removes the banding. The cut list's hardware rows \
+        total the banding to buy per material. Changes no geometry.",
+    read_only: false,
+    schema: || {
+        object(
+            json!({
+                "project_id": integer(PROJECT_ID),
+                "part_id": string("The id of the part (from get_design)."),
+                "edges": array(one_of(EDGES, "An edge."), "The edges to band; [] for none."),
+            }),
+            &["project_id", "part_id", "edges"],
+        )
+    },
+    run: |w, args| {
+        let project_id = args.project_id(PROVIDE_PROJECT)?;
+        let part_id = args.str("part_id", "Provide the id of the part (see get_design).")?;
+        let given = args
+            .opt_array("edges", 4)?
+            .ok_or("Provide edges: a list of l0, l1, w0, w1 ([] for none).")?;
+        let mut edges: Vec<&str> = Vec::new();
+        for e in given {
+            let e = e
+                .as_str()
+                .filter(|e| EDGES.contains(e))
+                .ok_or("Each edge must be one of l0, l1, w0, w1.")?;
+            if !edges.contains(&e) {
+                edges.push(e);
+            }
+        }
+        // Stored in a fixed order, so the same edges always read the same.
+        edges.sort_by_key(|e| EDGES.iter().position(|x| x == e));
+        let design = w.load_editable(project_id)?;
+        let name = find(&design.draft, "parts", part_id)
+            .map(|p| text(p, "name").to_owned())
+            .ok_or_else(|| no_part(part_id))?;
+        let result = w.apply(&design, &format!("Edge banding on {name}"), true, |spec| {
+            map_one(spec, "parts", part_id, |p| {
+                if edges.is_empty() {
+                    p.remove("edgeBand");
+                } else {
+                    p.insert("edgeBand".into(), json!(edges));
+                }
+            });
+        });
+        let said = if edges.is_empty() {
+            format!("Removed the edge banding from \"{name}\".")
+        } else {
+            format!("Banded {} of \"{name}\".", edges.join(", "))
+        };
+        w.render(result, &design, &said)
+    },
+};
+
 pub const SET_PART_MATERIAL: ToolDef = ToolDef {
     name: "set_part_material",
     description: "Point a part at a different material that already exists in the design (by material \

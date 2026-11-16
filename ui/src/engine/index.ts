@@ -106,6 +106,7 @@ export {
     MoveParts,
     CopyPart,
     SetPositions,
+    SetEdgeBand,
     copyStep,
     evenPositions,
     RotateParts,

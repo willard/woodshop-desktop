@@ -237,3 +237,12 @@ their stock, and a fully connected assembly with no floating parts.
     needs `rot: 90`.
 - Mount hardware where it would really go: pulls 2–4 in from the opening edge, casters 1–2 in
   in from each corner of the base, corner braces in the inside corner they brace.
+
+## Edge banding (spec 1.16)
+
+- Plywood and MDF edges that will show are covered with edge banding. Set them with
+  `set_edge_banding` (`edges`: any of `l0`, `l1`, `w0`, `w1`; `[]` removes it), stored on the
+  part as `edgeBand`. Band the front edge of shelves and the visible edges of sides and tops;
+  leave edges that sit in a dado or against another part bare.
+- Banding changes no size: the cut list totals it per material as a hardware row ("Feet of 3/4"
+  edge banding"), with a tenth spare.

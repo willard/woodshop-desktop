@@ -517,6 +517,22 @@ test('copies of a part are made in a row, then spaced evenly', async ({ page }) 
     await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
 });
 
+test('banded edges add edge banding to the cut list', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('outline').getByRole('button', { name: 'Top', exact: true }).click();
+    await page.getByTestId('inspector-tab').click();
+    await page.getByTestId('edge-band-l1').click();
+    await expect(page.getByTestId('edge-band-l1')).toHaveAttribute('aria-checked', 'true');
+
+    await page.getByTestId('cutlist-toggle').click();
+    const line = page.getByTestId('hardware-line').filter({ hasText: 'edge banding' });
+    await expect(line).toHaveCount(1);
+    await expect(line).toContainText('Feet of');
+
+    await page.getByTestId('undo').click();
+    await expect(page.getByTestId('hardware-line').filter({ hasText: 'edge banding' })).toHaveCount(0);
+});
+
 test('the inspector adds a cut from one menu, says it in plain words, and remembers folded sections', async ({
     page,
 }) => {

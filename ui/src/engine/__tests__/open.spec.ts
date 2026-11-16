@@ -13,7 +13,7 @@ const THICKNESS = 0.75;
  */
 function cabinet(overrides: Partial<Record<string, unknown>> = {}): Spec {
     return parseSpec({
-        specVersion: '1.15',
+        specVersion: '1.16',
         units: 'in',
         name: 'Cabinet',
         materials: [

@@ -36,11 +36,11 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 33);
+    assert_eq!(tools::TOOLS.len(), 34);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
-    assert_eq!(names.len(), 33);
+    assert_eq!(names.len(), 34);
     for t in tools::TOOLS {
         let schema = (t.schema)();
         assert_eq!(schema["type"], "object", "{}", t.name);
@@ -151,6 +151,30 @@ fn authoring_session() {
         json!({ "project_id": id, "part_id": "p_top", "name": "Seat" }),
     );
     assert_eq!(part(&w, id, "p_top")["name"], "Seat");
+
+    // Edge banding: stored in a fixed order, totalled on the cut list, and cleared with [].
+    ok(
+        &w,
+        "set_edge_banding",
+        json!({ "project_id": id, "part_id": "p_top", "edges": ["w1", "l1", "l1"] }),
+    );
+    assert_eq!(part(&w, id, "p_top")["edgeBand"], json!(["l1", "w1"]));
+    let cut = ok(&w, "get_cut_list", json!({ "project_id": id }));
+    assert!(cut.to_string().contains("edge banding"), "{cut}");
+    assert!(
+        err(
+            &w,
+            "set_edge_banding",
+            json!({ "project_id": id, "part_id": "p_top", "edges": ["top"] })
+        )
+        .contains("l0, l1, w0, w1")
+    );
+    ok(
+        &w,
+        "set_edge_banding",
+        json!({ "project_id": id, "part_id": "p_top", "edges": [] }),
+    );
+    assert_eq!(part(&w, id, "p_top")["edgeBand"], Value::Null);
 
     // Ops: add, replace in place, remove; joints follow.
     ok(

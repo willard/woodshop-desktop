@@ -154,3 +154,39 @@ export class SetPositions implements Command {
         };
     }
 }
+
+type Edge = 'l0' | 'l1' | 'w0' | 'w1';
+
+/** Sets which edges of a part are covered with edge banding (an empty list removes it). */
+export class SetEdgeBand implements Command {
+    readonly label = 'Edge banding';
+    private before?: Edge[];
+
+    constructor(
+        private readonly partId: string,
+        private readonly edges: readonly Edge[],
+    ) {}
+
+    do(spec: Spec): Spec {
+        return {
+            ...spec,
+            parts: spec.parts.map((p) => {
+                if (p.id !== this.partId) return p;
+                this.before = p.edgeBand;
+                const { edgeBand: _, ...rest } = p;
+                return this.edges.length === 0 ? rest : { ...rest, edgeBand: [...this.edges] };
+            }),
+        };
+    }
+
+    undo(spec: Spec): Spec {
+        return {
+            ...spec,
+            parts: spec.parts.map((p) => {
+                if (p.id !== this.partId) return p;
+                const { edgeBand: _, ...rest } = p;
+                return this.before === undefined ? rest : { ...rest, edgeBand: this.before };
+            }),
+        };
+    }
+}

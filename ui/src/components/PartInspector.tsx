@@ -33,6 +33,10 @@ export interface PartInspectorProps {
     nominal: string | null;
     /** Round stock carries no ops (a dowel has no faces or edges to cut). */
     round: boolean;
+    /** Sheet goods (plywood, MDF): their edges can be banded. */
+    sheet?: boolean;
+    /** Sets the edges covered with edge banding. */
+    onEdgeBand(edges: Edge[]): void;
     dowel: string | null;
     /** False while exploded/open — click-to-place is blocked there. */
     canPlace: boolean;
@@ -968,6 +972,40 @@ export function PartInspector(p: PartInspectorProps) {
                     onSelect={p.onSelectHardware}
                 />
             </Section>
+
+            {p.sheet && (
+                <Section id="banding" title="Edge banding">
+                    <div className="mb-1.5 grid grid-cols-2 gap-1.5" data-testid="edge-band">
+                        {EDGE_LABELS.map(({ value, label }) => {
+                            const on = (part.edgeBand ?? []).includes(value);
+                            return (
+                                <button
+                                    key={value}
+                                    role="checkbox"
+                                    aria-checked={on}
+                                    className={`h-8 rounded-lg border text-xs ${on ? 'border-accent bg-accent/10 text-accent font-semibold' : 'border-fg/10 text-fg/70 hover:bg-fg/5'}`}
+                                    data-testid={`edge-band-${value}`}
+                                    onClick={() => {
+                                        const edges = part.edgeBand ?? [];
+                                        p.onEdgeBand(
+                                            on
+                                                ? edges.filter((e) => e !== value)
+                                                : EDGE_LABELS.map((x) => x.value).filter(
+                                                      (e) => e === value || edges.includes(e),
+                                                  ),
+                                        );
+                                    }}
+                                >
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                    <p className="text-muted mb-2.5 text-xs">
+                        Edges to cover. The cut list adds up the banding to buy.
+                    </p>
+                </Section>
+            )}
 
             <Section id="cuts" title="Cuts &amp; fasteners">
                 {hasOps && (

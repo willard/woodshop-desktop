@@ -38,6 +38,7 @@ pub static TOOLS: &[ToolDef] = &[
     edit::MOVE_PART,
     edit::EDIT_PARTS,
     edit::RENAME_PART,
+    edit::SET_EDGE_BANDING,
     edit::SET_PART_MATERIAL,
     edit::SET_PART_SPECIES,
     edit::DELETE_PART,

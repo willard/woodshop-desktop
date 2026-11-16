@@ -192,6 +192,9 @@ pub struct Part {
     pub qty: Option<u32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub locked: Option<bool>,
+    /// Edges covered with edge banding (1.16).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub edge_band: Option<Vec<Edge>>,
 }
 
 impl Part {

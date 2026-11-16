@@ -487,6 +487,16 @@ real icon and wordmark, which wait on the name decision.
 Done when: a first-time user can go from launch to an exported PDF without meeting a word they
 have to look up, and the editor screenshot would make someone want to try it from the README.
 
+## Features added after Phase 5
+
+- **Rabbets** from the Add-a-cut menu; a panel seated in one is recorded as a rabbet joint.
+- **Copies in a row** (Inspector, Copies…) and **Space evenly** for three or more selected parts
+  (`engine/commands/arrange.ts`).
+- **Edge banding** (spec 1.16): `part.edgeBand` lists banded edges; the Inspector toggles them
+  for sheet goods; the cut list adds a hardware row per material (feet or metres, a tenth spare);
+  agents use `set_edge_banding`.
+- **Change a cut in place** (`ReplaceOp`) and design-check messages in the display units.
+
 ## Phase 6: After launch
 
 - Branded hardware packs (Blum, Häfele, Accuride) with part numbers, once dimensional data and

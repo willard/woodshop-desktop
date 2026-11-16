@@ -100,6 +100,8 @@ pub enum HardwareKind {
     Knob,
     /// Any other catalog hardware mounted on a part (1.15): casters, brackets, latches…
     Other,
+    /// Edge banding for the banded edges of one material (1.16), in whole feet or metres.
+    EdgeBanding,
 }
 
 /// One line of the hardware list: the metal to buy.

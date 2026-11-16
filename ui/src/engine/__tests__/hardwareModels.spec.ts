@@ -67,7 +67,7 @@ describe('catalog hardware geometry', () => {
 
 function specWith(extra: Partial<Spec>): Spec {
     return parseSpec({
-        specVersion: '1.15',
+        specVersion: '1.16',
         units: 'in',
         name: 'T',
         materials: [

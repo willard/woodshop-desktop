@@ -34,6 +34,7 @@ import {
     DuplicateGroup,
     evenPositions,
     SetPositions,
+    SetEdgeBand,
     DuplicatePart,
     EditorDocument,
     EditorEngine,
@@ -1239,6 +1240,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 : null
                         }
                         round={selectedMaterial?.type === 'round'}
+                        sheet={selectedMaterial?.type === 'sheet'}
+                        onEdgeBand={(edges) =>
+                            tryExecute(() => doc.execute(new SetEdgeBand(selected.id, edges)))
+                        }
                         dowel={
                             selectedMaterial?.type === 'round'
                                 ? dowelLabelOf(selectedMaterial.thickness)

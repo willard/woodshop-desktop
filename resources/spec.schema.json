@@ -13,7 +13,7 @@
     ],
     "properties": {
         "specVersion": {
-            "const": "1.15"
+            "const": "1.16"
         },
         "units": {
             "const": "in",
@@ -347,6 +347,15 @@
                     "type": "boolean",
                     "default": false,
                     "description": "User hand-tuned this part; AI edits must return it byte-identical."
+                },
+                "edgeBand": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/edge"
+                    },
+                    "uniqueItems": true,
+                    "maxItems": 4,
+                    "description": "Edges covered with edge banding (1.16): l0/l1 run the part's length, w0/w1 its width. The cut list totals the banding to buy."
                 }
             }
         },

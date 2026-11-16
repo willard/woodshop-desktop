@@ -151,6 +151,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
             ops: None,
             qty: None,
             locked: None,
+            edge_band: None,
         }],
         materials: vec![material],
         joints: Some(vec![]),

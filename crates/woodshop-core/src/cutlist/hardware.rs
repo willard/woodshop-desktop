@@ -405,7 +405,52 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
             .cmp(&b.kind)
             .then_with(|| locale_compare(&a.description, &b.description))
     });
+    merged.extend(edge_banding(spec, units));
     merged
+}
+
+/// A tenth more banding than the edges measure, for trimming the ends and a spoiled piece.
+const BANDING_SPARE: f64 = 1.1;
+
+/// Edge banding to buy, one row per material with banded parts: the banded edges' total length
+/// (every copy of a part counts), a tenth spare, rounded up to whole feet or metres. The banding
+/// is as wide as the material is thick.
+fn edge_banding(spec: &Spec, units: Units) -> Vec<HardwareRow> {
+    let mut totals: Vec<(&crate::spec::Material, f64)> = Vec::new();
+    for part in &spec.parts {
+        let Some(edges) = part.edge_band.as_deref().filter(|e| !e.is_empty()) else {
+            continue;
+        };
+        let Some(material) = spec.material(&part.material_id) else {
+            continue;
+        };
+        let length: f64 = edges
+            .iter()
+            .map(|e| if e.is_l_edge() { part.size.l } else { part.size.w })
+            .sum::<f64>()
+            * f64::from(part.qty());
+        match totals.iter_mut().find(|(m, _)| m.id == material.id) {
+            Some((_, sum)) => *sum += length,
+            None => totals.push((material, length)),
+        }
+    }
+    totals
+        .into_iter()
+        .map(|(material, inches)| {
+            let width = crate::units::format_length(material.thickness, units);
+            let (qty, unit) = if units == Units::Metric {
+                ((inches * 0.0254 * BANDING_SPARE).ceil(), "Metres")
+            } else {
+                ((inches / 12.0 * BANDING_SPARE).ceil(), "Feet")
+            };
+            HardwareRow {
+                kind: HardwareKind::EdgeBanding,
+                description: format!("{unit} of {width} edge banding ({})", material.name),
+                qty: qty as u32,
+                derived: false,
+            }
+        })
+        .collect()
 }
 
 fn thread_name(t: crate::spec::Thread) -> &'static str {

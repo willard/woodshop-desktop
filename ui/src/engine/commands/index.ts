@@ -33,7 +33,15 @@ export {
     restoreMovables,
 } from './groups';
 export type { MovableCascade } from './groups';
-export { CopyPart, SetPositions, copyStep, copyNames, evenPositions, extentAlong } from './arrange';
+export {
+    CopyPart,
+    SetPositions,
+    SetEdgeBand,
+    copyStep,
+    copyNames,
+    evenPositions,
+    extentAlong,
+} from './arrange';
 export { MakeMovable, DissolveMovable, UpdateMovable, AddMovable, movableOf } from './movables';
 export {
     AddHardware,

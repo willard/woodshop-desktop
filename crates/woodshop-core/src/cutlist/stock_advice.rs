@@ -149,7 +149,7 @@ mod metric_tests {
 
     fn one_small_part_on(sheet_mm: (f64, f64)) -> Vec<StockSuggestion> {
         let spec = parse(json!({
-            "specVersion": "1.15", "units": "in", "name": "T",
+            "specVersion": "1.16", "units": "in", "name": "T",
             "materials": [{ "id": "m_ply", "type": "sheet", "name": "Ply", "thickness": 18.0 / 25.4,
                             "sheetSize": { "l": sheet_mm.0 / 25.4, "w": sheet_mm.1 / 25.4 } }],
             "parts": [{ "id": "p_a", "name": "A", "materialId": "m_ply", "size": { "l": 20, "w": 10 },
