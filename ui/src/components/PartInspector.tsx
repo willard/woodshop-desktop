@@ -7,6 +7,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Op, Part, Species } from '@/spec';
 import type { HardwarePatch, PlacementRequest } from '@/engine';
 import { MovableFittings, PartHardware } from './HardwareFittings';
+import { MirrorButtons } from './MirrorButtons';
 import {
     DEFAULT_EASE_CONFIG,
     WORKSPACE_POS_BOUND,
@@ -62,6 +63,8 @@ export interface PartInspectorProps {
     onDuplicate(): void;
     /** `count` copies along world `axis` (0 x, 1 y, 2 z), `gap` apart edge to edge. */
     onCopies(count: number, axis: 0 | 1 | 2, gap: number): void;
+    /** A mirrored copy across the design's middle, along world `axis`. */
+    onMirror(axis: 0 | 1 | 2): void;
     onRemove(): void;
     onRename(name: string): void;
     onAddOp(op: Op): void;
@@ -1898,6 +1901,7 @@ export function PartInspector(p: PartInspectorProps) {
                     </PrimaryButton>
                 </FormBox>
             )}
+            <MirrorButtons className="mb-3" onMirror={p.onMirror} />
             <div className="grid grid-cols-3 gap-2">
                 <button
                     className="border-fg/10 text-fg/75 hover:bg-fg/5 h-9 rounded-lg border text-xs"

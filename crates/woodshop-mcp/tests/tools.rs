@@ -36,11 +36,11 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 35);
+    assert_eq!(tools::TOOLS.len(), 36);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
-    assert_eq!(names.len(), 35);
+    assert_eq!(names.len(), 36);
     for t in tools::TOOLS {
         let schema = (t.schema)();
         assert_eq!(schema["type"], "object", "{}", t.name);
@@ -661,5 +661,78 @@ fn shelf_pin_holes_go_up_a_case_side_in_two_columns() {
             .as_str()
             .unwrap()
             .contains("2 columns of 29")
+    );
+}
+
+#[test]
+fn a_mirrored_left_side_stands_where_the_right_side_was() {
+    let w = woodshop();
+    let started = ok(&w, "start_from_template", json!({ "template": "bookshelf" }));
+    let id = started["projectId"].as_i64().unwrap();
+    let drawn = part(&w, id, "p_side_r");
+    ok(&w, "delete_part", json!({ "project_id": id, "part_id": "p_side_r" }));
+    ok(
+        &w,
+        "add_hardware",
+        json!({ "project_id": id, "part_id": "p_side_l", "item": "bracket.corner-2in", "side": "front", "x": 2, "y": 10 }),
+    );
+
+    let mirrored = ok(
+        &w,
+        "mirror_parts",
+        json!({ "project_id": id, "part_ids": ["p_side_l"], "direction": "left_right" }),
+    );
+    let summary = mirrored["summary"].as_str().unwrap();
+    assert!(
+        summary.starts_with("Added 1 mirrored part across x = 0: \"Right Side\" (p_side_r)."),
+        "{summary}"
+    );
+    let side = part(&w, id, "p_side_r");
+    assert_eq!(side["transform"]["pos"], drawn["transform"]["pos"]);
+    assert_eq!(side["transform"]["rot"], json!([0, -90, 0]));
+    // Turned the other way, so its screws are on the other face — the same world spot, outboard.
+    assert_eq!(
+        side["ops"][0],
+        json!({ "type": "screws", "face": "back", "axis": "w", "offset": 0.375, "count": 12, "from": 1, "to": 71, "gauge": "#8", "length": 1.25 })
+    );
+
+    let design = ok(&w, "get_design", json!({ "project_id": id }));
+    let spec = &design["spec"];
+    let joints: Vec<&Value> = spec["joints"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|j| j["hostPartId"] == "p_side_r" || j["insertPartId"] == "p_side_r")
+        .collect();
+    // The back is centred, so the side screws into it as the left one does; the pocket screws come
+    // from cuts in the top, bottom and shelves that only the left side has.
+    assert_eq!(joints.len(), 1, "{joints:?}");
+    assert_eq!(joints[0]["insertPartId"], "p_back");
+    let bracket = spec["hardware"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|h| h["partId"] == "p_side_r")
+        .expect("the bracket comes along");
+    assert_eq!(
+        (bracket["side"].as_str(), bracket["x"].as_f64()),
+        (Some("front"), Some(9.25))
+    );
+
+    assert!(
+        err(
+            &w,
+            "mirror_parts",
+            json!({ "project_id": id, "part_ids": ["nope"], "direction": "left_right" })
+        )
+        .contains("No part")
+    );
+    assert!(
+        err(
+            &w,
+            "mirror_parts",
+            json!({ "project_id": id, "part_ids": ["p_top"], "direction": "sideways" })
+        )
+        .contains("direction")
     );
 }

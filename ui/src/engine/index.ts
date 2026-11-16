@@ -42,6 +42,8 @@ export {
     SHELF_PIN_DEFAULTS,
 } from './shelfPins';
 export type { ShelfPinOptions, ShelfPinRun } from './shelfPins';
+export { mirrorPlane, mirrorPart, mirrorName, mirrorIdBase, flipOp, flipFor } from './mirror';
+export type { MirrorAxis, Flip } from './mirror';
 export type { ExplodeSource } from './explode';
 export { openedPoses, doorHinge, hingeLineLocal } from './open';
 export type { OpenPose } from './open';
@@ -119,6 +121,7 @@ export {
     SetPositions,
     SetEdgeBand,
     SpliceOps,
+    MirrorCopy,
     copyStep,
     evenPositions,
     RotateParts,

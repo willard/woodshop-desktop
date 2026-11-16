@@ -43,6 +43,7 @@ export {
     evenPositions,
     extentAlong,
 } from './arrange';
+export { MirrorCopy } from './mirror';
 export { MakeMovable, DissolveMovable, UpdateMovable, AddMovable, movableOf } from './movables';
 export {
     AddHardware,

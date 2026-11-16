@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Group, Movable, Part } from '@/spec';
 import { Field, SectionLabel, Select } from './form';
 import { MovableFittings } from './HardwareFittings';
+import { MirrorButtons } from './MirrorButtons';
 import { len } from '@/lib/display';
 
 type Axis3 = 0 | 1 | 2;
@@ -27,6 +28,8 @@ export interface GroupInspectorProps {
     onRotate(axis: Axis3): void;
     onRotateBy(axis: Axis3, delta: number): void;
     onDuplicate(): void;
+    /** A mirrored copy of the whole group across the design's middle. */
+    onMirror(axis: Axis3): void;
     onUngroup(): void;
     onFocus(): void;
     onHide(): void;
@@ -224,6 +227,7 @@ export function GroupInspector(p: GroupInspectorProps) {
                     </div>
                 ))}
             </div>
+            <MirrorButtons className="mb-2" onMirror={p.onMirror} />
             <div className="mb-2 grid grid-cols-2 gap-2">
                 <button className={btn} data-testid="group-duplicate" onClick={p.onDuplicate}>
                     Duplicate

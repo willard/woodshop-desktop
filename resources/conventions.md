@@ -248,6 +248,17 @@ their stock, and a fully connected assembly with no floating parts.
 - They are plain `hole` ops with `purpose: "shelfPin"`. A part holds at most 100 ops, so a very
   tall side may need wider spacing or a shorter run.
 
+## Mirrored copies
+
+- For a pair of parts that are mirror images — left and right sides, front and back legs, a
+  door hung from each side — build one and call `mirror_parts` for the other rather than working
+  out the second one's rotation and cuts by hand. The copy is turned over across its length or
+  width (never its thickness), so its rotation changes and its cuts are re-measured, but every cut
+  stays on the same face. Check it with `explain_part` like any other part.
+- It copies the joints between the parts mirrored, and joints to a part centred on the mirror
+  when that part is the insert. A joint naming a cut in an outside part (pocket holes in the top
+  that hold the left side) is not copied: add that cut and joint for the new side yourself.
+
 ## Edge banding (spec 1.16)
 
 - Plywood and MDF edges that will show are covered with edge banding. Set them with

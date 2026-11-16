@@ -498,6 +498,26 @@ test('shelf-pin holes are added as one run, changed and removed', async ({ page 
     await expect(rows.last()).toContainText('Shelf-pin holes ×22');
 });
 
+test('a mirrored copy of the left side is the right side', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    const outline = page.getByTestId('outline');
+    const right = outline.getByRole('button', { name: 'Right Side', exact: true });
+    await right.click();
+    await page.getByTestId('delete').click();
+    await expect(right).toHaveCount(0);
+
+    await outline.getByRole('button', { name: 'Left Side', exact: true }).click();
+    await page.getByTestId('mirror-0').click();
+    // Selected, named for its side, standing where the right side stood, turned the other way.
+    await expect(right).toHaveCount(1);
+    await expect(page.getByTestId('pos-input-0')).toHaveValue('18 5/8');
+    await expect(page.getByTestId('rot-input-1')).toHaveValue('-90');
+    await expect(page.getByTestId('lint-badge')).toContainText('Buildable');
+
+    await page.getByTestId('undo').click();
+    await expect(right).toHaveCount(0);
+});
+
 test('copies of a part are made in a row, then spaced evenly', async ({ page }) => {
     await page.goto('/#/projects/1');
     const outline = page.getByTestId('outline');

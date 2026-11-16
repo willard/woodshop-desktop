@@ -36,6 +36,7 @@ import {
     SetPositions,
     SetEdgeBand,
     DuplicatePart,
+    MirrorCopy,
     EditorDocument,
     EditorEngine,
     GRID_SIZES,
@@ -124,6 +125,7 @@ import { AddMovableDialog } from './AddMovableDialog';
 import { AddPartDialog } from './AddPartDialog';
 import { CutListPanel } from './CutListPanel';
 import { GroupInspector } from './GroupInspector';
+import { MirrorButtons } from './MirrorButtons';
 import { HardwareDialog } from './HardwareDialog';
 import { findItem, itemName } from '@/hardware/catalog';
 import { PartInspector } from './PartInspector';
@@ -637,6 +639,22 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 ids.push(id);
             }
             tryExecute(() => d.execute(new CopyPart(part.id, ids, copyStep(d.spec, part, axis, gap))));
+        };
+
+        /**
+         * A mirrored copy of the selected group, part or parts across the design's middle. The copy
+         * of one part or a group is selected; a loose selection stays as it was.
+         */
+        const mirror = (axis: 0 | 1 | 2): void => {
+            const d = docRef.current;
+            const group = d.selectedGroup;
+            const ids = group?.partIds ?? d.selectedIds;
+            if (ids.length === 0) return;
+            const reserved = props.doc.spec.parts.map((p) => p.id); // focus mode: ids stay unique overall
+            const command = new MirrorCopy(ids, axis, group?.id, reserved);
+            tryExecute(() => d.execute(command));
+            if (command.resultGroupId !== null) d.selectGroup(command.resultGroupId);
+            else if (command.resultIds.length === 1) d.select(command.resultIds[0]);
         };
 
         /** Spreads the selected parts out so the gaps between them along `axis` are all equal. */
@@ -1154,6 +1172,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         onRotate={(axis) => rotateBy(axis, 90)}
                         onRotateBy={rotateBy}
                         onDuplicate={duplicate}
+                        onMirror={mirror}
                         onUngroup={ungroup}
                         onHide={hideSelection}
                         onRemove={remove}
@@ -1231,6 +1250,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 </div>
                             </div>
                         )}
+                        <MirrorButtons onMirror={mirror} />
                         <button
                             className="border-fg/10 text-muted hover:bg-fg/5 h-9 rounded-lg border text-xs"
                             data-testid="multi-hide"
@@ -1291,6 +1311,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         onRotateTo={rotateTo}
                         onDuplicate={duplicate}
                         onCopies={makeCopies}
+                        onMirror={mirror}
                         onRemove={remove}
                         onRename={(name) => doc.execute(new RenamePart(selected.id, name))}
                         onAddOp={(op) => executeAddOp(selected.id, op)}

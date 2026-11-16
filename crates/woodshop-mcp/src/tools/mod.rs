@@ -11,6 +11,7 @@ mod authoring;
 mod edit;
 mod hardware;
 mod joinery;
+mod mirror;
 mod read;
 mod start;
 
@@ -47,6 +48,7 @@ pub static TOOLS: &[ToolDef] = &[
     authoring::DELETE_MATERIAL,
     authoring::ADD_PART,
     authoring::ADD_PARTS,
+    mirror::MIRROR_PARTS,
     joinery::ADD_OP,
     joinery::ADD_SHELF_PIN_HOLES,
     joinery::UPDATE_OP,
