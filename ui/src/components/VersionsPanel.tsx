@@ -78,6 +78,7 @@ export function VersionsPanel(props: {
                         value={label}
                         onChange={(e) => setLabel(e.target.value)}
                         placeholder="Label (optional)"
+                        aria-label="Version label (optional)"
                         data-testid="version-label"
                         className="bg-surface-2 focus:border-accent border-fg/10 flex-1 rounded-lg border px-2 py-2 text-sm focus:outline-none"
                         onKeyDown={(e) => e.key === 'Enter' && void save()}

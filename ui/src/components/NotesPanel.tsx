@@ -69,6 +69,7 @@ export function NotesPanel({ projectId }: { projectId: number }) {
                     rows={2}
                     placeholder="e.g. cut the legs oversize, trim after glue-up"
                     className="bg-surface-2 focus:border-accent border-fg/10 max-h-32 w-full resize-none rounded-lg border p-2 text-[13px] outline-none"
+                    aria-label="New note"
                     data-testid="note-input"
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {

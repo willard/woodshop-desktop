@@ -387,8 +387,14 @@ gating is built: there is nothing to unlock.
   unexpected one points at Report a problem. A project that can't be found says so and links to
   the trash. Deleting the last part used to throw silently; it now explains that a design keeps
   at least one part. Search empty states suggest what to try.
-- **Accessibility:** keyboard access to every action, visible focus, sufficient contrast in both
-  themes, labels on icon buttons.
+- **Accessibility:** done for the floor; `e2e/a11y.spec.ts` holds it. Every control on every
+  page, settings group, calculator and editor panel/menu has an accessible name (the four
+  placeholder-only fields now have labels); one accent focus ring (`:focus-visible` in app.css)
+  shows on every keyboard stop, text fields show focus by their accent border, and the test tabs
+  through the library and the editor to check it; contrast is held by `contrast.spec.ts` (5b.8).
+  Parts are reachable without the mouse through the parts list and moved with the Inspector's
+  fields. Still to check in the real app: macOS WebKit only tabs to buttons when "Keyboard
+  navigation" is on in System Settings; a full screen-reader pass (VoiceOver) is not done.
 - **Website:** a landing page, a download page (latest release per platform), the docs, and a
   link to the source and to sponsoring. GitHub Pages from a separate repo or a `docs/` folder.
 

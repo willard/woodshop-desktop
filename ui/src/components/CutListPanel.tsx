@@ -496,12 +496,14 @@ export function CutListPanel(props: CutListPanelProps) {
                                             <FractionCell
                                                 value={material.sheetSize.l}
                                                 testId="sheet-l"
+                                                label={`Sheet length of ${material.name}`}
                                                 onCommit={(v) => commitSheet(material, 'l', v)}
                                             />
                                             <span className="text-muted">×</span>
                                             <FractionCell
                                                 value={material.sheetSize.w}
                                                 testId="sheet-w"
+                                                label={`Sheet width of ${material.name}`}
                                                 onCommit={(v) => commitSheet(material, 'w', v)}
                                             />
                                             <span className="text-muted ml-auto">$</span>
@@ -625,16 +627,19 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 function FractionCell({
     value,
     testId,
+    label,
     onCommit,
 }: {
     value: number;
     testId: string;
+    label: string;
     onCommit: (raw: string) => void;
 }) {
     return (
         <input
             key={value}
             defaultValue={lenValue(value)}
+            aria-label={label}
             data-testid={testId}
             className="bg-surface-1 focus:border-accent border-fg/10 h-7 w-16 rounded-lg border px-1 text-center text-xs focus:outline-none"
             onBlur={(e) => {

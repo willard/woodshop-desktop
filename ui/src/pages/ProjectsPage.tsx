@@ -104,6 +104,7 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
                         onChange={(e) => setName(e.target.value)}
                         type="text"
                         placeholder="New project name"
+                        aria-label="New project name"
                         maxLength={120}
                         className="border-fg/12 bg-surface-1 focus:border-accent flex-1 rounded-md border px-3 py-2 text-sm focus:outline-none"
                     />
@@ -327,7 +328,7 @@ function ProjectCard({
                     data-testid="open-project"
                     onMouseEnter={preloadEditor}
                     onFocus={preloadEditor}
-                    className="flex flex-col focus:outline-none"
+                    className="focus-visible:outline-accent flex flex-col rounded-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-2"
                 >
                     {thumbnail}
                     <div className="flex flex-col gap-1 p-3 pr-11">
