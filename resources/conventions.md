@@ -212,7 +212,12 @@ their stock, and a fully connected assembly with no floating parts.
   be thick enough for the 12 mm cup (`movable.hinge-cup-deep`): 5/8" or more.
 - A drawer box on side-mount slides must leave the slide's clearance each side of the box —
   1/2" — inside its opening: box width = opening − 1". The linter says so
-  (`movable.slide-clearance`) once the box has sides. Undermount slides take no side clearance.
+  (`movable.slide-clearance`) once the box has sides. Undermount slides take no side clearance,
+  but need 1/2" clear between the drawer bottom and the lower edge of the box sides
+  (`movable.undermount-recess`).
+- A lid (a door lying flat, or standing with its hinge edge along the top) needs a lid stay
+  (`lids` category) mounted on the lid or the part beside it, or the linter warns
+  (`movable.lid-stay`).
 - A door's hinge and pull and a drawer's slides and pull belong to the MOVABLE: set `hinge`,
   `slide` and `pull` on it and they are placed and counted for you. `pull: "none"` means a push
   latch or a wooden pull. Do not also mount them by hand.

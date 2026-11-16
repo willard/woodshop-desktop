@@ -130,3 +130,60 @@ fn a_three_quarter_door_takes_the_cup_and_a_butt_hinge_needs_none() {
     assert!(messages(&door(0.75, "hinge.euro-full-overlay"), "movable.hinge-cup-deep").is_empty());
     assert!(messages(&door(0.5, "hinge.butt-2-5in"), "movable.hinge-cup-deep").is_empty());
 }
+
+#[test]
+fn undermount_slides_need_a_recess_under_the_bottom() {
+    // The bottom sits flush with the lower edge of the sides: nowhere for the slides.
+    let flush = drawer_cabinet(22.0, 0.0, Some("slide.undermount"));
+    let found = messages(&flush, "movable.undermount-recess");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(found[0].contains("has 0\" under its bottom"), "{}", found[0]);
+    assert!(found[0].contains("raise the bottom 0.5\""), "{}", found[0]);
+
+    // Raised half an inch, it clears.
+    let mut raised = flush;
+    let bottom = raised.parts.iter_mut().find(|p| p.id == "box_bottom").unwrap();
+    bottom.transform.pos[1] += 0.5;
+    assert!(messages(&raised, "movable.undermount-recess").is_empty());
+
+    // Side-mount slides don't care where the bottom is.
+    assert!(messages(&drawer_cabinet(21.5, 0.0, None), "movable.undermount-recess").is_empty());
+}
+
+/// A 30 × 16 lid lying flat on top of a 16" tall end, hinged along its back edge, with or
+/// without a lid stay on the end.
+fn chest(stay: Option<&str>) -> Spec {
+    let mut spec = build(
+        json!([
+            part("end", 16.0, 16.0, [-14.625, 8.0, 0.0], [0.0, 90.0, 0.0]),
+            part("lid", 30.0, 16.0, [0.0, 16.375, 0.0], [-90.0, 0.0, 0.0]),
+        ]),
+        json!([{ "id": "mv_lid", "kind": "door", "name": "Lid", "partIds": ["lid"],
+            "panelPartId": "lid", "hingeEdge": "l1", "style": "overlay", "hinge": "hinge.butt-3in", "pull": "none" }]),
+        0.75,
+    );
+    if let Some(item) = stay {
+        let raw = json!([{ "id": "hw", "item": item, "partId": "end", "side": "front", "x": 8.0, "y": 12.0 }]);
+        spec.hardware = Some(serde_json::from_value(raw).unwrap());
+    }
+    spec
+}
+
+#[test]
+fn a_lid_without_a_stay_is_flagged() {
+    let found = messages(&chest(None), "movable.lid-stay");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(found[0].starts_with("\"Lid\" opens upward"), "{}", found[0]);
+}
+
+#[test]
+fn a_lid_stay_beside_the_lid_quiets_it() {
+    assert!(messages(&chest(Some("lid.stay-soft-close")), "movable.lid-stay").is_empty());
+    // A pull is not a stay.
+    assert_eq!(messages(&chest(Some("pull.bar-3in")), "movable.lid-stay").len(), 1);
+}
+
+#[test]
+fn a_side_hung_door_needs_no_stay() {
+    assert!(messages(&door(0.75, "hinge.butt-2-5in"), "movable.lid-stay").is_empty());
+}

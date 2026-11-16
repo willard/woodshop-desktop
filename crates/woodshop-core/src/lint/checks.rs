@@ -1110,3 +1110,133 @@ pub(super) fn hardware_fit(spec: &Spec, issues: &mut Vec<LintIssue>) {
         }
     }
 }
+
+/// A lid with nothing to hold it open falls shut on whoever is reaching in. A door is a lid when
+/// its panel lies flat, or stands up with its hinge edge along the top (a flip-up door). Any lid
+/// stay mounted on the lid or on a part within the stay's reach of it counts.
+pub(super) fn lid_stays(spec: &Spec, issues: &mut Vec<LintIssue>) {
+    let stays: Vec<(&Part, f64)> = spec
+        .hardware
+        .iter()
+        .flatten()
+        .filter_map(|mount| {
+            let item = crate::hardware::find(&mount.item)?;
+            if item.model.get("shape").and_then(|s| s.as_str()) != Some("lidStay") {
+                return None;
+            }
+            let reach = item
+                .model
+                .get("length")
+                .and_then(serde_json::Value::as_f64)
+                .unwrap_or(0.0);
+            Some((spec.part(&mount.part_id)?, reach))
+        })
+        .collect();
+
+    for movable in spec.movables() {
+        let Movable::Door {
+            panel_part_id,
+            hinge_edge,
+            ..
+        } = movable
+        else {
+            continue;
+        };
+        let Some(panel) = spec.part(panel_part_id) else {
+            continue;
+        };
+        let [ax, ay, az] = local_axes_world(panel);
+        let toward_hinge = match hinge_edge {
+            crate::spec::Edge::L0 => ay.map(|v| -v),
+            crate::spec::Edge::L1 => ay,
+            crate::spec::Edge::W0 => ax.map(|v| -v),
+            crate::spec::Edge::W1 => ax,
+        };
+        let lies_flat = az[1].abs() > 0.999;
+        let hinged_at_top = toward_hinge[1] > 0.999;
+        if !lies_flat && !hinged_at_top {
+            continue;
+        }
+
+        let lid = aabb(spec, panel);
+        let held = stays.iter().any(|(host, reach)| {
+            if host.id == panel.id {
+                return true;
+            }
+            let b = aabb(spec, host);
+            (0..3).all(|axis| b.min[axis] <= lid.max[axis] + reach && b.max[axis] >= lid.min[axis] - reach)
+        });
+        if !held {
+            let label = movable.name().unwrap_or(movable.id());
+            issues.push(LintIssue::part(
+                Severity::Warn,
+                "movable.lid-stay",
+                format!(
+                    "\"{label}\" opens upward with nothing to hold it open, so it can drop shut on someone's hands. Add a lid stay (Hardware, Lids) on the side beside it."
+                ),
+                &panel.id,
+            ));
+        }
+    }
+}
+
+/// Undermount slides run under the drawer box, in a recess between the bottom and the lower
+/// edges of the sides. A bottom set lower than the slide's height leaves them nowhere to go.
+pub(super) fn undermount_recess(spec: &Spec, issues: &mut Vec<LintIssue>) {
+    for movable in spec.movables() {
+        let Movable::Drawer {
+            part_ids,
+            front_part_id,
+            slide,
+            ..
+        } = movable
+        else {
+            continue;
+        };
+        let Some(item) = slide.as_deref().and_then(crate::hardware::find) else {
+            continue;
+        };
+        if item.model.get("mount").and_then(|m| m.as_str()) != Some("under") {
+            continue;
+        }
+        let Some(recess) = item.model.get("height").and_then(serde_json::Value::as_f64) else {
+            continue;
+        };
+        let box_parts: Vec<&Part> = part_ids
+            .iter()
+            .filter(|id| *id != front_part_id)
+            .filter_map(|id| spec.part(id))
+            .collect();
+        if box_parts.len() < 3 {
+            continue;
+        }
+        // The bottom is the box part lying flat; everything else stands up around it.
+        let (flat, standing): (Vec<&Part>, Vec<&Part>) = box_parts
+            .into_iter()
+            .partition(|p| local_axes_world(p)[2][1].abs() > 0.999);
+        let [bottom] = flat.as_slice() else { continue };
+        if standing.is_empty() {
+            continue;
+        }
+        let lowest_side = standing
+            .iter()
+            .map(|p| aabb(spec, p).min[1])
+            .fold(f64::INFINITY, f64::min);
+        let clear = aabb(spec, bottom).min[1] - lowest_side;
+        if clear < recess - SLIDE_FIT_TOL {
+            let label = movable.name().unwrap_or(movable.id());
+            issues.push(LintIssue::part(
+                Severity::Warn,
+                "movable.undermount-recess",
+                format!(
+                    "Drawer \"{label}\" has {}\" under its bottom. {} need {}\" clear between the bottom and the lower edge of the sides: raise the bottom {}\".",
+                    r3(clear.max(0.0)),
+                    item.name,
+                    r3(recess),
+                    r3(recess - clear.max(0.0))
+                ),
+                &bottom.id,
+            ));
+        }
+    }
+}

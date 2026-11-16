@@ -248,9 +248,11 @@ and CSV and confirm the hardware rows, export the HTML viewer and confirm the mo
 - **Caster height** is in the overall size (done with Phase 2).
 - **MCP:** `explain_part` reports the mounts on a part (side, position, world point, facing).
 
-**Still to do:**
-- **Lid stays:** suggest one when a door's hinge edge is horizontal and at the top (a lid).
-- Undermount slides: check the 1/2" recess under the drawer bottom.
+- **Lid stays:** `movable.lid-stay` warns when a lid (a door lying flat, or standing with its
+  hinge edge along the top) has no lid stay on it or on a part within the stay's reach.
+- **Undermount slides:** `movable.undermount-recess` warns when a drawer bottom leaves less than
+  the slide's height (1/2") clear above the lower edge of the box sides, and says how far to
+  raise it.
 
 ---
 
