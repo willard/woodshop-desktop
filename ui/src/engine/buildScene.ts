@@ -57,6 +57,7 @@ export function buildPartMesh(
     mesh.name = part.id;
     mesh.userData = { partId: part.id, materialId: part.materialId, grainAxis: part.grainAxis };
     addFasteners(mesh, part, material.thickness);
+    addEdgeBanding(mesh, part, material.thickness);
     return mesh;
 }
 
@@ -158,6 +159,46 @@ function addFasteners(mesh: THREE.Mesh, part: Part, thickness: number): void {
             sink.userData = { fastener: 'countersink' };
             mesh.add(sink);
         }
+    }
+}
+
+/** How far a band stands proud of the edge it covers: thicker than real 0.5 mm veneer, so it reads. */
+export const BAND_THICKNESS = 0.03;
+
+let bandMaterial: THREE.MeshStandardMaterial | null = null;
+
+/**
+ * Edge banding (spec 1.16) as a thin pale strip over each banded edge, so the covered edges show
+ * without opening the Inspector. Only straight edges: a curve, notch or miter changes the edge's
+ * shape, and a flat strip laid over it would float in the air.
+ */
+function addEdgeBanding(mesh: THREE.Mesh, part: Part, thickness: number): void {
+    const edges = part.edgeBand ?? [];
+    if (edges.length === 0) return;
+    const shaped = new Set(
+        (part.ops ?? [])
+            .filter((op) => op.type === 'curve' || op.type === 'notch' || op.type === 'miter')
+            .map((op) => (op as { edge: string }).edge),
+    );
+    bandMaterial ??= new THREE.MeshStandardMaterial({ color: 0xf1e2c2, roughness: 0.75 });
+    const { l, w } = part.size;
+    const lift = BAND_THICKNESS / 2 + SURFACE_LIFT;
+    for (const edge of edges) {
+        if (shaped.has(edge)) continue;
+        const along = edge === 'l0' || edge === 'l1';
+        const strip = new THREE.Mesh(
+            along
+                ? new THREE.BoxGeometry(l, BAND_THICKNESS, thickness)
+                : new THREE.BoxGeometry(BAND_THICKNESS, w, thickness),
+            bandMaterial,
+        );
+        const sign = edge.endsWith('0') ? -1 : 1;
+        if (along) strip.position.set(0, sign * (w / 2 + lift), 0);
+        else strip.position.set(sign * (l / 2 + lift), 0, 0);
+        strip.name = 'Edge banding';
+        strip.userData = { edgeBand: edge };
+        strip.castShadow = false;
+        mesh.add(strip);
     }
 }
 

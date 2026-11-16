@@ -368,3 +368,33 @@ describe('movable hardware in the scene (spec 1.12)', () => {
         expect(kinds.sort()).toEqual(['knob', 'slideRail', 'slideRail']);
     });
 });
+
+describe('edge banding (spec 1.16)', () => {
+    const banded = (edgeBand: Part['edgeBand'], ops: Part['ops'] = []): THREE.Mesh => {
+        const spec = parseSpec(recordStand) as Spec;
+        const part = { ...spec.parts.find((p) => p.id === 'p_top')!, edgeBand, ops };
+        const material = spec.materials.find((m) => m.id === part.materialId)!;
+        return buildPartMesh(part, material, () => new THREE.MeshBasicMaterial({ color: 0 }));
+    };
+    const strips = (mesh: THREE.Mesh) => mesh.children.filter((c) => c.userData.edgeBand !== undefined);
+
+    it('lays a strip just outside each banded edge, the full length of it', () => {
+        const mesh = banded(['l0', 'w1']);
+        const [front, end] = strips(mesh) as THREE.Mesh[];
+        expect(front.userData.edgeBand).toBe('l0');
+        front.geometry.computeBoundingBox();
+        const box = front.geometry.boundingBox!.clone().translate(front.position);
+        expect(box.max.y).toBeLessThan(-19 / 2); // outside the 19" width
+        expect(box.max.x - box.min.x).toBeCloseTo(36.582, 4);
+        expect(end.position.x).toBeGreaterThan(36.582 / 2);
+    });
+
+    it('leaves out an edge whose shape a flat strip cannot follow', () => {
+        const mesh = banded(['l0', 'l1'], [{ type: 'curve', edge: 'l1', kind: 'arc', height: 1 }]);
+        expect(strips(mesh).map((s) => s.userData.edgeBand)).toEqual(['l0']);
+    });
+
+    it('adds nothing to an unbanded part', () => {
+        expect(strips(banded(undefined))).toHaveLength(0);
+    });
+});

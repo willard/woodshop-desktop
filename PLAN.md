@@ -494,7 +494,7 @@ have to look up, and the editor screenshot would make someone want to try it fro
   (`engine/commands/arrange.ts`).
 - **Edge banding** (spec 1.16): `part.edgeBand` lists banded edges; the Inspector toggles them
   for sheet goods; the cut list adds a hardware row per material (feet or metres, a tenth spare);
-  agents use `set_edge_banding`.
+  agents use `set_edge_banding`. Banded straight edges are drawn as a pale strip in 3D.
 - **Change a cut in place** (`ReplaceOp`) and design-check messages in the display units.
 - **Shelf-pin holes**: two columns of `shelfPin` holes from one form (`engine/shelfPins.ts`, one
   undo step via `SpliceOps`), shown as one row; agents use `add_shelf_pin_holes`. The per-part
