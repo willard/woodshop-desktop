@@ -1761,7 +1761,9 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                                     />
                                                 </svg>
                                             )}
-                                            {errorCount > 0 ? `${errorCount} error(s)` : 'Buildable'}
+                                            {errorCount > 0
+                                                ? `${errorCount} ${errorCount === 1 ? 'error' : 'errors'}`
+                                                : 'Buildable'}
                                             {errorCount === 0 && advisoryCount > 0 && (
                                                 <span className="text-warn-fg font-medium">
                                                     · {advisoryCount}{' '}

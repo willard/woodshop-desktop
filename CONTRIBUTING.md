@@ -112,7 +112,11 @@ Some of the most useful contributions need no Rust:
   `cargo test -p woodshop-core --test parity` lints every template against its recorded result in
   the lint fixture, so add an entry there for a new one. `resources/conventions.md` describes how
   designs are authored.
-- **Help articles** live in `ui/src/help/articles.json`.
+- **Help articles** live in `ui/src/help/articles.json`: blocks of headings, paragraphs (with
+  `code` and **bold**), lists, notes and screenshots. A screenshot block names a picture taken by
+  `npm run help-shots` (`scripts/help-shots/shots.ts`, which sets up each screen on the sample
+  nightstand); add a shot there, run it with `ONLY=<name>`, and commit the two `.webp` files it
+  writes to `ui/public/help/`. Re-run it when a change alters a screen an article shows.
 
 ## Releasing (maintainers)
 

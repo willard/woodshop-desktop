@@ -2,7 +2,10 @@
 import articles from './articles.json';
 
 export type HelpBlock =
-    { type: 'h' | 'p' | 'code' | 'note'; text: string } | { type: 'ul' | 'ol'; items: string[] };
+    | { type: 'h' | 'p' | 'code' | 'note'; text: string }
+    | { type: 'ul' | 'ol'; items: string[] }
+    /** A screenshot from `ui/public/help/<src>-<theme>.webp` (`npm run help-shots`). */
+    | { type: 'img'; src: string; alt: string; caption?: string };
 
 export interface HelpArticle {
     slug: string;

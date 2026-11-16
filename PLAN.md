@@ -378,8 +378,12 @@ gating is built: there is nothing to unlock.
   uses catalog hardware, and has a rendered picture in each theme. The five newest also pass the
   sturdiness advisory, apart from the anchor-to-the-wall note on the bookcase and the racking
   note on the desk that the existing desk shares.
-- **Help:** articles for every major feature (there are 6 today), with screenshots. Include
-  "Using Woodshop with an AI agent".
+- **Help:** done: ten articles (getting started, the editor, doors & drawers, cuts & fasteners,
+  hardware, design checks, cut lists & exports, saving/versions/backups, using an AI agent,
+  calculators), eight with a screenshot in each theme taken by `npm run help-shots` on the sample
+  nightstand. A test holds every picture to existing in both themes with alt text. The old
+  articles were brought up to date (template count, Settings groups, project files) and **bold**
+  now renders.
 - **Empty states and error messages:** done. Every failure toast says what failed and why, in
   plain words (`failure()` in `ui/src/app/api.ts`): "Couldn't export the PDF plan. Woodshop isn't
   allowed to use that location. Pick a folder of your own, such as Documents." Common system

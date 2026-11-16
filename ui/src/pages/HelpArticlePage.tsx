@@ -1,16 +1,21 @@
-import { Fragment } from 'react';
+import { Fragment, useSyncExternalStore } from 'react';
 import { Link, useParams } from '@tanstack/react-router';
 import { helpArticle } from '@/help';
+import { activeTheme, onThemeChange } from '@/lib/theme';
 
-/** Inline `code` spans inside article text. */
+/** Inline `code` and **bold** spans inside article text. */
 function Inline({ text, codeClass = 'bg-surface-0' }: { text: string; codeClass?: string }) {
     return (
         <>
-            {text.split(/(`[^`]+`)/g).map((part, i) =>
+            {text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g).map((part, i) =>
                 part.startsWith('`') && part.endsWith('`') ? (
                     <code key={i} className={`${codeClass} text-accent rounded px-1.5 py-0.5 text-sm`}>
                         {part.slice(1, -1)}
                     </code>
+                ) : part.startsWith('**') && part.endsWith('**') ? (
+                    <strong key={i} className="text-fg-strong font-semibold">
+                        {part.slice(2, -2)}
+                    </strong>
                 ) : (
                     <Fragment key={i}>{part}</Fragment>
                 ),
@@ -22,6 +27,8 @@ function Inline({ text, codeClass = 'bg-surface-0' }: { text: string; codeClass?
 export default function HelpArticlePage() {
     const { slug } = useParams({ strict: false }) as { slug: string };
     const article = helpArticle(slug);
+    // Screenshots come in both themes; show the one that matches the page.
+    const theme = useSyncExternalStore(onThemeChange, activeTheme);
     if (!article) {
         return (
             <p className="text-muted">
@@ -90,6 +97,23 @@ export default function HelpArticlePage() {
                                         </li>
                                     ))}
                                 </ol>
+                            );
+                        case 'img':
+                            return (
+                                <figure key={i} className="mb-5">
+                                    <img
+                                        src={`/help/${block.src}-${theme}.webp`}
+                                        alt={block.alt}
+                                        loading="lazy"
+                                        className="border-fg/10 w-full rounded-lg border"
+                                        data-testid="help-image"
+                                    />
+                                    {block.caption && (
+                                        <figcaption className="text-faint mt-1.5 text-xs">
+                                            <Inline text={block.caption} />
+                                        </figcaption>
+                                    )}
+                                </figure>
                             );
                         case 'code':
                             return (

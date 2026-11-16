@@ -33,7 +33,7 @@
             },
             {
                 "type": "note",
-                "text": "Your projects live in a single library on this computer. Use Export… on a project to save a .woodshop file for backup or to move it to another machine."
+                "text": "Your projects live in a single library on this computer, backed up automatically (see Saving, versions & backups). To move a project to another machine or send it to someone, use Save project file in the ⋯ menu on its card."
             },
             {
                 "type": "h",
@@ -41,7 +41,7 @@
             },
             {
                 "type": "p",
-                "text": "Settings ▸ Units chooses how sizes are shown and typed: inches as fractions, decimal inches, or millimetres. Any size field also takes a unit you type, such as 450 mm or 17 3/4 in. Designs are stored the same way whichever you pick, so you can switch at any time."
+                "text": "Settings ▸ General ▸ Units chooses how sizes are shown and typed: inches as fractions, decimal inches, or millimetres. Any size field also takes a unit you type, such as 450 mm or 17 3/4 in. Designs are stored the same way whichever you pick, so you can switch at any time."
             }
         ]
     },
@@ -56,15 +56,24 @@
                 "text": "The editor is where you see and shape a design. The 3D view shows the assembled piece; the inspector shows the selected part and its dimensions."
             },
             {
+                "type": "img",
+                "src": "editor",
+                "alt": "The editor: the parts list on the left, the 3D view in the middle, the cut list on the right.",
+                "caption": "The parts list, the 3D view and the cut list. The badge at the bottom left says whether the design can be built."
+            },
+            {
                 "type": "h",
                 "text": "Working with parts"
             },
             {
                 "type": "ul",
                 "items": [
-                    "Select a part to see its size, material, and position in the inspector.",
-                    "Resize a part by editing its length and width. Thickness comes from the material.",
-                    "Move or rotate a part to position it."
+                    "Click a part to select it; Shift-click to add more. The Inspector shows its size, material and position.",
+                    "Resize a part by typing its length and width. Thickness comes from the material.",
+                    "Move a part by dragging it, by typing its position, or with the arrow keys (Shift for bigger steps, Alt for smaller, Page Up and Page Down for height).",
+                    "Turn it with Tip, Turn and Roll in the Inspector.",
+                    "Add parts from the Add menu: legs, aprons, slats, panels, shelves, boards and dowel rails, each at a sensible starting size.",
+                    "Select several parts and press ⌘G to group them, so they select and move together."
                 ]
             },
             {
@@ -89,11 +98,7 @@
             },
             {
                 "type": "p",
-                "text": "Woodshop detects joints — dado, pocket-hole, screwed, and dowel — where parts meet, and records them on the design. Joints are annotations that describe how pieces connect; moving a part never secretly moves its neighbours."
-            },
-            {
-                "type": "p",
-                "text": "Touching is not holding. A part that only rests against its neighbours is flagged as unbuildable until something fastens it: pick the part, then use \"Fasten to\" in the inspector for pocket screws, screws through the face, or dowels. Woodshop sizes the screws for the thicknesses involved and adds them to the hardware list on your cut list."
+                "text": "How parts are joined (dados, pocket screws, screws and dowels) and the shaping cut into them are covered in Cuts, joinery & fasteners. A part that only rests against its neighbours is not held by anything, and the design checks will say so."
             },
             {
                 "type": "h",
@@ -110,60 +115,118 @@
         ]
     },
     {
-        "slug": "cut-lists",
-        "title": "Cut lists & materials",
-        "icon": "📋",
-        "summary": "Every board to cut, board feet, sheet layouts, and a printable plan.",
+        "slug": "doors-and-drawers",
+        "title": "Doors & drawers",
+        "icon": "🚪",
+        "summary": "Turn a panel into a door or a drawer, choose its hinges, slides and pull, and see it open.",
         "blocks": [
             {
                 "type": "p",
-                "text": "The cut list is generated from your design — it is always up to date. It lists every part, how many to cut, its dimensions, and the material."
+                "text": "A door is a panel on hinges; a drawer is a front with a box behind it on slides. Woodshop knows which parts belong to which, swings and slides them, places their hardware and checks that it fits."
+            },
+            {
+                "type": "img",
+                "src": "drawer",
+                "alt": "A nightstand with its drawer pulled open; the Inspector shows the drawer's style, slides and pull.",
+                "caption": "Press O, or Open in the toolbar, to see doors swing and drawers slide. The slider sets how far."
             },
             {
                 "type": "h",
-                "text": "What it shows"
+                "text": "Make one"
             },
             {
                 "type": "ul",
                 "items": [
-                    "Parts table: each part, quantity, dimensions in inches, and board feet.",
-                    "Sheet goods (plywood, MDF): how many sheets and how the parts are laid out to minimise waste, grain-aware.",
-                    "Lumber: how the parts are cut from stock lengths.",
-                    "Totals: board feet, sheet count, estimated cost, and waste."
+                    "Select the parts around an opening (two sides, a bottom and a top, say) and choose Add ▸ Door or Add ▸ Drawer. Woodshop sizes it from the opening.",
+                    "Or choose Add ▸ Door or Drawer with nothing selected and type the opening's width and height.",
+                    "Or select a panel that is already the right size and choose Make a door or Make a drawer in the Inspector."
                 ]
             },
             {
                 "type": "p",
-                "text": "Cutting allows for a saw kerf (the width of material the blade removes) between pieces, so the plan reflects what you can really get out of a sheet or board."
+                "text": "Inset doors and fronts sit inside the opening with a 1/16\" reveal all round; overlay ones lap the opening by 1/2\" a side. A new drawer's box leaves the 1/2\" each side that side-mount slides need."
             },
             {
                 "type": "h",
-                "text": "Printable plan"
+                "text": "Hinges, slides and pulls"
             },
             {
                 "type": "p",
-                "text": "Export a PDF plan to take to the shop or the lumberyard — it includes the parts table and layouts."
-            },
-            {
-                "type": "h",
-                "text": "Other exports"
-            },
-            {
-                "type": "p",
-                "text": "The ⋯ menu in the editor's toolbar has every export."
-            },
-            {
-                "type": "ul",
-                "items": [
-                    "Cut list (CSV): one row per blank, in your units, for a spreadsheet.",
-                    "Shop templates (SVG): full-size printable patterns for shaped and drilled parts.",
-                    "Parts for CNC (DXF): every part laid flat, front face up, for CAM software such as VCarve, Fusion or Easel. The outline is on layer CUT_OUTSIDE; holes and dados are on layers named by depth (HOLE_0.5, POCKET_0.375, HOLE_THROUGH), and _BACK marks one cut from the back face, which means flipping the part. Concealed-hinge cups are included. Sizes are in millimetres if you work in metric, inches otherwise.",
-                    "3D model (glTF): the assembled design, hardware included, for Blender, SketchUp, Fusion or a 3D viewer."
-                ]
+                "text": "Select any part of a door or drawer and use its section of the Inspector: the style, which edge the hinges are on, the hinge or slides, and the pull. Woodshop places them and moves them as the door swings or the drawer slides. Choose None for a push latch or a wooden pull."
             },
             {
                 "type": "note",
-                "text": "A connected AI agent can fetch the parts table and board feet with the `get_cut_list` tool; the full packed sheet layout lives here in the app."
+                "text": "Pick a concealed (Euro) hinge and Woodshop bores its 35 mm cups in the door for you. They show in 3D, on the shop template and in the plan's Drilling section, and move if you resize the door."
+            },
+            {
+                "type": "h",
+                "text": "What gets checked"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "A door too thin for its hinge cups.",
+                    "A drawer box that does not leave its side-mount slides their clearance, with the width to make it.",
+                    "A drawer on undermount slides without the 1/2\" recess under its bottom.",
+                    "A lid, or a door hinged along its top, with nothing to hold it open: add a lid stay."
+                ]
+            },
+            {
+                "type": "p",
+                "text": "Dissolve, in the door or drawer section, turns it back into ordinary parts."
+            }
+        ]
+    },
+    {
+        "slug": "cuts-and-fasteners",
+        "title": "Cuts, joinery & fasteners",
+        "icon": "🔨",
+        "summary": "Dados, holes, pocket screws, curves, notches, miters and soft edges, and how parts are held together.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "A part starts as a plain rectangle. Cuts shape it and join it to its neighbours: they show in 3D, on the shop templates and in the PDF, and the hardware list counts the screws and dowels."
+            },
+            {
+                "type": "img",
+                "src": "cuts",
+                "alt": "The Cuts & fasteners section for a shelf: pocket screws and two rows of screws, + Add a cut, and Fasten to buttons for each neighbouring part."
+            },
+            {
+                "type": "h",
+                "text": "Add a cut"
+            },
+            {
+                "type": "p",
+                "text": "Select a part and choose + Add a cut in the Inspector:"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "**Dado or groove**: a channel another part sits in.",
+                    "**Hole**: for a dowel, a shelf pin, or right through.",
+                    "**Pocket screws**: angled screws through an edge into the next part.",
+                    "**Curve**: an arched edge or rounded corners.",
+                    "**Notch**: a cut-out from an edge, for example round a leg.",
+                    "**Miter**: an angled edge for a corner joint.",
+                    "**Soft edge**: a roundover, chamfer or bullnose."
+                ]
+            },
+            {
+                "type": "p",
+                "text": "Each cut is listed in plain words, such as \"2 screws, #8 × 1 1/2\", through the back face\". The × beside one removes it; to change a cut, remove it and add it again with the new sizes, and Undo puts it back if you change your mind."
+            },
+            {
+                "type": "h",
+                "text": "Fasten to"
+            },
+            {
+                "type": "p",
+                "text": "Touching is not holding. Under Fasten to, the Inspector lists every part this one meets; choose Pocket screws, Screws or Dowels and Woodshop picks the size for the thicknesses involved, places them, and adds them to the hardware list. A part that is not fastened to anything is flagged by the design checks."
+            },
+            {
+                "type": "note",
+                "text": "Joints are notes on the design about how pieces connect. Moving a part never secretly moves its neighbours, but the checks will tell you if a screw no longer reaches anything."
             }
         ]
     },
@@ -176,6 +239,11 @@
             {
                 "type": "p",
                 "text": "Woodshop has a catalog of real hardware with true dimensions: knobs and pulls, hinges, drawer slides, casters, leveling feet, brackets and plates, shelf pins, latches, lid stays and handles, and hooks. Hardware shows in the 3D view, moves with the part it is screwed to, and is counted in the hardware list, so the cut list, PDF and CSV tell you what to buy."
+            },
+            {
+                "type": "img",
+                "src": "hardware",
+                "alt": "The Add hardware dialog, with a 128 mm bar pull picked and a preview of it."
             },
             {
                 "type": "h",
@@ -208,11 +276,7 @@
             },
             {
                 "type": "p",
-                "text": "A door's hinges and pull, and a drawer's slides and pull, are chosen on the door or drawer itself: select its part and use the Hinge, Slides and Pull pickers in the Door / Drawer section. Woodshop places them for you and moves them as the door swings or the drawer slides. Choose None for a push latch or a wooden pull."
-            },
-            {
-                "type": "p",
-                "text": "Woodshop checks the fit as you go. A door too thin for its hinge cups gets a warning, and so does a drawer box that doesn't leave its side-mount slides exactly their clearance, 1/2\" (12.7 mm) each side: the warning tells you what width to make the box."
+                "text": "A door's hinges and pull, and a drawer's slides and pull, are chosen on the door or drawer itself, and Woodshop places them for you (see Doors & drawers). Choose None for a push latch or a wooden pull."
             },
             {
                 "type": "note",
@@ -221,10 +285,120 @@
         ]
     },
     {
+        "slug": "design-checks",
+        "title": "Design checks",
+        "icon": "✅",
+        "summary": "What \"Buildable\" means, the problems Woodshop looks for, and the sturdiness advice.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "Woodshop checks the design every time it changes. The badge at the bottom left of the 3D view says Buildable when nothing stops you building it, or how many errors there are. Click it to see each finding; click a finding to select the part it is about."
+            },
+            {
+                "type": "img",
+                "src": "checks",
+                "alt": "The editor with the design checks open: two advisories say the screws on the open shelf no longer reach another part.",
+                "caption": "Here the shelf was lifted off its cleats, so its screws fasten nothing."
+            },
+            {
+                "type": "h",
+                "text": "Errors"
+            },
+            {
+                "type": "p",
+                "text": "Errors are things that cannot be built as drawn: a part bigger than the sheet or board it is cut from, a part fastened to nothing, two parts in the same space, a cut that runs off the part. The PDF plan and the cut list still work, but fix these before you cut wood."
+            },
+            {
+                "type": "h",
+                "text": "Warnings"
+            },
+            {
+                "type": "p",
+                "text": "Warnings are things that can be built but probably should not be: screws that reach nothing, a door too thin for its hinges, a drawer box the wrong width for its slides, a lid with no stay. Each says what to change."
+            },
+            {
+                "type": "h",
+                "text": "Sturdiness advice"
+            },
+            {
+                "type": "p",
+                "text": "Advisories estimate how the piece will hold up: a shelf that may sag under load (and what span would not), a tall piece that could tip and should be anchored to the wall, an open frame that may rack without a back or stretchers, a long thin part that may flex. They use the same maths as the shop calculators."
+            },
+            {
+                "type": "note",
+                "text": "A connected AI agent runs the same checks with `check_design`, so it fixes what you would."
+            }
+        ]
+    },
+    {
+        "slug": "cut-lists",
+        "title": "Cut lists & exports",
+        "icon": "📋",
+        "summary": "Every board to cut, board feet, sheet layouts, and a printable plan.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "The cut list is generated from your design — it is always up to date. It lists every part, how many to cut, its dimensions, and the material."
+            },
+            {
+                "type": "img",
+                "src": "cut-list",
+                "alt": "The cut list panel: overall size, board feet, sheets, cost, offcut and the parts on each material."
+            },
+            {
+                "type": "h",
+                "text": "What it shows"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "Totals: the overall size, board feet, sheets, an estimated cost once you add prices, and how much of the stock ends up as offcut.",
+                    "Each material with its parts underneath, largest first. Identical parts are counted once with ×2, ×4 and so on.",
+                    "Sheet goods (plywood, MDF): how many sheets and how the parts are laid out on them, grain-aware.",
+                    "Lumber: how the parts are cut from your stock lengths.",
+                    "Fasteners and hardware: every screw, dowel, hinge, slide and pull the design uses, folded under Fasteners until you need it."
+                ]
+            },
+            {
+                "type": "p",
+                "text": "Cutting allows for a saw kerf (the width of material the blade removes) between pieces, so the plan reflects what you can really get out of a sheet or board."
+            },
+            {
+                "type": "h",
+                "text": "Printable plan"
+            },
+            {
+                "type": "p",
+                "text": "The PDF button saves a plan to take to the shop or the lumberyard: the parts table, the sheet and board layouts, the drilling and the hardware to buy. The 3D button saves an interactive plan you can open in any browser, and CSV a spreadsheet of the cut list."
+            },
+            {
+                "type": "h",
+                "text": "Other exports"
+            },
+            {
+                "type": "p",
+                "text": "The ⋯ menu in the editor's toolbar has every export:"
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "Cut list (CSV): one row per blank, in your units, for a spreadsheet.",
+                    "Shop templates (SVG): full-size printable patterns for shaped and drilled parts.",
+                    "Parts for CNC (DXF): every part laid flat, front face up, for CAM software such as VCarve, Fusion or Easel. The outline is on layer CUT_OUTSIDE; holes and dados are on layers named by depth (HOLE_0.5, POCKET_0.375, HOLE_THROUGH), and _BACK marks one cut from the back face, which means flipping the part. Concealed-hinge cups are included. Sizes are in millimetres if you work in metric, inches otherwise.",
+                    "3D model (glTF): the assembled design, hardware included, for Blender, SketchUp, Fusion or a 3D viewer."
+                ]
+            },
+            {
+                "type": "note",
+                "text": "A connected AI agent can fetch the parts table and board feet with the `get_cut_list` tool; the full packed sheet layout lives here in the app."
+            }
+        ]
+    },
+    {
         "slug": "versions-and-autosave",
-        "title": "Versions & autosave",
+        "title": "Saving, versions & backups",
         "icon": "🕑",
-        "summary": "How your work is saved, and how to go back to an earlier design.",
+        "summary": "Autosave, named versions, automatic backups of the whole library, and project files.",
         "blocks": [
             {
                 "type": "p",
@@ -233,6 +407,11 @@
             {
                 "type": "h",
                 "text": "Version history"
+            },
+            {
+                "type": "img",
+                "src": "versions",
+                "alt": "The version history panel with one saved version, \"Before the drawer\", and its Restore button."
             },
             {
                 "type": "ul",
@@ -245,18 +424,39 @@
             {
                 "type": "note",
                 "text": "If an AI agent edits the project you have open, the editor picks the change up. If you had unsaved edits at the same moment, Woodshop asks whether to keep yours or take the other, so nothing is silently lost."
+            },
+            {
+                "type": "h",
+                "text": "Backups of the whole library"
+            },
+            {
+                "type": "p",
+                "text": "Woodshop copies your whole library once a day, the first time a few seconds after it starts, and keeps the last week of copies. Settings ▸ Library ▸ Backups lists them; Back up now makes one straight away. Open a backup to see the projects in it and restore any one of them: it comes back as a new project named \"(restored)\", so nothing you have now is replaced."
+            },
+            {
+                "type": "h",
+                "text": "Project files"
+            },
+            {
+                "type": "p",
+                "text": "Save project file, in the ⋯ menu on a project card or in the editor, writes a single .woodshop file with the design, its versions and its notes. Send it to someone, keep it somewhere safe, or move it to another computer; Import… on the Projects page (or double-clicking the file) brings it back."
             }
         ]
     },
     {
         "slug": "connect-your-ai-agent",
-        "title": "Connect your own AI agent",
+        "title": "Using Woodshop with an AI agent",
         "icon": "🔌",
         "summary": "Let Claude Desktop, Claude Code, or another MCP client build in Woodshop for you.",
         "blocks": [
             {
                 "type": "p",
                 "text": "Woodshop includes an MCP server that runs on this computer, so your own AI agent (Claude Desktop, Claude Code, an IDE assistant, or something you build) can list, read, create, and edit your designs. No account or token is needed — the server only ever talks to the library on this machine."
+            },
+            {
+                "type": "img",
+                "src": "agents",
+                "alt": "Settings ▸ AI agents, with the configuration for Claude Desktop and the command for Claude Code, each with a Copy button."
             },
             {
                 "type": "h",
@@ -281,6 +481,27 @@
                     "Start: `start_design` (a blank design) or `start_from_template`.",
                     "Exact edits: `add_part`, `resize_part`, `move_part`, `add_op`, `add_joint`, `set_material`, `delete_part`, and more — every edit is validated against the same rules as the editor."
                 ]
+            },
+            {
+                "type": "h",
+                "text": "What to ask"
+            },
+            {
+                "type": "p",
+                "text": "Describe the piece the way you would to a friend who builds furniture, with the sizes you care about. The agent reads Woodshop's conventions first, builds the design part by part, and runs the same design checks you see in the editor."
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "\"Start a 30 inch wide bookshelf, 12 deep, with four adjustable shelves in oak plywood.\"",
+                    "\"Make the drawer in my nightstand an inch deeper and fix whatever that breaks.\"",
+                    "\"Why does my workbench say it might rack? Add what it needs.\"",
+                    "\"What should I buy for the media console? Give me the cut list and the hardware.\""
+                ]
+            },
+            {
+                "type": "p",
+                "text": "Open the project in Woodshop while the agent works and you see each change as it lands."
             },
             {
                 "type": "note",
