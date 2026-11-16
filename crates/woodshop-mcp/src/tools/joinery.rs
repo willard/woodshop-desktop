@@ -92,6 +92,158 @@ pub const ADD_OP: ToolDef = ToolDef {
     },
 };
 
+pub const ADD_SHELF_PIN_HOLES: ToolDef = ToolDef {
+    name: "add_shelf_pin_holes",
+    description: "Drill two columns of shelf-pin holes into a case side, for adjustable shelves: one \
+        column `inset` from each long edge of the run, holes every `spacing` from `from` up to `to`. \
+        They are ordinary `hole` ops with purpose shelfPin, appended to the part's ops. `axis` is the \
+        part's local direction the columns run — the one that is upright in the assembly (l when the \
+        length is the height, w when the width is) — and `face` is the face that looks INTO the case \
+        (check facesInWorld from explain_part). Defaults follow the 32 mm system: 32 mm spacing, \
+        37 mm inset, 1/4\" holes 3/8\" deep (shallower on thin stock), first and last hole about 6\" \
+        from the ends. A part holds at most 100 ops in all.",
+    read_only: false,
+    schema: || {
+        object(
+            json!({
+                "project_id": integer(PROJECT_ID),
+                "part_id": string("The id of the case side (from get_design)."),
+                "face": one_of(&["front", "back"], "The face that looks into the case."),
+                "axis": one_of(&["l", "w"], "The local direction the columns run: the part's upright direction."),
+                "inset": number("Distance from each long edge of the run to its column. Default 1.457 (37 mm)."),
+                "spacing": number("Centre to centre between holes in a column. Default 1.26 (32 mm)."),
+                "from": number("First hole, along the run from its low end (l0 side for axis w, w0 side for axis l). Default: centred, about 6\" in."),
+                "to": number("The last hole is at or before this distance along the run. Default: the run length minus `from`."),
+                "diameter": number("Hole diameter. Default 0.25."),
+                "depth": number("Hole depth; must be less than the stock thickness. Default 0.375, or 60% of thin stock."),
+            }),
+            &["project_id", "part_id", "face", "axis"],
+        )
+    },
+    run: add_shelf_pin_holes,
+};
+
+/// Inches to three places, without trailing zeros.
+fn in3(v: f64) -> String {
+    format!("{}", (v * 1000.0).round() / 1000.0)
+}
+
+fn add_shelf_pin_holes(w: &Woodshop, args: &Args) -> Outcome {
+    const EPS: f64 = 1e-6;
+    let project_id = args.project_id(PROVIDE_PROJECT)?;
+    let part_id = args.str("part_id", "Provide the id of the case side (see get_design).")?;
+    let face = args.enumerated(
+        "face",
+        &["front", "back"],
+        "face must be front or back.",
+        "Provide the face that looks into the case (front or back).",
+    )?;
+    let axis = args.enumerated(
+        "axis",
+        &["l", "w"],
+        "axis must be l or w.",
+        "Provide the axis the columns run along (l or w): the part's upright direction.",
+    )?;
+    let design = w.load_editable(project_id)?;
+    let part = find(&design.draft, "parts", part_id).ok_or_else(|| no_part(part_id))?;
+    let name = text(part, "name").to_owned();
+    let (l, wd) = (
+        part["size"]["l"].as_f64().unwrap_or(0.0),
+        part["size"]["w"].as_f64().unwrap_or(0.0),
+    );
+    let thickness = find(&design.draft, "materials", text(part, "materialId"))
+        .and_then(|m| m["thickness"].as_f64())
+        .unwrap_or(0.75);
+    let existing = part["ops"].as_array().map_or(0, Vec::len);
+    let (run, span) = if axis == "l" { (l, wd) } else { (wd, l) };
+
+    let spacing = args.opt_num("spacing", 0.1, 240.0)?.unwrap_or(32.0 / 25.4);
+    let inset = args.opt_num("inset", 0.0, 240.0)?.unwrap_or(37.0 / 25.4);
+    let diameter = args.opt_num("diameter", 0.01, 2.0)?.unwrap_or(0.25);
+    let depth = args
+        .opt_num("depth", 0.01, 240.0)?
+        .unwrap_or_else(|| 0.375_f64.min(thickness * 0.6));
+    let from = match args.opt_num("from", 0.0, 240.0)? {
+        Some(f) => f,
+        None => {
+            let margin = 6.0_f64.min(run / 4.0);
+            let count = (((run - 2.0 * margin) / spacing + EPS).floor() + 1.0).max(1.0);
+            (((run - (count - 1.0) * spacing) / 2.0) * 16.0).round() / 16.0
+        }
+    };
+    let to = args.opt_num("to", 0.0, 240.0)?.unwrap_or(run - from);
+
+    if from > to {
+        return Err("`from` must be at or before `to`.".into());
+    }
+    if from - diameter / 2.0 < -EPS || to + diameter / 2.0 > run + EPS {
+        return Err(format!(
+            "The holes run off the end: \"{name}\" is {}\" along {axis}.",
+            in3(run)
+        ));
+    }
+    if inset - diameter / 2.0 < -EPS || inset + diameter / 2.0 > span + EPS {
+        return Err(format!(
+            "An inset of {}\" puts the holes off the edge of the {}\" span.",
+            in3(inset),
+            in3(span)
+        ));
+    }
+    if depth >= thickness - EPS {
+        return Err(format!(
+            "A {}\" hole goes right through the {}\" stock; make it shallower.",
+            in3(depth),
+            in3(thickness)
+        ));
+    }
+    let count = ((to - from) / spacing + EPS).floor() as usize + 1;
+    let across: Vec<f64> = if inset * 2.0 < span - EPS {
+        vec![inset, span - inset]
+    } else {
+        vec![span / 2.0]
+    };
+    let total = existing + count * across.len();
+    if total > 100 {
+        return Err(format!(
+            "That makes {total} ops on \"{name}\"; a part holds at most 100. Space the holes wider or shorten the run."
+        ));
+    }
+    let round = |v: f64| (v * 1e4).round() / 1e4;
+    let mut holes = Vec::new();
+    for &c in &across {
+        for i in 0..count {
+            let along = round(from + i as f64 * spacing);
+            let (x, y) = if axis == "l" {
+                (along, round(c))
+            } else {
+                (round(c), along)
+            };
+            holes.push(json!({ "type": "hole", "face": face, "x": x, "y": y, "diameter": diameter, "depth": round(depth), "purpose": "shelfPin" }));
+        }
+    }
+    let n = holes.len();
+    let result = w.apply(&design, &format!("Add shelf-pin holes to {name}"), false, |spec| {
+        map_one(spec, "parts", part_id, |p| {
+            match p.get_mut("ops").and_then(Value::as_array_mut) {
+                Some(ops) => ops.extend(holes.iter().cloned()),
+                None => {
+                    p.insert("ops".into(), Value::Array(holes.clone()));
+                }
+            }
+        });
+    });
+    w.render(
+        result,
+        &design,
+        &format!(
+            "Added {n} shelf-pin holes to \"{name}\": {} column{} of {count}, ops #{existing}–#{}.",
+            across.len(),
+            plural(across.len()),
+            existing + n - 1
+        ),
+    )
+}
+
 pub const UPDATE_OP: ToolDef = ToolDef {
     name: "update_op",
     description: "Replace one op on a part, in place, by its index (get_design shows them in order). Use \

@@ -36,11 +36,11 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 34);
+    assert_eq!(tools::TOOLS.len(), 35);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
-    assert_eq!(names.len(), 34);
+    assert_eq!(names.len(), 35);
     for t in tools::TOOLS {
         let schema = (t.schema)();
         assert_eq!(schema["type"], "object", "{}", t.name);
@@ -619,4 +619,47 @@ fn hardware_from_the_catalog() {
     {
         assert!(after["hardware"].as_array().unwrap().is_empty());
     }
+}
+
+#[test]
+fn shelf_pin_holes_go_up_a_case_side_in_two_columns() {
+    let w = woodshop();
+    let started = ok(&w, "start_from_template", json!({ "template": "bookshelf" }));
+    let id = started["projectId"].as_i64().unwrap();
+    let side = json!({ "project_id": id, "part_id": "p_side_l", "face": "front", "axis": "w" });
+
+    // 72" tall, 32 mm apart, about 6" clear at each end: 48 a column.
+    let added = ok(&w, "add_shelf_pin_holes", side.clone());
+    assert!(
+        added["summary"]
+            .as_str()
+            .unwrap()
+            .starts_with("Added 96 shelf-pin holes to \"Left Side\": 2 columns of 48, ops #1–#96."),
+        "{added}"
+    );
+    let ops = part(&w, id, "p_side_l")["ops"].as_array().unwrap().clone();
+    assert_eq!(ops.len(), 97);
+    let pins = &ops[1..];
+    assert!(pins.iter().all(|h| h["purpose"] == "shelfPin" && h["face"] == "front"));
+    let mut columns: Vec<f64> = pins.iter().map(|h| h["x"].as_f64().unwrap()).collect();
+    columns.dedup();
+    assert_eq!(columns, vec![1.4567, 9.7933]);
+    assert_eq!(ok(&w, "check_design", json!({ "project_id": id }))["buildable"], true);
+
+    // A second run would pass the 100-op limit; a hole as deep as the stock goes through.
+    assert!(err(&w, "add_shelf_pin_holes", side.clone()).contains("at most 100"));
+    let mut through = side.clone();
+    through["part_id"] = json!("p_side_r");
+    through["depth"] = json!(0.75);
+    assert!(err(&w, "add_shelf_pin_holes", through.clone()).contains("right through"));
+    through["depth"] = json!(0.375);
+    through["spacing"] = json!(2);
+    through["from"] = json!(8);
+    through["to"] = json!(64.5);
+    assert!(
+        ok(&w, "add_shelf_pin_holes", through)["summary"]
+            .as_str()
+            .unwrap()
+            .contains("2 columns of 29")
+    );
 }

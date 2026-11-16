@@ -48,6 +48,7 @@ pub static TOOLS: &[ToolDef] = &[
     authoring::ADD_PART,
     authoring::ADD_PARTS,
     joinery::ADD_OP,
+    joinery::ADD_SHELF_PIN_HOLES,
     joinery::UPDATE_OP,
     joinery::DELETE_OP,
     joinery::ADD_JOINT,

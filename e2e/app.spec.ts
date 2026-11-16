@@ -471,6 +471,33 @@ test('a rabbet is added from the cut menu and changed in place', async ({ page }
     await expect(rows.last()).toContainText('Rabbet 1/4" wide × 1/4" deep');
 });
 
+test('shelf-pin holes are added as one run, changed and removed', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('outline').getByRole('button', { name: 'Left Side', exact: true }).click();
+    const rows = page.getByTestId('section-cuts').getByTestId('ops-row');
+    const before = await rows.count();
+
+    await page.getByTestId('ops-add-menu').click();
+    await page.getByTestId('ops-add-pins').click();
+    // A case side: drilled on the face looking in, up its height, on the 32 mm system.
+    await expect(page.getByTestId('pins-axis')).toHaveValue('w');
+    await expect(page.getByTestId('pins-spacing')).toHaveValue('32 mm');
+    await page.getByTestId('pins-submit').click();
+    await expect(rows).toHaveCount(before + 1);
+    await expect(rows.last()).toContainText('Shelf-pin holes ×34');
+
+    await page.getByTestId('pins-edit').click();
+    await expect(page.getByTestId('pins-spacing')).toHaveValue('32 mm');
+    await page.getByTestId('pins-spacing').fill('2');
+    await page.getByTestId('pins-submit').click();
+    await expect(rows.last()).toContainText('Shelf-pin holes ×22');
+
+    await page.getByTestId('pins-delete').click();
+    await expect(rows).toHaveCount(before);
+    await page.getByTestId('undo').click();
+    await expect(rows.last()).toContainText('Shelf-pin holes ×22');
+});
+
 test('copies of a part are made in a row, then spaced evenly', async ({ page }) => {
     await page.goto('/#/projects/1');
     const outline = page.getByTestId('outline');

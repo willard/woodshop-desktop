@@ -3,10 +3,11 @@
  * out evenly. The maths is pure (`copyStep`, `evenPositions`) so it is tested on its own; the
  * commands apply it as one undo step.
  */
-import type { Spec, Part, HardwareMount, Vec3 } from '../../spec/types';
+import type { Spec, Part, HardwareMount, Vec3, Op } from '../../spec/types';
 import type { Command } from './Command';
 import { aabbFromPart } from '../snapping';
 import { cloneHardware } from './hardware';
+import { mapPart } from './Command';
 
 export type Axis = 0 | 1 | 2;
 type Point = [number, number, number];
@@ -188,5 +189,62 @@ export class SetEdgeBand implements Command {
                 return this.before === undefined ? rest : { ...rest, edgeBand: this.before };
             }),
         };
+    }
+}
+
+/**
+ * Replaces `deleteCount` ops starting at `start` with `insert` (one undo step): adding a run of
+ * holes (`deleteCount` 0), changing it, or removing it (`insert` empty). Joints that point past the
+ * run follow their op; any that pointed into it are dropped with it.
+ */
+export class SpliceOps implements Command {
+    private before?: { ops: Op[]; locked: boolean; joints: Spec['joints'] };
+
+    constructor(
+        private readonly partId: string,
+        private readonly start: number,
+        private readonly deleteCount: number,
+        private readonly insert: readonly Op[],
+        readonly label: string,
+    ) {}
+
+    do(spec: Spec): Spec {
+        const part = spec.parts.find((p) => p.id === this.partId);
+        if (part === undefined) return spec;
+        this.before = { ops: part.ops, locked: part.locked, joints: spec.joints };
+        const ops = [...part.ops];
+        ops.splice(this.start, this.deleteCount, ...this.insert);
+        const end = this.start + this.deleteCount;
+        const shift = this.insert.length - this.deleteCount;
+        const next = mapPart(spec, this.partId, (p) => ({ ...p, ops, locked: true }));
+        return {
+            ...next,
+            joints: spec.joints
+                .filter(
+                    (j) =>
+                        !(
+                            j.hostPartId === this.partId &&
+                            j.opRef !== undefined &&
+                            j.opRef >= this.start &&
+                            j.opRef < end
+                        ),
+                )
+                .map((j) =>
+                    j.hostPartId === this.partId && j.opRef !== undefined && j.opRef >= end
+                        ? { ...j, opRef: j.opRef + shift }
+                        : j,
+                ),
+        };
+    }
+
+    undo(spec: Spec): Spec {
+        const before = this.before;
+        if (before === undefined) return spec;
+        const restored = mapPart(spec, this.partId, (p) => ({
+            ...p,
+            ops: before.ops,
+            locked: before.locked,
+        }));
+        return { ...restored, joints: before.joints };
     }
 }

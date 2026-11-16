@@ -496,6 +496,9 @@ have to look up, and the editor screenshot would make someone want to try it fro
   for sheet goods; the cut list adds a hardware row per material (feet or metres, a tenth spare);
   agents use `set_edge_banding`.
 - **Change a cut in place** (`ReplaceOp`) and design-check messages in the display units.
+- **Shelf-pin holes**: two columns of `shelfPin` holes from one form (`engine/shelfPins.ts`, one
+  undo step via `SpliceOps`), shown as one row; agents use `add_shelf_pin_holes`. The per-part
+  op limit is 100 (was 20) from spec 1.16.
 
 ## Phase 6: After launch
 

@@ -109,6 +109,8 @@ import {
     type PlacementPreview,
     type PlacementRequest,
     type Vec3,
+    SpliceOps,
+    shelfPinFacingIn,
 } from '@/engine';
 import { createCsgWorker } from '@/engine/csgWorker';
 import type { Joint, Material, Movable, Op, Part, Spec, Species } from '@/spec';
@@ -713,6 +715,21 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             else if (op.type === 'screws') recordJoints(detectScrewJoints(doc.spec));
         }
 
+        function executeSpliceOps(
+            partId: string,
+            start: number,
+            deleteCount: number,
+            ops: Op[],
+            label: string,
+        ): void {
+            setOpError(null);
+            try {
+                doc.execute(new SpliceOps(partId, start, deleteCount, ops, label));
+            } catch {
+                setOpError("Those holes don't fit the part. Check the values and try again.");
+            }
+        }
+
         function executeReplaceOp(partId: string, index: number, op: Op): void {
             setOpError(null);
             try {
@@ -1278,6 +1295,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         onRename={(name) => doc.execute(new RenamePart(selected.id, name))}
                         onAddOp={(op) => executeAddOp(selected.id, op)}
                         onReplaceOp={(i, op) => executeReplaceOp(selected.id, i, op)}
+                        onSpliceOps={(start, n, ops, label) =>
+                            executeSpliceOps(selected.id, start, n, ops, label)
+                        }
+                        shelfPinFacing={shelfPinFacingIn(doc.spec, selected)}
                         onRemoveOp={(i) => {
                             setOpError(null);
                             doc.execute(new RemoveOp(selected.id, i));

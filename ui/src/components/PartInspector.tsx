@@ -7,7 +7,17 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Op, Part, Species } from '@/spec';
 import type { HardwarePatch, PlacementRequest } from '@/engine';
 import { MovableFittings, PartHardware } from './HardwareFittings';
-import { DEFAULT_EASE_CONFIG, WORKSPACE_POS_BOUND } from '@/engine';
+import {
+    DEFAULT_EASE_CONFIG,
+    WORKSPACE_POS_BOUND,
+    defaultShelfPins,
+    planShelfPins,
+    readShelfPins,
+    shelfPinProblem,
+    shelfPinRuns,
+    type ShelfPinOptions,
+    type ShelfPinRun,
+} from '@/engine';
 import { opSummary } from '@/spec/opLabel';
 import { Section } from './InspectorSection';
 import { Popover } from './Popover';
@@ -58,6 +68,10 @@ export interface PartInspectorProps {
     /** Swaps the cut at `index` for an edited one. */
     onReplaceOp(index: number, op: Op): void;
     onRemoveOp(index: number): void;
+    /** Swaps `deleteCount` cuts from `start` for `ops`, as one undo step (a run of shelf-pin holes). */
+    onSpliceOps(start: number, deleteCount: number, ops: Op[], label: string): void;
+    /** Which face looks into the case and which way is up, for a new run of shelf-pin holes. */
+    shelfPinFacing?: { face: 'front' | 'back'; axis: 'l' | 'w' };
     onSpecies(species: Species): void;
     onStock(nominal: string): void;
     onRoundStock(label: string): void;
@@ -134,11 +148,17 @@ function endsOf(edge: string): { value: Edge; label: string }[] {
           ];
 }
 
-type OpForm = 'dado' | 'rabbet' | 'hole' | 'curve' | 'notch' | 'pocket' | 'miter' | 'ease';
+type OpForm = 'dado' | 'rabbet' | 'hole' | 'pins' | 'curve' | 'notch' | 'pocket' | 'miter' | 'ease';
 const OP_BUTTONS: { form: OpForm; label: string; does: string; icon: string }[] = [
     { form: 'dado', label: 'Dado or groove', does: 'A channel another part sits in', icon: 'dado' },
     { form: 'rabbet', label: 'Rabbet', does: 'A step along an edge, for a back or a lid', icon: 'rabbet' },
     { form: 'hole', label: 'Hole', does: 'Dowel, shelf-pin or through hole', icon: 'hole' },
+    {
+        form: 'pins',
+        label: 'Shelf-pin holes',
+        does: 'Rows of holes for adjustable shelves',
+        icon: 'shelfPins',
+    },
     { form: 'pocket', label: 'Pocket screws', does: 'Angled screws through an edge', icon: 'pocketHoles' },
     { form: 'curve', label: 'Curve', does: 'An arched edge or rounded corners', icon: 'curve' },
     { form: 'notch', label: 'Notch', does: 'A cut-out from an edge', icon: 'notch' },
@@ -153,6 +173,8 @@ function OpIcon({ type }: { type: string }) {
         groove: 'M3 8h18M3 16h18M9 8v8M15 8v8',
         rabbet: 'M3 6h18v12H9V12H3Z',
         hole: 'M12 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10Z',
+        shelfPins:
+            'M5.8 5a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0-2.4 0M5.8 10a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0-2.4 0M5.8 15a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0-2.4 0M5.8 20a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0-2.4 0M15.8 5a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0-2.4 0M15.8 10a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0-2.4 0M15.8 15a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0-2.4 0M15.8 20a1.2 1.2 0 1 0 2.4 0a1.2 1.2 0 1 0-2.4 0',
         pocketHoles: 'M4 18 14 8m-3-1 6 6M15 5l4 4',
         screws: 'M12 3v4m-3 0h6l-1 12h-4ZM10 11h4m-4 4h4',
         curve: 'M3 18c4-10 14-10 18 0',
@@ -341,6 +363,18 @@ export function PartInspector(p: PartInspectorProps) {
         face: 'both',
     });
     const [easeStopped, setEaseStopped] = useState(false);
+    /** The run of shelf-pin holes being changed, while the pins form is open on it. */
+    const [editingRun, setEditingRun] = useState<ShelfPinRun | null>(null);
+    const [pins, setPins] = useState({
+        face: 'front',
+        axis: 'l',
+        inset: '',
+        from: '',
+        to: '',
+        spacing: '',
+        diameter: '',
+        depth: '',
+    });
     const [easeRun, setEaseRun] = useState({ from: '', to: '' });
 
     // Keep the curve's end picker valid when the edge or kind changes (a ramp needs a real end).
@@ -358,8 +392,10 @@ export function PartInspector(p: PartInspectorProps) {
     function toggleForm(kind: OpForm): void {
         setFormError(null);
         setEditing(null);
+        setEditingRun(null);
         const next = openForm === kind ? null : kind;
         setOpenForm(next);
+        if (next === 'pins') fillPins(newPins());
         if (next === 'dado' && dado.depth === '' && p.thickness !== null) {
             setDado((d) => ({ ...d, depth: lenValue(p.thickness! / 2) }));
         }
@@ -397,6 +433,7 @@ export function PartInspector(p: PartInspectorProps) {
 
     /** Opens the cut's own form filled in with its values; saving replaces it in place. */
     function startEdit(index: number): void {
+        setEditingRun(null);
         const op = part.ops?.[index];
         const form = op === undefined ? null : editFormOf(op);
         if (op === undefined || form === null) return;
@@ -586,6 +623,83 @@ export function PartInspector(p: PartInspectorProps) {
         return count;
     }
 
+    /** A length for a field that reads back exactly: `1 1/4` when that is the value, else `32 mm`. */
+    function exactText(inches: number): string {
+        const text = lenValue(inches);
+        const back = parseLen(text);
+        return back !== null && Math.abs(back - inches) < 1e-4 ? text : `${+(inches * 25.4).toFixed(2)} mm`;
+    }
+
+    function newPins(): ShelfPinOptions {
+        const metric = getUnits() === 'metric';
+        return defaultShelfPins(part, p.thickness ?? 0.75, {
+            ...p.shelfPinFacing,
+            diameter: metric ? 5 / 25.4 : 0.25,
+            step: metric ? 1 / 25.4 : 1 / 16,
+        });
+    }
+
+    function fillPins(o: ShelfPinOptions): void {
+        setPins({
+            face: o.face,
+            axis: o.axis,
+            inset: exactText(o.inset),
+            from: exactText(o.from),
+            to: exactText(o.to),
+            spacing: exactText(o.spacing),
+            diameter: exactText(o.diameter),
+            depth: exactText(o.depth),
+        });
+    }
+
+    /** The form's values, or null (with the error shown) when one doesn't read. */
+    function pinOptions(): ShelfPinOptions | null {
+        const inset = dim('Inset', pins.inset);
+        const from = dim0('First hole', pins.from);
+        const to = dim('Last hole', pins.to);
+        const spacing = dim('Spacing', pins.spacing);
+        const diameter = dim('Diameter', pins.diameter);
+        const depth = dim('Depth', pins.depth);
+        if ([inset, from, to, spacing, diameter, depth].some((v) => v === null)) return null;
+        return {
+            face: pins.face as 'front' | 'back',
+            axis: pins.axis as 'l' | 'w',
+            inset: inset!,
+            from: from!,
+            to: to!,
+            spacing: spacing!,
+            diameter: diameter!,
+            depth: depth!,
+        };
+    }
+
+    function submitPins(): void {
+        setFormError(null);
+        const o = pinOptions();
+        if (o === null) return;
+        const problem = shelfPinProblem(part, p.thickness ?? Infinity, o, editingRun?.count ?? 0);
+        if (problem !== null) {
+            setFormError(problem);
+            return;
+        }
+        const holes = planShelfPins(part, o);
+        if (editingRun === null) p.onSpliceOps(part.ops.length, 0, holes, 'Add shelf-pin holes');
+        else p.onSpliceOps(editingRun.start, editingRun.count, holes, 'Change shelf-pin holes');
+        setOpenForm(null);
+        setEditingRun(null);
+    }
+
+    function startEditRun(run: ShelfPinRun): void {
+        const holes = part.ops.slice(run.start, run.start + run.count) as Extract<Op, { type: 'hole' }>[];
+        const o = readShelfPins(part, holes);
+        if (o === null) return;
+        setFormError(null);
+        setEditing(null);
+        setEditingRun(run);
+        fillPins(o);
+        setOpenForm('pins');
+    }
+
     function submitRabbet(): void {
         setFormError(null);
         const width = dim('Width', rabbet.width);
@@ -646,6 +760,7 @@ export function PartInspector(p: PartInspectorProps) {
     }
 
     const hasOps = (part.ops ?? []).length > 0;
+    const pinRuns = shelfPinRuns(part.ops ?? []);
 
     // --- Copies: a run of this part along an axis ---
     const [copiesOpen, setCopiesOpen] = useState(false);
@@ -1010,49 +1125,102 @@ export function PartInspector(p: PartInspectorProps) {
             <Section id="cuts" title="Cuts &amp; fasteners">
                 {hasOps && (
                     <div className="mb-2.5 flex flex-col gap-1" data-testid="ops-list">
-                        {part.ops.map((op, i) => (
-                            <div
-                                key={i}
-                                className={`bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 ${editing === i ? 'ring-accent ring-1' : ''}`}
-                                data-testid="ops-row"
-                                data-editing={editing === i || undefined}
-                            >
-                                <span className="text-faint flex-none" aria-hidden="true">
-                                    <OpIcon type={op.type} />
-                                </span>
-                                {editFormOf(op) === null ? (
-                                    <span
-                                        className="text-fg/80 min-w-0 flex-1 text-xs leading-snug"
-                                        title={opSummary(op)}
+                        {part.ops.map((op, i) => {
+                            const run = pinRuns.find((r) => i >= r.start && i < r.start + r.count);
+                            if (run !== undefined) {
+                                if (run.start !== i) return null;
+                                const label = `Shelf-pin holes ×${run.count}, ${len((op as { diameter: number }).diameter)}`;
+                                const active = editingRun?.start === run.start;
+                                return (
+                                    <div
+                                        key={i}
+                                        className={`bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 ${active ? 'ring-accent ring-1' : ''}`}
+                                        data-testid="ops-row"
+                                        data-editing={active || undefined}
                                     >
-                                        {opSummary(op)}
-                                    </span>
-                                ) : (
-                                    <button
-                                        className="text-fg/80 hover:text-fg-strong min-w-0 flex-1 text-left text-xs leading-snug"
-                                        title="Change this cut"
-                                        aria-label={`Change this cut: ${opSummary(op)}`}
-                                        onClick={() =>
-                                            editing === i
-                                                ? (setEditing(null), setOpenForm(null))
-                                                : startEdit(i)
-                                        }
-                                        data-testid={`ops-edit-${i}`}
-                                    >
-                                        {opSummary(op)}
-                                    </button>
-                                )}
-                                <button
-                                    className="text-muted hover:bg-danger/15 hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs"
-                                    data-testid={`ops-delete-${i}`}
-                                    title="Delete this cut"
-                                    aria-label="Delete this cut"
-                                    onClick={() => p.onRemoveOp(i)}
+                                        <span className="text-faint flex-none" aria-hidden="true">
+                                            <OpIcon type="shelfPins" />
+                                        </span>
+                                        <button
+                                            className="text-fg/80 hover:text-fg-strong min-w-0 flex-1 text-left text-xs leading-snug"
+                                            title="Change these holes"
+                                            aria-label={`Change these holes: ${label}`}
+                                            onClick={() =>
+                                                active
+                                                    ? (setEditingRun(null), setOpenForm(null))
+                                                    : startEditRun(run)
+                                            }
+                                            data-testid="pins-edit"
+                                        >
+                                            {label}
+                                        </button>
+                                        <button
+                                            className="text-muted hover:bg-danger/15 hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs"
+                                            data-testid="pins-delete"
+                                            title="Delete these holes"
+                                            aria-label="Delete these holes"
+                                            onClick={() => {
+                                                if (active) {
+                                                    setEditingRun(null);
+                                                    setOpenForm(null);
+                                                }
+                                                p.onSpliceOps(
+                                                    run.start,
+                                                    run.count,
+                                                    [],
+                                                    'Remove shelf-pin holes',
+                                                );
+                                            }}
+                                        >
+                                            <X size={14} aria-hidden="true" />
+                                        </button>
+                                    </div>
+                                );
+                            }
+                            return (
+                                <div
+                                    key={i}
+                                    className={`bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 ${editing === i ? 'ring-accent ring-1' : ''}`}
+                                    data-testid="ops-row"
+                                    data-editing={editing === i || undefined}
                                 >
-                                    <X size={14} aria-hidden="true" />
-                                </button>
-                            </div>
-                        ))}
+                                    <span className="text-faint flex-none" aria-hidden="true">
+                                        <OpIcon type={op.type} />
+                                    </span>
+                                    {editFormOf(op) === null ? (
+                                        <span
+                                            className="text-fg/80 min-w-0 flex-1 text-xs leading-snug"
+                                            title={opSummary(op)}
+                                        >
+                                            {opSummary(op)}
+                                        </span>
+                                    ) : (
+                                        <button
+                                            className="text-fg/80 hover:text-fg-strong min-w-0 flex-1 text-left text-xs leading-snug"
+                                            title="Change this cut"
+                                            aria-label={`Change this cut: ${opSummary(op)}`}
+                                            onClick={() =>
+                                                editing === i
+                                                    ? (setEditing(null), setOpenForm(null))
+                                                    : startEdit(i)
+                                            }
+                                            data-testid={`ops-edit-${i}`}
+                                        >
+                                            {opSummary(op)}
+                                        </button>
+                                    )}
+                                    <button
+                                        className="text-muted hover:bg-danger/15 hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs"
+                                        data-testid={`ops-delete-${i}`}
+                                        title="Delete this cut"
+                                        aria-label="Delete this cut"
+                                        onClick={() => p.onRemoveOp(i)}
+                                    >
+                                        <X size={14} aria-hidden="true" />
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
 
@@ -1077,7 +1245,7 @@ export function PartInspector(p: PartInspectorProps) {
                                 >
                                     {openForm === null
                                         ? '+ Add a cut'
-                                        : `${editing === null ? 'Adding' : 'Changing'}: ${OP_BUTTONS.find((b) => b.form === openForm)?.label}`}
+                                        : `${editing === null && editingRun === null ? 'Adding' : 'Changing'}: ${OP_BUTTONS.find((b) => b.form === openForm)?.label}`}
                                 </button>
                             )}
                         >
@@ -1159,6 +1327,84 @@ export function PartInspector(p: PartInspectorProps) {
                                 Place in 3D
                             </SecondaryButton>
                         </div>
+                    </FormBox>
+                )}
+
+                {openForm === 'pins' && (
+                    <FormBox testId="pins-form">
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <FaceField value={pins.face} onChange={(face) => setPins({ ...pins, face })} />
+                            <Field label="Columns run">
+                                <Select
+                                    value={pins.axis}
+                                    data-testid="pins-axis"
+                                    onChange={(e) => setPins({ ...pins, axis: e.target.value })}
+                                >
+                                    <option value="l">along the length</option>
+                                    <option value="w">across the width</option>
+                                </Select>
+                            </Field>
+                        </div>
+                        <div className="mb-2 grid grid-cols-3 gap-2">
+                            <Field label={`First hole (${unitSuffix()})`}>
+                                <TextInput
+                                    value={pins.from}
+                                    inputMode="decimal"
+                                    data-testid="pins-from"
+                                    onChange={(e) => setPins({ ...pins, from: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Up to (${unitSuffix()})`}>
+                                <TextInput
+                                    value={pins.to}
+                                    inputMode="decimal"
+                                    data-testid="pins-to"
+                                    onChange={(e) => setPins({ ...pins, to: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Spacing (${unitSuffix()})`}>
+                                <TextInput
+                                    value={pins.spacing}
+                                    inputMode="decimal"
+                                    data-testid="pins-spacing"
+                                    onChange={(e) => setPins({ ...pins, spacing: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <div className="mb-2 grid grid-cols-3 gap-2">
+                            <Field label={`Edge inset (${unitSuffix()})`}>
+                                <TextInput
+                                    value={pins.inset}
+                                    inputMode="decimal"
+                                    data-testid="pins-inset"
+                                    onChange={(e) => setPins({ ...pins, inset: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Diameter (${unitSuffix()})`}>
+                                <TextInput
+                                    value={pins.diameter}
+                                    inputMode="decimal"
+                                    data-testid="pins-diameter"
+                                    onChange={(e) => setPins({ ...pins, diameter: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Depth (${unitSuffix()})`}>
+                                <TextInput
+                                    value={pins.depth}
+                                    inputMode="decimal"
+                                    data-testid="pins-depth"
+                                    onChange={(e) => setPins({ ...pins, depth: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <Hint>
+                            Two columns of holes, each the inset from an edge, from the first hole to the last
+                            that fits. 32 mm spacing and 37 mm inset match most shelf-pin jigs. Drill on the
+                            face that looks into the case.
+                        </Hint>
+                        <PrimaryButton className="w-full" data-testid="pins-submit" onClick={submitPins}>
+                            {editingRun === null ? 'Add shelf-pin holes' : 'Save changes'}
+                        </PrimaryButton>
                     </FormBox>
                 )}
 

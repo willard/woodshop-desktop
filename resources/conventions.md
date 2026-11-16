@@ -238,6 +238,16 @@ their stock, and a fully connected assembly with no floating parts.
 - Mount hardware where it would really go: pulls 2–4 in from the opening edge, casters 1–2 in
   in from each corner of the base, corner braces in the inside corner they brace.
 
+## Shelf-pin holes
+
+- Adjustable shelves rest on pins in two columns of holes up each case side. Drill them with
+  `add_shelf_pin_holes` rather than one `hole` op at a time: give the side, the `face` that looks
+  INTO the case (`facesInWorld` from `explain_part`) and the `axis` that runs upright. Defaults
+  follow the 32 mm system (32 mm apart, 37 mm from the front and back edges, 1/4" holes 3/8"
+  deep, about 6" clear at each end). Do the same on the other side with ITS inward face.
+- They are plain `hole` ops with `purpose: "shelfPin"`. A part holds at most 100 ops, so a very
+  tall side may need wider spacing or a shorter run.
+
 ## Edge banding (spec 1.16)
 
 - Plywood and MDF edges that will show are covered with edge banding. Set them with

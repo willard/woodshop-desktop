@@ -31,6 +31,17 @@ export type { OverlapCandidate } from './notch';
 export { enterFocusMode, exitFocusMode } from './focus';
 export type { FocusState } from './focus';
 export { explodedPositions, EXPLODE_SPREAD } from './explode';
+export {
+    planShelfPins,
+    shelfPinProblem,
+    defaultShelfPins,
+    shelfPinRuns,
+    readShelfPins,
+    shelfPinFacing,
+    shelfPinFacingIn,
+    SHELF_PIN_DEFAULTS,
+} from './shelfPins';
+export type { ShelfPinOptions, ShelfPinRun } from './shelfPins';
 export type { ExplodeSource } from './explode';
 export { openedPoses, doorHinge, hingeLineLocal } from './open';
 export type { OpenPose } from './open';
@@ -107,6 +118,7 @@ export {
     CopyPart,
     SetPositions,
     SetEdgeBand,
+    SpliceOps,
     copyStep,
     evenPositions,
     RotateParts,

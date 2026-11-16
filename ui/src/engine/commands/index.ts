@@ -37,6 +37,7 @@ export {
     CopyPart,
     SetPositions,
     SetEdgeBand,
+    SpliceOps,
     copyStep,
     copyNames,
     evenPositions,
