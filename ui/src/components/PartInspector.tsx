@@ -49,6 +49,8 @@ export interface PartInspectorProps {
     onRemove(): void;
     onRename(name: string): void;
     onAddOp(op: Op): void;
+    /** Swaps the cut at `index` for an edited one. */
+    onReplaceOp(index: number, op: Op): void;
     onRemoveOp(index: number): void;
     onSpecies(species: Species): void;
     onStock(nominal: string): void;
@@ -164,6 +166,28 @@ function OpIcon({ type }: { type: string }) {
     );
 }
 
+/** The form that edits an op, or null for one only Fasten to or the 3D view makes. */
+function editFormOf(op: Op): OpForm | null {
+    switch (op.type) {
+        case 'dado':
+            return 'dado';
+        case 'hole':
+            return 'hole';
+        case 'curve':
+            return 'curve';
+        case 'notch':
+            return 'notch';
+        case 'pocketHoles':
+            return 'pocket';
+        case 'miter':
+            return 'miter';
+        case 'ease':
+            return 'ease';
+        default:
+            return null;
+    }
+}
+
 const posText = (part: Part): [string, string, string] => [
     lenValue(part.transform.pos[0]),
     lenValue(part.transform.pos[1]),
@@ -196,6 +220,12 @@ export function PartInspector(p: PartInspectorProps) {
         setPosInputs(posText(part));
         setRotInputs(rotText(part));
     }, [part]);
+
+    // A different part: an edit in progress belonged to the last one.
+    useEffect(() => {
+        setEditing(null);
+        setOpenForm(null);
+    }, [part.id]);
 
     useEffect(() => {
         if (renaming) nameInput.current?.select();
@@ -269,6 +299,8 @@ export function PartInspector(p: PartInspectorProps) {
 
     // --- Op forms ---
     const [openForm, setOpenForm] = useState<OpForm | null>(null);
+    /** The cut being edited, by index, while its form is open; null when adding a new one. */
+    const [editing, setEditing] = useState<number | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
     const [dado, setDado] = useState({
         face: 'front',
@@ -315,6 +347,7 @@ export function PartInspector(p: PartInspectorProps) {
 
     function toggleForm(kind: OpForm): void {
         setFormError(null);
+        setEditing(null);
         const next = openForm === kind ? null : kind;
         setOpenForm(next);
         if (next === 'dado' && dado.depth === '' && p.thickness !== null) {
@@ -343,8 +376,75 @@ export function PartInspector(p: PartInspectorProps) {
     }
 
     function add(op: Op): void {
-        p.onAddOp(op);
+        if (editing !== null) p.onReplaceOp(editing, op);
+        else p.onAddOp(op);
         setOpenForm(null);
+        setEditing(null);
+    }
+
+    /** Opens the cut's own form filled in with its values; saving replaces it in place. */
+    function startEdit(index: number): void {
+        const op = part.ops?.[index];
+        const form = op === undefined ? null : editFormOf(op);
+        if (op === undefined || form === null) return;
+        setFormError(null);
+        const v = (n: number | undefined) => (n === undefined ? '' : lenValue(n));
+        switch (op.type) {
+            case 'dado':
+                setDado({
+                    face: op.face,
+                    axis: op.axis,
+                    offset: v(op.offset),
+                    width: v(op.width),
+                    depth: v(op.depth),
+                });
+                setStopped(op.from !== undefined || op.to !== undefined);
+                setDadoRun({ from: v(op.from), to: v(op.to) });
+                break;
+            case 'hole':
+                setHole({
+                    face: op.face,
+                    x: v(op.x),
+                    y: v(op.y),
+                    diameter: v(op.diameter),
+                    depth: v(op.depth),
+                    purpose: op.purpose ?? 'other',
+                });
+                break;
+            case 'curve':
+                if (op.kind === 'round')
+                    setCurve({ edge: op.edge, kind: 'round', size: v(op.radius), end: op.corner ?? 'both' });
+                else if (op.kind === 'ramp')
+                    setCurve({ edge: op.edge, kind: 'ramp', size: v(op.height), end: op.low });
+                else setCurve({ edge: op.edge, kind: 'arc', size: v(op.height), end: 'both' });
+                break;
+            case 'notch':
+                setNotch({ edge: op.edge, from: v(op.from), to: v(op.to), depth: v(op.depth) });
+                break;
+            case 'pocketHoles':
+                setPocket({ edge: op.edge, count: String(op.count) });
+                break;
+            case 'miter':
+                setMiter({ edge: op.edge, angle: String(op.angle) });
+                break;
+            case 'ease':
+                setEase({
+                    edge: op.edge,
+                    profile: op.profile,
+                    size:
+                        op.profile === 'roundover'
+                            ? v(op.radius)
+                            : op.profile === 'chamfer'
+                              ? v(op.width)
+                              : ease.size,
+                    face: op.face ?? 'both',
+                });
+                setEaseStopped(op.from !== undefined || op.to !== undefined);
+                setEaseRun({ from: v(op.from), to: v(op.to) });
+                break;
+        }
+        setOpenForm(form);
+        setEditing(index);
     }
 
     function run(
@@ -829,18 +929,35 @@ export function PartInspector(p: PartInspectorProps) {
                         {part.ops.map((op, i) => (
                             <div
                                 key={i}
-                                className="bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2"
+                                className={`bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2 ${editing === i ? 'ring-accent ring-1' : ''}`}
                                 data-testid="ops-row"
+                                data-editing={editing === i || undefined}
                             >
                                 <span className="text-faint flex-none" aria-hidden="true">
                                     <OpIcon type={op.type} />
                                 </span>
-                                <span
-                                    className="text-fg/80 min-w-0 flex-1 text-xs leading-snug"
-                                    title={opSummary(op)}
-                                >
-                                    {opSummary(op)}
-                                </span>
+                                {editFormOf(op) === null ? (
+                                    <span
+                                        className="text-fg/80 min-w-0 flex-1 text-xs leading-snug"
+                                        title={opSummary(op)}
+                                    >
+                                        {opSummary(op)}
+                                    </span>
+                                ) : (
+                                    <button
+                                        className="text-fg/80 hover:text-fg-strong min-w-0 flex-1 text-left text-xs leading-snug"
+                                        title="Change this cut"
+                                        aria-label={`Change this cut: ${opSummary(op)}`}
+                                        onClick={() =>
+                                            editing === i
+                                                ? (setEditing(null), setOpenForm(null))
+                                                : startEdit(i)
+                                        }
+                                        data-testid={`ops-edit-${i}`}
+                                    >
+                                        {opSummary(op)}
+                                    </button>
+                                )}
                                 <button
                                     className="text-muted hover:bg-danger/15 hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs"
                                     data-testid={`ops-delete-${i}`}
@@ -876,7 +993,7 @@ export function PartInspector(p: PartInspectorProps) {
                                 >
                                     {openForm === null
                                         ? '+ Add a cut'
-                                        : `Adding: ${OP_BUTTONS.find((b) => b.form === openForm)?.label}`}
+                                        : `${editing === null ? 'Adding' : 'Changing'}: ${OP_BUTTONS.find((b) => b.form === openForm)?.label}`}
                                 </button>
                             )}
                         >
@@ -928,6 +1045,7 @@ export function PartInspector(p: PartInspectorProps) {
                         </Hint>
                         <div className="grid grid-cols-2 gap-2">
                             <PrimaryButton
+                                className={editing === null ? undefined : 'col-span-2'}
                                 data-testid="pocket-submit"
                                 onClick={() => {
                                     setFormError(null);
@@ -936,9 +1054,10 @@ export function PartInspector(p: PartInspectorProps) {
                                         add({ type: 'pocketHoles', edge: pocket.edge as Edge, count });
                                 }}
                             >
-                                Add pocket holes
+                                {editing === null ? 'Add pocket holes' : 'Save changes'}
                             </PrimaryButton>
                             <SecondaryButton
+                                hidden={editing !== null}
                                 disabled={!p.canPlace}
                                 title={
                                     p.canPlace ? 'Point at the part near an edge to place them' : placeTitle
@@ -981,7 +1100,7 @@ export function PartInspector(p: PartInspectorProps) {
                             backrest meets the seat flush.
                         </Hint>
                         <PrimaryButton className="w-full" data-testid="miter-submit" onClick={submitMiter}>
-                            Add miter
+                            {editing === null ? 'Add miter' : 'Save changes'}
                         </PrimaryButton>
                     </FormBox>
                 )}
@@ -1039,7 +1158,7 @@ export function PartInspector(p: PartInspectorProps) {
                                 : 'Softens the sharp corner where this edge meets the face. The blank stays the same size: rout after cutting.'}
                         </Hint>
                         <PrimaryButton className="w-full" data-testid="ease-submit" onClick={submitEase}>
-                            Add soft edge
+                            {editing === null ? 'Add soft edge' : 'Save changes'}
                         </PrimaryButton>
                     </FormBox>
                 )}
@@ -1116,7 +1235,7 @@ export function PartInspector(p: PartInspectorProps) {
                         </div>
                         <Hint>From/To run along the edge from its low end; From 0 notches the corner.</Hint>
                         <PrimaryButton className="w-full" data-testid="notch-submit" onClick={submitNotch}>
-                            Add notch
+                            {editing === null ? 'Add notch' : 'Save changes'}
                         </PrimaryButton>
                     </FormBox>
                 )}
@@ -1223,7 +1342,7 @@ export function PartInspector(p: PartInspectorProps) {
                             />
                         </Field>
                         <PrimaryButton className="w-full" data-testid="curve-submit" onClick={submitCurve}>
-                            Add curve
+                            {editing === null ? 'Add curve' : 'Save changes'}
                         </PrimaryButton>
                     </FormBox>
                 )}
@@ -1275,10 +1394,15 @@ export function PartInspector(p: PartInspectorProps) {
                         </Checkbox>
                         {stopped && <RunFields value={dadoRun} onChange={setDadoRun} testPrefix="dado" />}
                         <div className="grid grid-cols-2 gap-2">
-                            <PrimaryButton data-testid="dado-submit" onClick={submitDado}>
-                                Add dado
+                            <PrimaryButton
+                                className={editing === null ? undefined : 'col-span-2'}
+                                data-testid="dado-submit"
+                                onClick={submitDado}
+                            >
+                                {editing === null ? 'Add dado' : 'Save changes'}
                             </PrimaryButton>
                             <SecondaryButton
+                                hidden={editing !== null}
                                 disabled={!p.canPlace}
                                 title={placeTitle}
                                 data-testid="dado-place"
@@ -1343,10 +1467,15 @@ export function PartInspector(p: PartInspectorProps) {
                             </Field>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <PrimaryButton data-testid="hole-submit" onClick={submitHole}>
-                                Add hole
+                            <PrimaryButton
+                                className={editing === null ? undefined : 'col-span-2'}
+                                data-testid="hole-submit"
+                                onClick={submitHole}
+                            >
+                                {editing === null ? 'Add hole' : 'Save changes'}
                             </PrimaryButton>
                             <SecondaryButton
+                                hidden={editing !== null}
                                 disabled={!p.canPlace}
                                 title={placeTitle}
                                 data-testid="hole-place"

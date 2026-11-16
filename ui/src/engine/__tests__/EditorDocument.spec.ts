@@ -15,6 +15,7 @@ import {
     UngroupParts,
     makePart,
     uniquePartId,
+    ReplaceOp,
 } from '@/engine/commands';
 import { parseSpec } from '@/spec';
 import recordStand from '@fixtures/specs/record-stand.spec.json';
@@ -360,5 +361,22 @@ describe('executeReplacingTop — a burst of nudges is one undo step', () => {
         // The first move is still the top of the stack, and still undoable.
         d.undo();
         expect(d.canUndo).toBe(false);
+    });
+
+    it('ReplaceOp changes a cut in place, keeps its joint, and undoes', () => {
+        const d = doc();
+        const before = d.spec.parts.find((p) => p.id === 'p_side_l')!.ops![0];
+        const joints = d.spec.joints;
+        expect(before.type).toBe('dado');
+        const wider = { ...before, width: (before as { width: number }).width + 0.0625 } as typeof before;
+
+        d.execute(new ReplaceOp('p_side_l', 0, wider));
+        const side = d.spec.parts.find((p) => p.id === 'p_side_l')!;
+        expect(side.ops).toHaveLength(1);
+        expect(side.ops![0]).toEqual(wider);
+        expect(d.spec.joints).toEqual(joints); // the dado joint still points at op 0
+
+        d.undo();
+        expect(d.spec.parts.find((p) => p.id === 'p_side_l')!.ops![0]).toEqual(before);
     });
 });

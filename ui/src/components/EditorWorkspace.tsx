@@ -42,6 +42,7 @@ import {
     PART_PRESETS,
     RecenterAssembly,
     RemoveOp,
+    ReplaceOp,
     RemovePart,
     RemoveParts,
     RenameGroup,
@@ -680,6 +681,19 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             else if (op.type === 'screws') recordJoints(detectScrewJoints(doc.spec));
         }
 
+        function executeReplaceOp(partId: string, index: number, op: Op): void {
+            setOpError(null);
+            try {
+                doc.execute(new ReplaceOp(partId, index, op));
+            } catch {
+                setOpError("That cut doesn't fit the part. Check the values and try again.");
+                return;
+            }
+            // A moved dado may now seat a different part.
+            if (op.type === 'dado' || op.type === 'groove') recordJoints(detectDadoJoints(doc.spec));
+            else if (op.type === 'pocketHoles') recordJoints(detectPocketScrewJoints(doc.spec));
+        }
+
         function tryExecute(run: () => void): void {
             setOpError(null);
             try {
@@ -1200,6 +1214,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         onRemove={remove}
                         onRename={(name) => doc.execute(new RenamePart(selected.id, name))}
                         onAddOp={(op) => executeAddOp(selected.id, op)}
+                        onReplaceOp={(i, op) => executeReplaceOp(selected.id, i, op)}
                         onRemoveOp={(i) => {
                             setOpError(null);
                             doc.execute(new RemoveOp(selected.id, i));

@@ -426,6 +426,30 @@ test('? lists the shortcuts, and the tool keys work', async ({ page }) => {
     await expect(page.getByTestId('mode-view')).toHaveAttribute('aria-checked', 'true');
 });
 
+test('a cut is changed in place from its own form, and undo puts it back', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('outline').getByRole('button', { name: 'Left Side', exact: true }).click();
+    const cuts = page.getByTestId('section-cuts');
+    const row = cuts.getByTestId('ops-row');
+    await expect(row).toHaveCount(1);
+    const before = await row.innerText();
+
+    await page.getByTestId('ops-edit-0').click();
+    await expect(row).toHaveAttribute('data-editing', 'true');
+    await expect(page.getByTestId('ops-add-menu')).toHaveText('Changing: Dado or groove');
+    await expect(page.getByTestId('dado-place')).toBeHidden();
+    await page.getByTestId('dado-width').fill('1/2');
+    await page.getByTestId('dado-submit').click();
+
+    await expect(row).toHaveCount(1);
+    await expect(row).toContainText('1/2" wide');
+    await expect(row).not.toHaveAttribute('data-editing', 'true');
+    await expect(page.getByTestId('ops-add-menu')).toHaveText('+ Add a cut');
+
+    await page.getByTestId('undo').click();
+    await expect(row).toHaveText(before);
+});
+
 test('the inspector adds a cut from one menu, says it in plain words, and remembers folded sections', async ({
     page,
 }) => {

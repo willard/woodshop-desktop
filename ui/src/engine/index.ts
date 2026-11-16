@@ -83,6 +83,7 @@ export {
     AddDowelJoint,
     AddScrewJoint,
     RemoveOp,
+    ReplaceOp,
     SetMaterial,
     DeleteMaterial,
     SetPartSpecies,

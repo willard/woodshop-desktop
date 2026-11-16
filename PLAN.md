@@ -469,8 +469,10 @@ from the bottom edge"); one "+ Add a cut" menu with a line per kind replaces the
 rotations are Tip / Turn / Roll with a tooltip each (part and group inspectors); edge pickers say
 "Top edge", "Left end" with no l0/w1 codes; the door/drawer prompt reads "Turn this part into a
 door or a drawer. Use Open in the toolbar to see it move."; Position, Orientation, Door or drawer,
-Hardware and Cuts fold away and stay folded (`InspectorSection`). Not done: editing a cut in
-place (today: delete it and add it again).
+Hardware and Cuts fold away and stay folded (`InspectorSection`). A cut is changed in place:
+click it and its own form opens filled in; Save changes swaps it at the same index (`ReplaceOp`),
+so joints that point at it still do. Screws through a face (from Fasten to) have no form and are
+removed and re-added.
 
 **5b.8 System-wide.** Done: text sizes floor at 12 px for labels and 13 px for body (no 10–11.5
 or 12.5 px left), with tool labels in the editor toolbar dropping to icons when the toolbar is

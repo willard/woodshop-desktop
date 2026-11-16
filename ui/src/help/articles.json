@@ -214,7 +214,7 @@
             },
             {
                 "type": "p",
-                "text": "Each cut is listed in plain words, such as \"2 screws, #8 × 1 1/2\", through the back face\". The × beside one removes it; to change a cut, remove it and add it again with the new sizes, and Undo puts it back if you change your mind."
+                "text": "Each cut is listed in plain words, such as \"2 screws, #8 × 1 1/2\", through the back face\". Click one to change it: its form opens with its sizes filled in, and Save changes puts the new ones in its place. The × beside one removes it. Screws through a face, which Fasten to adds, are removed and added again rather than changed."
             },
             {
                 "type": "h",

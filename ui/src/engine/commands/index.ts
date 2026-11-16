@@ -777,6 +777,40 @@ export class AddOp implements Command {
 }
 
 /**
+ * Swaps the op at `opIndex` for an edited one, in place. Its index is unchanged, so joints that
+ * point at it (`opRef`) still do. Marks the part locked, like AddOp.
+ */
+export class ReplaceOp implements Command {
+    readonly label = 'Change cut';
+    private before?: { op: Op; locked: boolean };
+
+    constructor(
+        private readonly partId: string,
+        private readonly opIndex: number,
+        private readonly op: Op,
+    ) {}
+
+    do(spec: Spec): Spec {
+        return mapPart(spec, this.partId, (part) => {
+            const ops = part.ops ?? [];
+            if (this.opIndex < 0 || this.opIndex >= ops.length) return part;
+            this.before = { op: ops[this.opIndex], locked: part.locked };
+            return { ...part, ops: ops.map((o, i) => (i === this.opIndex ? this.op : o)), locked: true };
+        });
+    }
+
+    undo(spec: Spec): Spec {
+        const before = this.before;
+        if (before === undefined) return spec;
+        return mapPart(spec, this.partId, (part) => ({
+            ...part,
+            ops: (part.ops ?? []).map((o, i) => (i === this.opIndex ? before.op : o)),
+            locked: before.locked,
+        }));
+    }
+}
+
+/**
  * Applies a dowel plan atomically (one undo step): appends the planned `dowel` holes to the
  * face part (marking it locked, like AddOp) and records the `dowel` joint pointing at the
  * first added hole. Host = the hole owner, matching the opRef convention (§3.2 / D39).
