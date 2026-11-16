@@ -71,3 +71,53 @@ describe('mergeJoints', () => {
         expect(mergeJoints(existing, detected)).toHaveLength(2);
     });
 });
+
+describe('rabbet joints', () => {
+    /** A 3/4" panel lying flat (front face up) with a 1/4" back panel standing in a rabbet on its l1 edge. */
+    function rabbeted(backThickness: number): Spec {
+        const base = parseSpec(recordStand) as Spec;
+        return parseSpec({
+            specVersion: base.specVersion,
+            units: 'in',
+            name: 'Rabbet',
+            materials: [
+                { id: 'ply', name: 'Ply', type: 'sheet', thickness: 0.75, sheetSize: { l: 96, w: 48 } },
+                {
+                    id: 'back',
+                    name: 'Back',
+                    type: 'sheet',
+                    thickness: backThickness,
+                    sheetSize: { l: 96, w: 48 },
+                },
+            ],
+            parts: [
+                {
+                    id: 'p_host',
+                    name: 'Host',
+                    materialId: 'ply',
+                    size: { l: 20, w: 12 },
+                    transform: { pos: [0, 0, 0], rot: [0, 0, 0] },
+                    ops: [{ type: 'rabbet', edge: 'l1', width: 0.25, depth: 0.375 }],
+                },
+                {
+                    id: 'p_back',
+                    name: 'Back',
+                    materialId: 'back',
+                    size: { l: 20, w: 10 },
+                    transform: { pos: [0, 5.875, 5], rot: [90, 0, 0] },
+                },
+            ],
+            joints: [],
+        }) as Spec;
+    }
+
+    it('seats a panel as thick as the rabbet is wide', () => {
+        expect(detectDadoJoints(rabbeted(0.25))).toEqual([
+            { type: 'rabbet', hostPartId: 'p_host', insertPartId: 'p_back', opRef: 0 },
+        ]);
+    });
+
+    it('does not seat a panel of another thickness', () => {
+        expect(detectDadoJoints(rabbeted(0.5))).toEqual([]);
+    });
+});

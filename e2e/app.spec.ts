@@ -450,6 +450,27 @@ test('a cut is changed in place from its own form, and undo puts it back', async
     await expect(row).toHaveText(before);
 });
 
+test('a rabbet is added from the cut menu and changed in place', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('outline').getByRole('button', { name: 'Top', exact: true }).click();
+    const rows = page.getByTestId('section-cuts').getByTestId('ops-row');
+    const before = await rows.count();
+
+    await page.getByTestId('ops-add-menu').click();
+    await page.getByTestId('ops-add-rabbet').click();
+    await page.getByTestId('rabbet-width').fill('1/4');
+    await page.getByTestId('rabbet-depth').fill('3/8');
+    await page.getByTestId('rabbet-submit').click();
+    await expect(rows).toHaveCount(before + 1);
+    await expect(rows.last()).toContainText('Rabbet 1/4" wide × 3/8" deep along the top edge');
+
+    await page.getByTestId(`ops-edit-${before}`).click();
+    await expect(page.getByTestId('rabbet-depth')).toHaveValue('3/8');
+    await page.getByTestId('rabbet-depth').fill('1/4');
+    await page.getByTestId('rabbet-submit').click();
+    await expect(rows.last()).toContainText('Rabbet 1/4" wide × 1/4" deep');
+});
+
 test('the inspector adds a cut from one menu, says it in plain words, and remembers folded sections', async ({
     page,
 }) => {

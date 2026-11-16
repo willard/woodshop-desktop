@@ -676,7 +676,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 return;
             }
             // A manually cut joint may already be seated in a mate: record it as drag-seating does.
-            if (op.type === 'dado' || op.type === 'groove') recordJoints(detectDadoJoints(doc.spec));
+            if (op.type === 'dado' || op.type === 'groove' || op.type === 'rabbet')
+                recordJoints(detectDadoJoints(doc.spec));
             else if (op.type === 'pocketHoles') recordJoints(detectPocketScrewJoints(doc.spec));
             else if (op.type === 'screws') recordJoints(detectScrewJoints(doc.spec));
         }
@@ -690,7 +691,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 return;
             }
             // A moved dado may now seat a different part.
-            if (op.type === 'dado' || op.type === 'groove') recordJoints(detectDadoJoints(doc.spec));
+            if (op.type === 'dado' || op.type === 'groove' || op.type === 'rabbet')
+                recordJoints(detectDadoJoints(doc.spec));
             else if (op.type === 'pocketHoles') recordJoints(detectPocketScrewJoints(doc.spec));
         }
 

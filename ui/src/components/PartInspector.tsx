@@ -128,9 +128,10 @@ function endsOf(edge: string): { value: Edge; label: string }[] {
           ];
 }
 
-type OpForm = 'dado' | 'hole' | 'curve' | 'notch' | 'pocket' | 'miter' | 'ease';
+type OpForm = 'dado' | 'rabbet' | 'hole' | 'curve' | 'notch' | 'pocket' | 'miter' | 'ease';
 const OP_BUTTONS: { form: OpForm; label: string; does: string; icon: string }[] = [
     { form: 'dado', label: 'Dado or groove', does: 'A channel another part sits in', icon: 'dado' },
+    { form: 'rabbet', label: 'Rabbet', does: 'A step along an edge, for a back or a lid', icon: 'rabbet' },
     { form: 'hole', label: 'Hole', does: 'Dowel, shelf-pin or through hole', icon: 'hole' },
     { form: 'pocket', label: 'Pocket screws', does: 'Angled screws through an edge', icon: 'pocketHoles' },
     { form: 'curve', label: 'Curve', does: 'An arched edge or rounded corners', icon: 'curve' },
@@ -171,6 +172,8 @@ function editFormOf(op: Op): OpForm | null {
     switch (op.type) {
         case 'dado':
             return 'dado';
+        case 'rabbet':
+            return 'rabbet';
         case 'hole':
             return 'hole';
         case 'curve':
@@ -324,6 +327,7 @@ export function PartInspector(p: PartInspectorProps) {
     const [clearance, setClearance] = useState(lenValue(0.0625));
     const [pocket, setPocket] = useState({ edge: 'w1', count: '2' });
     const [miter, setMiter] = useState({ edge: 'w1', angle: '15' });
+    const [rabbet, setRabbet] = useState({ edge: 'l1', width: lenValue(0.25), depth: '' });
     const [ease, setEase] = useState({
         edge: 'l1',
         profile: 'roundover',
@@ -352,6 +356,9 @@ export function PartInspector(p: PartInspectorProps) {
         setOpenForm(next);
         if (next === 'dado' && dado.depth === '' && p.thickness !== null) {
             setDado((d) => ({ ...d, depth: lenValue(p.thickness! / 2) }));
+        }
+        if (next === 'rabbet' && rabbet.depth === '' && p.thickness !== null) {
+            setRabbet((r) => ({ ...r, depth: lenValue(p.thickness! / 2) }));
         }
     }
 
@@ -426,6 +433,9 @@ export function PartInspector(p: PartInspectorProps) {
                 break;
             case 'miter':
                 setMiter({ edge: op.edge, angle: String(op.angle) });
+                break;
+            case 'rabbet':
+                setRabbet({ edge: op.edge, width: v(op.width), depth: v(op.depth) });
                 break;
             case 'ease':
                 setEase({
@@ -568,6 +578,18 @@ export function PartInspector(p: PartInspectorProps) {
             return null;
         }
         return count;
+    }
+
+    function submitRabbet(): void {
+        setFormError(null);
+        const width = dim('Width', rabbet.width);
+        const depth = dim('Depth', rabbet.depth);
+        if (width === null || depth === null) return;
+        if (p.thickness !== null && depth >= p.thickness) {
+            setFormError(`Depth must be less than the ${len(p.thickness)} stock`);
+            return;
+        }
+        add({ type: 'rabbet', edge: rabbet.edge as Edge, width, depth });
     }
 
     function submitMiter(): void {
@@ -1075,6 +1097,40 @@ export function PartInspector(p: PartInspectorProps) {
                                 Place in 3D
                             </SecondaryButton>
                         </div>
+                    </FormBox>
+                )}
+
+                {openForm === 'rabbet' && (
+                    <FormBox testId="rabbet-form">
+                        <div className="mb-2 grid grid-cols-3 gap-2">
+                            <EdgeField
+                                value={rabbet.edge}
+                                testId="rabbet-edge"
+                                onChange={(edge) => setRabbet({ ...rabbet, edge })}
+                            />
+                            <Field label={`Width (${unitSuffix()})`}>
+                                <TextInput
+                                    value={rabbet.width}
+                                    data-testid="rabbet-width"
+                                    onChange={(e) => setRabbet({ ...rabbet, width: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Depth (${unitSuffix()})`}>
+                                <TextInput
+                                    value={rabbet.depth}
+                                    data-testid="rabbet-depth"
+                                    onChange={(e) => setRabbet({ ...rabbet, depth: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <Hint>
+                            A step cut from the front face along this edge: Width is how far in from the edge
+                            (the thickness of the panel that sits in it), Depth how far down. Set a back panel
+                            into it and the joint is recorded.
+                        </Hint>
+                        <PrimaryButton className="w-full" data-testid="rabbet-submit" onClick={submitRabbet}>
+                            {editing === null ? 'Add rabbet' : 'Save changes'}
+                        </PrimaryButton>
                     </FormBox>
                 )}
 

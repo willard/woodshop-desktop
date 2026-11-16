@@ -181,7 +181,7 @@
         "slug": "cuts-and-fasteners",
         "title": "Cuts, joinery & fasteners",
         "icon": "🔨",
-        "summary": "Dados, holes, pocket screws, curves, notches, miters and soft edges, and how parts are held together.",
+        "summary": "Dados, rabbets, holes, pocket screws, curves, notches, miters and soft edges, and how parts are held together.",
         "blocks": [
             {
                 "type": "p",
@@ -204,6 +204,7 @@
                 "type": "ul",
                 "items": [
                     "**Dado or groove**: a channel another part sits in.",
+                    "**Rabbet**: a step along an edge, for a back panel or a lid to sit in. Set the panel into it and the joint is recorded.",
                     "**Hole**: for a dowel, a shelf pin, or right through.",
                     "**Pocket screws**: angled screws through an edge into the next part.",
                     "**Curve**: an arched edge or rounded corners.",

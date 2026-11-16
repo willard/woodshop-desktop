@@ -73,6 +73,21 @@ function channelAABB(host: Part, thickness: number, op: DadoOp): AABB {
 }
 
 /**
+ * The step a rabbet removes: from the front face, along `edge`, `width` in from it and `depth`
+ * down. Edges per §3.1: l0 = y −w/2, l1 = y +w/2, w0 = x −l/2, w1 = x +l/2.
+ */
+function rabbetAABB(host: Part, thickness: number, op: Extract<Op, { type: 'rabbet' }>): AABB {
+    const { l, w } = host.size;
+    const t = thickness;
+    let [x0, x1, y0, y1] = [-l / 2, l / 2, -w / 2, w / 2];
+    if (op.edge === 'l0') y1 = -w / 2 + op.width;
+    else if (op.edge === 'l1') y0 = w / 2 - op.width;
+    else if (op.edge === 'w0') x1 = -l / 2 + op.width;
+    else x0 = l / 2 - op.width;
+    return toWorld(host, x0, x1, y0, y1, t / 2 - op.depth, t / 2);
+}
+
+/**
  * Every dado/groove joint currently seated in the spec. A mate seats in a host's channel when
  * its thickness matches the dado width and it sits thin-edge-in across the channel width.
  */
@@ -83,6 +98,24 @@ export function detectDadoJoints(spec: Spec): Joint[] {
     const joints: Joint[] = [];
     for (const host of spec.parts) {
         (host.ops ?? []).forEach((op, opRef) => {
+            if (op.type === 'rabbet') {
+                // A panel let into a rabbet: as thick as the step is wide, lying in it.
+                const step = rabbetAABB(host, thickness(host), op);
+                const widthAxis = extents(step)
+                    .map((e, i) => [Math.abs(e - op.width), i] as const)
+                    .sort((a, b) => a[0] - b[0])[0][1];
+                for (const insert of spec.parts) {
+                    if (insert.id === host.id || Math.abs(thickness(insert) - op.width) > WIDTH_TOL) continue;
+                    const insertBox = aabbFromPart(insert, thickness(insert));
+                    if (
+                        intersects(step, insertBox) &&
+                        Math.abs(extents(insertBox)[widthAxis] - op.width) <= WIDTH_TOL
+                    ) {
+                        joints.push({ type: 'rabbet', hostPartId: host.id, insertPartId: insert.id, opRef });
+                    }
+                }
+                return;
+            }
             if (op.type !== 'dado' && op.type !== 'groove') {
                 return;
             }
