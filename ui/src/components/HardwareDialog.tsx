@@ -154,7 +154,7 @@ export function HardwareDialog(props: {
                     ))}
                     {shown.length === 0 && (
                         <li className="text-muted px-3 py-6 text-center text-sm">
-                            Nothing matches “{query}”.
+                            Nothing matches “{query}”. Try one word, such as “hinge”, “pull” or “caster”.
                         </li>
                     )}
                 </ul>

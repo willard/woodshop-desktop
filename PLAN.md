@@ -380,7 +380,13 @@ gating is built: there is nothing to unlock.
   note on the desk that the existing desk shares.
 - **Help:** articles for every major feature (there are 6 today), with screenshots. Include
   "Using Woodshop with an AI agent".
-- **Empty states and error messages:** read every one; each should say what to do next.
+- **Empty states and error messages:** done. Every failure toast says what failed and why, in
+  plain words (`failure()` in `ui/src/app/api.ts`): "Couldn't export the PDF plan. Woodshop isn't
+  allowed to use that location. Pick a folder of your own, such as Documents." Common system
+  errors (permission, missing file, full disk, read-only, busy library) get a next step; an
+  unexpected one points at Report a problem. A project that can't be found says so and links to
+  the trash. Deleting the last part used to throw silently; it now explains that a design keeps
+  at least one part. Search empty states suggest what to try.
 - **Accessibility:** keyboard access to every action, visible focus, sufficient contrast in both
   themes, labels on icon buttons.
 - **Website:** a landing page, a download page (latest release per platform), the docs, and a

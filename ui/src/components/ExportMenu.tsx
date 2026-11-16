@@ -7,7 +7,7 @@ import type { Spec } from '@/spec';
 import type { CutList } from '@/cutlist/types';
 import { cutListCsv } from '@/cutlist/csv';
 import { computeCutList } from '@/cutlist';
-import { api, errorMessage } from '@/app/api';
+import { api, failure } from '@/app/api';
 import { chooseSavePath, fileStem } from '@/app/files';
 import { wasm } from '@/domain';
 import { getUnits } from '@/lib/display';
@@ -42,7 +42,7 @@ export function useProjectExports(target: ExportTarget) {
             await write(path);
             toast.success(done);
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure(`save the ${filterName.replace(/^[A-Z][a-z]/, (c) => c.toLowerCase())}`, e));
         }
     }
 

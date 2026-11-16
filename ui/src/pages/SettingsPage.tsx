@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { openUrl, revealItemInDir } from '@tauri-apps/plugin-opener';
 import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
-import { api, errorMessage } from '@/app/api';
+import { api, failure } from '@/app/api';
 import { formatFraction } from '@/lib/fraction';
 import { len, setUnits, UNITS_OPTIONS, useUnits, type Units } from '@/lib/display';
 import { readPreference, setPreference, type ThemePreference } from '@/lib/theme';
@@ -102,7 +102,7 @@ export default function SettingsPage() {
             await api.setSetting('units', value);
             await queryClient.invalidateQueries({ queryKey: ['settings'] });
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure('save the units setting', e));
         }
     }
 
@@ -111,7 +111,7 @@ export default function SettingsPage() {
             await api.setSetting('defaultKerf', value);
             await queryClient.invalidateQueries({ queryKey: ['settings'] });
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure('save the kerf setting', e));
         }
     }
 
@@ -129,7 +129,7 @@ export default function SettingsPage() {
             setUpdateStatus('Update installed — restarting.');
             await relaunch();
         } catch (e) {
-            setUpdateStatus(`Couldn't check for updates: ${errorMessage(e)}`);
+            setUpdateStatus(failure('check for updates', e));
         } finally {
             setChecking(false);
         }
@@ -227,7 +227,7 @@ export default function SettingsPage() {
                                     className="border-fg/12 hover:bg-surface-2 flex-none rounded-lg border px-3 py-2 text-sm"
                                     onClick={() =>
                                         void revealItemInDir(`${info.data.dataDir}/woodshop.db`).catch((e) =>
-                                            toast.error(errorMessage(e)),
+                                            toast.error(failure('show the library folder', e)),
                                         )
                                     }
                                 >
@@ -266,7 +266,11 @@ export default function SettingsPage() {
                                 </p>
                             </>
                         ) : (
-                            mcp.isError && <p className="text-danger-fg text-sm">{errorMessage(mcp.error)}</p>
+                            mcp.isError && (
+                                <p className="text-danger-fg text-sm">
+                                    {failure('load the agent setup', mcp.error)}
+                                </p>
+                            )
                         )}
                     </Section>
 
@@ -302,7 +306,7 @@ export default function SettingsPage() {
                                     data-testid="show-logs"
                                     onClick={() =>
                                         void revealItemInDir(info.data.logDir!).catch((e) =>
-                                            toast.error(errorMessage(e)),
+                                            toast.error(failure('show the logs folder', e)),
                                         )
                                     }
                                 >
@@ -318,7 +322,7 @@ export default function SettingsPage() {
                                 if (info.data?.logDir)
                                     void revealItemInDir(info.data.logDir).catch(() => undefined);
                                 void openUrl(problemReportUrl(info.data?.version ?? 'unknown')).catch((e) =>
-                                    toast.error(errorMessage(e)),
+                                    toast.error(failure('open the problem report page', e)),
                                 );
                             }}
                         >

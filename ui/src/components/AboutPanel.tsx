@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { REPO_URL } from '@/app/diagnostics';
-import { errorMessage } from '@/app/api';
+import { failure } from '@/app/api';
 import { Modal } from './Modal';
 import { useToast } from './Toast';
 
@@ -67,7 +67,8 @@ function NoticesDialog({ onClose }: { onClose: () => void }) {
 export function AboutPanel({ version }: { version?: string }) {
     const toast = useToast();
     const [notices, setNotices] = useState(false);
-    const open = (url: string) => () => void openUrl(url).catch((e) => toast.error(errorMessage(e)));
+    const open = (url: string) => () =>
+        void openUrl(url).catch((e) => toast.error(failure('open the link', e)));
     const button = 'border-fg/12 hover:bg-surface-2 rounded-lg border px-3 py-2 text-sm';
 
     return (

@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage, type BackupInfo } from '@/app/api';
+import { api, failure, type BackupInfo } from '@/app/api';
 import { Modal } from './Modal';
 import { useToast } from './Toast';
 
@@ -37,7 +37,7 @@ export function BackupsPanel() {
             await queryClient.invalidateQueries({ queryKey: ['backups'] });
             toast.success('Library backed up.');
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure('back up the library', e));
         } finally {
             setBusy(false);
         }
@@ -102,7 +102,7 @@ function BackupContents({ backup, onClose }: { backup: BackupInfo; onClose(): vo
             onClose();
             void navigate({ to: '/projects/$id', params: { id: String(project.id) } });
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure('restore the project', e));
         } finally {
             setRestoring(null);
         }
@@ -139,7 +139,9 @@ function BackupContents({ backup, onClose }: { backup: BackupInfo; onClose(): vo
                 ))}
                 {projects.isPending && <li className="text-muted px-3 py-3 text-sm">Opening the backup…</li>}
                 {projects.isError && (
-                    <li className="text-danger-fg px-3 py-3 text-sm">{errorMessage(projects.error)}</li>
+                    <li className="text-danger-fg px-3 py-3 text-sm">
+                        {failure('open the backup', projects.error)}
+                    </li>
                 )}
             </ul>
             <div className="mt-3 flex justify-end">

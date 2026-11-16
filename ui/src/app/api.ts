@@ -28,6 +28,47 @@ export function errorMessage(e: unknown): string {
     return e instanceof Error ? e.message : String(e);
 }
 
+/** System errors people actually meet, in words that say what to do about them. */
+const PLAIN_REASONS: [RegExp, string][] = [
+    [
+        /os error 13\b|permission denied|not permitted/i,
+        "Woodshop isn't allowed to use that location. Pick a folder of your own, such as Documents.",
+    ],
+    [
+        /os error 2\b|no such file|cannot find the (file|path)/i,
+        "The file isn't there any more. It may have been moved or renamed.",
+    ],
+    [/os error (28|112)\b|no space left|disk is full/i, 'The disk is full. Free some space and try again.'],
+    [/os error 30\b|read-only file system/i, 'That location is read-only. Pick another folder.'],
+    [/database is locked|database is busy/i, 'The library is busy with another task. Try again in a moment.'],
+];
+
+/**
+ * What a person reads when something fails: "Couldn't <action>." and then why, in plain words,
+ * with a next step. A raw system message is only shown when nothing better is known, and an
+ * unexpected failure points at the problem report.
+ */
+export function failure(action: string, e: unknown): string {
+    const raw = errorMessage(e).trim();
+    const known = PLAIN_REASONS.find(([pattern]) => pattern.test(raw));
+    let reason: string;
+    if (known) {
+        reason = known[1];
+    } else if (isCommandError(e) && e.kind === 'internal') {
+        reason = `${sentence(raw)} If this keeps happening, use Report a problem in Settings, Diagnostics.`;
+    } else if (raw === '') {
+        reason = 'Try again.';
+    } else {
+        reason = sentence(raw);
+    }
+    return `Couldn't ${action}. ${reason}`;
+}
+
+function sentence(text: string): string {
+    const first = text.charAt(0).toUpperCase() + text.slice(1);
+    return /[.!?]$/.test(first) ? first : `${first}.`;
+}
+
 export interface LibraryInfo {
     dataDir: string;
     thumbnailsDir: string;

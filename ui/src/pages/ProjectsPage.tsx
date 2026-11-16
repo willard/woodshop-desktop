@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ask } from '@tauri-apps/plugin-dialog';
-import { api, errorMessage, thumbnailUrl, type ProjectSummary } from '@/app/api';
+import { api, failure, thumbnailUrl, type ProjectSummary } from '@/app/api';
 import { importProjectFromDialog, chooseSavePath, fileStem, WOODSHOP_FILTER } from '@/app/files';
 import { plural, timeAgo } from '@/app/format';
 import { useToast } from '@/components/Toast';
@@ -31,7 +31,7 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
             refresh();
             navigate({ to: '/projects/$id', params: { id: String(project.id) } });
         },
-        onError: (e) => toast.error(errorMessage(e)),
+        onError: (e) => toast.error(failure('create the project', e)),
     });
 
     async function importFile(): Promise<void> {
@@ -41,7 +41,7 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
             refresh();
             toast.success(`Imported “${project.name}”.`);
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure('import the file', e));
         }
     }
 
@@ -117,7 +117,9 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
                 </form>
             )}
 
-            {projects.isError && <p className="text-danger-fg text-sm">{errorMessage(projects.error)}</p>}
+            {projects.isError && (
+                <p className="text-danger-fg text-sm">{failure('load your projects', projects.error)}</p>
+            )}
 
             {many && (
                 <div className="mb-4 flex flex-wrap items-center gap-2" data-testid="project-tools">
@@ -142,7 +144,9 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
                     </select>
                     {needle !== '' && (
                         <span className="text-faint text-sm">
-                            {list.length === 0 ? 'No project matches.' : plural(list.length, 'project')}
+                            {list.length === 0
+                                ? 'No project matches. Try part of the name.'
+                                : plural(list.length, 'project')}
                         </span>
                     )}
                 </div>
@@ -198,19 +202,24 @@ function ProjectCard({
     const [draftName, setDraftName] = useState(project.name);
     const thumb = thumbnailUrl(project);
 
-    async function run(action: () => Promise<unknown>, done?: string): Promise<void> {
+    async function run(what: string, action: () => Promise<unknown>, done?: string): Promise<void> {
         try {
             await action();
             onChanged();
             if (done) toast.success(done);
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure(what, e));
         }
     }
 
     async function exportFile(): Promise<void> {
         const path = await chooseSavePath(`${fileStem(project.name)}.woodshop`, WOODSHOP_FILTER);
-        if (path !== null) await run(() => api.exportProjectFile(project.id, path), 'Project file saved.');
+        if (path !== null)
+            await run(
+                'save the project file',
+                () => api.exportProjectFile(project.id, path),
+                'Project file saved.',
+            );
     }
 
     async function deleteForever(): Promise<void> {
@@ -222,13 +231,13 @@ function ProjectCard({
                 okLabel: 'Delete forever',
             },
         );
-        if (ok) await run(() => api.deleteProjectForever(project.id));
+        if (ok) await run('delete the project', () => api.deleteProjectForever(project.id));
     }
 
     function commitRename(): void {
         setRenaming(false);
         if (draftName.trim() !== '' && draftName.trim() !== project.name) {
-            void run(() => api.renameProject(project.id, draftName.trim()));
+            void run('rename the project', () => api.renameProject(project.id, draftName.trim()));
         } else {
             setDraftName(project.name);
         }
@@ -267,7 +276,7 @@ function ProjectCard({
                     <div className="mt-auto flex gap-3 pt-2 text-sm">
                         <button
                             className="text-accent hover:text-accent-strong"
-                            onClick={() => run(() => api.restoreProject(project.id))}
+                            onClick={() => run('restore the project', () => api.restoreProject(project.id))}
                         >
                             Restore
                         </button>
@@ -372,7 +381,11 @@ function ProjectCard({
                                     className={item}
                                     onClick={() => {
                                         close();
-                                        void run(() => api.duplicateProject(project.id), 'Duplicated.');
+                                        void run(
+                                            'duplicate the project',
+                                            () => api.duplicateProject(project.id),
+                                            'Duplicated.',
+                                        );
                                     }}
                                 >
                                     Duplicate
@@ -392,6 +405,7 @@ function ProjectCard({
                                     onClick={() => {
                                         close();
                                         void run(
+                                            'move the project to the trash',
                                             () => api.trashProject(project.id),
                                             `Moved “${project.name}” to the trash.`,
                                         );
@@ -417,7 +431,7 @@ function Welcome() {
     const sample = useMutation({
         mutationFn: () => openSampleWithTour(queryClient),
         onSuccess: (project) => navigate({ to: '/projects/$id', params: { id: String(project.id) } }),
-        onError: (e) => toast.error(errorMessage(e)),
+        onError: (e) => toast.error(failure('open the sample project', e)),
     });
     return (
         <div

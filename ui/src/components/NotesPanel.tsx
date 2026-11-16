@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage, type Note } from '@/app/api';
+import { api, failure, type Note } from '@/app/api';
 import { timeAgo } from '@/app/format';
 
 export function NotesPanel({ projectId }: { projectId: number }) {
@@ -91,7 +91,7 @@ export function NotesPanel({ projectId }: { projectId: number }) {
                 </div>
                 {write.isError && (
                     <p className="text-danger-fg text-xs" data-testid="note-error">
-                        {errorMessage(write.error)}
+                        {failure('save the note', write.error)}
                     </p>
                 )}
             </div>

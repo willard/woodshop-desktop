@@ -124,6 +124,7 @@ import { SnapSettings } from './SnapSettings';
 import { ToolbarOverflow } from './ToolbarOverflow';
 import { PartsOutline } from './PartsOutline';
 import { ToolsOverlay } from './tools/ToolsOverlay';
+import { useToast } from './Toast';
 import { getUnits, len, useUnits } from '@/lib/display';
 
 export interface EditorWorkspaceHandle {
@@ -239,6 +240,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const [selectedHardware, setSelectedHardware] = useState<string | null>(null);
         const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
         const [opError, setOpError] = useState<string | null>(null);
+        const toast = useToast();
         const [placing, setPlacing] = useState<PlacementRequest | null>(null);
         const [placementPreview, setPlacementPreview] = useState<PlacementPreview | null>(null);
         const placingRef = useRef<PlacementRequest | null>(null);
@@ -616,6 +618,14 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const remove = (): void => {
             const d = docRef.current;
             const ids = d.selectedIds;
+            const going = new Set(d.selectedGroup?.partIds ?? ids);
+            if (going.size > 0 && d.spec.parts.every((p) => going.has(p.id))) {
+                // A design always has at least one part (the schema says so); say why nothing happened.
+                toast.info(
+                    'A design needs at least one part, so the last one stays. Add another part first, or change this one in the Inspector.',
+                );
+                return;
+            }
             if (d.selectedGroup !== null || ids.length > 1) {
                 d.execute(new RemoveParts([...ids]));
                 return;
@@ -1763,7 +1773,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                             className="bg-surface-1/85 border-fg/[0.08] text-muted rounded-lg border px-2.5 py-1.5 text-[13px] backdrop-blur"
                                             data-testid="parts-count"
                                         >
-                                            {spec.parts.length} parts
+                                            {spec.parts.length} part{spec.parts.length === 1 ? '' : 's'}
                                         </span>
                                     </div>
                                 </div>

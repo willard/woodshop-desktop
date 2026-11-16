@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getCurrentWindow } from '@tauri-apps/api/window';
-import { api, errorMessage, isCommandError, type Project } from '@/app/api';
+import { api, failure, isCommandError, type Project } from '@/app/api';
 import { chooseSavePath, fileStem, WOODSHOP_FILTER } from '@/app/files';
 import { EditorDocument } from '@/engine';
 import { extractParts } from '@/engine/extract';
@@ -30,10 +30,21 @@ export default function EditorPage() {
     if (project.isError) {
         return (
             <div className="flex h-full flex-col items-center justify-center gap-3">
-                <p className="text-danger-fg text-sm">{errorMessage(project.error)}</p>
-                <Link to="/" className="text-accent text-sm">
-                    ← Back to projects
-                </Link>
+                <p className="text-danger-fg max-w-md text-center text-sm" data-testid="project-load-error">
+                    {isCommandError(project.error) && project.error.kind === 'notFound'
+                        ? "This project isn't in your library any more. If you moved it to the trash, you can restore it from there."
+                        : failure('open this project', project.error)}
+                </p>
+                <div className="flex gap-4">
+                    <Link to="/" className="text-accent text-sm">
+                        ← Back to projects
+                    </Link>
+                    {isCommandError(project.error) && project.error.kind === 'notFound' && (
+                        <Link to="/trash" className="text-accent text-sm">
+                            Open the trash
+                        </Link>
+                    )}
+                </div>
             </div>
         );
     }
@@ -129,7 +140,7 @@ function Editor({ project }: { project: Project }) {
                 setSaveState('conflict');
             } else {
                 setSaveState('error');
-                toast.error(`Couldn't save: ${errorMessage(e)}`);
+                toast.error(failure('save your changes', e));
             }
             pending.current = false;
         }
@@ -246,7 +257,7 @@ function Editor({ project }: { project: Project }) {
             toast.success(`Created “${created.name}” from ${partIds.length} parts of “${name}”.`);
             void navigate({ to: '/projects/$id', params: { id: String(created.id) } });
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure('make a project from those parts', e));
         }
     }
 
@@ -258,7 +269,7 @@ function Editor({ project }: { project: Project }) {
             await api.exportProjectFile(project.id, path);
             toast.success('Project file saved.');
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure('save the project file', e));
         }
     }
 

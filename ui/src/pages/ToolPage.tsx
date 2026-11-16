@@ -25,7 +25,9 @@ export default function ToolPage() {
                     </Suspense>
                 </>
             ) : (
-                <p className="text-muted">No such calculator.</p>
+                <p className="text-muted">
+                    There's no calculator here. Pick one from Shop calculators above.
+                </p>
             )}
         </div>
     );

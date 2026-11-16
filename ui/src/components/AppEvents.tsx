@@ -5,7 +5,7 @@
 import { useEffect } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import { useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage } from '@/app/api';
+import { api, failure } from '@/app/api';
 import { importProjectFromDialog } from '@/app/files';
 import { router } from '@/app/router';
 import { useToast } from './Toast';
@@ -23,7 +23,7 @@ export function AppEvents() {
                     toast.success(`Imported “${project.name}”.`);
                     void router.navigate({ to: '/projects/$id', params: { id: String(project.id) } });
                 } catch (e) {
-                    toast.error(errorMessage(e));
+                    toast.error(failure('import the file', e));
                 }
             }
         }
@@ -36,7 +36,7 @@ export function AppEvents() {
                 toast.success(`Imported “${project.name}”.`);
                 void router.navigate({ to: '/projects/$id', params: { id: String(project.id) } });
             } catch (e) {
-                toast.error(errorMessage(e));
+                toast.error(failure('import the file', e));
             }
         }
 

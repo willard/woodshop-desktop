@@ -2,7 +2,7 @@
 import { useState, useSyncExternalStore } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage, type TemplateSummary } from '@/app/api';
+import { api, failure, type TemplateSummary } from '@/app/api';
 import { plural } from '@/app/format';
 import { dims, useUnits } from '@/lib/display';
 import { activeTheme, onThemeChange } from '@/lib/theme';
@@ -34,7 +34,7 @@ export function TemplatesPage() {
             await queryClient.invalidateQueries({ queryKey: ['projects'] });
             navigate({ to: '/projects/$id', params: { id: String(project.id) } });
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure('start a project from that template', e));
         } finally {
             setUsing(null);
         }

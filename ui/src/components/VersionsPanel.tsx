@@ -2,7 +2,7 @@
 import { X } from 'lucide-react';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, errorMessage } from '@/app/api';
+import { api, failure } from '@/app/api';
 import type { Spec } from '@/spec';
 import { useToast } from './Toast';
 
@@ -30,19 +30,19 @@ export function VersionsPanel(props: {
     const [label, setLabel] = useState('');
     const [busy, setBusy] = useState(false);
 
-    async function run(work: () => Promise<void>): Promise<void> {
+    async function run(action: string, work: () => Promise<void>): Promise<void> {
         setBusy(true);
         try {
             await work();
         } catch (e) {
-            toast.error(errorMessage(e));
+            toast.error(failure(action, e));
         } finally {
             setBusy(false);
         }
     }
 
     const save = () =>
-        run(async () => {
+        run('save the version', async () => {
             props.beforeSave();
             const res = await api.createVersion(props.projectId, props.getSpec(), label.trim() || null);
             props.onSaved(res.draftUpdatedAt);
@@ -51,7 +51,7 @@ export function VersionsPanel(props: {
         });
 
     const restore = (versionId: number) =>
-        run(async () => {
+        run('restore that version', async () => {
             const res = await api.restoreVersion(props.projectId, versionId);
             props.onRestored(res.spec, res.draftUpdatedAt);
             await queryClient.invalidateQueries({ queryKey: key });

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { HELP_ARTICLES } from '@/help';
-import { errorMessage } from '@/app/api';
+import { failure } from '@/app/api';
 import { openSampleWithTour } from '@/app/tour';
 import { useToast } from '@/components/Toast';
 
@@ -12,7 +12,7 @@ export default function HelpPage() {
     const tour = useMutation({
         mutationFn: () => openSampleWithTour(queryClient),
         onSuccess: (project) => navigate({ to: '/projects/$id', params: { id: String(project.id) } }),
-        onError: (e) => toast.error(errorMessage(e)),
+        onError: (e) => toast.error(failure('open the sample project', e)),
     });
     return (
         <>
