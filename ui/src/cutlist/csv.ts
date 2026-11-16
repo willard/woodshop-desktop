@@ -78,7 +78,9 @@ export function cutListCsv(cutList: CutList, units: Units = getUnits()): string 
     if (cutList.hardware.length > 0) {
         lines.push('', row(['Hardware', 'Qty']));
         for (const item of cutList.hardware) {
-            lines.push(row([item.description + (item.derived ? ' (estimated)' : ''), item.qty]));
+            // An estimate already says so in its description; don't say it twice.
+            const flagged = item.derived && !item.description.includes('estimated');
+            lines.push(row([item.description + (flagged ? ' (estimated)' : ''), item.qty]));
         }
     }
     // A byte-order mark so Excel reads the × and inch marks as UTF-8.

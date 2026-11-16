@@ -15,6 +15,7 @@ import {
 } from '@/cutlist';
 import { overallSize, type Material, type Spec } from '@/spec';
 import { dims, len, lenValue, parseLen, size as sizeOf, useUnits } from '@/lib/display';
+import { plural } from '@/app/format';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -87,6 +88,16 @@ export function CutListPanel(props: CutListPanelProps) {
     const advice = useMemo(() => stockAdvice(cutList, spec), [cutList, spec]);
     const overall = useMemo(() => overallSize(spec), [spec]);
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
+    const [fastenersOpen, setFastenersOpen] = useState(false);
+    const fasteners = cutList.hardware.filter((row) => FASTENER_KINDS.has(row.kind));
+    const fittings = cutList.hardware.filter((row) => !FASTENER_KINDS.has(row.kind));
+
+    /** "Add prices": take the reader to the first sheet price, ready to type. */
+    function focusFirstPrice(): void {
+        const input = document.querySelector<HTMLInputElement>('[data-testid="material-price"]');
+        input?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        input?.focus();
+    }
 
     const materialUse = useMemo(() => {
         const counts = new Map<string, number>();
@@ -136,10 +147,7 @@ export function CutListPanel(props: CutListPanelProps) {
             </div>
 
             <div className="mb-3.5 grid grid-cols-2 gap-2" data-testid="cutlist-totals">
-                <Stat label="Board feet" value={cutList.totals.boardFeet.toFixed(1)} />
-                <Stat label="Sheets" value={String(cutList.totals.sheetCount)} />
-                <Stat label="Est. cost" value={money(cutList.totals.estimatedCost)} />
-                <Stat label="Waste" value={pct(cutList.totals.wastePercent)} />
+                {/* Size first; cost and offcut last, next to the advice that explains the offcut. */}
                 {overall !== null && (
                     <div
                         className="bg-surface-2 col-span-2 rounded-lg px-3 py-2.5"
@@ -151,11 +159,33 @@ export function CutListPanel(props: CutListPanelProps) {
                         </div>
                     </div>
                 )}
+                <Stat label="Board feet" value={cutList.totals.boardFeet.toFixed(1)} />
+                <Stat label="Sheets" value={String(cutList.totals.sheetCount)} />
+                {cutList.totals.estimatedCost === null && !readonly ? (
+                    <button
+                        className="bg-surface-2 hover:bg-fg/[0.07] rounded-lg px-3 py-2.5 text-left"
+                        onClick={focusFirstPrice}
+                        data-testid="cutlist-add-prices"
+                    >
+                        <div className="text-muted text-[11.5px]">Est. cost</div>
+                        <div className="text-accent mt-0.5 text-[13px] font-semibold">
+                            Add prices to see cost
+                        </div>
+                    </button>
+                ) : (
+                    <Stat label="Est. cost" value={money(cutList.totals.estimatedCost)} />
+                )}
+                {/* A sheet much bigger than the job is offcut you keep, not waste: say so, and why. */}
+                <Stat
+                    label={advice.length > 0 ? 'Offcut' : 'Waste'}
+                    value={pct(cutList.totals.wastePercent)}
+                    tone={advice.length > 0 ? 'warn' : undefined}
+                />
             </div>
 
             {advice.length > 0 && (
                 <div
-                    className="border-info/30 bg-info/10 text-info-fg mb-4 rounded-lg border px-3 py-2 text-xs"
+                    className="border-warn/30 bg-warn/10 text-warn-fg -mt-1.5 mb-4 rounded-lg border px-3 py-2 text-xs"
                     data-testid="stock-advice"
                 >
                     {advice.map((a) => (
@@ -163,146 +193,6 @@ export function CutListPanel(props: CutListPanelProps) {
                     ))}
                 </div>
             )}
-
-            {cutList.hardware.length > 0 && (
-                <div className="mb-4" data-testid="cutlist-hardware">
-                    <SectionHeading>Hardware</SectionHeading>
-                    <div className="bg-surface-2 rounded-lg px-3 py-1">
-                        {cutList.hardware.map((row) => (
-                            <div
-                                key={row.description}
-                                className="border-fg/5 flex items-center justify-between gap-2 border-b py-2 last:border-0"
-                            >
-                                <span className="text-fg/70">{row.description}</span>
-                                <span className="shrink-0 font-semibold">×{row.qty}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            <div className="mb-4" data-testid="cutlist-settings">
-                <SectionHeading>Stock &amp; kerf</SectionHeading>
-                <label className="mb-2 flex items-center justify-between gap-2">
-                    <span className="text-muted">Saw kerf</span>
-                    {readonly ? (
-                        <span data-testid="kerf-value">{fmt(kerf)}</span>
-                    ) : (
-                        <select
-                            value={kerf}
-                            data-testid="kerf-select"
-                            className="bg-surface-2 border-fg/10 h-7 rounded-lg border px-1.5 text-xs"
-                            onChange={(e) => props.onKerfChange?.(Number(e.target.value))}
-                        >
-                            {KERF_OPTIONS.map((k) => (
-                                <option key={k} value={k}>
-                                    {fmt(k)}
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                </label>
-                {spec.materials.map((material) => {
-                    const uses = materialUse.get(material.id) ?? 0;
-                    const blocked = undeletable(material);
-                    return (
-                        <div
-                            key={material.id}
-                            className="bg-surface-2 mb-2 rounded-lg p-3"
-                            data-testid="material-row"
-                        >
-                            <div className="mb-2 flex items-center gap-2">
-                                {readonly ? (
-                                    <span className="min-w-0 flex-1 truncate text-xs font-medium">
-                                        {material.name}
-                                    </span>
-                                ) : (
-                                    <>
-                                        <input
-                                            key={material.name}
-                                            defaultValue={material.name}
-                                            aria-label="Material name"
-                                            data-testid={`material-name-${material.id}`}
-                                            className="bg-surface-1 focus:border-accent border-fg/10 h-7 min-w-0 flex-1 rounded-lg border px-2 text-xs focus:outline-none"
-                                            onBlur={(e) => {
-                                                const name = e.target.value.trim().slice(0, 80);
-                                                if (name !== '' && name !== material.name)
-                                                    props.onMaterial?.(material.id, { name });
-                                            }}
-                                        />
-                                        <button
-                                            disabled={blocked !== null}
-                                            title={blocked ?? 'Remove this material'}
-                                            data-testid={`material-delete-${material.id}`}
-                                            className="text-muted enabled:hover:bg-danger/15 enabled:hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs disabled:cursor-not-allowed disabled:opacity-30"
-                                            onClick={() => props.onDeleteMaterial?.(material.id)}
-                                        >
-                                            ✕
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-                            <div className="text-muted mb-2 text-[11px]">
-                                <span data-testid={`material-use-${material.id}`}>
-                                    {uses === 0 ? 'Unused' : `Used by ${uses}`}
-                                </span>{' '}
-                                · {material.type} · {fmt(material.thickness)}
-                                {material.type === 'round' ? ' dia.' : ''}
-                            </div>
-                            {material.type === 'sheet' && material.sheetSize !== undefined && (
-                                <div className="flex items-center gap-2">
-                                    {readonly ? (
-                                        <>
-                                            <span className="text-muted text-xs">
-                                                {sizeOf(material.sheetSize.l, material.sheetSize.w)}
-                                            </span>
-                                            {material.costPerSheet !== undefined && (
-                                                <span className="text-muted ml-auto text-xs">
-                                                    ${material.costPerSheet}/sheet
-                                                </span>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <>
-                                            <FractionCell
-                                                value={material.sheetSize.l}
-                                                testId="sheet-l"
-                                                onCommit={(v) => commitSheet(material, 'l', v)}
-                                            />
-                                            <span className="text-muted">×</span>
-                                            <FractionCell
-                                                value={material.sheetSize.w}
-                                                testId="sheet-w"
-                                                onCommit={(v) => commitSheet(material, 'w', v)}
-                                            />
-                                            <span className="text-muted ml-auto">$</span>
-                                            <input
-                                                key={String(material.costPerSheet)}
-                                                defaultValue={material.costPerSheet ?? ''}
-                                                type="number"
-                                                min="0"
-                                                placeholder="cost"
-                                                className="bg-surface-1 focus:border-accent border-fg/10 h-7 w-16 rounded-lg border px-1 text-center text-xs focus:outline-none"
-                                                onBlur={(e) => {
-                                                    const v = Number(e.target.value);
-                                                    if (
-                                                        e.target.value !== '' &&
-                                                        Number.isFinite(v) &&
-                                                        v >= 0 &&
-                                                        v !== material.costPerSheet
-                                                    ) {
-                                                        props.onMaterial?.(material.id, { costPerSheet: v });
-                                                    }
-                                                }}
-                                            />
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
-            </div>
 
             {sections.map((section, si) => (
                 <div key={section.materialId} className="mb-4" data-testid="cutlist-section">
@@ -456,7 +346,7 @@ export function CutListPanel(props: CutListPanelProps) {
             {cutList.sheets.map((plan) => (
                 <div key={plan.materialId} className="mb-4">
                     <SectionHeading>
-                        {plan.materialName} — {plan.sheetCount} sheet(s), {pct(plan.waste)} waste
+                        {plan.materialName}: {plural(plan.sheetCount, 'sheet')}, {pct(plan.waste)} offcut
                     </SectionHeading>
                     <div className="space-y-3">
                         {Array.from({ length: plan.sheetCount }, (_, n) => (
@@ -465,6 +355,169 @@ export function CutListPanel(props: CutListPanelProps) {
                     </div>
                 </div>
             ))}
+
+            {cutList.hardware.length > 0 && (
+                <div className="mb-4" data-testid="cutlist-hardware">
+                    <SectionHeading>Hardware</SectionHeading>
+                    <div className="bg-surface-2 rounded-lg px-3 py-1">
+                        {fasteners.length > 0 && (
+                            <>
+                                <button
+                                    className="border-fg/5 flex w-full items-center justify-between gap-2 border-b py-2 text-left last:border-0"
+                                    aria-expanded={fastenersOpen}
+                                    onClick={() => setFastenersOpen(!fastenersOpen)}
+                                    data-testid="cutlist-fasteners"
+                                >
+                                    <span className="text-fg/70">
+                                        <span aria-hidden="true" className="text-faint mr-1.5 text-[9px]">
+                                            {fastenersOpen ? '▼' : '▶'}
+                                        </span>
+                                        Fasteners{' '}
+                                        <span className="text-faint">
+                                            ({fasteners.length} {fasteners.length === 1 ? 'kind' : 'kinds'})
+                                        </span>
+                                    </span>
+                                    <span className="shrink-0 font-semibold">
+                                        ×{fasteners.reduce((n, r) => n + r.qty, 0)}
+                                    </span>
+                                </button>
+                                {fastenersOpen &&
+                                    fasteners.map((row) => (
+                                        <HardwareLine key={row.description} row={row} indent />
+                                    ))}
+                            </>
+                        )}
+                        {fittings.map((row) => (
+                            <HardwareLine key={row.description} row={row} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <div className="mb-4" data-testid="cutlist-settings">
+                <SectionHeading>Stock &amp; kerf</SectionHeading>
+                <label className="mb-2 flex items-center justify-between gap-2">
+                    <span className="text-muted">Saw kerf</span>
+                    {readonly ? (
+                        <span data-testid="kerf-value">{fmt(kerf)}</span>
+                    ) : (
+                        <select
+                            value={kerf}
+                            data-testid="kerf-select"
+                            className="bg-surface-2 border-fg/10 h-7 rounded-lg border px-1.5 text-xs"
+                            onChange={(e) => props.onKerfChange?.(Number(e.target.value))}
+                        >
+                            {KERF_OPTIONS.map((k) => (
+                                <option key={k} value={k}>
+                                    {fmt(k)}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+                </label>
+                {spec.materials.map((material) => {
+                    const uses = materialUse.get(material.id) ?? 0;
+                    const blocked = undeletable(material);
+                    return (
+                        <div
+                            key={material.id}
+                            className="bg-surface-2 mb-2 rounded-lg p-3"
+                            data-testid="material-row"
+                        >
+                            <div className="mb-2 flex items-center gap-2">
+                                {readonly ? (
+                                    <span className="min-w-0 flex-1 truncate text-xs font-medium">
+                                        {material.name}
+                                    </span>
+                                ) : (
+                                    <>
+                                        <input
+                                            key={material.name}
+                                            defaultValue={material.name}
+                                            aria-label="Material name"
+                                            data-testid={`material-name-${material.id}`}
+                                            className="bg-surface-1 focus:border-accent border-fg/10 h-7 min-w-0 flex-1 rounded-lg border px-2 text-xs focus:outline-none"
+                                            onBlur={(e) => {
+                                                const name = e.target.value.trim().slice(0, 80);
+                                                if (name !== '' && name !== material.name)
+                                                    props.onMaterial?.(material.id, { name });
+                                            }}
+                                        />
+                                        <button
+                                            disabled={blocked !== null}
+                                            title={blocked ?? 'Remove this material'}
+                                            data-testid={`material-delete-${material.id}`}
+                                            className="text-muted enabled:hover:bg-danger/15 enabled:hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs disabled:cursor-not-allowed disabled:opacity-30"
+                                            onClick={() => props.onDeleteMaterial?.(material.id)}
+                                        >
+                                            ✕
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                            <div className="text-muted mb-2 text-[11px]">
+                                <span data-testid={`material-use-${material.id}`}>
+                                    {uses === 0 ? 'Unused' : `Used by ${uses}`}
+                                </span>{' '}
+                                · {material.type} · {fmt(material.thickness)}
+                                {material.type === 'round' ? ' dia.' : ''}
+                            </div>
+                            {material.type === 'sheet' && material.sheetSize !== undefined && (
+                                <div className="flex items-center gap-2">
+                                    {readonly ? (
+                                        <>
+                                            <span className="text-muted text-xs">
+                                                {sizeOf(material.sheetSize.l, material.sheetSize.w)}
+                                            </span>
+                                            {material.costPerSheet !== undefined && (
+                                                <span className="text-muted ml-auto text-xs">
+                                                    ${material.costPerSheet}/sheet
+                                                </span>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FractionCell
+                                                value={material.sheetSize.l}
+                                                testId="sheet-l"
+                                                onCommit={(v) => commitSheet(material, 'l', v)}
+                                            />
+                                            <span className="text-muted">×</span>
+                                            <FractionCell
+                                                value={material.sheetSize.w}
+                                                testId="sheet-w"
+                                                onCommit={(v) => commitSheet(material, 'w', v)}
+                                            />
+                                            <span className="text-muted ml-auto">$</span>
+                                            <input
+                                                key={String(material.costPerSheet)}
+                                                defaultValue={material.costPerSheet ?? ''}
+                                                type="number"
+                                                min="0"
+                                                placeholder="cost"
+                                                aria-label={`Price per sheet of ${material.name}`}
+                                                data-testid="material-price"
+                                                className="bg-surface-1 focus:border-accent border-fg/10 h-7 w-16 rounded-lg border px-1 text-center text-xs focus:outline-none"
+                                                onBlur={(e) => {
+                                                    const v = Number(e.target.value);
+                                                    if (
+                                                        e.target.value !== '' &&
+                                                        Number.isFinite(v) &&
+                                                        v >= 0 &&
+                                                        v !== material.costPerSheet
+                                                    ) {
+                                                        props.onMaterial?.(material.id, { costPerSheet: v });
+                                                    }
+                                                }}
+                                            />
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 }
@@ -518,14 +571,35 @@ export function SheetDiagram({ plan, sheet }: { plan: CutList['sheets'][number];
     );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, tone }: { label: string; value: string; tone?: 'warn' }) {
     return (
-        <div className="bg-surface-2 rounded-lg px-3 py-2.5">
-            <div className="text-muted text-[11.5px]">{label}</div>
-            <div className="mt-0.5 text-lg font-semibold">{value}</div>
+        <div
+            className={`rounded-lg px-3 py-2.5 ${tone === 'warn' ? 'bg-warn/10 border-warn/30 border' : 'bg-surface-2'}`}
+            data-tone={tone}
+        >
+            <div className={`text-[11.5px] ${tone === 'warn' ? 'text-warn-fg' : 'text-muted'}`}>{label}</div>
+            <div className={`mt-0.5 text-lg font-semibold ${tone === 'warn' ? 'text-warn-fg' : ''}`}>
+                {value}
+            </div>
         </div>
     );
 }
+
+/** One line of the hardware list. */
+function HardwareLine({ row, indent = false }: { row: CutList['hardware'][number]; indent?: boolean }) {
+    return (
+        <div
+            className={`border-fg/5 flex items-center justify-between gap-2 border-b py-2 last:border-0 ${indent ? 'pl-4' : ''}`}
+            data-testid="hardware-line"
+        >
+            <span className="text-fg/70">{row.description}</span>
+            <span className="shrink-0 font-semibold">×{row.qty}</span>
+        </div>
+    );
+}
+
+/** Screws, pocket screws and dowels: bought by the box, so they fold into one line. */
+const FASTENER_KINDS = new Set(['pocketScrew', 'woodScrew', 'dowel']);
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
     return (

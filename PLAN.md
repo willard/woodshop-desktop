@@ -434,17 +434,13 @@ all). The faint hint became a "?" that opens the shortcut list. A parts list on 
 any part; it opens on wide windows and remembers being closed. Not done: locking a part from the
 list, since nothing in the editor enforces `locked` yet.
 
-**5b.6 Cut list panel.** (`ui/src/components/CutListPanel.tsx`)
-- The hardware list (ten rows of screws) sits above the actual cut list, which is below the fold.
-  Order: totals, parts to cut, sheet layouts, then hardware. Collapse screws into one expandable
-  "Fasteners" row.
-- "Waste 76%" in the same style as the other totals looks like an error. The stock-advice note
-  under it explains why; attach the two (a warning colour on the tile and the advice as its
-  detail) and say "Offcut" rather than "Waste" when the sheet is simply bigger than the job.
-- "Est. cost —" should read "Add prices to see cost" and link to the material price field.
-- Developer wording reaches the user: "(estimated — no pocketHoles op)". Reword to
-  "(estimated: pocket holes not placed yet)". Search the whole UI for "op", "ops", "spec",
-  "movable" and "§" and replace with plain words ("cut", "joinery", "design", "door or drawer").
+**5b.6 Cut list panel.** Done: order is totals (overall size first), parts to cut with their sheet
+layouts, hardware, then stock and kerf; screws, pocket screws and dowels fold into one expandable
+"Fasteners" line; when the stock advice applies the tile says "Offcut" in the warning colour with
+the advice directly under it; with no prices the cost tile reads "Add prices to see cost" and
+jumps to the first price field. Developer wording swept from the UI and the lint messages it
+shows: "(estimated: pocket holes not placed yet)", "Cuts & joinery" for "Ops", "cut #n" for
+"op #n", "design" for "spec", no "§". The CSV no longer says "(estimated)" twice.
 
 **5b.7 Inspector.** (`ui/src/components/PartInspector.tsx`, `GroupInspector.tsx`)
 - Section title "OPS" and rows like `screws · #8 · back face · l @ 15 1/4" × 2 · 1 1/2"` are

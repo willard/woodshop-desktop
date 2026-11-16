@@ -76,9 +76,9 @@ export function useProjectExports(target: ExportTarget) {
         spec: () =>
             exportTo(
                 'json',
-                'Spec JSON',
+                'Design data (JSON)',
                 (path) => api.writeTextFile(path, JSON.stringify(target.getSpec(), null, 2)),
-                'Spec JSON saved.',
+                'Design data saved.',
             ),
         /** Every part laid flat for a CNC router: outlines, holes and channels by layer. */
         dxf: () =>
@@ -192,7 +192,7 @@ export function ExportMenuItems(props: ExportTarget & { close(): void }) {
                 Export 3D model (glTF)…
             </button>
             <button className={item} onClick={run(exports.spec)}>
-                Export spec (JSON)…
+                Export design data (JSON)…
             </button>
         </>
     );

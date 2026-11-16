@@ -113,7 +113,7 @@ export function GroupInspector(p: GroupInspectorProps) {
             {p.movable === null ? (
                 <div className="mb-4" data-testid="group-movable-none">
                     <p className="text-muted mb-2 text-[11px]">
-                        Hang this group on hardware so it swings open as a unit. The spec keeps the closed
+                        Hang this group on hardware so it swings open as a unit. The design keeps the closed
                         position — the Open toggle is a view.
                     </p>
                     <button

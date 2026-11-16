@@ -245,7 +245,7 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
                     key: format!("dowel|estimated|{}", key_num(length)),
                     kind: HardwareKind::Dowel,
                     description: format!(
-                        "{} dowels (estimated — no dowel holes placed)",
+                        "{} dowels (estimated: dowel holes not placed yet)",
                         words.dowel(0.375, length)
                     ),
                     qty: count,
@@ -259,7 +259,7 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
                     key: format!("pocketScrew|estimated|{}|{t}", key_num(length)),
                     kind: HardwareKind::PocketScrew,
                     description: format!(
-                        "{} {t}-thread pocket screws (estimated — no pocketHoles op)",
+                        "{} {t}-thread pocket screws (estimated: pocket holes not placed yet)",
                         words.pocket_length(length)
                     ),
                     qty: count,
@@ -273,7 +273,7 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
                     key: format!("woodScrew|estimated|{}|{gauge}", key_num(length)),
                     kind: HardwareKind::WoodScrew,
                     description: format!(
-                        "{} wood screws (estimated — no screws op)",
+                        "{} wood screws (estimated: screws not placed yet)",
                         words.wood_screw(gauge, length)
                     ),
                     qty: count,

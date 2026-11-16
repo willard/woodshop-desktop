@@ -29,6 +29,10 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- The cut list shows what to cut first and the hardware after it, with screws and dowels folded
+  into one "Fasteners" line. A sheet much bigger than the job reads as offcut, with the advice
+  beside it, and the cost tile says how to add prices. Internal terms ("op", "spec") are gone from
+  the screen.
 - The editor has a parts list on the left: select, hide or rename any part, including one hidden
   inside the design. Edit and View are a two-way switch, the main tools have icons and labels, and
   new single keys (E, O, M, F, V, P) and a "?" list every shortcut.

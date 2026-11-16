@@ -244,7 +244,7 @@ describe('computeHardware — movables (spec 1.12)', () => {
         expect(rows.map((r) => [r.kind, r.description, r.qty])).toEqual([
             // The screw joint holding the drawer box together carries no `screws` op, so its metal
             // is estimated from the joint rather than going unreported (1.14).
-            ['woodScrew', '#8 × 1 1/4" wood screws (estimated — no screws op)', 3],
+            ['woodScrew', '#8 × 1 1/4" wood screws (estimated: screws not placed yet)', 3],
             ['hinge', 'overlay cabinet hinges', 2],
             // Bottom spans z −11..−1, front z 0.025..0.775 → 11.775" deep box → 10" slides.
             ['drawerSlide', '10" side-mount drawer slides (pairs)', 1],

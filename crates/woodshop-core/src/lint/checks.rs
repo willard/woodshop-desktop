@@ -80,7 +80,7 @@ pub(super) fn part_fits_material(part: &Part, material: &Material, issues: &mut 
                     Severity::Error,
                     "part.round-ops",
                     format!(
-                        "Part \"{name}\" is round stock, which cannot carry ops — §3.1 faces and edges only exist on a rectangular blank."
+                        "Part \"{name}\" is round stock, so it can't take cuts or holes: those need the flat faces and square edges of a rectangular blank."
                     ),
                     &part.id,
                 ));
@@ -172,7 +172,7 @@ pub(super) fn joints(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 "joint.op-missing",
                 Severity::Error,
                 format!(
-                    "{label} points at op #{op_ref} on \"{}\", which has no such op.",
+                    "{label} points at cut #{op_ref} on \"{}\", which has no such cut.",
                     host.name
                 ),
             ));
@@ -193,7 +193,7 @@ pub(super) fn joints(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 "joint.op-mismatch",
                 Severity::Error,
                 format!(
-                    "{label} is a {} joint but op #{op_ref} on \"{}\" is a {}.",
+                    "{label} is a {} joint, but cut #{op_ref} on \"{}\" is a {}.",
                     joint.kind.as_str(),
                     host.name,
                     op.type_name()
@@ -424,7 +424,7 @@ pub(super) fn movables(spec: &Spec, issues: &mut Vec<LintIssue>) {
                     Severity::Warn,
                     "movable.drawer-inverted",
                     format!(
-                        "Drawer \"{label}\" opens into the cabinet — its front's show face (§3.1 front) points at the rest of the build. Rotate the front or pick the other face."
+                        "Drawer \"{label}\" opens into the cabinet — its front's show face points at the rest of the build. Rotate the front or pick the other face."
                     ),
                     anchor_id,
                 ));

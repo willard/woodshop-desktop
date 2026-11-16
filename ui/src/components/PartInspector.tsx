@@ -489,7 +489,7 @@ export function PartInspector(p: PartInspectorProps) {
     const hasOps = (part.ops ?? []).length > 0;
     const placeTitle = p.canPlace
         ? 'Click a face in the 3D view to position it'
-        : 'Reassemble (exit exploded view) to place ops';
+        : 'Reassemble (leave the exploded view) to place cuts';
 
     return (
         <div data-testid="properties">
@@ -710,8 +710,8 @@ export function PartInspector(p: PartInspectorProps) {
             {p.movable === null ? (
                 <div className="mb-4" data-testid="movable-none">
                     <p className="text-muted mb-2 text-[11px]">
-                        Hang this part on hardware so it opens. The spec keeps the closed position — the Open
-                        toggle is a view.
+                        Hang this part on hardware so it opens. The design keeps the closed position — the
+                        Open toggle is a view.
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                         {(['door', 'drawer'] as const).map((kind) => (
@@ -788,7 +788,7 @@ export function PartInspector(p: PartInspectorProps) {
                 onSelect={p.onSelectHardware}
             />
 
-            <SectionLabel>Ops</SectionLabel>
+            <SectionLabel>Cuts &amp; joinery</SectionLabel>
             {hasOps && (
                 <div className="mb-2.5 flex flex-col gap-1" data-testid="ops-list">
                     {part.ops.map((op, i) => (
@@ -801,7 +801,7 @@ export function PartInspector(p: PartInspectorProps) {
                             <button
                                 className="text-muted hover:bg-danger/15 hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs"
                                 data-testid={`ops-delete-${i}`}
-                                title={`Delete this ${op.type} op`}
+                                title="Delete this cut"
                                 onClick={() => p.onRemoveOp(i)}
                             >
                                 ✕

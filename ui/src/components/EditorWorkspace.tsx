@@ -660,7 +660,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             try {
                 doc.execute(new AddOp(partId, op));
             } catch {
-                setOpError('That op is invalid — check the values and try again.');
+                setOpError("That cut doesn't fit the part. Check the values and try again.");
                 return;
             }
             // A manually cut joint may already be seated in a mate: record it as drag-seating does.

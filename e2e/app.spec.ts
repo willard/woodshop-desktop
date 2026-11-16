@@ -222,7 +222,32 @@ test('the cut list totals the design', async ({ page }) => {
     await page.getByTestId('cutlist-toggle').click();
     const totals = page.getByTestId('cutlist-totals');
     await expect(totals).toContainText('Board feet');
-    await expect(page.getByTestId('cutlist-hardware')).toContainText('pocket screws');
+    // Parts to cut come first; hardware after them, its screws folded into one line.
+    const panel = page.getByTestId('cutlist');
+    const order = await panel.evaluate((el) =>
+        ['cutlist-section', 'cutlist-hardware', 'cutlist-settings'].map((id) =>
+            [...el.querySelectorAll('[data-testid]')].findIndex((n) => n.getAttribute('data-testid') === id),
+        ),
+    );
+    expect(order[0]).toBeLessThan(order[1]);
+    expect(order[1]).toBeLessThan(order[2]);
+    const hardware = page.getByTestId('cutlist-hardware');
+    await expect(hardware).not.toContainText('pocket screws');
+    await page.getByTestId('cutlist-fasteners').click();
+    await expect(hardware).toContainText('pocket screws');
+    // A design with prices shows its cost.
+    await expect(totals).toContainText('$');
+
+    // One without prices says how to get one, and takes you there.
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Wall Cabinet', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-add-prices').click();
+    await expect(page.getByTestId('material-price').first()).toBeFocused();
     await expect(page.getByTestId('cutlist-section').first()).toBeVisible();
     for (const id of ['cutlist-export-pdf', 'cutlist-export-html', 'cutlist-export-csv']) {
         await expect(page.getByTestId(id)).toBeVisible();
@@ -630,6 +655,7 @@ test('in millimetres, hardware is named the way a metric shop sells it', async (
     const hardware = page.getByTestId('cutlist-hardware');
     await expect(hardware).toContainText('75 mm butt hinges');
     await expect(hardware).toContainText('100 mm chest handles');
+    await page.getByTestId('cutlist-fasteners').click();
     await expect(hardware).toContainText('wood screws');
 
     // The catalog, too: every item by its metric name, and not an inch mark anywhere.
