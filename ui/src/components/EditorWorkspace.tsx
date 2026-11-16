@@ -251,7 +251,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const selected = doc.selectedPart;
         const selectedIds = doc.selectedIds;
         const selectedGroup = doc.selectedGroup;
-        const issues = useMemo(() => doc.lint(), [doc, rev]); // eslint-disable-line react-hooks/exhaustive-deps
+        const issues = useMemo(() => doc.lint(), [doc, rev, units]); // eslint-disable-line react-hooks/exhaustive-deps
         const structIssues = useMemo(() => assessSturdiness(spec).issues, [spec]);
         const errorCount = issues.filter((i) => i.severity === 'error').length;
         const advisoryCount = structIssues.length + issues.filter((i) => i.severity === 'warn').length;

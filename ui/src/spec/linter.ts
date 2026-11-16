@@ -7,6 +7,7 @@
  */
 import { wasm } from '@/domain';
 import type { Spec } from './types';
+import type { Units } from '@/lib/display';
 
 export type Severity = 'error' | 'warn';
 
@@ -21,6 +22,7 @@ export interface LintIssue {
     readonly jointId?: string;
 }
 
-export function lintSpec(spec: Spec): LintIssue[] {
-    return wasm.lintSpec(spec) as LintIssue[];
+/** The checks; lengths in the messages are written in `units` (decimal inches when omitted). */
+export function lintSpec(spec: Spec, units?: Units): LintIssue[] {
+    return wasm.lintSpec(spec, units) as LintIssue[];
 }

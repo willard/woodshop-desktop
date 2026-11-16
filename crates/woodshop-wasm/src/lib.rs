@@ -103,9 +103,15 @@ pub fn starter_spec(name: &str, options: JsValue) -> JsResult<JsValue> {
     to_js(&spec::to_value(&s))
 }
 
+/// The design checks. `units` ("fraction", "decimal" or "metric") sets how lengths in the
+/// messages are written; without it they are decimal inches.
 #[wasm_bindgen(js_name = lintSpec)]
-pub fn lint_spec(spec: JsValue) -> JsResult<JsValue> {
-    to_js(&lint::lint(&spec_from_js(spec)?))
+pub fn lint_spec(spec: JsValue, units: Option<String>) -> JsResult<JsValue> {
+    let spec = spec_from_js(spec)?;
+    to_js(&match units {
+        Some(u) => lint::lint_in(&spec, units_of(&u)),
+        None => lint::lint(&spec),
+    })
 }
 
 #[wasm_bindgen(js_name = duplicatePlacements)]

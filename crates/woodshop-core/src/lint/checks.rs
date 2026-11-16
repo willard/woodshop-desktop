@@ -2,7 +2,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use super::{EPS, LintIssue, Severity};
+use super::{EPS, LintIssue, Severity, len};
 use crate::cutlist::DEFAULT_STOCK_LENGTH;
 use crate::fasteners::{POCKET_BITE_FRACTION, pocket_segments, screw_segments};
 use crate::geometry::{
@@ -47,12 +47,12 @@ pub(super) fn part_fits_material(part: &Part, material: &Material, issues: &mut 
                     Severity::Error,
                     "part.oversized",
                     format!(
-                        "Part \"{name}\" ({}×{}\") does not fit {} sheet ({}×{}\").",
+                        "Part \"{name}\" ({}×{}) does not fit {} sheet ({}×{}).",
                         f(l),
-                        f(w),
+                        len(w),
                         material.name,
                         f(sl),
-                        f(sw)
+                        len(sw)
                     ),
                     &part.id,
                 ));
@@ -65,11 +65,11 @@ pub(super) fn part_fits_material(part: &Part, material: &Material, issues: &mut 
                     Severity::Error,
                     "part.round-width",
                     format!(
-                        "Part \"{name}\" is on round stock {} ({}\" diameter), so its width must be {}\", not {}\".",
+                        "Part \"{name}\" is on round stock {} ({} diameter), so its width must be {}, not {}.",
                         material.name,
-                        f(material.thickness),
-                        f(material.thickness),
-                        f(w)
+                        len(material.thickness),
+                        len(material.thickness),
+                        len(w)
                     ),
                     &part.id,
                 ));
@@ -95,10 +95,10 @@ pub(super) fn part_fits_material(part: &Part, material: &Material, issues: &mut 
                     Severity::Error,
                     "part.oversized",
                     format!(
-                        "Part \"{name}\" width {}\" exceeds {} stock width {}\".",
-                        f(w),
+                        "Part \"{name}\" width {} exceeds {} stock width {}.",
+                        len(w),
                         material.name,
-                        f(sw)
+                        len(sw)
                     ),
                     &part.id,
                 ));
@@ -118,17 +118,16 @@ fn fits_stock_length(part: &Part, material: &Material, issues: &mut Vec<LintIssu
     if part.size.l <= longest + EPS {
         return;
     }
-    let (name, len, mat) = (&part.name, f(part.size.l), &material.name);
+    let (name, length, mat) = (&part.name, len(part.size.l), &material.name);
     issues.push(LintIssue::part(
         Severity::Error,
         "part.oversized",
         if listed.is_some() {
-            format!("Part \"{name}\" length {len}\" exceeds longest {mat} stock {}\".", f(longest))
+            format!("Part \"{name}\" length {length} exceeds longest {mat} stock {}.", len(longest))
         } else {
             format!(
-                "Part \"{name}\" length {len}\" exceeds the {}\" stock assumed for {mat} — list the lengths it is sold in on the material (stockLengths), or shorten the part.",
-                f(longest)
-            )
+                "Part \"{name}\" length {length} exceeds the {} stock assumed for {mat} — list the lengths it is sold in on the material (stockLengths), or shorten the part.",
+                len(longest))
         },
         &part.id,
     ));
@@ -213,11 +212,11 @@ pub(super) fn joints(spec: &Spec, issues: &mut Vec<LintIssue>) {
                     "joint.dado-width-mismatch",
                     Severity::Error,
                     format!(
-                        "Dado on \"{}\" is {}\" wide but mate \"{}\" is {}\" thick.",
+                        "Dado on \"{}\" is {} wide but mate \"{}\" is {} thick.",
                         host.name,
-                        f(c.width),
+                        len(c.width),
                         insert.name,
-                        f(mt)
+                        len(mt)
                     ),
                 ));
             }
@@ -228,23 +227,20 @@ pub(super) fn joints(spec: &Spec, issues: &mut Vec<LintIssue>) {
             let penetration = -separation(&host_box, &insert_box);
             if penetration < c.depth - TOUCH_TOL {
                 let detail = if penetration > TOUCH_TOL {
-                    format!(
-                        "only overlaps it by {}\" — seat it the full dado depth",
-                        r3(penetration)
-                    )
+                    format!("only overlaps it by {} — seat it the full dado depth", len(penetration))
                 } else {
                     format!(
-                        "sits {}\" away — move or extend it so it bottoms in the dado",
-                        r3((-penetration).max(0.0))
+                        "sits {} away — move or extend it so it bottoms in the dado",
+                        len((-penetration).max(0.0))
                     )
                 };
                 issues.push(issue(
                     "joint.mate-not-seated",
                     Severity::Error,
                     format!(
-                        "{label}: \"{}\" should seat {}\" into the dado on \"{}\" but {detail}.",
+                        "{label}: \"{}\" should seat {} into the dado on \"{}\" but {detail}.",
                         insert.name,
-                        r3(c.depth),
+                        len(c.depth),
                         host.name
                     ),
                 ));
@@ -398,9 +394,8 @@ pub(super) fn movables(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 Severity::Warn,
                 "movable.adrift",
                 format!(
-                    "Nothing to mount \"{label}\"'s {hardware} on — no member comes within {}\" of the rest of the build.",
-                    f(HARDWARE_REACH)
-                ),
+                    "Nothing to mount \"{label}\"'s {hardware} on — no member comes within {} of the rest of the build.",
+                    len(HARDWARE_REACH)),
                 anchor_id,
             ));
         }
@@ -612,13 +607,13 @@ pub(super) fn pierced_parts(spec: &Spec, issues: &mut Vec<LintIssue>) {
                     Severity::Error,
                     "part.pierce",
                     format!(
-                        "Part \"{}\" passes completely through \"{}\" ({}\" thick along {}) — parts cannot occupy the same space. End it at {} = {} or move it clear.",
+                        "Part \"{}\" passes completely through \"{}\" ({} thick along {}) — parts cannot occupy the same space. End it at {} = {} or move it clear.",
                         intruder.name,
                         pierced.name,
-                        r3(extent),
+                        len(extent),
                         LABELS[axis],
                         LABELS[axis],
-                        r3(plane)
+                        len(plane)
                     ),
                     &intruder.id,
                 ));
@@ -799,14 +794,14 @@ pub(super) fn fastener_ops(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 let hi = round_to(held.iter().copied().fold(f64::NEG_INFINITY, f64::max), 3);
                 let fix = if lo == hi {
                     format!(
-                        "only reaches it at {}\" along the run. Move the mate under the row, or lengthen it, so every screw bites.",
-                        f(lo)
+                        "only reaches it at {} along the run. Move the mate under the row, or lengthen it, so every screw bites.",
+                        len(lo)
                     )
                 } else {
                     format!(
-                        "only reaches it between {}\" and {}\" along the run. Bound the row with from: {}, to: {}, or lengthen the mate, so every screw bites.",
-                        f(lo),
-                        f(hi),
+                        "only reaches it between {} and {} along the run. Bound the row with from: {}, to: {}, or lengthen the mate, so every screw bites.",
+                        len(lo),
+                        len(hi),
                         f(lo),
                         f(hi)
                     )
@@ -838,11 +833,11 @@ pub(super) fn fastener_ops(spec: &Spec, issues: &mut Vec<LintIssue>) {
                         Severity::Warn,
                         "op.screw-blowout",
                         format!(
-                            "{}\" {label} on \"{}\" bite {}\" into {}\" of wood — the tips come out the far side.",
-                            r3(length),
+                            "{} {label} on \"{}\" bite {} into {} of wood — the tips come out the far side.",
+                            len(length),
                             part.name,
-                            r3(travel),
-                            r3(limit)
+                            len(travel),
+                            len(limit)
                         ),
                         &part.id,
                         op_index,
@@ -925,12 +920,12 @@ pub(super) fn hardware(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 Severity::Warn,
                 "hardware.off-part",
                 format!(
-                    "{name} on \"{}\" sits off the part: that side is {} × {} in, and it is placed at ({}, {}).",
+                    "{name} on \"{}\" sits off the part: that side is {} × {}, and it is placed {} across and {} up.",
                     part.name,
-                    crate::geometry::php_float(a),
-                    crate::geometry::php_float(b),
-                    crate::geometry::php_float(mount.x),
-                    crate::geometry::php_float(mount.y)
+                    len(a),
+                    len(b),
+                    len(mount.x),
+                    len(mount.y)
                 ),
                 &part.id,
             ));
@@ -988,12 +983,11 @@ pub(super) fn hardware_fit(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 Severity::Warn,
                 "movable.hinge-cup-deep",
                 format!(
-                    "\"{}\" is {}\" thick, too thin for its hinge cups: {hinge} bores {}\" deep and needs at least {}\" of door. Use thicker stock or a surface-mounted hinge.",
+                    "\"{}\" is {} thick, too thin for its hinge cups: {hinge} bores {} deep and needs at least {} of door. Use thicker stock or a surface-mounted hinge.",
                     panel.name,
-                    r3(panel_thickness),
-                    r3(depth),
-                    r3(depth + CUP_FLOOR)
-                ),
+                    len(panel_thickness),
+                    len(depth),
+                    len(depth + CUP_FLOOR)),
                 &panel.id,
             ));
         }
@@ -1078,24 +1072,24 @@ pub(super) fn hardware_fit(spec: &Spec, issues: &mut Vec<LintIssue>) {
         let (gap_a, gap_b) = (box_bounds.min[side_axis] - left, right - box_bounds.max[side_axis]);
         let message = if (width - wanted).abs() > SLIDE_FIT_TOL {
             let fix = if wanted > 0.0 {
-                format!("make the box {}\" wide", r3(wanted))
+                format!("make the box {} wide", len(wanted))
             } else {
                 "the opening is too narrow for these slides".to_string()
             };
             Some(format!(
-                "Drawer \"{label}\" has a {}\" wide box in a {}\" opening. {} need {}\" each side: {fix}.",
-                r3(width),
-                r3(opening),
+                "Drawer \"{label}\" has a {} wide box in a {} opening. {} need {} each side: {fix}.",
+                len(width),
+                len(opening),
                 item.name,
-                r3(clearance)
+                len(clearance)
             ))
         } else if (gap_a - clearance).abs() > SLIDE_FIT_TOL || (gap_b - clearance).abs() > SLIDE_FIT_TOL {
             Some(format!(
-                "Drawer \"{label}\" is off-centre in its opening: {}\" on one side and {}\" on the other. {} need {}\" each side.",
-                r3(gap_a),
-                r3(gap_b),
+                "Drawer \"{label}\" is off-centre in its opening: {} on one side and {} on the other. {} need {} each side.",
+                len(gap_a),
+                len(gap_b),
                 item.name,
-                r3(clearance)
+                len(clearance)
             ))
         } else {
             None
@@ -1229,12 +1223,11 @@ pub(super) fn undermount_recess(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 Severity::Warn,
                 "movable.undermount-recess",
                 format!(
-                    "Drawer \"{label}\" has {}\" under its bottom. {} need {}\" clear between the bottom and the lower edge of the sides: raise the bottom {}\".",
-                    r3(clear.max(0.0)),
+                    "Drawer \"{label}\" has {} under its bottom. {} need {} clear between the bottom and the lower edge of the sides: raise the bottom {}.",
+                    len(clear.max(0.0)),
                     item.name,
-                    r3(recess),
-                    r3(recess - clear.max(0.0))
-                ),
+                    len(recess),
+                    len(recess - clear.max(0.0))),
                 &bottom.id,
             ));
         }

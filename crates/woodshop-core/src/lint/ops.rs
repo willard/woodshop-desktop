@@ -1,7 +1,7 @@
 //! Per-part op rules: every op fits the part it is cut into, and ops that compose on one edge or
 //! arris do not silently discard each other.
 
-use super::{EPS, LintIssue, Severity};
+use super::{EPS, LintIssue, Severity, len};
 use crate::geometry::php_float as f;
 use crate::spec::{Axis, Curve, Ease, Edge, Face, Material, Op, Part};
 
@@ -37,17 +37,17 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                 if -EPS > c.offset - c.width / 2.0 || span + EPS < c.offset + c.width / 2.0 {
                     let edge = if c.axis == Axis::L { "width" } else { "length" };
                     fail(format!(
-                        "{kind} on \"{name}\" (offset {}, width {}) runs off the {edge} ({}\").",
+                        "{kind} on \"{name}\" (offset {}, width {}) runs off the {edge} ({}).",
                         f(c.offset),
                         f(c.width),
-                        f(span)
+                        len(span)
                     ));
                 }
                 if c.depth > thickness + EPS {
                     fail(format!(
-                        "{kind} on \"{name}\" depth {}\" exceeds thickness {}\".",
-                        f(c.depth),
-                        f(thickness)
+                        "{kind} on \"{name}\" depth {} exceeds thickness {}.",
+                        len(c.depth),
+                        len(thickness)
                     ));
                 }
                 // Stopped channel: from/to measured from the low run edge, within the run.
@@ -57,9 +57,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                     && t > run + EPS
                 {
                     fail(format!(
-                        "{kind} on \"{name}\" ends at {}\", past the {}\" run.",
-                        f(t),
-                        f(run)
+                        "{kind} on \"{name}\" ends at {}, past the {} run.",
+                        len(t),
+                        len(run)
                     ));
                 }
                 if to - from < EPS {
@@ -73,29 +73,29 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
             Op::Rabbet(r) => {
                 if r.depth > thickness + EPS {
                     fail(format!(
-                        "rabbet on \"{name}\" depth {}\" exceeds thickness {}\".",
-                        f(r.depth),
-                        f(thickness)
+                        "rabbet on \"{name}\" depth {} exceeds thickness {}.",
+                        len(r.depth),
+                        len(thickness)
                     ));
                 }
             }
             Op::Hole(h) => {
                 if h.x < -EPS || h.x > part.size.l + EPS || h.y < -EPS || h.y > part.size.w + EPS {
                     fail(format!(
-                        "hole on \"{name}\" at ({}, {}) lies off the face ({}×{}\").",
+                        "hole on \"{name}\" at ({}, {}) lies off the face ({}×{}).",
                         f(h.x),
                         f(h.y),
                         f(part.size.l),
-                        f(part.size.w)
+                        len(part.size.w)
                     ));
                 }
                 if let Some(d) = h.depth
                     && d > thickness + EPS
                 {
                     fail(format!(
-                        "hole on \"{name}\" depth {}\" exceeds thickness {}\".",
-                        f(d),
-                        f(thickness)
+                        "hole on \"{name}\" depth {} exceeds thickness {}.",
+                        len(d),
+                        len(thickness)
                     ));
                 }
             }
@@ -112,9 +112,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                     } => {
                         if *height >= span - EPS {
                             fail(format!(
-                                "curve on \"{name}\" height {}\" consumes the whole {}\" span.",
-                                f(*height),
-                                f(span)
+                                "curve on \"{name}\" height {} consumes the whole {} span.",
+                                len(*height),
+                                len(span)
                             ));
                         }
                         if arc_from.is_some() || arc_to.is_some() {
@@ -124,9 +124,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                                 && *t > chord + EPS
                             {
                                 fail(format!(
-                                    "curve on \"{name}\" ends at {}\", past the {}\" edge.",
-                                    f(*t),
-                                    f(chord)
+                                    "curve on \"{name}\" ends at {}, past the {} edge.",
+                                    len(*t),
+                                    len(chord)
                                 ));
                             }
                             if to - from < EPS {
@@ -139,10 +139,10 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                                 // Deeper than a half-circle and the arc undercuts the straight edge.
                                 let run = to - from;
                                 fail(format!(
-                                    "curve on \"{name}\" is a {}\" scallop across a {}\" span — a partial arc can be at most half its span deep ({}\"). Widen the span, or reduce the height.",
-                                    f(*height),
-                                    f(run),
-                                    f(run / 2.0)
+                                    "curve on \"{name}\" is a {} scallop across a {} span — a partial arc can be at most half its span deep ({}). Widen the span, or reduce the height.",
+                                    len(*height),
+                                    len(run),
+                                    len(run / 2.0)
                                 ));
                             }
                             if from <= EPS && to >= chord - EPS {
@@ -151,11 +151,10 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                                     Severity::Warn,
                                     "op.curve-span-full",
                                     format!(
-                                        "curve on \"{name}\" spans the whole {} edge, so it cuts as a scallop — the edge dips {}\" in the middle and the corners stay put. Omit from/to for a dome, where the corners drop {}\" instead.",
+                                        "curve on \"{name}\" spans the whole {} edge, so it cuts as a scallop — the edge dips {} in the middle and the corners stay put. Omit from/to for a dome, where the corners drop {} instead.",
                                         edge.as_str(),
-                                        f(*height),
-                                        f(*height)
-                                    ),
+                                        len(*height),
+                                        len(*height)),
                                     &part.id,
                                     op_index,
                                 ));
@@ -166,9 +165,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                         let max_radius = if corner.is_some() { chord } else { chord / 2.0 };
                         if *radius > max_radius + EPS || *radius > span + EPS {
                             fail(format!(
-                                "corner round on \"{name}\" radius {}\" doesn't fit the {}\"-long edge.",
-                                f(*radius),
-                                f(chord)
+                                "corner round on \"{name}\" radius {} doesn't fit the {}-long edge.",
+                                len(*radius),
+                                len(chord)
                             ));
                         }
                         if let Some(c) = corner
@@ -184,9 +183,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                     Curve::Ramp { height, low, .. } => {
                         if *height >= span - EPS {
                             fail(format!(
-                                "ramp on \"{name}\" height {}\" consumes the whole {}\" span.",
-                                f(*height),
-                                f(span)
+                                "ramp on \"{name}\" height {} consumes the whole {} span.",
+                                len(*height),
+                                len(span)
                             ));
                         }
                         if !perpendicular(*low) {
@@ -207,9 +206,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                     && t > chord + EPS
                 {
                     fail(format!(
-                        "pocket screws on \"{name}\" end at {}\", past the {}\" edge.",
-                        f(t),
-                        f(chord)
+                        "pocket screws on \"{name}\" end at {}, past the {} edge.",
+                        len(t),
+                        len(chord)
                     ));
                 }
                 if to - from < -EPS {
@@ -230,9 +229,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                 if s.offset < -EPS || s.offset > span + EPS {
                     let dimension = if along { "width" } else { "length" };
                     fail(format!(
-                        "screws on \"{name}\" sit {}\" from the edge, off the {}\" {dimension}.",
-                        f(s.offset),
-                        f(span)
+                        "screws on \"{name}\" sit {} from the edge, off the {} {dimension}.",
+                        len(s.offset),
+                        len(span)
                     ));
                 }
                 let (from, to) = (s.from.unwrap_or(0.0), s.to.unwrap_or(run));
@@ -240,9 +239,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                     && t > run + EPS
                 {
                     fail(format!(
-                        "screws on \"{name}\" end at {}\", past the {}\" run.",
-                        f(t),
-                        f(run)
+                        "screws on \"{name}\" end at {}, past the {} run.",
+                        len(t),
+                        len(run)
                     ));
                 }
                 if to - from < EPS {
@@ -257,9 +256,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                 let (chord, span) = chord_and_span(part, n.edge);
                 if n.to > chord + EPS {
                     fail(format!(
-                        "notch on \"{name}\" ends at {}\", past the {}\" edge.",
-                        f(n.to),
-                        f(chord)
+                        "notch on \"{name}\" ends at {}, past the {} edge.",
+                        len(n.to),
+                        len(chord)
                     ));
                 }
                 if n.to - n.from < EPS {
@@ -271,9 +270,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                 }
                 if n.depth >= span - EPS {
                     fail(format!(
-                        "notch on \"{name}\" depth {}\" consumes the whole {}\" span.",
-                        f(n.depth),
-                        f(span)
+                        "notch on \"{name}\" depth {} consumes the whole {} span.",
+                        len(n.depth),
+                        len(span)
                     ));
                 }
             }
@@ -281,8 +280,8 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                 // An ease only eats into the thickness. From both faces each arris gets half.
                 let both_faces = matches!(e, Ease::Bullnose { .. }) || e.face().is_none();
                 let (size, what) = match e {
-                    Ease::Roundover { radius, .. } => (*radius, format!("radius {}\"", f(*radius))),
-                    Ease::Chamfer { width, .. } => (*width, format!("width {}\"", f(*width))),
+                    Ease::Roundover { radius, .. } => (*radius, format!("radius {}", len(*radius))),
+                    Ease::Chamfer { width, .. } => (*width, format!("width {}", len(*width))),
                     Ease::Bullnose { .. } => (0.0, String::new()),
                 };
                 let limit = if both_faces { thickness / 2.0 } else { thickness };
@@ -290,13 +289,13 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                 if size > limit + EPS {
                     fail(if both_faces {
                         format!(
-                            "{profile} on \"{name}\" {what} is more than half the {}\" thickness — eased from both faces, the two cuts pass through each other. Name a face, or use a smaller bit.",
-                            f(thickness)
+                            "{profile} on \"{name}\" {what} is more than half the {} thickness — eased from both faces, the two cuts pass through each other. Name a face, or use a smaller bit.",
+                            len(thickness)
                         )
                     } else {
                         format!(
-                            "{profile} on \"{name}\" {what} exceeds the {}\" thickness.",
-                            f(thickness)
+                            "{profile} on \"{name}\" {what} exceeds the {} thickness.",
+                            len(thickness)
                         )
                     });
                 }
@@ -308,9 +307,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                     && t > chord + EPS
                 {
                     fail(format!(
-                        "{profile} on \"{name}\" ends at {}\", past the {}\" edge.",
-                        f(t),
-                        f(chord)
+                        "{profile} on \"{name}\" ends at {}, past the {} edge.",
+                        len(t),
+                        len(chord)
                     ));
                 }
                 if to - from < EPS {
@@ -347,13 +346,12 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                 Severity::Error,
                 "op.curve-opposed",
                 format!(
-                    "curves on \"{name}\" drop the {} and {} edges by {}\" and {}\" into a {}\" span — together they consume the whole span and the outline collapses. Make them shallower, or curve only one edge.",
+                    "curves on \"{name}\" drop the {} and {} edges by {} and {} into a {} span — together they consume the whole span and the outline collapses. Make them shallower, or curve only one edge.",
                     near.as_str(),
                     far.as_str(),
-                    f(ha),
-                    f(hb),
-                    f(span)
-                ),
+                    len(ha),
+                    len(hb),
+                    len(span)),
                 &part.id,
                 ia.max(ib),
             ));
@@ -437,10 +435,9 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                         Severity::Error,
                         "op.notch-curve-edge",
                         format!(
-                            "\"{name}\" notches edge {edge}, which is curved along its whole length — the notch would not be cut. Give the curve a from/to span that clears {}\"–{}\", or move the notch.",
-                            f(n.from),
-                            f(n.to)
-                        ),
+                            "\"{name}\" notches edge {edge}, which is curved along its whole length — the notch would not be cut. Give the curve a from/to span that clears {}–{}, or move the notch.",
+                            len(n.from),
+                            len(n.to)),
                         &part.id,
                         i,
                     ));
@@ -449,12 +446,11 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                         Severity::Error,
                         "op.notch-curve-edge",
                         format!(
-                            "\"{name}\" notches edge {edge} from {}\" to {}\", over a curve running {}\"–{}\" — the curve wins and the notch would not be cut. Move one of them so their runs do not overlap.",
-                            f(n.from),
-                            f(n.to),
-                            f(cf),
-                            f(ct)
-                        ),
+                            "\"{name}\" notches edge {edge} from {} to {}, over a curve running {}–{} — the curve wins and the notch would not be cut. Move one of them so their runs do not overlap.",
+                            len(n.from),
+                            len(n.to),
+                            len(cf),
+                            len(ct)),
                         &part.id,
                         i,
                     ));

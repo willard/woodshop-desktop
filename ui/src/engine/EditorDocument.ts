@@ -11,6 +11,7 @@
  */
 import { parseSpec, type Spec, type Part, type Group } from '../spec';
 import { lintSpec, type LintIssue } from '../spec/linter';
+import { getUnits } from '@/lib/display';
 import { groupOf, type Command } from './commands';
 
 const HISTORY_LIMIT = 100;
@@ -204,9 +205,9 @@ export class EditorDocument {
         return this.currentSpec.parts.find((p) => p.id === id) ?? null;
     }
 
-    /** Current linter issues for the whole spec (surface red/amber in the UI). */
+    /** Current linter issues for the whole spec (surface red/amber in the UI), in the display units. */
     lint(): LintIssue[] {
-        return lintSpec(this.currentSpec);
+        return lintSpec(this.currentSpec, getUnits());
     }
 
     /** Linter issues grouped by part id, for per-part badges. */

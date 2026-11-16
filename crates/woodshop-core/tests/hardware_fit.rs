@@ -187,3 +187,29 @@ fn a_lid_stay_beside_the_lid_quiets_it() {
 fn a_side_hung_door_needs_no_stay() {
     assert!(messages(&door(0.75, "hinge.butt-2-5in"), "movable.lid-stay").is_empty());
 }
+
+#[test]
+fn messages_follow_the_units_they_are_asked_in() {
+    use woodshop_core::lint::lint_in;
+    use woodshop_core::units::Units;
+    let spec = drawer_cabinet(22.0, 0.0, None);
+    let say = |units| {
+        lint_in(&spec, units)
+            .into_iter()
+            .find(|i| i.code == "movable.slide-clearance")
+            .map(|i| i.message)
+            .unwrap()
+    };
+    let fraction = say(Units::Fraction);
+    assert!(fraction.contains("22\" wide box in a 22 1/2\" opening"), "{fraction}");
+    assert!(fraction.contains("make the box 21 1/2\" wide"), "{fraction}");
+    let metric = say(Units::Metric);
+    assert!(metric.contains("559 mm wide box in a 572 mm opening"), "{metric}");
+    assert!(metric.contains("13 mm each side"), "{metric}");
+    assert!(
+        !metric.contains('"') || metric.matches('"').count() == 2,
+        "only the drawer's name is quoted: {metric}"
+    );
+    // Without units, agents and tests keep decimal inches.
+    assert_eq!(say(Units::Decimal), messages(&spec, "movable.slide-clearance")[0]);
+}

@@ -11,6 +11,7 @@ mod ops;
 use serde::{Deserialize, Serialize};
 
 use crate::spec::Spec;
+use crate::units::display::{Units, format_length};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -92,6 +93,25 @@ impl LintIssue {
     pub fn is_error(&self) -> bool {
         self.severity == Severity::Error
     }
+}
+
+thread_local! {
+    /// The units lengths in messages are written in, for the duration of one `lint_in` call.
+    static UNITS: std::cell::Cell<Units> = const { std::cell::Cell::new(Units::Decimal) };
+}
+
+/// A length for a message, in the units the caller asked for: `3.5"` by default (what agents and
+/// tests read), `3 1/2"` or `89 mm` from the editor.
+pub(crate) fn len(inches: f64) -> String {
+    format_length(inches, UNITS.with(std::cell::Cell::get))
+}
+
+/// [`lint`], with every length in the messages written in `units`.
+pub fn lint_in(spec: &Spec, units: Units) -> Vec<LintIssue> {
+    let previous = UNITS.with(|u| u.replace(units));
+    let issues = lint(spec);
+    UNITS.with(|u| u.set(previous));
+    issues
 }
 
 /// Small tolerance so exact fits (part == sheet) don't false-positive on float error.

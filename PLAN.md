@@ -521,7 +521,8 @@ tier; GPL-3.0-or-later; DCO; commits from the GitHub noreply address (2026-11-13
 
 ## Known issues and debts
 
-- Linter and MCP messages are inches-only.
+- MCP messages are in decimal inches (agents read them as data, and the spec is inches); the
+  editor's design checks follow the display units (`lint::lint_in`).
 - `ui/src/components/EditorWorkspace.tsx` (1,750 lines) and `PartInspector.tsx` (1,370 lines)
   are too large. Split them only when a task touches them heavily, one extraction at a time,
   with tests green between steps.
