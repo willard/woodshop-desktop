@@ -442,17 +442,14 @@ jumps to the first price field. Developer wording swept from the UI and the lint
 shows: "(estimated: pocket holes not placed yet)", "Cuts & joinery" for "Ops", "cut #n" for
 "op #n", "design" for "spec", no "§". The CSV no longer says "(estimated)" twice.
 
-**5b.7 Inspector.** (`ui/src/components/PartInspector.tsx`, `GroupInspector.tsx`)
-- Section title "OPS" and rows like `screws · #8 · back face · l @ 15 1/4" × 2 · 1 1/2"` are
-  unreadable to a woodworker. Title it "Cuts & fasteners"; show each as an icon, a plain name
-  ("2 screws, #8 × 1 1/2\", back face") and an edit action.
-- "Rot X / Rot Y / Rot Z" with −/+ steppers: label by what happens ("Tip forward", "Turn",
-  "Roll"), or show small rotate icons around a cube.
-- "Hang this part on hardware so it opens. The spec keeps the closed position — the Open toggle
-  is a view." Rewrite: "Turn this part into a door or a drawer. Use Open in the toolbar to see it
-  move."
-- Nine "+ Dado / + Hole / …" buttons in a grid: group them under one "Add a cut" menu with icons.
-- Collapse sections (Position, Orientation, Door/Drawer, Cuts) and remember which are open.
+**5b.7 Inspector.** Done: "Cuts & fasteners" lists each cut with an icon and a plain sentence
+(`opSummary`, shared with the offline plan: "2 screws, #8 × 1 1/2\", through the back face, 3/4\"
+from the bottom edge"); one "+ Add a cut" menu with a line per kind replaces the nine buttons;
+rotations are Tip / Turn / Roll with a tooltip each (part and group inspectors); edge pickers say
+"Top edge", "Left end" with no l0/w1 codes; the door/drawer prompt reads "Turn this part into a
+door or a drawer. Use Open in the toolbar to see it move."; Position, Orientation, Door or drawer,
+Hardware and Cuts fold away and stay folded (`InspectorSection`). Not done: editing a cut in
+place (today: delete it and add it again).
 
 **5b.8 System-wide.**
 - Type sizes run 11–12.5 px in panels. Set a 13 px floor for body text and 12 px for labels.

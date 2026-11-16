@@ -8,6 +8,8 @@ import type { HardwarePatch, PlacementRequest } from '@/engine';
 import { MovableFittings, PartHardware } from './HardwareFittings';
 import { DEFAULT_EASE_CONFIG, WORKSPACE_POS_BOUND } from '@/engine';
 import { opSummary } from '@/spec/opLabel';
+import { Section } from './InspectorSection';
+import { Popover } from './Popover';
 import {
     DOWEL_SIZES,
     LUMBER_SIZES,
@@ -96,42 +98,70 @@ const SPECIES_OPTIONS: { value: Species; label: string }[] = [
 ];
 
 const EDGE_LABELS: { value: Edge; label: string }[] = [
-    { value: 'l1', label: 'top of face (l1)' },
-    { value: 'l0', label: 'bottom of face (l0)' },
-    { value: 'w0', label: 'left end (w0)' },
-    { value: 'w1', label: 'right end (w1)' },
+    { value: 'l1', label: 'Top edge' },
+    { value: 'l0', label: 'Bottom edge' },
+    { value: 'w0', label: 'Left end' },
+    { value: 'w1', label: 'Right end' },
 ];
 
 const AXIS_LABELS = ['X', 'Y', 'Z'] as const;
-const ROTATIONS: { axis: Axis3; label: string }[] = [
-    { axis: 0, label: 'Rot X' },
-    { axis: 1, label: 'Rot Y' },
-    { axis: 2, label: 'Rot Z' },
+/** Named for what the part does, seen from the front: about X it tips, about Y it turns, about Z it rolls. */
+const ROTATIONS: { axis: Axis3; label: string; hint: string }[] = [
+    { axis: 0, label: 'Tip', hint: 'Tip forward or back (about the left-right axis)' },
+    { axis: 1, label: 'Turn', hint: 'Turn left or right (about the vertical axis)' },
+    { axis: 2, label: 'Roll', hint: 'Roll onto its side (about the front-back axis)' },
 ];
 
 /** The two perpendicular edges adjoining `edge`, with picker-friendly labels. */
 function endsOf(edge: string): { value: Edge; label: string }[] {
     return edge.startsWith('l')
         ? [
-              { value: 'w0', label: 'left end (w0)' },
-              { value: 'w1', label: 'right end (w1)' },
+              { value: 'w0', label: 'Left end' },
+              { value: 'w1', label: 'Right end' },
           ]
         : [
-              { value: 'l0', label: 'bottom end (l0)' },
-              { value: 'l1', label: 'top end (l1)' },
+              { value: 'l0', label: 'Bottom end' },
+              { value: 'l1', label: 'Top end' },
           ];
 }
 
 type OpForm = 'dado' | 'hole' | 'curve' | 'notch' | 'pocket' | 'miter' | 'ease';
-const OP_BUTTONS: { form: OpForm; label: string }[] = [
-    { form: 'dado', label: '+ Dado' },
-    { form: 'hole', label: '+ Hole' },
-    { form: 'curve', label: '+ Curve' },
-    { form: 'notch', label: '+ Notch' },
-    { form: 'pocket', label: '+ Pocket' },
-    { form: 'miter', label: '+ Miter' },
-    { form: 'ease', label: '+ Soft edge' },
+const OP_BUTTONS: { form: OpForm; label: string; does: string; icon: string }[] = [
+    { form: 'dado', label: 'Dado or groove', does: 'A channel another part sits in', icon: 'dado' },
+    { form: 'hole', label: 'Hole', does: 'Dowel, shelf-pin or through hole', icon: 'hole' },
+    { form: 'pocket', label: 'Pocket screws', does: 'Angled screws through an edge', icon: 'pocketHoles' },
+    { form: 'curve', label: 'Curve', does: 'An arched edge or rounded corners', icon: 'curve' },
+    { form: 'notch', label: 'Notch', does: 'A cut-out from an edge', icon: 'notch' },
+    { form: 'miter', label: 'Miter', does: 'An angled edge for a corner joint', icon: 'miter' },
+    { form: 'ease', label: 'Soft edge', does: 'Roundover, chamfer or bullnose', icon: 'ease' },
 ];
+
+/** A small line icon per kind of cut, so a list of them can be scanned. */
+function OpIcon({ type }: { type: string }) {
+    const path: Record<string, string> = {
+        dado: 'M3 8h18M3 16h18M9 8v8M15 8v8',
+        groove: 'M3 8h18M3 16h18M9 8v8M15 8v8',
+        rabbet: 'M3 6h18v12H9V12H3Z',
+        hole: 'M12 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10Z',
+        pocketHoles: 'M4 18 14 8m-3-1 6 6M15 5l4 4',
+        screws: 'M12 3v4m-3 0h6l-1 12h-4ZM10 11h4m-4 4h4',
+        curve: 'M3 18c4-10 14-10 18 0',
+        notch: 'M3 6h6v6h6V6h6v12H3Z',
+        miter: 'M4 18h16L4 6Z',
+        ease: 'M4 18V10a6 6 0 0 1 6-6h10',
+    };
+    return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path
+                d={path[type] ?? 'M5 12h14'}
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
 
 const posText = (part: Part): [string, string, string] => [
     lenValue(part.transform.pos[0]),
@@ -638,132 +668,538 @@ export function PartInspector(p: PartInspectorProps) {
                 Hide from view
             </button>
 
-            <SectionLabel>Position</SectionLabel>
-            <div className="mb-1.5 grid grid-cols-3 gap-2">
-                {AXIS_LABELS.map((label, i) => {
-                    const axis = i as Axis3;
-                    return (
-                        <Field key={label} label={`${label} (${unitSuffix()})`}>
-                            <TextInput
-                                h="md"
-                                value={posInputs[axis]}
-                                aria-label={`Position ${label} in ${unitSuffix() === 'mm' ? 'millimetres' : 'inches'}`}
-                                data-testid={`pos-input-${axis}`}
-                                onChange={(e) => setPosInputs(setAt(posInputs, axis, e.target.value))}
-                                onBlur={() => commitPosition(axis)}
-                                onKeyDown={onEnter(() => commitPosition(axis))}
-                            />
-                        </Field>
-                    );
-                })}
-            </div>
-            <p className="text-muted mb-4 text-[11px]">Centre of the part. Y is height; negatives allowed.</p>
+            <Section id="position" title="Position">
+                <div className="mb-1.5 grid grid-cols-3 gap-2">
+                    {AXIS_LABELS.map((label, i) => {
+                        const axis = i as Axis3;
+                        return (
+                            <Field key={label} label={`${label} (${unitSuffix()})`}>
+                                <TextInput
+                                    h="md"
+                                    value={posInputs[axis]}
+                                    aria-label={`Position ${label} in ${unitSuffix() === 'mm' ? 'millimetres' : 'inches'}`}
+                                    data-testid={`pos-input-${axis}`}
+                                    onChange={(e) => setPosInputs(setAt(posInputs, axis, e.target.value))}
+                                    onBlur={() => commitPosition(axis)}
+                                    onKeyDown={onEnter(() => commitPosition(axis))}
+                                />
+                            </Field>
+                        );
+                    })}
+                </div>
+                <p className="text-muted mb-4 text-[11px]">
+                    Centre of the part. Y is height; negatives allowed.
+                </p>
+            </Section>
 
-            <SectionLabel>Orientation</SectionLabel>
-            <div className="mb-2 grid grid-cols-3 gap-2">
-                {ROTATIONS.map((r) => (
-                    <button
-                        key={r.axis}
-                        className="border-fg/10 text-fg/75 hover:bg-fg/5 h-9 rounded-lg border text-xs"
-                        data-testid={`rot-90-${r.axis}`}
-                        title={`${r.label} +90°`}
-                        onClick={() => p.onRotate(r.axis)}
-                    >
-                        {r.label}
-                    </button>
-                ))}
-            </div>
-            <div className="mb-2.5 grid grid-cols-3 gap-2">
-                {ROTATIONS.map((r) => (
-                    <div key={r.axis} className="flex items-center gap-1">
+            <Section id="orientation" title="Orientation">
+                <div className="mb-2 grid grid-cols-3 gap-2">
+                    {ROTATIONS.map((r) => (
                         <button
-                            className="border-fg/10 text-muted hover:bg-fg/5 h-8 w-7 flex-none rounded-lg border text-[11px]"
-                            data-testid={`rot-minus-${r.axis}`}
-                            title={`${r.label} −15°`}
-                            onClick={() => p.onRotateBy(r.axis, -15)}
+                            key={r.axis}
+                            className="border-fg/10 text-fg/75 hover:bg-fg/5 h-9 rounded-lg border text-xs"
+                            data-testid={`rot-90-${r.axis}`}
+                            title={`${r.hint}: a quarter turn`}
+                            onClick={() => p.onRotate(r.axis)}
                         >
-                            −
+                            {r.label} 90°
                         </button>
-                        <input
-                            value={rotInputs[r.axis]}
-                            inputMode="decimal"
-                            className="bg-surface-2 border-fg/10 h-8 w-full min-w-0 rounded-lg border px-1 text-center text-xs"
-                            aria-label={`${r.label} degrees`}
-                            data-testid={`rot-input-${r.axis}`}
-                            onChange={(e) => setRotInputs(setAt(rotInputs, r.axis, e.target.value))}
-                            onBlur={() => commitRotation(r.axis)}
-                            onKeyDown={onEnter(() => commitRotation(r.axis))}
-                        />
-                        <button
-                            className="border-fg/10 text-muted hover:bg-fg/5 h-8 w-7 flex-none rounded-lg border text-[11px]"
-                            data-testid={`rot-plus-${r.axis}`}
-                            title={`${r.label} +15°`}
-                            onClick={() => p.onRotateBy(r.axis, 15)}
-                        >
-                            +
-                        </button>
-                    </div>
-                ))}
-            </div>
-
-            <SectionLabel>Door / Drawer</SectionLabel>
-            {p.movable === null ? (
-                <div className="mb-4" data-testid="movable-none">
-                    <p className="text-muted mb-2 text-[11px]">
-                        Hang this part on hardware so it opens. The design keeps the closed position — the
-                        Open toggle is a view.
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                        {(['door', 'drawer'] as const).map((kind) => (
+                    ))}
+                </div>
+                <div className="mb-2.5 grid grid-cols-3 gap-2">
+                    {ROTATIONS.map((r) => (
+                        <div key={r.axis} className="flex items-center gap-1">
                             <button
-                                key={kind}
-                                className="hover:border-accent/60 border-fg/15 text-fg/65 h-9 rounded-lg border border-dashed text-xs"
-                                data-testid={`make-${kind}`}
-                                onClick={() => p.onMakeMovable(kind)}
+                                className="border-fg/10 text-muted hover:bg-fg/5 h-8 w-7 flex-none rounded-lg border text-[11px]"
+                                data-testid={`rot-minus-${r.axis}`}
+                                title={`${r.label} back 15°`}
+                                onClick={() => p.onRotateBy(r.axis, -15)}
                             >
-                                Make a {kind}
+                                −
                             </button>
+                            <input
+                                value={rotInputs[r.axis]}
+                                inputMode="decimal"
+                                className="bg-surface-2 border-fg/10 h-8 w-full min-w-0 rounded-lg border px-1 text-center text-xs"
+                                aria-label={`${r.label}, degrees`}
+                                title={r.hint}
+                                data-testid={`rot-input-${r.axis}`}
+                                onChange={(e) => setRotInputs(setAt(rotInputs, r.axis, e.target.value))}
+                                onBlur={() => commitRotation(r.axis)}
+                                onKeyDown={onEnter(() => commitRotation(r.axis))}
+                            />
+                            <button
+                                className="border-fg/10 text-muted hover:bg-fg/5 h-8 w-7 flex-none rounded-lg border text-[11px]"
+                                data-testid={`rot-plus-${r.axis}`}
+                                title={`${r.label} on 15°`}
+                                onClick={() => p.onRotateBy(r.axis, 15)}
+                            >
+                                +
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </Section>
+
+            <Section id="movable" title="Door or drawer">
+                {p.movable === null ? (
+                    <div className="mb-4" data-testid="movable-none">
+                        <p className="text-muted mb-2 text-[11px]">
+                            Turn this part into a door or a drawer. Use Open in the toolbar to see it move.
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                            {(['door', 'drawer'] as const).map((kind) => (
+                                <button
+                                    key={kind}
+                                    className="hover:border-accent/60 border-fg/15 text-fg/65 h-9 rounded-lg border border-dashed text-xs"
+                                    data-testid={`make-${kind}`}
+                                    onClick={() => p.onMakeMovable(kind)}
+                                >
+                                    Make a {kind}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-surface-2/60 mb-4 rounded-lg p-2.5" data-testid="movable-panel">
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                            <span
+                                className="text-fg/80 text-[12.5px] font-semibold"
+                                data-testid="movable-kind"
+                            >
+                                {p.movable.kind === 'door' ? 'Door' : 'Drawer'}
+                                <span className="text-muted text-[11px] font-normal">
+                                    {' '}
+                                    · {p.movable.partIds.length}{' '}
+                                    {p.movable.partIds.length === 1 ? 'part' : 'parts'}
+                                </span>
+                            </span>
+                            <button
+                                className="text-muted hover:text-danger-fg text-[11px]"
+                                data-testid="movable-dissolve"
+                                onClick={p.onDissolveMovable}
+                            >
+                                Dissolve
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <Field label="Style">
+                                <Select
+                                    value={p.movable.style}
+                                    data-testid="movable-style"
+                                    onChange={(e) => p.onUpdateMovable({ style: e.target.value })}
+                                >
+                                    <option value="overlay">overlay</option>
+                                    <option value="inset">inset</option>
+                                </Select>
+                            </Field>
+                            {p.movable.kind === 'door' && (
+                                <Field label="Hinges on">
+                                    <Select
+                                        value={p.movable.hingeEdge}
+                                        data-testid="movable-hinge-edge"
+                                        onChange={(e) => p.onUpdateMovable({ hingeEdge: e.target.value })}
+                                    >
+                                        {EDGE_LABELS.map((e) => (
+                                            <option key={e.value} value={e.value}>
+                                                {e.label}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </Field>
+                            )}
+                        </div>
+                        <MovableFittings movable={p.movable} onChange={p.onUpdateMovable} />
+                    </div>
+                )}
+            </Section>
+
+            <Section id="hardware" title="Hardware">
+                <PartHardware
+                    part={p.part}
+                    thickness={p.thickness ?? 0.75}
+                    mounts={p.hardware}
+                    onAdd={p.onAddHardware}
+                    onUpdate={p.onUpdateHardware}
+                    onRemove={p.onRemoveHardware}
+                    selectedId={p.selectedHardwareId}
+                    onSelect={p.onSelectHardware}
+                />
+            </Section>
+
+            <Section id="cuts" title="Cuts &amp; fasteners">
+                {hasOps && (
+                    <div className="mb-2.5 flex flex-col gap-1" data-testid="ops-list">
+                        {part.ops.map((op, i) => (
+                            <div
+                                key={i}
+                                className="bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2"
+                                data-testid="ops-row"
+                            >
+                                <span className="text-faint flex-none" aria-hidden="true">
+                                    <OpIcon type={op.type} />
+                                </span>
+                                <span
+                                    className="text-fg/80 min-w-0 flex-1 text-xs leading-snug"
+                                    title={opSummary(op)}
+                                >
+                                    {opSummary(op)}
+                                </span>
+                                <button
+                                    className="text-muted hover:bg-danger/15 hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs"
+                                    data-testid={`ops-delete-${i}`}
+                                    title="Delete this cut"
+                                    onClick={() => p.onRemoveOp(i)}
+                                >
+                                    ✕
+                                </button>
+                            </div>
                         ))}
                     </div>
-                </div>
-            ) : (
-                <div className="bg-surface-2/60 mb-4 rounded-lg p-2.5" data-testid="movable-panel">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                        <span className="text-fg/80 text-[12.5px] font-semibold" data-testid="movable-kind">
-                            {p.movable.kind === 'door' ? 'Door' : 'Drawer'}
-                            <span className="text-muted text-[11px] font-normal">
-                                {' '}
-                                · {p.movable.partIds.length}{' '}
-                                {p.movable.partIds.length === 1 ? 'part' : 'parts'}
-                            </span>
-                        </span>
-                        <button
-                            className="text-muted hover:text-danger-fg text-[11px]"
-                            data-testid="movable-dissolve"
-                            onClick={p.onDissolveMovable}
-                        >
-                            Dissolve
-                        </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                        <Field label="Style">
-                            <Select
-                                value={p.movable.style}
-                                data-testid="movable-style"
-                                onChange={(e) => p.onUpdateMovable({ style: e.target.value })}
-                            >
-                                <option value="overlay">overlay</option>
-                                <option value="inset">inset</option>
-                            </Select>
-                        </Field>
-                        {p.movable.kind === 'door' && (
-                            <Field label="Hinges on">
-                                <Select
-                                    value={p.movable.hingeEdge}
-                                    data-testid="movable-hinge-edge"
-                                    onChange={(e) => p.onUpdateMovable({ hingeEdge: e.target.value })}
+                )}
+
+                {p.round ? (
+                    <p
+                        className="border-fg/10 text-muted mb-2.5 rounded-lg border border-dashed px-2.5 py-2 text-[11px]"
+                        data-testid="round-no-ops"
+                    >
+                        Dowel stock takes no dados, holes or edges — cut features on square stock.
+                    </p>
+                ) : (
+                    <div className="mb-2.5">
+                        <Popover
+                            align="left"
+                            panelClassName="flex w-64 flex-col gap-px p-1.5"
+                            trigger={({ open, toggle }) => (
+                                <button
+                                    className={`border-fg/15 text-fg/75 flex h-9 w-full items-center justify-center gap-1.5 rounded-lg border border-dashed text-xs ${open || openForm !== null ? 'border-accent text-accent' : 'hover:border-accent/60'}`}
+                                    aria-expanded={open}
+                                    onClick={toggle}
+                                    data-testid="ops-add-menu"
                                 >
-                                    {EDGE_LABELS.map((e) => (
+                                    {openForm === null
+                                        ? '+ Add a cut'
+                                        : `Adding: ${OP_BUTTONS.find((b) => b.form === openForm)?.label}`}
+                                </button>
+                            )}
+                        >
+                            {(close) =>
+                                OP_BUTTONS.map((b) => (
+                                    <button
+                                        key={b.form}
+                                        className={`hover:bg-fg/[0.07] flex items-start gap-2.5 rounded-md px-2.5 py-2 text-left ${openForm === b.form ? 'bg-fg/[0.07]' : ''}`}
+                                        data-testid={`ops-add-${b.form}`}
+                                        onClick={() => {
+                                            close();
+                                            toggleForm(b.form);
+                                        }}
+                                    >
+                                        <span className="text-muted mt-px flex-none" aria-hidden="true">
+                                            <OpIcon type={b.icon} />
+                                        </span>
+                                        <span>
+                                            <span className="block text-[12.5px] font-medium">{b.label}</span>
+                                            <span className="text-muted block text-[11.5px]">{b.does}</span>
+                                        </span>
+                                    </button>
+                                ))
+                            }
+                        </Popover>
+                    </div>
+                )}
+
+                {openForm === 'pocket' && (
+                    <FormBox testId="pocket-form">
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <EdgeField
+                                value={pocket.edge}
+                                testId="pocket-edge"
+                                onChange={(edge) => setPocket({ ...pocket, edge })}
+                            />
+                            <Field label="Screws">
+                                <TextInput
+                                    value={pocket.count}
+                                    inputMode="numeric"
+                                    data-testid="pocket-count"
+                                    onChange={(e) => setPocket({ ...pocket, count: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <Hint>
+                            Marker only — pocket screws through this edge into the mating part. Butt the edge
+                            against a part and the joint is recorded automatically.
+                        </Hint>
+                        <div className="grid grid-cols-2 gap-2">
+                            <PrimaryButton
+                                data-testid="pocket-submit"
+                                onClick={() => {
+                                    setFormError(null);
+                                    const count = pocketCount();
+                                    if (count !== null)
+                                        add({ type: 'pocketHoles', edge: pocket.edge as Edge, count });
+                                }}
+                            >
+                                Add pocket holes
+                            </PrimaryButton>
+                            <SecondaryButton
+                                disabled={!p.canPlace}
+                                title={
+                                    p.canPlace ? 'Point at the part near an edge to place them' : placeTitle
+                                }
+                                data-testid="pocket-place"
+                                onClick={() => {
+                                    setFormError(null);
+                                    const count = pocketCount();
+                                    if (count !== null) {
+                                        p.onPlaceOp({ kind: 'pocket', count });
+                                        setOpenForm(null);
+                                    }
+                                }}
+                            >
+                                Place in 3D
+                            </SecondaryButton>
+                        </div>
+                    </FormBox>
+                )}
+
+                {openForm === 'miter' && (
+                    <FormBox testId="miter-form">
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <EdgeField
+                                value={miter.edge}
+                                testId="miter-edge"
+                                onChange={(edge) => setMiter({ ...miter, edge })}
+                            />
+                            <Field label="Angle (°)">
+                                <TextInput
+                                    value={miter.angle}
+                                    inputMode="decimal"
+                                    data-testid="miter-angle"
+                                    onChange={(e) => setMiter({ ...miter, angle: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <Hint>
+                            Bevels this edge off square (up to 60°), cut from the back face — how an inclined
+                            backrest meets the seat flush.
+                        </Hint>
+                        <PrimaryButton className="w-full" data-testid="miter-submit" onClick={submitMiter}>
+                            Add miter
+                        </PrimaryButton>
+                    </FormBox>
+                )}
+
+                {openForm === 'ease' && (
+                    <FormBox testId="ease-form">
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <EdgeField
+                                value={ease.edge}
+                                testId="ease-edge"
+                                onChange={(edge) => setEase({ ...ease, edge })}
+                            />
+                            <Field label="Profile">
+                                <Select
+                                    value={ease.profile}
+                                    data-testid="ease-profile"
+                                    onChange={(e) => setEase({ ...ease, profile: e.target.value })}
+                                >
+                                    <option value="roundover">roundover</option>
+                                    <option value="chamfer">chamfer</option>
+                                    <option value="bullnose">bullnose (half-round)</option>
+                                </Select>
+                            </Field>
+                        </div>
+                        {ease.profile !== 'bullnose' && (
+                            <div className="mb-2 grid grid-cols-2 gap-2">
+                                <Field label={ease.profile === 'roundover' ? 'Radius' : 'Width'}>
+                                    <TextInput
+                                        value={ease.size}
+                                        placeholder="1/4"
+                                        data-testid="ease-size"
+                                        onChange={(e) => setEase({ ...ease, size: e.target.value })}
+                                    />
+                                </Field>
+                                <Field label="Faces">
+                                    <Select
+                                        value={ease.face}
+                                        data-testid="ease-face"
+                                        onChange={(e) => setEase({ ...ease, face: e.target.value })}
+                                    >
+                                        <option value="both">both (one pass each side)</option>
+                                        <option value="front">front only</option>
+                                        <option value="back">back only</option>
+                                    </Select>
+                                </Field>
+                            </div>
+                        )}
+                        <Checkbox checked={easeStopped} onChange={setEaseStopped} testId="ease-stopped">
+                            stopped run (from / to)
+                        </Checkbox>
+                        {easeStopped && <RunFields value={easeRun} onChange={setEaseRun} testPrefix="ease" />}
+                        <Hint>
+                            {ease.profile === 'bullnose'
+                                ? 'Rounds the whole edge to a half-circle of the stock thickness — the bit size follows the board.'
+                                : 'Softens the sharp corner where this edge meets the face. The blank stays the same size: rout after cutting.'}
+                        </Hint>
+                        <PrimaryButton className="w-full" data-testid="ease-submit" onClick={submitEase}>
+                            Add soft edge
+                        </PrimaryButton>
+                    </FormBox>
+                )}
+
+                {p.touching.length > 0 && (
+                    <div className="mb-3" data-testid="dowel-list">
+                        <SectionLabel>Fasten to</SectionLabel>
+                        <div className="flex flex-col gap-1.5">
+                            {p.touching.map((t) => (
+                                <div key={t.partId} className="bg-surface-2 rounded-lg px-2.5 py-2">
+                                    <span className="text-fg/75 mb-1.5 block min-w-0 truncate text-xs">
+                                        {t.name}
+                                    </span>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        <MateButton
+                                            testId={`fasten-pocket-${t.partId}`}
+                                            onClick={() => p.onFastenTo(t.partId, 'pocket')}
+                                        >
+                                            Pocket screws
+                                        </MateButton>
+                                        <MateButton
+                                            testId={`fasten-screws-${t.partId}`}
+                                            onClick={() => p.onFastenTo(t.partId, 'screws')}
+                                        >
+                                            Screws
+                                        </MateButton>
+                                        <MateButton
+                                            testId={`dowel-add-${t.partId}`}
+                                            onClick={() => p.onDowelTo(t.partId)}
+                                        >
+                                            Dowels
+                                        </MateButton>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {openForm === 'notch' && (
+                    <FormBox testId="notch-form">
+                        <EdgeField
+                            className="mb-2"
+                            value={notch.edge}
+                            testId="notch-edge"
+                            onChange={(edge) => setNotch({ ...notch, edge })}
+                        />
+                        <div className="mb-2 grid grid-cols-3 gap-2">
+                            <Field label={`From (${unitSuffix()})`}>
+                                <TextInput
+                                    value={notch.from}
+                                    inputMode="decimal"
+                                    data-testid="notch-from"
+                                    onChange={(e) => setNotch({ ...notch, from: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`To (${unitSuffix()})`}>
+                                <TextInput
+                                    value={notch.to}
+                                    inputMode="decimal"
+                                    placeholder="e.g. 3 1/2"
+                                    data-testid="notch-to"
+                                    onChange={(e) => setNotch({ ...notch, to: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Depth (${unitSuffix()})`}>
+                                <TextInput
+                                    value={notch.depth}
+                                    inputMode="decimal"
+                                    data-testid="notch-depth"
+                                    onChange={(e) => setNotch({ ...notch, depth: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <Hint>From/To run along the edge from its low end; From 0 notches the corner.</Hint>
+                        <PrimaryButton className="w-full" data-testid="notch-submit" onClick={submitNotch}>
+                            Add notch
+                        </PrimaryButton>
+                    </FormBox>
+                )}
+
+                {p.overlaps.length > 0 && (
+                    <div className="mb-3" data-testid="overlap-list">
+                        <div className="mb-2 flex items-center justify-between">
+                            <span className="text-muted text-[11.5px] font-semibold tracking-wider uppercase">
+                                Overlapping parts
+                            </span>
+                            <label className="text-muted flex items-center gap-1.5 text-[11px]">
+                                clearance
+                                <input
+                                    value={clearance}
+                                    inputMode="decimal"
+                                    onChange={(e) => setClearance(e.target.value)}
+                                    className="bg-surface-2 focus:border-accent border-fg/10 h-7 w-14 rounded-lg border px-2 text-center text-xs focus:outline-none"
+                                    data-testid="notch-clearance"
+                                />
+                            </label>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            {p.overlaps.map((o) => (
+                                <div
+                                    key={o.partId}
+                                    className="bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2"
+                                >
+                                    <span className="text-fg/75 min-w-0 truncate text-xs">{o.name}</span>
+                                    <div className="flex flex-none items-center gap-1.5">
+                                        <MateButton
+                                            testId={`overlap-push-${o.partId}`}
+                                            onClick={() => p.onPushOut(o.partId)}
+                                        >
+                                            Push out
+                                        </MateButton>
+                                        <MateButton
+                                            testId={`overlap-notch-${o.partId}`}
+                                            onClick={() => notchAround(o.partId)}
+                                        >
+                                            Notch around
+                                        </MateButton>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {openForm === 'curve' && (
+                    <FormBox testId="curve-form">
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <EdgeField
+                                value={curve.edge}
+                                testId="curve-edge"
+                                onChange={(edge) => updateCurve({ edge })}
+                            />
+                            <Field label="Shape">
+                                <Select
+                                    value={curve.kind}
+                                    data-testid="curve-kind"
+                                    onChange={(e) => updateCurve({ kind: e.target.value })}
+                                >
+                                    <option value="arc">arc / dome</option>
+                                    <option value="round">rounded corners</option>
+                                    <option value="ramp">one-sided sweep</option>
+                                </Select>
+                            </Field>
+                        </div>
+                        {curve.kind !== 'arc' && (
+                            <Field
+                                className="mb-2"
+                                label={curve.kind === 'ramp' ? 'Sweeps down toward' : 'Which corner'}
+                            >
+                                <Select
+                                    value={curve.end}
+                                    data-testid="curve-end"
+                                    onChange={(e) => updateCurve({ end: e.target.value })}
+                                >
+                                    {curve.kind === 'round' && <option value="both">both corners</option>}
+                                    {endsOf(curve.edge).map((e) => (
                                         <option key={e.value} value={e.value}>
                                             {e.label}
                                         </option>
@@ -771,524 +1207,166 @@ export function PartInspector(p: PartInspectorProps) {
                                 </Select>
                             </Field>
                         )}
-                    </div>
-                    <MovableFittings movable={p.movable} onChange={p.onUpdateMovable} />
-                </div>
-            )}
-
-            <SectionLabel>Hardware</SectionLabel>
-            <PartHardware
-                part={p.part}
-                thickness={p.thickness ?? 0.75}
-                mounts={p.hardware}
-                onAdd={p.onAddHardware}
-                onUpdate={p.onUpdateHardware}
-                onRemove={p.onRemoveHardware}
-                selectedId={p.selectedHardwareId}
-                onSelect={p.onSelectHardware}
-            />
-
-            <SectionLabel>Cuts &amp; joinery</SectionLabel>
-            {hasOps && (
-                <div className="mb-2.5 flex flex-col gap-1" data-testid="ops-list">
-                    {part.ops.map((op, i) => (
-                        <div
-                            key={i}
-                            className="bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2"
-                            data-testid="ops-row"
+                        <Field
+                            className="mb-2"
+                            label={
+                                curve.kind === 'arc'
+                                    ? `Height (${unitSuffix()}) — how far the corners drop`
+                                    : curve.kind === 'ramp'
+                                      ? `Height (${unitSuffix()}) — how far the low end drops`
+                                      : `Corner radius (${unitSuffix()})`
+                            }
                         >
-                            <span className="text-fg/75 min-w-0 truncate text-xs">{opSummary(op)}</span>
-                            <button
-                                className="text-muted hover:bg-danger/15 hover:text-danger-fg flex-none rounded px-1.5 py-0.5 text-xs"
-                                data-testid={`ops-delete-${i}`}
-                                title="Delete this cut"
-                                onClick={() => p.onRemoveOp(i)}
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {p.round ? (
-                <p
-                    className="border-fg/10 text-muted mb-2.5 rounded-lg border border-dashed px-2.5 py-2 text-[11px]"
-                    data-testid="round-no-ops"
-                >
-                    Dowel stock takes no dados, holes or edges — cut features on square stock.
-                </p>
-            ) : (
-                <div className="mb-2.5 grid grid-cols-3 gap-1.5">
-                    {OP_BUTTONS.map((b) => (
-                        <button
-                            key={b.form}
-                            className={`border-fg/15 text-fg/65 h-9 rounded-lg border border-dashed text-xs ${openForm === b.form ? 'border-accent text-accent' : 'hover:border-accent/60'}`}
-                            data-testid={`ops-add-${b.form}`}
-                            onClick={() => toggleForm(b.form)}
-                        >
-                            {b.label}
-                        </button>
-                    ))}
-                </div>
-            )}
-
-            {openForm === 'pocket' && (
-                <FormBox testId="pocket-form">
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                        <EdgeField
-                            value={pocket.edge}
-                            testId="pocket-edge"
-                            onChange={(edge) => setPocket({ ...pocket, edge })}
-                        />
-                        <Field label="Screws">
                             <TextInput
-                                value={pocket.count}
-                                inputMode="numeric"
-                                data-testid="pocket-count"
-                                onChange={(e) => setPocket({ ...pocket, count: e.target.value })}
-                            />
-                        </Field>
-                    </div>
-                    <Hint>
-                        Marker only — pocket screws through this edge into the mating part. Butt the edge
-                        against a part and the joint is recorded automatically.
-                    </Hint>
-                    <div className="grid grid-cols-2 gap-2">
-                        <PrimaryButton
-                            data-testid="pocket-submit"
-                            onClick={() => {
-                                setFormError(null);
-                                const count = pocketCount();
-                                if (count !== null)
-                                    add({ type: 'pocketHoles', edge: pocket.edge as Edge, count });
-                            }}
-                        >
-                            Add pocket holes
-                        </PrimaryButton>
-                        <SecondaryButton
-                            disabled={!p.canPlace}
-                            title={p.canPlace ? 'Point at the part near an edge to place them' : placeTitle}
-                            data-testid="pocket-place"
-                            onClick={() => {
-                                setFormError(null);
-                                const count = pocketCount();
-                                if (count !== null) {
-                                    p.onPlaceOp({ kind: 'pocket', count });
-                                    setOpenForm(null);
-                                }
-                            }}
-                        >
-                            Place in 3D
-                        </SecondaryButton>
-                    </div>
-                </FormBox>
-            )}
-
-            {openForm === 'miter' && (
-                <FormBox testId="miter-form">
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                        <EdgeField
-                            value={miter.edge}
-                            testId="miter-edge"
-                            onChange={(edge) => setMiter({ ...miter, edge })}
-                        />
-                        <Field label="Angle (°)">
-                            <TextInput
-                                value={miter.angle}
+                                value={curve.size}
                                 inputMode="decimal"
-                                data-testid="miter-angle"
-                                onChange={(e) => setMiter({ ...miter, angle: e.target.value })}
+                                placeholder="e.g. 4"
+                                data-testid="curve-size"
+                                onChange={(e) => updateCurve({ size: e.target.value })}
                             />
                         </Field>
-                    </div>
-                    <Hint>
-                        Bevels this edge off square (up to 60°), cut from the back face — how an inclined
-                        backrest meets the seat flush.
-                    </Hint>
-                    <PrimaryButton className="w-full" data-testid="miter-submit" onClick={submitMiter}>
-                        Add miter
-                    </PrimaryButton>
-                </FormBox>
-            )}
+                        <PrimaryButton className="w-full" data-testid="curve-submit" onClick={submitCurve}>
+                            Add curve
+                        </PrimaryButton>
+                    </FormBox>
+                )}
 
-            {openForm === 'ease' && (
-                <FormBox testId="ease-form">
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                        <EdgeField
-                            value={ease.edge}
-                            testId="ease-edge"
-                            onChange={(edge) => setEase({ ...ease, edge })}
-                        />
-                        <Field label="Profile">
-                            <Select
-                                value={ease.profile}
-                                data-testid="ease-profile"
-                                onChange={(e) => setEase({ ...ease, profile: e.target.value })}
-                            >
-                                <option value="roundover">roundover</option>
-                                <option value="chamfer">chamfer</option>
-                                <option value="bullnose">bullnose (half-round)</option>
-                            </Select>
-                        </Field>
-                    </div>
-                    {ease.profile !== 'bullnose' && (
+                {openForm === 'dado' && (
+                    <FormBox testId="dado-form">
                         <div className="mb-2 grid grid-cols-2 gap-2">
-                            <Field label={ease.profile === 'roundover' ? 'Radius' : 'Width'}>
-                                <TextInput
-                                    value={ease.size}
-                                    placeholder="1/4"
-                                    data-testid="ease-size"
-                                    onChange={(e) => setEase({ ...ease, size: e.target.value })}
-                                />
-                            </Field>
-                            <Field label="Faces">
+                            <FaceField value={dado.face} onChange={(face) => setDado({ ...dado, face })} />
+                            <Field label="Axis">
                                 <Select
-                                    value={ease.face}
-                                    data-testid="ease-face"
-                                    onChange={(e) => setEase({ ...ease, face: e.target.value })}
+                                    value={dado.axis}
+                                    data-testid="dado-axis"
+                                    onChange={(e) => setDado({ ...dado, axis: e.target.value })}
                                 >
-                                    <option value="both">both (one pass each side)</option>
-                                    <option value="front">front only</option>
-                                    <option value="back">back only</option>
+                                    <option value="l">along length</option>
+                                    <option value="w">along width</option>
                                 </Select>
                             </Field>
                         </div>
-                    )}
-                    <Checkbox checked={easeStopped} onChange={setEaseStopped} testId="ease-stopped">
-                        stopped run (from / to)
-                    </Checkbox>
-                    {easeStopped && <RunFields value={easeRun} onChange={setEaseRun} testPrefix="ease" />}
-                    <Hint>
-                        {ease.profile === 'bullnose'
-                            ? 'Rounds the whole edge to a half-circle of the stock thickness — the bit size follows the board.'
-                            : 'Softens the sharp corner where this edge meets the face. The blank stays the same size: rout after cutting.'}
-                    </Hint>
-                    <PrimaryButton className="w-full" data-testid="ease-submit" onClick={submitEase}>
-                        Add soft edge
-                    </PrimaryButton>
-                </FormBox>
-            )}
-
-            {p.touching.length > 0 && (
-                <div className="mb-3" data-testid="dowel-list">
-                    <SectionLabel>Fasten to</SectionLabel>
-                    <div className="flex flex-col gap-1.5">
-                        {p.touching.map((t) => (
-                            <div key={t.partId} className="bg-surface-2 rounded-lg px-2.5 py-2">
-                                <span className="text-fg/75 mb-1.5 block min-w-0 truncate text-xs">
-                                    {t.name}
-                                </span>
-                                <div className="flex flex-wrap gap-1.5">
-                                    <MateButton
-                                        testId={`fasten-pocket-${t.partId}`}
-                                        onClick={() => p.onFastenTo(t.partId, 'pocket')}
-                                    >
-                                        Pocket screws
-                                    </MateButton>
-                                    <MateButton
-                                        testId={`fasten-screws-${t.partId}`}
-                                        onClick={() => p.onFastenTo(t.partId, 'screws')}
-                                    >
-                                        Screws
-                                    </MateButton>
-                                    <MateButton
-                                        testId={`dowel-add-${t.partId}`}
-                                        onClick={() => p.onDowelTo(t.partId)}
-                                    >
-                                        Dowels
-                                    </MateButton>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {openForm === 'notch' && (
-                <FormBox testId="notch-form">
-                    <EdgeField
-                        className="mb-2"
-                        value={notch.edge}
-                        testId="notch-edge"
-                        onChange={(edge) => setNotch({ ...notch, edge })}
-                    />
-                    <div className="mb-2 grid grid-cols-3 gap-2">
-                        <Field label={`From (${unitSuffix()})`}>
-                            <TextInput
-                                value={notch.from}
-                                inputMode="decimal"
-                                data-testid="notch-from"
-                                onChange={(e) => setNotch({ ...notch, from: e.target.value })}
-                            />
-                        </Field>
-                        <Field label={`To (${unitSuffix()})`}>
-                            <TextInput
-                                value={notch.to}
-                                inputMode="decimal"
-                                placeholder="e.g. 3 1/2"
-                                data-testid="notch-to"
-                                onChange={(e) => setNotch({ ...notch, to: e.target.value })}
-                            />
-                        </Field>
-                        <Field label={`Depth (${unitSuffix()})`}>
-                            <TextInput
-                                value={notch.depth}
-                                inputMode="decimal"
-                                data-testid="notch-depth"
-                                onChange={(e) => setNotch({ ...notch, depth: e.target.value })}
-                            />
-                        </Field>
-                    </div>
-                    <Hint>From/To run along the edge from its low end; From 0 notches the corner.</Hint>
-                    <PrimaryButton className="w-full" data-testid="notch-submit" onClick={submitNotch}>
-                        Add notch
-                    </PrimaryButton>
-                </FormBox>
-            )}
-
-            {p.overlaps.length > 0 && (
-                <div className="mb-3" data-testid="overlap-list">
-                    <div className="mb-2 flex items-center justify-between">
-                        <span className="text-muted text-[11.5px] font-semibold tracking-wider uppercase">
-                            Overlapping parts
-                        </span>
-                        <label className="text-muted flex items-center gap-1.5 text-[11px]">
-                            clearance
-                            <input
-                                value={clearance}
-                                inputMode="decimal"
-                                onChange={(e) => setClearance(e.target.value)}
-                                className="bg-surface-2 focus:border-accent border-fg/10 h-7 w-14 rounded-lg border px-2 text-center text-xs focus:outline-none"
-                                data-testid="notch-clearance"
-                            />
-                        </label>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        {p.overlaps.map((o) => (
-                            <div
-                                key={o.partId}
-                                className="bg-surface-2 flex items-center justify-between gap-2 rounded-lg px-2.5 py-2"
+                        <div className="mb-2 grid grid-cols-3 gap-2">
+                            <Field label={`Offset (${unitSuffix()})`}>
+                                <TextInput
+                                    value={dado.offset}
+                                    inputMode="decimal"
+                                    placeholder="e.g. 17"
+                                    data-testid="dado-offset"
+                                    onChange={(e) => setDado({ ...dado, offset: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Width (${unitSuffix()})`}>
+                                <TextInput
+                                    value={dado.width}
+                                    inputMode="decimal"
+                                    data-testid="dado-width"
+                                    onChange={(e) => setDado({ ...dado, width: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Depth (${unitSuffix()})`}>
+                                <TextInput
+                                    value={dado.depth}
+                                    inputMode="decimal"
+                                    data-testid="dado-depth"
+                                    onChange={(e) => setDado({ ...dado, depth: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <Checkbox checked={stopped} onChange={setStopped}>
+                            stopped channel (from / to)
+                        </Checkbox>
+                        {stopped && <RunFields value={dadoRun} onChange={setDadoRun} testPrefix="dado" />}
+                        <div className="grid grid-cols-2 gap-2">
+                            <PrimaryButton data-testid="dado-submit" onClick={submitDado}>
+                                Add dado
+                            </PrimaryButton>
+                            <SecondaryButton
+                                disabled={!p.canPlace}
+                                title={placeTitle}
+                                data-testid="dado-place"
+                                onClick={placeDado}
                             >
-                                <span className="text-fg/75 min-w-0 truncate text-xs">{o.name}</span>
-                                <div className="flex flex-none items-center gap-1.5">
-                                    <MateButton
-                                        testId={`overlap-push-${o.partId}`}
-                                        onClick={() => p.onPushOut(o.partId)}
-                                    >
-                                        Push out
-                                    </MateButton>
-                                    <MateButton
-                                        testId={`overlap-notch-${o.partId}`}
-                                        onClick={() => notchAround(o.partId)}
-                                    >
-                                        Notch around
-                                    </MateButton>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+                                Place in 3D
+                            </SecondaryButton>
+                        </div>
+                    </FormBox>
+                )}
 
-            {openForm === 'curve' && (
-                <FormBox testId="curve-form">
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                        <EdgeField
-                            value={curve.edge}
-                            testId="curve-edge"
-                            onChange={(edge) => updateCurve({ edge })}
-                        />
-                        <Field label="Shape">
-                            <Select
-                                value={curve.kind}
-                                data-testid="curve-kind"
-                                onChange={(e) => updateCurve({ kind: e.target.value })}
+                {openForm === 'hole' && (
+                    <FormBox testId="hole-form">
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <FaceField value={hole.face} onChange={(face) => setHole({ ...hole, face })} />
+                            <Field label="Purpose">
+                                <Select
+                                    value={hole.purpose}
+                                    onChange={(e) => setHole({ ...hole, purpose: e.target.value })}
+                                >
+                                    <option value="dowel">dowel</option>
+                                    <option value="shelfPin">shelf pin</option>
+                                    <option value="hardware">hardware</option>
+                                    <option value="other">other</option>
+                                </Select>
+                            </Field>
+                        </div>
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <Field label="X (in, from left)">
+                                <TextInput
+                                    value={hole.x}
+                                    inputMode="decimal"
+                                    data-testid="hole-x"
+                                    onChange={(e) => setHole({ ...hole, x: e.target.value })}
+                                />
+                            </Field>
+                            <Field label="Y (in, from bottom)">
+                                <TextInput
+                                    value={hole.y}
+                                    inputMode="decimal"
+                                    data-testid="hole-y"
+                                    onChange={(e) => setHole({ ...hole, y: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <Field label={`Diameter (${unitSuffix()})`}>
+                                <TextInput
+                                    value={hole.diameter}
+                                    inputMode="decimal"
+                                    data-testid="hole-diameter"
+                                    onChange={(e) => setHole({ ...hole, diameter: e.target.value })}
+                                />
+                            </Field>
+                            <Field label="Depth (empty = through)">
+                                <TextInput
+                                    value={hole.depth}
+                                    inputMode="decimal"
+                                    placeholder="through"
+                                    onChange={(e) => setHole({ ...hole, depth: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <PrimaryButton data-testid="hole-submit" onClick={submitHole}>
+                                Add hole
+                            </PrimaryButton>
+                            <SecondaryButton
+                                disabled={!p.canPlace}
+                                title={placeTitle}
+                                data-testid="hole-place"
+                                onClick={placeHole}
                             >
-                                <option value="arc">arc / dome</option>
-                                <option value="round">rounded corners</option>
-                                <option value="ramp">one-sided sweep</option>
-                            </Select>
-                        </Field>
-                    </div>
-                    {curve.kind !== 'arc' && (
-                        <Field
-                            className="mb-2"
-                            label={curve.kind === 'ramp' ? 'Sweeps down toward' : 'Which corner'}
-                        >
-                            <Select
-                                value={curve.end}
-                                data-testid="curve-end"
-                                onChange={(e) => updateCurve({ end: e.target.value })}
-                            >
-                                {curve.kind === 'round' && <option value="both">both corners</option>}
-                                {endsOf(curve.edge).map((e) => (
-                                    <option key={e.value} value={e.value}>
-                                        {e.label}
-                                    </option>
-                                ))}
-                            </Select>
-                        </Field>
-                    )}
-                    <Field
-                        className="mb-2"
-                        label={
-                            curve.kind === 'arc'
-                                ? `Height (${unitSuffix()}) — how far the corners drop`
-                                : curve.kind === 'ramp'
-                                  ? `Height (${unitSuffix()}) — how far the low end drops`
-                                  : `Corner radius (${unitSuffix()})`
-                        }
-                    >
-                        <TextInput
-                            value={curve.size}
-                            inputMode="decimal"
-                            placeholder="e.g. 4"
-                            data-testid="curve-size"
-                            onChange={(e) => updateCurve({ size: e.target.value })}
-                        />
-                    </Field>
-                    <PrimaryButton className="w-full" data-testid="curve-submit" onClick={submitCurve}>
-                        Add curve
-                    </PrimaryButton>
-                </FormBox>
-            )}
+                                Place in 3D
+                            </SecondaryButton>
+                        </div>
+                    </FormBox>
+                )}
 
-            {openForm === 'dado' && (
-                <FormBox testId="dado-form">
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                        <FaceField value={dado.face} onChange={(face) => setDado({ ...dado, face })} />
-                        <Field label="Axis">
-                            <Select
-                                value={dado.axis}
-                                data-testid="dado-axis"
-                                onChange={(e) => setDado({ ...dado, axis: e.target.value })}
-                            >
-                                <option value="l">along length</option>
-                                <option value="w">along width</option>
-                            </Select>
-                        </Field>
-                    </div>
-                    <div className="mb-2 grid grid-cols-3 gap-2">
-                        <Field label={`Offset (${unitSuffix()})`}>
-                            <TextInput
-                                value={dado.offset}
-                                inputMode="decimal"
-                                placeholder="e.g. 17"
-                                data-testid="dado-offset"
-                                onChange={(e) => setDado({ ...dado, offset: e.target.value })}
-                            />
-                        </Field>
-                        <Field label={`Width (${unitSuffix()})`}>
-                            <TextInput
-                                value={dado.width}
-                                inputMode="decimal"
-                                data-testid="dado-width"
-                                onChange={(e) => setDado({ ...dado, width: e.target.value })}
-                            />
-                        </Field>
-                        <Field label={`Depth (${unitSuffix()})`}>
-                            <TextInput
-                                value={dado.depth}
-                                inputMode="decimal"
-                                data-testid="dado-depth"
-                                onChange={(e) => setDado({ ...dado, depth: e.target.value })}
-                            />
-                        </Field>
-                    </div>
-                    <Checkbox checked={stopped} onChange={setStopped}>
-                        stopped channel (from / to)
-                    </Checkbox>
-                    {stopped && <RunFields value={dadoRun} onChange={setDadoRun} testPrefix="dado" />}
-                    <div className="grid grid-cols-2 gap-2">
-                        <PrimaryButton data-testid="dado-submit" onClick={submitDado}>
-                            Add dado
-                        </PrimaryButton>
-                        <SecondaryButton
-                            disabled={!p.canPlace}
-                            title={placeTitle}
-                            data-testid="dado-place"
-                            onClick={placeDado}
-                        >
-                            Place in 3D
-                        </SecondaryButton>
-                    </div>
-                </FormBox>
-            )}
-
-            {openForm === 'hole' && (
-                <FormBox testId="hole-form">
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                        <FaceField value={hole.face} onChange={(face) => setHole({ ...hole, face })} />
-                        <Field label="Purpose">
-                            <Select
-                                value={hole.purpose}
-                                onChange={(e) => setHole({ ...hole, purpose: e.target.value })}
-                            >
-                                <option value="dowel">dowel</option>
-                                <option value="shelfPin">shelf pin</option>
-                                <option value="hardware">hardware</option>
-                                <option value="other">other</option>
-                            </Select>
-                        </Field>
-                    </div>
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                        <Field label="X (in, from left)">
-                            <TextInput
-                                value={hole.x}
-                                inputMode="decimal"
-                                data-testid="hole-x"
-                                onChange={(e) => setHole({ ...hole, x: e.target.value })}
-                            />
-                        </Field>
-                        <Field label="Y (in, from bottom)">
-                            <TextInput
-                                value={hole.y}
-                                inputMode="decimal"
-                                data-testid="hole-y"
-                                onChange={(e) => setHole({ ...hole, y: e.target.value })}
-                            />
-                        </Field>
-                    </div>
-                    <div className="mb-2 grid grid-cols-2 gap-2">
-                        <Field label={`Diameter (${unitSuffix()})`}>
-                            <TextInput
-                                value={hole.diameter}
-                                inputMode="decimal"
-                                data-testid="hole-diameter"
-                                onChange={(e) => setHole({ ...hole, diameter: e.target.value })}
-                            />
-                        </Field>
-                        <Field label="Depth (empty = through)">
-                            <TextInput
-                                value={hole.depth}
-                                inputMode="decimal"
-                                placeholder="through"
-                                onChange={(e) => setHole({ ...hole, depth: e.target.value })}
-                            />
-                        </Field>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                        <PrimaryButton data-testid="hole-submit" onClick={submitHole}>
-                            Add hole
-                        </PrimaryButton>
-                        <SecondaryButton
-                            disabled={!p.canPlace}
-                            title={placeTitle}
-                            data-testid="hole-place"
-                            onClick={placeHole}
-                        >
-                            Place in 3D
-                        </SecondaryButton>
-                    </div>
-                </FormBox>
-            )}
-
-            {formError && (
-                <p className="text-danger-fg mb-3 text-xs" data-testid="ops-error">
-                    {formError}
-                </p>
-            )}
+                {formError && (
+                    <p className="text-danger-fg mb-3 text-xs" data-testid="ops-error">
+                        {formError}
+                    </p>
+                )}
+            </Section>
 
             <div className="grid grid-cols-2 gap-2">
                 <button

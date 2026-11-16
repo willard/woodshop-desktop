@@ -6,16 +6,17 @@ import { MovableFittings } from './HardwareFittings';
 import { len } from '@/lib/display';
 
 type Axis3 = 0 | 1 | 2;
-const ROTATIONS: { axis: Axis3; label: string }[] = [
-    { axis: 0, label: 'Rot X' },
-    { axis: 1, label: 'Rot Y' },
-    { axis: 2, label: 'Rot Z' },
+/** Named for what the group does, seen from the front (as in the part inspector). */
+const ROTATIONS: { axis: Axis3; label: string; hint: string }[] = [
+    { axis: 0, label: 'Tip', hint: 'Tip forward or back' },
+    { axis: 1, label: 'Turn', hint: 'Turn left or right' },
+    { axis: 2, label: 'Roll', hint: 'Roll onto its side' },
 ];
 const EDGE_LABELS = [
-    { value: 'w0', label: 'w0 (low X / left)' },
-    { value: 'w1', label: 'w1 (high X / right)' },
-    { value: 'l0', label: 'l0 (low Y / bottom)' },
-    { value: 'l1', label: 'l1 (high Y / top)' },
+    { value: 'w0', label: 'Left side' },
+    { value: 'w1', label: 'Right side' },
+    { value: 'l0', label: 'Bottom' },
+    { value: 'l1', label: 'Top' },
 ];
 
 export interface GroupInspectorProps {
@@ -113,8 +114,8 @@ export function GroupInspector(p: GroupInspectorProps) {
             {p.movable === null ? (
                 <div className="mb-4" data-testid="group-movable-none">
                     <p className="text-muted mb-2 text-[11px]">
-                        Hang this group on hardware so it swings open as a unit. The design keeps the closed
-                        position — the Open toggle is a view.
+                        Turn this group into a door that swings open as one piece. Use Open in the toolbar to
+                        see it move.
                     </p>
                     <button
                         className="hover:border-accent/60 border-fg/15 text-fg/65 h-9 w-full rounded-lg border border-dashed text-xs"
@@ -199,6 +200,7 @@ export function GroupInspector(p: GroupInspectorProps) {
                         key={r.axis}
                         className={btn}
                         data-testid={`group-rot-${r.axis}`}
+                        title={`${r.hint}: a quarter turn`}
                         onClick={() => p.onRotate(r.axis)}
                     >
                         {r.label}

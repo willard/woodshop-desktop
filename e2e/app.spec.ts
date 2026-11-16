@@ -424,6 +424,37 @@ test('? lists the shortcuts, and the tool keys work', async ({ page }) => {
     await expect(page.getByTestId('mode-view')).toHaveAttribute('aria-checked', 'true');
 });
 
+test('the inspector adds a cut from one menu, says it in plain words, and remembers folded sections', async ({
+    page,
+}) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('outline').getByRole('button', { name: 'Top', exact: true }).click();
+    const cuts = page.getByTestId('section-cuts');
+    await expect(cuts).toContainText('Cuts & fasteners');
+    const before = await cuts.getByTestId('ops-row').count();
+
+    await page.getByTestId('ops-add-menu').click();
+    await page.getByTestId('ops-add-hole').click();
+    await page.getByTestId('hole-x').fill('2');
+    await page.getByTestId('hole-y').fill('3');
+    await page.getByTestId('hole-diameter').fill('1/4');
+    await page.getByTestId('hole-submit').click();
+    await expect(cuts.getByTestId('ops-row')).toHaveCount(before + 1);
+    await expect(cuts.getByTestId('ops-row').last()).toContainText('Hole ⌀ 1/4"');
+    await expect(cuts.getByTestId('ops-row').last()).toContainText('2" from the left end, 3" up');
+
+    // Rotation says what it does.
+    await expect(page.getByTestId('rot-90-1')).toHaveText('Turn 90°');
+
+    // Fold Orientation away; it stays folded.
+    await page.getByTestId('section-toggle-orientation').click();
+    await expect(page.getByTestId('rot-90-1')).toHaveCount(0);
+    await page.reload();
+    await page.getByTestId('outline').getByRole('button', { name: 'Top', exact: true }).click();
+    await expect(page.getByTestId('section-orientation')).toBeVisible();
+    await expect(page.getByTestId('rot-90-1')).toHaveCount(0);
+});
+
 test('when parts cannot be dragged, the editor says why and how to fix it', async ({ page }) => {
     await page.goto('/#/projects/1');
     const blocked = page.getByTestId('drag-blocked');

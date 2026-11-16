@@ -12,10 +12,10 @@ import { lenValue, parseLen } from '@/lib/display';
 const SIDES: { value: Side; label: string }[] = [
     { value: 'front', label: 'Front face' },
     { value: 'back', label: 'Back face' },
-    { value: 'l0', label: 'Bottom edge (l0)' },
-    { value: 'l1', label: 'Top edge (l1)' },
-    { value: 'w0', label: 'Left end (w0)' },
-    { value: 'w1', label: 'Right end (w1)' },
+    { value: 'l0', label: 'Bottom edge' },
+    { value: 'l1', label: 'Top edge' },
+    { value: 'w0', label: 'Left end' },
+    { value: 'w1', label: 'Right end' },
 ];
 
 /** A length field that takes shop fractions and commits on blur or Enter. */

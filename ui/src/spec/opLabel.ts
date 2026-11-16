@@ -9,63 +9,79 @@ import { len } from '@/lib/display';
 /** Formats a decimal-inch measurement the way hard rule 3 requires — via lib/fraction, only. */
 export const inch = (n: number): string => `${len(n)}`;
 
-/** One-line human summary per op row (§3.1 vocabulary). */
+/** The four edges and two faces of a part as drawn face-on (§3.1: l runs left to right). */
+const EDGE: Record<string, string> = { l0: 'bottom edge', l1: 'top edge', w0: 'left end', w1: 'right end' };
+const edgeName = (edge: string): string => EDGE[edge] ?? edge;
+const faceName = (face: string): string => `${face} face`;
+const many = (n: number, one: string, more = `${one}s`): string => `${n} ${n === 1 ? one : more}`;
+
+/**
+ * One line a woodworker can read: what the cut is, how big, and where (§3.1 vocabulary, in shop
+ * words). The editor's inspector and the offline plan viewer both read it, so the screen and the
+ * printed plan can never disagree.
+ */
 export function opSummary(op: Op): string {
     switch (op.type) {
         case 'dado':
-        case 'groove':
-            return (
-                `${op.type} · ${op.face} · axis ${op.axis} · offset ${inch(op.offset)} · ` +
-                `${inch(op.width)} × ${inch(op.depth)} deep` +
-                (op.from !== undefined || op.to !== undefined ? ' · stopped' : '')
-            );
+        case 'groove': {
+            const name = op.type === 'dado' ? 'Dado' : 'Groove';
+            const runs = op.axis === 'l' ? 'running the length' : 'across the width';
+            const from = op.axis === 'l' ? 'bottom edge' : 'left end';
+            const stopped = op.from !== undefined || op.to !== undefined ? ', stopped' : '';
+            return `${name} ${inch(op.width)} wide × ${inch(op.depth)} deep in the ${faceName(op.face)}, ${runs}, ${inch(op.offset)} from the ${from}${stopped}`;
+        }
         case 'rabbet':
-            return `rabbet · edge ${op.edge} · ${inch(op.width)} × ${inch(op.depth)} deep`;
+            return `Rabbet ${inch(op.width)} wide × ${inch(op.depth)} deep along the ${edgeName(op.edge)}`;
         case 'hole': {
-            const label = op.purpose === 'dowel' ? 'dowel' : op.purpose === 'shelfPin' ? 'shelf pin' : 'hole';
-            return (
-                `${label} · ${op.face} · (${inch(op.x)}, ${inch(op.y)}) · ⌀${inch(op.diameter)} · ` +
-                (op.depth === undefined ? 'through' : `${inch(op.depth)} deep`)
-            );
+            const name =
+                op.purpose === 'dowel' ? 'Dowel hole' : op.purpose === 'shelfPin' ? 'Shelf-pin hole' : 'Hole';
+            const depth = op.depth === undefined ? 'through' : `${inch(op.depth)} deep`;
+            return `${name} ⌀ ${inch(op.diameter)}, ${depth}, in the ${faceName(op.face)}, ${inch(op.x)} from the left end, ${inch(op.y)} up`;
         }
         case 'pocketHoles':
             return (
-                `pocket screws · edge ${op.edge} × ${op.count}` +
-                (op.length === undefined ? '' : ` · ${inch(op.length)}`) +
-                (op.thread === undefined ? '' : ` ${op.thread}`)
+                `${many(op.count, 'pocket screw')} through the ${edgeName(op.edge)}` +
+                (op.length === undefined ? '' : `, ${inch(op.length)}`) +
+                (op.thread === undefined ? '' : ` ${op.thread} thread`)
             );
         case 'screws':
             return (
-                `screws · ${op.gauge ?? '#8'} · ${op.face} face · ${op.axis} @ ${inch(op.offset)} × ${op.count}` +
-                (op.length === undefined ? '' : ` · ${inch(op.length)}`)
+                `${many(op.count, 'screw')}, ${op.gauge ?? '#8'}` +
+                (op.length === undefined ? '' : ` × ${inch(op.length)}`) +
+                `, through the ${faceName(op.face)}, ${inch(op.offset)} from the ${op.axis === 'l' ? 'bottom edge' : 'left end'}`
             );
         case 'miter':
-            return `miter · edge ${op.edge} · ${op.angle}°`;
+            return `Miter ${op.angle}° on the ${edgeName(op.edge)}`;
         case 'curve':
             if (op.kind === 'arc') {
-                return `curve · edge ${op.edge} · arc, ${inch(op.height)} high`;
+                return `Arched ${edgeName(op.edge)}, ${inch(op.height)} high`;
             }
             if (op.kind === 'ramp') {
-                return `curve · edge ${op.edge} · sweeps ${inch(op.height)} down toward ${op.low}`;
+                return `The ${edgeName(op.edge)} sweeps ${inch(op.height)} down toward the ${edgeName(op.low)}`;
             }
             return op.corner === undefined
-                ? `curve · edge ${op.edge} · corners rounded ${inch(op.radius)}`
-                : `curve · edge ${op.edge} · ${op.corner} corner rounded ${inch(op.radius)}`;
+                ? `Corners of the ${edgeName(op.edge)} rounded, ${inch(op.radius)} radius`
+                : `Corner rounded where the ${edgeName(op.edge)} meets the ${edgeName(op.corner)}, ${inch(op.radius)} radius`;
         case 'notch':
-            return `notch · edge ${op.edge} · ${inch(op.from)} → ${inch(op.to)} · ${inch(op.depth)} deep`;
+            return `Notch in the ${edgeName(op.edge)}, ${inch(op.depth)} deep, from ${inch(op.from)} to ${inch(op.to)}`;
         case 'ease': {
-            const where = op.profile === 'bullnose' ? 'both faces' : (op.face ?? 'both faces');
+            const where =
+                op.profile === 'bullnose'
+                    ? 'both faces'
+                    : op.face === undefined
+                      ? 'both faces'
+                      : faceName(op.face);
             const size =
                 op.profile === 'roundover'
                     ? `${inch(op.radius)} roundover`
                     : op.profile === 'chamfer'
                       ? `${inch(op.width)} chamfer`
-                      : 'bullnose';
+                      : 'Bullnose';
             const run =
                 op.from === undefined && op.to === undefined
                     ? ''
-                    : ` · ${inch(op.from ?? 0)} → ${op.to === undefined ? 'end' : inch(op.to)}`;
-            return `ease · edge ${op.edge} · ${size} · ${where}${run}`;
+                    : `, from ${inch(op.from ?? 0)} to ${op.to === undefined ? 'the end' : inch(op.to)}`;
+            return `${size} on the ${edgeName(op.edge)}, ${where}${run}`;
         }
         default:
             return (op as { type: string }).type;

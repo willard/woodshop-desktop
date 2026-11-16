@@ -29,6 +29,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- The inspector describes each cut in plain words with an icon, adds cuts from one menu, names
+  rotations by what they do (tip, turn, roll), and lets you fold away the sections you don't use.
 - The cut list shows what to cut first and the hardware after it, with screws and dowels folded
   into one "Fasteners" line. A sheet much bigger than the job reads as offcut, with the advice
   beside it, and the cost tile says how to add prices. Internal terms ("op", "spec") are gone from
