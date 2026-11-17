@@ -383,7 +383,7 @@
             },
             {
                 "type": "p",
-                "text": "Got part sheets and short boards left from other jobs? Add them under **On hand** in the cut list: the material, its length and, for sheet goods, its width. The cut list cuts from them before it has you buy anything, so a piece that fits there costs nothing and can save a whole sheet; each one used is drawn after the bought sheets and marked “used here”. The list is shared by every design, and the PDF plan and part labels use it too. Once you've cut them, **Remove the pieces used here** takes them off the list."
+                "text": "Got part sheets and short boards left from other jobs? Add them under **On hand** in the cut list: the material, its length and, for sheet goods, its width. The cut list cuts from them before it has you buy anything, so a piece that fits there costs nothing and can save a whole sheet; each one used is drawn after the bought sheets and marked “used here”. The list is shared by every design, and the PDF plan and part labels use it too. Leftovers worth keeping (at least 12\" × 6\" of sheet, or 12\" of board) are outlined with dashes on the layouts. Once you've cut the design, **Keep the leftovers** puts them on the list for your next job and takes off the pieces it used."
             },
             {
                 "type": "h",

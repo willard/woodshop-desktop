@@ -72,6 +72,25 @@ pub struct SheetPlan {
     /// `sheet_count + i` is offcut `i`.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub offcuts: Vec<UsedOffcut>,
+    /// Pieces worth keeping once the parts are cut out.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub leftovers: Vec<Leftover>,
+}
+
+/// A piece left over once a plan's parts are cut, big enough to keep: at least 12" by 6" of
+/// sheet, or 12" of board.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Leftover {
+    /// The sheet or stick it is left on, numbered as the plan's placements or cuts are.
+    pub sheet: usize,
+    /// Where it starts: along the length, and across the width on a sheet (as placements are).
+    pub x: f64,
+    #[serde(default)]
+    pub y: f64,
+    /// Length (along the grain), and width for a piece of sheet.
+    pub l: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub w: Option<f64>,
 }
 
 /// One of the user's offcuts a plan cuts pieces from.
@@ -132,6 +151,9 @@ pub struct LumberPlan {
     /// The user's offcuts cut from first. Cut stick `stick_count + i` is offcut `i`.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub offcuts: Vec<UsedOffcut>,
+    /// Board ends worth keeping once the parts are cut.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub leftovers: Vec<Leftover>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]

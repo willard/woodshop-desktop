@@ -5,8 +5,8 @@
  */
 import { useSyncExternalStore } from 'react';
 import { api } from '@/app/api';
-import type { Material } from '@/spec';
-import type { Offcut } from './types';
+import type { Material, Spec } from '@/spec';
+import type { CutList, Offcut } from './types';
 
 let current: readonly Offcut[] = [];
 const listeners = new Set<() => void>();
@@ -59,11 +59,40 @@ async function save(next: readonly Offcut[]): Promise<void> {
     await api.setSetting('offcuts', next);
 }
 
+let serial = 0;
+
+function piece(material: Material, l: number, w?: number): Offcut {
+    serial += 1;
+    const id = `o${Date.now().toString(36)}${serial.toString(36)}`;
+    const base: Offcut = { id, material: material.name, thickness: material.thickness, l };
+    return w === undefined ? base : { ...base, w };
+}
+
 /** Adds a piece of `material` on hand: length, and width for sheet goods. */
 export async function addOffcut(material: Material, l: number, w?: number): Promise<void> {
-    const id = `o${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-    const piece: Offcut = { id, material: material.name, thickness: material.thickness, l };
-    await save([...current, w === undefined ? piece : { ...piece, w }]);
+    await save([...current, piece(material, l, w)]);
+}
+
+/** The pieces worth keeping once `cutList`'s parts are cut, as pieces on hand. */
+export function leftoversOf(spec: Spec, cutList: CutList): Offcut[] {
+    const out: Offcut[] = [];
+    for (const plan of [...cutList.sheets, ...cutList.lumber]) {
+        const material = spec.materials.find((m) => m.id === plan.materialId);
+        if (material === undefined) continue;
+        for (const left of plan.leftovers ?? []) out.push(piece(material, left.l, left.w));
+    }
+    return out;
+}
+
+/**
+ * The design is cut: the pieces on hand it used are gone, and what is left over from its sheets
+ * and boards (those pieces included) goes on the list for the next job.
+ */
+export async function keepLeftovers(spec: Spec, cutList: CutList): Promise<void> {
+    const used = new Set(
+        [...cutList.sheets, ...cutList.lumber].flatMap((p) => (p.offcuts ?? []).map((o) => o.id)),
+    );
+    await save([...current.filter((o) => !used.has(o.id)), ...leftoversOf(spec, cutList)]);
 }
 
 /** Forgets pieces: used up, or never there. */

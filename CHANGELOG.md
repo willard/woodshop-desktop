@@ -10,6 +10,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 - Stock on hand: list the part sheets and short boards you already have, and the cut list cuts
   from them before it has you buy anything. Used pieces show in the layouts, PDF and labels.
+  Leftovers worth keeping are outlined on the layouts, and Keep the leftovers adds them to the
+  list once a design is cut.
 - Shopping list: one list to buy for several designs, from the projects page. Shared material is
   bought once and packed together, hardware is added up, and it saves as CSV.
 - Part labels: print a sticky label for every piece (name, size, material, which sheet or board),

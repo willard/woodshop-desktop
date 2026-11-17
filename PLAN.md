@@ -532,8 +532,10 @@ have to look up, and the editor screenshot would make someone want to try it fro
   (smallest first), then onto bought stock; `sheetCount`/`stickCount` count bought stock only and
   indices past them are the plan's `offcuts`. Lumber cost leaves out what comes off them. Used by
   the cut list panel (On hand section, diagrams), shopping list, PDF, labels and `get_cut_list`;
-  the exported 3D plan shows none. Not done: cutting the remainder of a used piece back onto the
-  list as a smaller piece.
+  the exported 3D plan shows none. Leftovers: each plan lists the free rects left on its sheets
+  (at least 12" × 6") and board ends (at least 12"), with positions (`leftovers`); the panel
+  outlines them, and Keep the leftovers swaps the pieces used for what is left over, the
+  remainder of a used piece included.
 
 - **Shopping list** (`/shopping`, `cutlist::shopping`, WASM `shoppingList`): designs ticked on the
   page (remembered in localStorage) are bought together. Materials merge when kind, name,

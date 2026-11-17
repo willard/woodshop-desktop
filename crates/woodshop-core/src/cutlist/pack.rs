@@ -3,9 +3,15 @@
 
 use std::cmp::Ordering;
 
-use super::types::{LumberCut, Placement};
+use super::types::{Leftover, LumberCut, Placement};
 
 const EPS: f64 = 1e-6;
+
+/// The smallest sheet leftover worth keeping: this long on one side and wide on the other.
+pub const KEEP_LONG: f64 = 12.0;
+pub const KEEP_SHORT: f64 = 6.0;
+/// The shortest board leftover worth keeping.
+pub const KEEP_BOARD: f64 = 12.0;
 
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,6 +37,9 @@ pub struct PackedSheets {
     pub placements: Vec<Placement>,
     /// Area consumed by placed parts (excludes kerf and offcut).
     pub used_area: f64,
+    /// Pieces worth keeping once the parts are cut out, on the sheets as numbered above.
+    #[serde(skip)]
+    pub leftovers: Vec<Leftover>,
 }
 
 #[derive(Clone, Copy)]
@@ -163,18 +172,40 @@ fn pack_with(
     let offcuts_used: Vec<usize> = (0..fixed)
         .filter(|&b| placements.iter().any(|p| p.sheet == b))
         .collect();
-    for p in &mut placements {
-        p.sheet = if p.sheet >= fixed {
-            p.sheet - fixed
+    let renumber = |s: usize| {
+        if s >= fixed {
+            Some(s - fixed)
         } else {
-            sheet_count + offcuts_used.iter().position(|&b| b == p.sheet).unwrap_or(0)
-        };
+            offcuts_used.iter().position(|&b| b == s).map(|i| sheet_count + i)
+        }
+    };
+    for p in &mut placements {
+        p.sheet = renumber(p.sheet).unwrap_or(0);
     }
+    // The free space left on every sheet cut into, as the separate pieces the guillotine cuts make.
+    let mut leftovers: Vec<Leftover> = sheets
+        .iter()
+        .enumerate()
+        .filter_map(|(s, free)| renumber(s).map(|n| (n, free)))
+        .flat_map(|(sheet, free)| {
+            free.iter()
+                .filter(|r| r.w.max(r.h) >= KEEP_LONG - EPS && r.w.min(r.h) >= KEEP_SHORT - EPS)
+                .map(move |r| Leftover {
+                    sheet,
+                    x: r.x,
+                    y: r.y,
+                    l: r.w,
+                    w: Some(r.h),
+                })
+        })
+        .collect();
+    leftovers.sort_by_key(|l| l.sheet);
     PackedSheets {
         sheet_count,
         offcuts_used,
         placements,
         used_area,
+        leftovers,
     }
 }
 
@@ -297,6 +328,9 @@ pub struct PackedLumber {
     pub offcuts_used: Vec<usize>,
     pub cuts: Vec<LumberCut>,
     pub used_length: f64,
+    /// Board ends worth keeping, on the sticks as numbered above.
+    #[serde(skip)]
+    pub leftovers: Vec<Leftover>,
 }
 
 pub fn pack_lumber(items: Vec<LumberItem>, stock_length: f64, kerf: f64) -> PackedLumber {
@@ -337,16 +371,37 @@ pub fn pack_lumber_into(mut items: Vec<LumberItem>, offcuts: &[f64], stock_lengt
     let fixed = offcuts.len();
     let stick_count = remaining.len() - fixed;
     let offcuts_used: Vec<usize> = (0..fixed).filter(|&b| cuts.iter().any(|c| c.stick == b)).collect();
-    for c in &mut cuts {
-        c.stick = if c.stick >= fixed {
-            c.stick - fixed
+    let renumber = |s: usize| {
+        if s >= fixed {
+            Some(s - fixed)
         } else {
-            stick_count + offcuts_used.iter().position(|&b| b == c.stick).unwrap_or(0)
-        };
+            offcuts_used.iter().position(|&b| b == s).map(|i| stick_count + i)
+        }
+    };
+    for c in &mut cuts {
+        c.stick = renumber(c.stick).unwrap_or(0);
     }
+    let mut leftovers: Vec<Leftover> = remaining
+        .iter()
+        .enumerate()
+        .filter(|&(_, &left)| left >= KEEP_BOARD - EPS)
+        .filter_map(|(s, &left)| {
+            // The cut-off end of the board.
+            let start = if s < fixed { offcuts[s] } else { stock_length } - left;
+            renumber(s).map(|sheet| Leftover {
+                sheet,
+                x: start,
+                y: 0.0,
+                l: left,
+                w: None,
+            })
+        })
+        .collect();
+    leftovers.sort_by_key(|l| l.sheet);
     PackedLumber {
         stick_count,
         offcuts_used,
+        leftovers,
         cuts,
         used_length,
     }

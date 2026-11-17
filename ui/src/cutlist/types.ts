@@ -53,6 +53,19 @@ export interface SheetPlan {
     cost: number | null;
     /** Pieces on hand cut from first; placement sheet `sheetCount + i` is `offcuts[i]`. */
     offcuts?: UsedOffcut[];
+    /** Pieces worth keeping once the parts are cut out. */
+    leftovers?: Leftover[];
+}
+
+/** A piece left over once a plan's parts are cut: at least 12" × 6" of sheet, or 12" of board. */
+export interface Leftover {
+    /** The sheet or stick, numbered as placements or cuts are. */
+    sheet: number;
+    x: number;
+    y: number;
+    l: number;
+    /** Width, for a piece of sheet. */
+    w?: number;
 }
 
 /** A piece of stock the user has on hand (the `offcuts` setting). */
@@ -94,6 +107,8 @@ export interface LumberPlan {
     cost: number | null;
     /** Pieces on hand cut from first; cut stick `stickCount + i` is `offcuts[i]`. */
     offcuts?: UsedOffcut[];
+    /** Board ends worth keeping once the parts are cut. */
+    leftovers?: Leftover[];
 }
 
 /** One line of the hardware list (spec 1.8, movables 1.12): the metal to buy. */

@@ -110,6 +110,50 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
   "sheets": [
     {
       "cost": 156,
+      "leftovers": [
+        {
+          "l": 23.875,
+          "sheet": 0,
+          "w": 32,
+          "x": 72.125,
+          "y": 0,
+        },
+        {
+          "l": 23.875,
+          "sheet": 0,
+          "w": 11.25,
+          "x": 72.125,
+          "y": 32.125,
+        },
+        {
+          "l": 23.875,
+          "sheet": 1,
+          "w": 11.25,
+          "x": 72.125,
+          "y": 0,
+        },
+        {
+          "l": 34.75,
+          "sheet": 1,
+          "w": 10.75,
+          "x": 61.25,
+          "y": 11.375,
+        },
+        {
+          "l": 65.375,
+          "sheet": 1,
+          "w": 10.75,
+          "x": 30.625,
+          "y": 34.125,
+        },
+        {
+          "l": 34.75,
+          "sheet": 1,
+          "w": 10.75,
+          "x": 61.25,
+          "y": 22.75,
+        },
+      ],
       "materialId": "mat_ply34",
       "materialName": "Birch Plywood 3/4"",
       "placements": [
@@ -300,6 +344,57 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
   "sheets": [
     {
       "cost": 285,
+      "leftovers": [
+        {
+          "l": 25.875,
+          "sheet": 0,
+          "w": 38,
+          "x": 34.125,
+          "y": 0,
+        },
+        {
+          "l": 23.293,
+          "sheet": 0,
+          "w": 19,
+          "x": 36.707,
+          "y": 38.125,
+        },
+        {
+          "l": 23.293,
+          "sheet": 1,
+          "w": 19,
+          "x": 36.707,
+          "y": 0,
+        },
+        {
+          "l": 22.793,
+          "sheet": 1,
+          "w": 18,
+          "x": 37.207,
+          "y": 19.125,
+        },
+        {
+          "l": 25.875,
+          "sheet": 1,
+          "w": 19,
+          "x": 34.125,
+          "y": 37.25,
+        },
+        {
+          "l": 60,
+          "sheet": 2,
+          "w": 40.875,
+          "x": 0,
+          "y": 19.125,
+        },
+        {
+          "l": 25.875,
+          "sheet": 2,
+          "w": 19,
+          "x": 34.125,
+          "y": 0,
+        },
+      ],
       "materialId": "mat_bb18",
       "materialName": "Baltic Birch 18mm",
       "placements": [

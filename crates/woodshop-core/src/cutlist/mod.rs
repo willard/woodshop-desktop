@@ -189,6 +189,7 @@ fn plan_sheets(
         },
         cost: material.cost_per_sheet.map(|c| packed.sheet_count as f64 * c),
         offcuts: used(&mine, &packed.offcuts_used, true),
+        leftovers: packed.leftovers,
         placements: packed.placements,
     }
 }
@@ -245,6 +246,7 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
         },
         cost: material.cost_per_board_foot.map(|c| bought_bf * c),
         offcuts: used(&mine, &packed.offcuts_used, false),
+        leftovers: packed.leftovers,
         cuts: packed.cuts,
     }
 }

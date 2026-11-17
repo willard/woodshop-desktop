@@ -662,6 +662,26 @@ export function SheetDiagram({
             data-testid="cutlist-sheet"
         >
             <rect width={size.l} height={size.w} fill="#16171b" stroke="#3a3d44" strokeWidth="0.3" />
+            {(plan.leftovers ?? [])
+                .filter((left) => left.sheet === sheet)
+                .map((left) => (
+                    <rect
+                        key={`left-${left.x}-${left.y}`}
+                        x={left.x}
+                        y={size.w - left.y - (left.w ?? 0)}
+                        width={left.l}
+                        height={left.w ?? 0}
+                        fill="none"
+                        stroke="#a3a3a3"
+                        strokeWidth="0.3"
+                        strokeDasharray="1.5 1"
+                        data-testid="cutlist-leftover"
+                    >
+                        <title>
+                            Leftover worth keeping: {len(left.l)} × {len(left.w ?? 0)}
+                        </title>
+                    </rect>
+                ))}
             {plan.placements
                 .filter((p) => p.sheet === sheet)
                 .map((p) => {

@@ -1134,10 +1134,16 @@ test('pieces on hand are cut from before anything is bought', async ({ page }) =
     await onHand.getByTestId('on-hand-length').fill('20');
     await expect(onHand.getByTestId('on-hand-add')).toBeDisabled();
 
-    // After cutting, the used piece comes off the list and the estimate goes back.
-    await onHand.getByTestId('on-hand-used-up').click();
-    await expect(onHand.getByTestId('on-hand-piece')).toHaveCount(0);
-    await expect(totals).toContainText('$285.00');
+    // Leftovers worth keeping are outlined on the layouts.
+    await expect(page.getByTestId('cutlist-leftover').first()).toBeAttached();
+
+    // After cutting: the used piece comes off the list and the leftovers go on it, for next time.
+    const keep = onHand.getByTestId('on-hand-keep');
+    const kept = Number((await keep.innerText()).match(/Keep the (\d+) leftovers/)![1]);
+    expect(kept).toBeGreaterThan(0);
+    await keep.click();
+    await expect(onHand.getByTestId('on-hand-piece')).toHaveCount(kept);
+    await expect(onHand.getByTestId('on-hand-piece').filter({ hasText: '60" × 40"' })).toHaveCount(0);
 });
 
 test('hardware takes prices from one price list, and the estimate and CSV include them', async ({ page }) => {

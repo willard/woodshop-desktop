@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import type { CutList, Offcut } from '@/cutlist/types';
-import { addOffcut, isOffcutOf, removeOffcuts, useOffcuts } from '@/cutlist/offcuts';
+import { addOffcut, isOffcutOf, keepLeftovers, removeOffcuts, useOffcuts } from '@/cutlist/offcuts';
 import { len, parseLen } from '@/lib/display';
 import { plural } from '@/app/format';
 import type { Spec } from '@/spec';
@@ -19,6 +19,10 @@ export function OnHandSection({ spec, cutList }: { spec: Spec; cutList: CutList 
     const mine = all.filter((o) => stock.some((m) => isOffcutOf(o, m)));
     const used = new Set(
         [...cutList.sheets, ...cutList.lumber].flatMap((p) => (p.offcuts ?? []).map((o) => o.id)),
+    );
+    const leftovers = [...cutList.sheets, ...cutList.lumber].reduce(
+        (n, p) => n + (p.leftovers ?? []).length,
+        0,
     );
     const [materialId, setMaterialId] = useState(stock[0]?.id ?? '');
     const [lText, setLText] = useState('');
@@ -73,14 +77,16 @@ export function OnHandSection({ spec, cutList }: { spec: Spec; cutList: CutList 
                     ))}
                 </ul>
             )}
-            {used.size > 0 && (
+            {(leftovers > 0 || used.size > 0) && (
                 <button
-                    className="text-accent mb-2 text-xs font-semibold"
-                    title="Once you've cut them, take the pieces this design uses off the list"
-                    data-testid="on-hand-used-up"
-                    onClick={() => void removeOffcuts([...used])}
+                    className="text-accent mb-2 block text-left text-xs font-semibold"
+                    title={`Once you've cut this design: the pieces left over (at least ${len(12)} × ${len(6)} of sheet, ${len(12)} of board) go on this list, and the pieces used here come off it.`}
+                    data-testid="on-hand-keep"
+                    onClick={() => void keepLeftovers(spec, cutList)}
                 >
-                    Cut them? Remove the {plural(used.size, 'piece')} used here
+                    {leftovers > 0
+                        ? `Cut it? Keep the ${plural(leftovers, 'leftover')}`
+                        : `Cut it? Remove the ${plural(used.size, 'piece')} used here`}
                 </button>
             )}
             <div className="flex items-end gap-1.5">
