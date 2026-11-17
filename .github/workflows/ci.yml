@@ -62,6 +62,7 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build:viewer
+      - run: npm run site
       - name: End-to-end (browser, mocked backend)
         run: |
           npx playwright install --with-deps chromium

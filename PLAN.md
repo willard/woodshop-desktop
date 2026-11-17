@@ -405,8 +405,14 @@ gating is built: there is nothing to unlock.
   Parts are reachable without the mouse through the parts list and moved with the Inspector's
   fields. Still to check in the real app: macOS WebKit only tabs to buttons when "Keyboard
   navigation" is on in System Settings; a full screen-reader pass (VoiceOver) is not done.
-- **Website:** a landing page, a download page (latest release per platform), the docs, and a
-  link to the source and to sponsoring. GitHub Pages from a separate repo or a `docs/` folder.
+- **Website:** built, not yet published. `npm run site` (`scripts/site/build.mjs`, no
+  dependencies) writes `site/dist`: a landing page (features, every template with its picture
+  and gallery text), a download page that reads the latest GitHub release and highlights the
+  visitor's system (it says when nothing is published yet), and the docs, generated from the
+  in-app help articles with their screenshots. Both themes, phone width checked. CI builds it;
+  `.github/workflows/site.yml` deploys it to GitHub Pages, run by hand. To publish (owner): set
+  Pages to "GitHub Actions" in the repository settings and run the Website workflow. A
+  sponsoring link waits on the sponsorship decision.
 
 ## Phase 5b: UI and design pass
 

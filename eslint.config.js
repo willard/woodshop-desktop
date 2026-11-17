@@ -13,6 +13,7 @@ export default tseslint.config(
             'viewer/src/wasm/**',
             'ui/src/spec/schema.generated.ts',
             'src-tauri/**',
+            'site/dist/**',
         ],
     },
     js.configs.recommended,
@@ -33,6 +34,10 @@ export default tseslint.config(
     {
         files: ['**/*.mjs'],
         languageOptions: { globals: { console: 'readonly', process: 'readonly' } },
+    },
+    {
+        files: ['site/*.js'],
+        languageOptions: { globals: { document: 'readonly', navigator: 'readonly', fetch: 'readonly' } },
     },
     prettier,
 );

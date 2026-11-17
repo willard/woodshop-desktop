@@ -107,6 +107,7 @@ Some of the most useful contributions need no Rust:
   `npm run help-shots` (`scripts/help-shots/shots.ts`, which sets up each screen on the sample
   nightstand); add a shot there, run it with `ONLY=<name>`, and commit the two `.webp` files it
   writes to `ui/public/help/`. Re-run it when a change alters a screen an article shows.
+  The website's docs (`npm run site`, into `site/dist`) are built from the same articles.
 
 ## Releasing (maintainers)
 
