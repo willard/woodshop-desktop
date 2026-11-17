@@ -139,7 +139,7 @@ import { useToast } from './Toast';
 import { getUnits, len, useUnits } from '@/lib/display';
 
 export interface EditorWorkspaceHandle {
-    snapshot(): Promise<Blob | null>;
+    snapshot(maxSize?: number, type?: 'image/png' | 'image/jpeg'): Promise<Blob | null>;
     /** The assembly as glTF JSON (see `EditorEngine.exportGltf`). */
     gltf(name: string): Promise<string>;
     highlight(ids: string[]): void;
@@ -401,7 +401,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         }, [selectedHardware, hardwareStillThere]);
 
         useImperativeHandle(ref, () => ({
-            snapshot: () => engineRef.current?.snapshot() ?? Promise.resolve(null),
+            snapshot: (maxSize, type) => engineRef.current?.snapshot(maxSize, type) ?? Promise.resolve(null),
             gltf: (name) =>
                 engineRef.current?.exportGltf(name) ?? Promise.reject(new Error('The 3D view is not ready.')),
             highlight: (ids) => engineRef.current?.setHighlight(ids),

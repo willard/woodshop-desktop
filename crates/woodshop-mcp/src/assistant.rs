@@ -51,6 +51,14 @@ pub struct Config {
     pub api_key: String,
 }
 
+/// What the user sends: their words, and optionally a picture of the editor's 3D view.
+#[derive(Debug, Clone, Default)]
+pub struct Ask {
+    pub text: String,
+    /// A JPEG, base64-encoded.
+    pub image: Option<String>,
+}
+
 /// A failed request: the HTTP status if there was a response, and what went wrong.
 #[derive(Debug, Clone)]
 pub struct HttpError {
@@ -119,7 +127,8 @@ fn system_prompt(project_id: i64, name: &str) -> String {
          #{project_id}. Look before you change: read the design, then make the smallest set of edits \
          that does what was asked, and check the result. Reply in a few plain sentences: what you \
          changed, and anything the user should decide or know. The user may work in millimetres, but \
-         the tools take decimal inches."
+         the tools take decimal inches. A message may come with a picture of the editor's 3D view as \
+         the user sees it; read the design with the tools for exact sizes."
     )
 }
 
@@ -164,7 +173,7 @@ pub fn send(
     config: &Config,
     project_id: i64,
     history: Vec<Value>,
-    text: &str,
+    ask: &Ask,
     stop: &dyn Fn() -> bool,
     on_event: &mut dyn FnMut(Event),
 ) -> Result<Turn, String> {
@@ -172,10 +181,10 @@ pub fn send(
     let system = system_prompt(project_id, &name);
     match config.provider {
         Provider::Anthropic => anthropic(
-            woodshop, http, config, project_id, &system, history, text, stop, on_event,
+            woodshop, http, config, project_id, &system, history, ask, stop, on_event,
         ),
         Provider::Openai => openai(
-            woodshop, http, config, project_id, &system, history, text, stop, on_event,
+            woodshop, http, config, project_id, &system, history, ask, stop, on_event,
         ),
     }
 }
@@ -198,7 +207,7 @@ fn anthropic(
     project_id: i64,
     system: &str,
     mut messages: Vec<Value>,
-    text: &str,
+    ask: &Ask,
     stop: &dyn Fn() -> bool,
     on_event: &mut dyn FnMut(Event),
 ) -> Result<Turn, String> {
@@ -213,7 +222,14 @@ fn anthropic(
     if fallbacks {
         headers.push(("anthropic-beta", "server-side-fallback-2026-07-01".to_string()));
     }
-    messages.push(json!({ "role": "user", "content": text }));
+    messages.push(json!({ "role": "user", "content": match &ask.image {
+        // The picture first, then what the user asked about it.
+        Some(jpeg) => json!([
+            { "type": "image", "source": { "type": "base64", "media_type": "image/jpeg", "data": jpeg } },
+            { "type": "text", "text": ask.text },
+        ]),
+        None => json!(ask.text),
+    } }));
     let mut actions = Vec::new();
     let mut changed = false;
     for _ in 0..MAX_ROUNDS {
@@ -349,7 +365,7 @@ fn openai(
     project_id: i64,
     system: &str,
     mut messages: Vec<Value>,
-    text: &str,
+    ask: &Ask,
     stop: &dyn Fn() -> bool,
     on_event: &mut dyn FnMut(Event),
 ) -> Result<Turn, String> {
@@ -373,7 +389,13 @@ fn openai(
     if messages.is_empty() {
         messages.push(json!({ "role": "system", "content": system }));
     }
-    messages.push(json!({ "role": "user", "content": text }));
+    messages.push(json!({ "role": "user", "content": match &ask.image {
+        Some(jpeg) => json!([
+            { "type": "image_url", "image_url": { "url": format!("data:image/jpeg;base64,{jpeg}") } },
+            { "type": "text", "text": ask.text },
+        ]),
+        None => json!(ask.text),
+    } }));
     let mut actions = Vec::new();
     let mut changed = false;
     for _ in 0..MAX_ROUNDS {

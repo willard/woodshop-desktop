@@ -551,6 +551,8 @@ have to look up, and the editor screenshot would make someone want to try it fro
   go on. Each design keeps its chat in the library (`assistant_chats`, schema v2; the panel
   owns the JSON: what it shows plus the provider's history, which restarts after a provider
   switch). It goes with the project when deleted; `.woodshop` files leave it out.
+  Show the view sends a picture of the 3D view with a message (JPEG ≤1024 px from
+  `EditorEngine.snapshot`, an image block for Claude, a data URL for OpenAI-compatible servers).
 - iPad companion viewer for the shop.
 
 ---

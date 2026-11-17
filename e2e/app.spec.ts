@@ -993,6 +993,17 @@ test('the design assistant is set up in Settings and answers in the editor', asy
     await expect(panel.getByTestId('assistant-message-assistant')).toContainText('has 6 parts');
     await expect(panel.getByTestId('assistant-actions')).toContainText('get design');
 
+    // A message can take a picture of the 3D view along.
+    await panel.getByTestId('assistant-view-toggle').click();
+    await expect(panel.getByTestId('assistant-view-toggle')).toHaveAttribute('aria-pressed', 'true');
+    await panel.getByTestId('assistant-input').fill('How does it look?');
+    await panel.getByTestId('assistant-send').click();
+    await expect(panel.getByTestId('assistant-message-you').last()).toContainText(
+        'with a picture of the 3D view',
+    );
+    await expect(panel.getByTestId('assistant-message-assistant').last()).toContainText('I can see the view');
+    await panel.getByTestId('assistant-view-toggle').click();
+
     // A long turn can be stopped.
     await panel.getByTestId('assistant-input').fill('wait for a long time');
     await panel.getByTestId('assistant-send').click();
@@ -1005,7 +1016,7 @@ test('the design assistant is set up in Settings and answers in the editor', asy
     await page.goto('/#/projects/1');
     await page.getByTestId('assistant-tab').click();
     await expect(panel.getByTestId('assistant-message-you').first()).toHaveText('How many parts?');
-    await expect(panel.getByTestId('assistant-message-assistant')).toHaveCount(2);
+    await expect(panel.getByTestId('assistant-message-assistant')).toHaveCount(3);
     // New chat forgets it for good.
     await panel.getByRole('button', { name: 'New chat' }).click();
     await expect(panel.getByTestId('assistant-message-you')).toHaveCount(0);

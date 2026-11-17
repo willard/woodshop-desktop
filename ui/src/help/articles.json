@@ -472,7 +472,7 @@
                 "items": [
                     "Get an API key from console.anthropic.com (or use an OpenAI-compatible server, such as OpenAI or a local Ollama).",
                     "In Settings ▸ AI agents ▸ Design assistant, choose the provider and model and paste the key. It is kept in your system keychain, not in Woodshop's library.",
-                    "Open a design, click the Assistant tab and ask. Enter sends; Shift+Enter starts a new line. Stop ends a long answer after the step it is on. Each design keeps its own chat, so you can come back to it later; New chat starts over."
+                    "Open a design, click the Assistant tab and ask. Enter sends; Shift+Enter starts a new line. Stop ends a long answer after the step it is on. Turn on Show the view to send a picture of the 3D view with your message, for questions about how it looks. Each design keeps its own chat, so you can come back to it later; New chat starts over."
                 ]
             },
             {

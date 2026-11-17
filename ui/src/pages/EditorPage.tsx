@@ -209,6 +209,18 @@ function Editor({ project }: { project: Project }) {
         setSaveState('saved');
     }, []);
 
+    /** The 3D view as the user sees it, for the assistant: a JPEG, base64, at most 1024 px across. */
+    const captureView = useCallback(async (): Promise<string | null> => {
+        const blob = await workspace.current?.snapshot(1024, 'image/jpeg');
+        if (!blob) return null;
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        let binary = '';
+        for (let i = 0; i < bytes.length; i += 0x8000) {
+            binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+        }
+        return btoa(binary);
+    }, []);
+
     /** True while the design assistant works: its edits are expected, so they load without a toast. */
     const assistantBusy = useRef(false);
     const [assistantChanged, setAssistantChanged] = useState(0);
@@ -330,6 +342,7 @@ function Editor({ project }: { project: Project }) {
                         beforeSend={flush}
                         onBusyChange={(busy) => (assistantBusy.current = busy)}
                         onChanged={() => setAssistantChanged((n) => n + 1)}
+                        captureView={captureView}
                     />
                 }
                 kerf={kerf ?? defaultKerf}

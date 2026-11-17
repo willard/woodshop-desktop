@@ -1921,7 +1921,7 @@ export class EditorEngine {
     }
 
     /** Captures the current 3D view as a downscaled PNG for the project thumbnail (§7.2). */
-    async snapshot(maxSize = 512): Promise<Blob | null> {
+    async snapshot(maxSize = 512, type: 'image/png' | 'image/jpeg' = 'image/png'): Promise<Blob | null> {
         if (this.disposed) {
             return null;
         }
@@ -1938,8 +1938,13 @@ export class EditorEngine {
         if (ctx === null) {
             return null;
         }
+        if (type === 'image/jpeg') {
+            // JPEG has no transparency: put the view on the scene's own background colour.
+            ctx.fillStyle = `#${this.palette.background.toString(16).padStart(6, '0')}`;
+            ctx.fillRect(0, 0, target.width, target.height);
+        }
         ctx.drawImage(src, 0, 0, target.width, target.height);
-        return new Promise<Blob | null>((resolve) => target.toBlob(resolve, 'image/png'));
+        return new Promise<Blob | null>((resolve) => target.toBlob(resolve, type, 0.85));
     }
 
     /** Sets which parts are highlighted as selected (a group highlights all its members). */

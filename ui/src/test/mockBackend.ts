@@ -303,7 +303,8 @@ export function installMockBackend(): void {
             }
             const r = row(a.projectId as number);
             const history = [...(a.history as unknown[]), { role: 'user', content: a.text }];
-            const reply = `“${r.project.name}” has ${r.project.draft.parts.length} parts. (This is the browser preview; the real assistant runs in the desktop app.)`;
+            const seen = typeof a.image === 'string' && a.image.length > 0 ? ' I can see the view.' : '';
+            const reply = `“${r.project.name}” has ${r.project.draft.parts.length} parts.${seen} (This is the browser preview; the real assistant runs in the desktop app.)`;
             return {
                 reply,
                 actions: [{ tool: 'get_design', ok: true }],

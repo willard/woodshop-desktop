@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::{Emitter, State};
 use woodshop_mcp::Woodshop;
-use woodshop_mcp::assistant::{self, Config, Http, HttpError, Provider, Turn};
+use woodshop_mcp::assistant::{self, Ask, Config, Http, HttpError, Provider, Turn};
 use woodshop_store::Store;
 
 use crate::commands::Library;
@@ -232,6 +232,7 @@ pub async fn assistant_send(
     project_id: i64,
     history: Vec<Value>,
     text: String,
+    image: Option<String>,
 ) -> CmdResult<Turn> {
     let config = config(&lib)?;
     let dir = lib.dir.clone();
@@ -247,7 +248,14 @@ pub async fn assistant_send(
         };
         let stopped = || stop.load(Ordering::SeqCst);
         assistant::send(
-            &woodshop, &http, &config, project_id, history, &text, &stopped, &mut emit,
+            &woodshop,
+            &http,
+            &config,
+            project_id,
+            history,
+            &Ask { text, image },
+            &stopped,
+            &mut emit,
         )
         .map_err(|message| CommandError::Io { message })
     })

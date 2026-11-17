@@ -243,8 +243,9 @@ export const api = {
     setAssistantChat: (id: number, chat: unknown) => invoke<void>('set_assistant_chat', { id, chat }),
     /** Asks the running turn to stop; it finishes the step it is on and returns. */
     assistantStop: () => invoke<void>('assistant_stop'),
-    assistantSend: (projectId: number, history: unknown[], text: string) =>
-        invoke<AssistantTurn>('assistant_send', { projectId, history, text }),
+    /** `image` is a picture of the 3D view to go with the message: a JPEG, base64. */
+    assistantSend: (projectId: number, history: unknown[], text: string, image: string | null = null) =>
+        invoke<AssistantTurn>('assistant_send', { projectId, history, text, image }),
 
     listBackups: () => invoke<BackupInfo[]>('list_backups'),
     backupNow: () => invoke<BackupInfo>('backup_now'),

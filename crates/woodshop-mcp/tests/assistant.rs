@@ -4,7 +4,7 @@
 use std::cell::{Cell, RefCell};
 
 use serde_json::{Value, json};
-use woodshop_mcp::assistant::{self, Config, Event, Http, HttpError, Provider};
+use woodshop_mcp::assistant::{self, Ask, Config, Event, Http, HttpError, Provider};
 use woodshop_mcp::{Woodshop, tools};
 use woodshop_store::Store;
 
@@ -119,6 +119,13 @@ fn openai_stream(message: &Value) -> Vec<String> {
     out
 }
 
+fn ask(text: &str) -> Ask {
+    Ask {
+        text: text.into(),
+        image: None,
+    }
+}
+
 fn library() -> (Woodshop, i64) {
     let w = Woodshop::new(Store::open_in_memory().unwrap());
     let args = json!({ "template": "bookshelf" });
@@ -167,7 +174,7 @@ fn claude_runs_a_tool_on_the_open_design_and_answers() {
         &claude("claude-opus-5-5"),
         id,
         vec![],
-        "Longer, please",
+        &ask("Longer, please"),
         &|| false,
         &mut |e| events.push(e),
     )
@@ -237,7 +244,7 @@ fn a_tool_aimed_at_another_design_is_refused() {
         &claude("claude-haiku-5-5"),
         id,
         vec![],
-        "Delete",
+        &ask("Delete"),
         &|| false,
         &mut |_| {},
     )
@@ -269,7 +276,7 @@ fn a_rejected_key_says_where_to_fix_it() {
         &claude("claude-opus-5-5"),
         id,
         vec![],
-        "Hi",
+        &ask("Hi"),
         &|| false,
         &mut |_| {},
     )
@@ -296,7 +303,17 @@ fn an_openai_compatible_server_gets_functions_and_tool_messages() {
         base_url: Some("http://localhost:11434/v1/".into()),
         api_key: String::new(),
     };
-    let turn = assistant::send(&w, &http, &config, id, vec![], "Rename it", &|| false, &mut |_| {}).unwrap();
+    let turn = assistant::send(
+        &w,
+        &http,
+        &config,
+        id,
+        vec![],
+        &ask("Rename it"),
+        &|| false,
+        &mut |_| {},
+    )
+    .unwrap();
     assert_eq!(turn.reply, "Renamed.");
     assert!(turn.changed);
 
@@ -336,7 +353,7 @@ fn after_a_fallback_partway_through_only_the_new_attempt_is_acted_on_and_echoed(
         &claude("claude-opus-5-5"),
         id,
         vec![],
-        "Look",
+        &ask("Look"),
         &|| false,
         &mut |_| {},
     )
@@ -368,7 +385,7 @@ fn an_error_in_the_stream_is_reported() {
         &claude("claude-opus-5-5"),
         id,
         vec![],
-        "Hi",
+        &ask("Hi"),
         &|| false,
         &mut |_| {},
     )
@@ -392,7 +409,7 @@ fn stopping_runs_nothing_more_and_leaves_a_conversation_that_can_go_on() {
         &claude("claude-opus-5-5"),
         id,
         vec![],
-        "Go",
+        &ask("Go"),
         &|| stopped.get(),
         &mut |e| {
             if matches!(e, Event::ToolDone { .. }) {
@@ -426,7 +443,7 @@ fn a_reply_stopped_part_way_is_not_kept() {
         &claude("claude-opus-5-5"),
         id,
         vec![],
-        "Explain",
+        &ask("Explain"),
         &|| stopped.get(),
         &mut |e| {
             if matches!(e, Event::Text { .. }) {
@@ -439,4 +456,47 @@ fn a_reply_stopped_part_way_is_not_kept() {
     // The conversation ends with the user's message, not half an answer.
     assert_eq!(turn.history.len(), 1);
     assert_eq!(turn.history[0]["role"], "user");
+}
+
+#[test]
+fn a_picture_of_the_view_goes_first_in_the_message() {
+    let (w, id) = library();
+    let answer = || Ok(json!({ "stop_reason": "end_turn", "content": [{ "type": "text", "text": "Looks good." }] }));
+    let http = Script::new(vec![answer()]);
+    let with_picture = Ask {
+        text: "How does it look?".into(),
+        image: Some("SlBFRw==".into()),
+    };
+    assistant::send(
+        &w,
+        &http,
+        &claude("claude-opus-5-5"),
+        id,
+        vec![],
+        &with_picture,
+        &|| false,
+        &mut |_| {},
+    )
+    .unwrap();
+    let content = &http.sent.borrow()[0].2["messages"][0]["content"];
+    assert_eq!(content[0]["type"], "image");
+    assert_eq!(
+        content[0]["source"],
+        json!({ "type": "base64", "media_type": "image/jpeg", "data": "SlBFRw==" })
+    );
+    assert_eq!(content[1], json!({ "type": "text", "text": "How does it look?" }));
+
+    let http = Script::new(vec![Ok(
+        json!({ "choices": [{ "message": { "role": "assistant", "content": "Fine." } }] }),
+    )]);
+    let config = Config {
+        provider: Provider::Openai,
+        model: "m".into(),
+        base_url: None,
+        api_key: String::new(),
+    };
+    assistant::send(&w, &http, &config, id, vec![], &with_picture, &|| false, &mut |_| {}).unwrap();
+    let content = &http.sent.borrow()[0].2["messages"][1]["content"];
+    assert_eq!(content[0]["image_url"]["url"], "data:image/jpeg;base64,SlBFRw==");
+    assert_eq!(content[1]["text"], "How does it look?");
 }

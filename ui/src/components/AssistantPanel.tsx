@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { listen } from '@tauri-apps/api/event';
+import { Camera } from 'lucide-react';
 import {
     api,
     errorMessage,
@@ -18,6 +19,8 @@ import { useAssistantKeys, useAssistantSetting } from './AssistantSettings';
 interface Message {
     from: 'you' | 'assistant' | 'error';
     text: string;
+    /** It went with a picture of the 3D view. */
+    picture?: boolean;
     actions?: AssistantAction[];
 }
 
@@ -37,6 +40,7 @@ export function AssistantPanel({
     beforeSend,
     onBusyChange,
     onChanged,
+    captureView,
 }: {
     projectId: number;
     /** Saves the editor's unsaved edits first, so the assistant reads what the user sees. */
@@ -44,6 +48,8 @@ export function AssistantPanel({
     onBusyChange: (busy: boolean) => void;
     /** The assistant changed the design: load it into the editor. */
     onChanged: () => void;
+    /** A picture of the 3D view as the user sees it (base64 JPEG), or null if there is none. */
+    captureView: () => Promise<string | null>;
 }) {
     const setting = useAssistantSetting();
     const keys = useAssistantKeys();
@@ -60,6 +66,8 @@ export function AssistantPanel({
     /** The reply as it streams in; replaced by the finished message. */
     const [live, setLive] = useState('');
     const [stopping, setStopping] = useState(false);
+    /** Send a picture of the 3D view with the next message. */
+    const [withView, setWithView] = useState(false);
     const stoppingRef = useRef(false);
     stoppingRef.current = stopping;
     const end = useRef<HTMLDivElement>(null);
@@ -108,7 +116,7 @@ export function AssistantPanel({
         const text = draft.trim();
         if (text === '' || busy) return;
         setDraft('');
-        const asked = [...messages, { from: 'you' as const, text }];
+        const asked: Message[] = [...messages, { from: 'you', text, ...(withView ? { picture: true } : {}) }];
         setMessages(asked);
         setBusy(true);
         onBusyChange(true);
@@ -117,7 +125,8 @@ export function AssistantPanel({
         const history = conversation.provider === provider ? conversation.history : [];
         try {
             await beforeSend();
-            const turn = await api.assistantSend(projectId, history, text);
+            const image = withView ? await captureView() : null;
+            const turn = await api.assistantSend(projectId, history, text, image);
             const answered = [
                 ...asked,
                 { from: 'assistant' as const, text: turn.reply, actions: turn.actions },
@@ -195,6 +204,11 @@ export function AssistantPanel({
                         }
                     >
                         {m.text}
+                        {m.picture && (
+                            <span className="text-muted mt-1 flex items-center gap-1 text-xs">
+                                <Camera size={12} aria-hidden /> with a picture of the 3D view
+                            </span>
+                        )}
                         {m.actions && m.actions.length > 0 && (
                             <ul
                                 className="text-faint mt-1.5 space-y-0.5 text-xs"
@@ -239,13 +253,24 @@ export function AssistantPanel({
                     }}
                 />
                 <div className="mt-2 flex items-center justify-between">
-                    <button
-                        className="text-muted hover:text-fg text-xs disabled:opacity-50"
-                        disabled={busy || messages.length === 0}
-                        onClick={newChat}
-                    >
-                        New chat
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            className={`flex items-center gap-1 rounded-md px-1.5 py-1 text-xs ${withView ? 'bg-accent/15 text-accent' : 'text-muted hover:text-fg'}`}
+                            aria-pressed={withView}
+                            title="Send a picture of the 3D view with your message, so the assistant can see what you see"
+                            data-testid="assistant-view-toggle"
+                            onClick={() => setWithView((v) => !v)}
+                        >
+                            <Camera size={14} aria-hidden /> Show the view
+                        </button>
+                        <button
+                            className="text-muted hover:text-fg text-xs disabled:opacity-50"
+                            disabled={busy || messages.length === 0}
+                            onClick={newChat}
+                        >
+                            New chat
+                        </button>
+                    </div>
                     {busy ? (
                         <button
                             className="border-fg/12 hover:bg-surface-3 rounded-lg border px-3 py-1.5 text-sm font-semibold disabled:opacity-50"

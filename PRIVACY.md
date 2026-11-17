@@ -15,7 +15,7 @@ design assistant yourself (below).
 | You click **Check for updates** (Settings ▸ Updates) | A standard web request for the release list; GitHub sees your IP address, as with any download | GitHub Releases |
 | You click **Report a problem** (Settings ▸ Diagnostics) | Opens a pre-filled issue in your browser with the app version and operating system only. Nothing is sent until you submit it yourself, and you can edit it first | GitHub Issues |
 | You click a link (help, source code) | Opens in your browser | That site |
-| You send a message to the **design assistant** (the editor's Assistant tab), after adding your own API key in Settings ▸ AI agents | Your message, the conversation so far, and the parts of the open design the assistant reads to answer, with your API key | The provider you chose: Anthropic, or the OpenAI-compatible server at the address you entered |
+| You send a message to the **design assistant** (the editor's Assistant tab), after adding your own API key in Settings ▸ AI agents | Your message, the conversation so far, the parts of the open design the assistant reads to answer, and a picture of the 3D view if you turn on Show the view, with your API key | The provider you chose: Anthropic, or the OpenAI-compatible server at the address you entered |
 
 The design assistant is off until you add a key, and sends nothing until you send a message. Your
 API key is kept in your system's keychain (macOS Keychain, Windows Credential Manager, or the
