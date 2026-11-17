@@ -6,3 +6,4 @@
 
 - [ ] Every commit is signed off (`git commit -s`; see [CONTRIBUTING.md](../CONTRIBUTING.md#sign-your-commits-dco))
 - [ ] The checks in CONTRIBUTING.md pass locally
+- [ ] Hardware or a template? The [review checklist](../resources/DATA.md#review-checklist) is done

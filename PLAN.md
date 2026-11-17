@@ -519,8 +519,11 @@ have to look up, and the editor screenshot would make someone want to try it fro
 
 - Branded hardware packs (Blum, Häfele, Accuride) with part numbers, once dimensional data and
   permission are sorted.
-- Community-contributed hardware and template packs (a documented data format and a review
-  checklist, so contributions need no Rust).
+- Community-contributed hardware and templates: done. `resources/DATA.md` documents the item
+  fields, every shape's dimensions, the template steps and a review checklist (linked from the
+  pull request template). Templates are found by file name at build time (`woodshop-core`'s
+  `build.rs`), so a new one is JSON only; tests fail if a model uses a field its shape doesn't
+  have or the guide misses one.
 - DXF and glTF: done. DXF (R12) lays every part flat with the outline on CUT_OUTSIDE and holes
   and channels on layers named by depth (`_BACK` for back-face work), hinge cups included; glTF
   is the assembled model with hardware, in metres. STEP is not done: it needs a B-rep kernel

@@ -96,22 +96,12 @@ There is no CLA: your copyright stays yours.
 
 Some of the most useful contributions need no Rust:
 
-- **Hardware** lives in `resources/hardware.json` (hinges, slides, pulls, casters, fasteners).
-  Use dimensions from the manufacturer's data sheet and say where they came from in the pull
-  request. An item whose name gives an inch size also needs a `metric` name and list phrase in
-  the size a metric shop sells it as (`"metric": {"name": "Butt hinge 64 mm", "list": "64 mm
-  butt hinges"}`). `cargo test -p woodshop-core` checks that the catalog is well formed and that
-  every inch-named item has one.
-- **Templates** live in `resources/templates/`. Each should lint clean and use catalog hardware.
-  Add a line for it to the lint contract (`crates/woodshop-core/tests/fixtures/lint-expected.json`),
-  to `crates/woodshop-core/src/templates.rs`, and one or two sentences for the gallery card to
-  `resources/template-gallery.json` (what it is, for someone choosing; build notes stay in the
-  design's `meta.notes`). Then render its pictures with `ONLY=<id> npm run thumbnails` (on a
-  machine with a GPU; without `ONLY` it renders every template) and commit the two `.webp` files
-  it writes to `ui/public/templates/`.
-  `cargo test -p woodshop-core --test parity` lints every template against its recorded result in
-  the lint fixture, so add an entry there for a new one. `resources/conventions.md` describes how
-  designs are authored.
+- **Hardware** lives in `resources/hardware.json` (hinges, slides, pulls, casters, fasteners) and
+  **templates** in `resources/templates/`, one design file each. Both are plain JSON;
+  [`resources/DATA.md`](resources/DATA.md) describes every field and hardware shape, the steps for
+  a new template, and the checklist a reviewer goes through. Use dimensions from the
+  manufacturer's data sheet and link it in the pull request. `cargo test -p woodshop-core` checks
+  the catalog, the gallery text and every template.
 - **Help articles** live in `ui/src/help/articles.json`: blocks of headings, paragraphs (with
   `code` and **bold**), lists, notes and screenshots. A screenshot block names a picture taken by
   `npm run help-shots` (`scripts/help-shots/shots.ts`, which sets up each screen on the sample

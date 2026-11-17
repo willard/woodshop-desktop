@@ -168,6 +168,79 @@ pub fn mount_frame(part: &Part, thickness: f64, mount: &HardwareMount) -> MountF
 mod tests {
     use super::*;
 
+    /// Every shape the 3D view can draw and the fields it reads: numbers, or (for the named
+    /// ones) a flag or a word. `resources/DATA.md` documents each, for contributors.
+    const SHAPES: &[(&str, &[&str])] = &[
+        ("knob", &["diameter", "projection", "square"]),
+        ("barPull", &["centers", "length", "diameter", "projection"]),
+        ("archPull", &["centers", "diameter", "projection"]),
+        ("cupPull", &["width", "height", "projection"]),
+        ("buttHinge", &["height", "width", "knuckle"]),
+        ("pianoHinge", &["length", "width", "knuckle"]),
+        ("teeHinge", &["length", "height", "knuckle"]),
+        ("euroHinge", &["cup", "cupDepth", "boring", "overlay", "arm"]),
+        ("slide", &["mount", "height", "thickness"]),
+        ("caster", &["wheel", "height", "plate", "swivel", "brake"]),
+        ("leveler", &["base", "height", "stem"]),
+        ("cornerBracket", &["leg", "width", "thickness"]),
+        ("flatPlate", &["length", "width", "thickness"]),
+        ("shelfPin", &["diameter", "length"]),
+        ("barrelBolt", &["length", "width", "projection"]),
+        ("hasp", &["length", "width", "projection"]),
+        ("block", &["length", "width", "projection"]),
+        ("lidStay", &["length", "width", "projection"]),
+        ("chestHandle", &["width", "height", "projection"]),
+        ("hook", &["height", "width", "projection", "double"]),
+    ];
+    const FLAGS: &[&str] = &["square", "swivel", "brake", "double"];
+
+    #[test]
+    fn every_model_uses_its_shapes_fields() {
+        for item in &catalog().items {
+            let shape = item.model["shape"].as_str().unwrap();
+            let (_, fields) = SHAPES
+                .iter()
+                .find(|(s, _)| *s == shape)
+                .unwrap_or_else(|| panic!("{}: unknown shape {shape}", item.id));
+            for (key, value) in item.model.iter().filter(|(k, _)| *k != "shape") {
+                assert!(
+                    fields.contains(&key.as_str()),
+                    "{}: {shape} has no field {key}",
+                    item.id
+                );
+                let ok = match key.as_str() {
+                    k if FLAGS.contains(&k) => value.is_boolean(),
+                    "mount" => matches!(value.as_str(), Some("side" | "under")),
+                    _ => value.as_f64().is_some_and(|n| n >= 0.0),
+                };
+                assert!(ok, "{}: {key} = {value}", item.id);
+            }
+        }
+    }
+
+    #[test]
+    fn the_contributor_guide_documents_every_shape() {
+        let guide = include_str!("../../../resources/DATA.md");
+        for (shape, fields) in SHAPES {
+            let heading = guide
+                .lines()
+                .position(|l| l.starts_with("#### ") && l.contains(&format!("`{shape}`")))
+                .unwrap_or_else(|| panic!("DATA.md has no section for {shape}"));
+            let section: String = guide
+                .lines()
+                .skip(heading + 1)
+                .take_while(|l| !l.starts_with('#'))
+                .collect::<Vec<_>>()
+                .join("\n");
+            for field in *fields {
+                assert!(
+                    section.contains(&format!("`{field}`")),
+                    "DATA.md: {shape} does not explain {field}"
+                );
+            }
+        }
+    }
+
     #[test]
     fn catalog_is_well_formed() {
         let c = catalog();
