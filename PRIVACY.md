@@ -1,11 +1,12 @@
 # Privacy
 
-Woodshop works entirely on your computer. There is no account, no analytics, no crash reporting
-service and no advertising.
+Woodshop works on your computer and uses the network only in the cases listed below. There is no
+account, no analytics, no crash reporting service and no advertising.
 
-**What stays on your computer:** your designs, versions, notes, thumbnails, settings, backups and
-logs. They are in the app-data folder listed in the [README](README.md#where-your-data-lives) and
-are never uploaded.
+**What stays on your computer:** your designs, versions, notes, design-assistant chats,
+thumbnails, settings, backups and logs. They are in the app-data folder listed in the
+[README](README.md#where-your-data-lives) and are never uploaded, except what you send to the
+design assistant yourself (below).
 
 **The only times Woodshop uses the network:**
 

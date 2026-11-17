@@ -999,4 +999,19 @@ test('the design assistant is set up in Settings and answers in the editor', asy
     await panel.getByTestId('assistant-stop').click();
     await expect(panel.getByTestId('assistant-message-assistant').last()).toHaveText('Stopped.');
     await expect(panel.getByTestId('assistant-send')).toBeVisible();
+
+    // The chat is still there after leaving the design and coming back.
+    await page.goto('/#/');
+    await page.goto('/#/projects/1');
+    await page.getByTestId('assistant-tab').click();
+    await expect(panel.getByTestId('assistant-message-you').first()).toHaveText('How many parts?');
+    await expect(panel.getByTestId('assistant-message-assistant')).toHaveCount(2);
+    // New chat forgets it for good.
+    await panel.getByRole('button', { name: 'New chat' }).click();
+    await expect(panel.getByTestId('assistant-message-you')).toHaveCount(0);
+    await page.goto('/#/');
+    await page.goto('/#/projects/1');
+    await page.getByTestId('assistant-tab').click();
+    await expect(panel).toContainText('Ask about this design');
+    await expect(panel.getByTestId('assistant-message-you')).toHaveCount(0);
 });

@@ -6,13 +6,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { listen } from '@tauri-apps/api/event';
-import { api, errorMessage, type AssistantAction, type AssistantEvent } from '@/app/api';
+import {
+    api,
+    errorMessage,
+    type AssistantAction,
+    type AssistantEvent,
+    type AssistantProvider,
+} from '@/app/api';
 import { useAssistantKeys, useAssistantSetting } from './AssistantSettings';
 
 interface Message {
     from: 'you' | 'assistant' | 'error';
     text: string;
     actions?: AssistantAction[];
+}
+
+/** What the library keeps for a design's chat. */
+interface SavedChat {
+    messages: Message[];
+    conversation: { provider: AssistantProvider; history: unknown[] };
 }
 
 /** "resize_part" → "resize part". */
@@ -40,7 +52,8 @@ export function AssistantPanel({
         provider === 'anthropic' ? keys.data?.anthropic === true : (setting.openaiModel ?? '').trim() !== '';
 
     const [messages, setMessages] = useState<Message[]>([]);
-    const [history, setHistory] = useState<unknown[]>([]);
+    /** The conversation in its provider's format, and which provider that is. */
+    const [conversation, setConversation] = useState<SavedChat['conversation']>({ provider, history: [] });
     const [draft, setDraft] = useState('');
     const [busy, setBusy] = useState(false);
     const [progress, setProgress] = useState<string | null>(null);
@@ -51,10 +64,26 @@ export function AssistantPanel({
     stoppingRef.current = stopping;
     const end = useRef<HTMLDivElement>(null);
 
-    // A conversation is in one provider's format: switching provider starts a new one.
+    // The chat this design had last time, kept in the library.
     useEffect(() => {
-        setHistory([]);
-    }, [provider]);
+        let cancelled = false;
+        api.getAssistantChat(projectId)
+            .then((saved) => {
+                const chat = saved as SavedChat | null;
+                if (cancelled || chat === null || !Array.isArray(chat.messages)) return;
+                setMessages(chat.messages);
+                setConversation(chat.conversation);
+            })
+            .catch(() => undefined); // a chat that can't be read starts afresh
+        return () => {
+            cancelled = true;
+        };
+    }, [projectId]);
+
+    function keep(next: Message[], nextConversation: SavedChat['conversation']): void {
+        const chat: SavedChat = { messages: next, conversation: nextConversation };
+        api.setAssistantChat(projectId, chat).catch(() => undefined); // the chat on screen is still there
+    }
 
     useEffect(() => {
         end.current?.scrollIntoView({ block: 'end' });
@@ -79,18 +108,29 @@ export function AssistantPanel({
         const text = draft.trim();
         if (text === '' || busy) return;
         setDraft('');
-        setMessages((m) => [...m, { from: 'you', text }]);
+        const asked = [...messages, { from: 'you' as const, text }];
+        setMessages(asked);
         setBusy(true);
         onBusyChange(true);
         setProgress('Thinking…');
+        // A conversation is in one provider's format: after switching provider it starts again.
+        const history = conversation.provider === provider ? conversation.history : [];
         try {
             await beforeSend();
             const turn = await api.assistantSend(projectId, history, text);
-            setHistory(turn.history);
-            setMessages((m) => [...m, { from: 'assistant', text: turn.reply, actions: turn.actions }]);
+            const answered = [
+                ...asked,
+                { from: 'assistant' as const, text: turn.reply, actions: turn.actions },
+            ];
+            const next = { provider, history: turn.history };
+            setMessages(answered);
+            setConversation(next);
+            keep(answered, next);
             if (turn.changed) onChanged();
         } catch (e) {
-            setMessages((m) => [...m, { from: 'error', text: errorMessage(e) }]);
+            const failed = [...asked, { from: 'error' as const, text: errorMessage(e) }];
+            setMessages(failed);
+            keep(failed, conversation);
         } finally {
             setBusy(false);
             onBusyChange(false);
@@ -102,7 +142,8 @@ export function AssistantPanel({
 
     function newChat(): void {
         setMessages([]);
-        setHistory([]);
+        setConversation({ provider, history: [] });
+        api.setAssistantChat(projectId, null).catch(() => undefined);
     }
 
     if (!ready) {

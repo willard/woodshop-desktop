@@ -162,6 +162,8 @@ pub fn run() {
             commands::create_note,
             commands::update_note,
             commands::delete_note,
+            commands::get_assistant_chat,
+            commands::set_assistant_chat,
             commands::get_settings,
             commands::set_setting,
             commands::save_thumbnail,

@@ -27,6 +27,7 @@ export function installMockBackend(): void {
     const settings: Record<string, unknown> = {};
     const keychain = new Set<string>();
     let stopAssistant: (() => void) | null = null;
+    const chats = new Map<number, unknown>();
     const backups: { file: string; createdAt: number; bytes: number; projects: Row[] }[] = [];
     let nextId = 1;
     let clock = Date.now();
@@ -280,6 +281,12 @@ export function installMockBackend(): void {
             const key = (a.key as string | null)?.trim();
             if (key) keychain.add(a.provider as string);
             else keychain.delete(a.provider as string);
+        },
+        get_assistant_chat: (a) => chats.get(a.id as number) ?? null,
+        set_assistant_chat: (a) => {
+            row(a.id as number);
+            if (a.chat === null) chats.delete(a.id as number);
+            else chats.set(a.id as number, structuredClone(a.chat));
         },
         assistant_stop: () => {
             stopAssistant?.();

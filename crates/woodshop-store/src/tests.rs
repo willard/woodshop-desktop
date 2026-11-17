@@ -186,3 +186,45 @@ fn a_backup_holds_every_project_and_opens_on_its_own() {
     assert!(names.contains(&"Bench".to_string()));
     assert_eq!(copy.list_versions(a.id).unwrap().len(), 1);
 }
+
+#[test]
+fn an_assistant_chat_is_kept_per_project_and_goes_with_it() {
+    let store = Store::open_in_memory().unwrap();
+    let p = store.create_project("Box", &spec("Box")).unwrap();
+    assert_eq!(store.assistant_chat(p.id).unwrap(), None);
+    let chat =
+        serde_json::json!({ "provider": "anthropic", "messages": [{ "from": "you", "text": "Hi" }], "history": [] });
+    store.set_assistant_chat(p.id, &chat).unwrap();
+    assert_eq!(store.assistant_chat(p.id).unwrap(), Some(chat.clone()));
+    let next = serde_json::json!({ "provider": "anthropic", "messages": [], "history": [] });
+    store.set_assistant_chat(p.id, &next).unwrap();
+    assert_eq!(store.assistant_chat(p.id).unwrap(), Some(next));
+    store.set_assistant_chat(p.id, &Value::Null).unwrap();
+    assert_eq!(store.assistant_chat(p.id).unwrap(), None);
+
+    // No chat for a project that isn't there, and none left behind when one is deleted.
+    assert!(store.set_assistant_chat(p.id + 1, &chat).is_err());
+    store.set_assistant_chat(p.id, &chat).unwrap();
+    store.trash_project(p.id).unwrap();
+    store.delete_project_forever(p.id).unwrap();
+    let left: i64 = store
+        .conn
+        .query_row("SELECT COUNT(*) FROM assistant_chats", [], |r| r.get(0))
+        .unwrap();
+    assert_eq!(left, 0);
+}
+
+#[test]
+fn a_library_from_the_first_schema_is_brought_up_to_date() {
+    let conn = Connection::open_in_memory().unwrap();
+    conn.execute_batch(MIGRATIONS[0]).unwrap();
+    conn.pragma_update(None, "user_version", 1).unwrap();
+    let store = Store::init(conn, None).unwrap();
+    let version: i64 = store
+        .conn
+        .pragma_query_value(None, "user_version", |r| r.get(0))
+        .unwrap();
+    assert_eq!(version, MIGRATIONS.len() as i64);
+    let p = store.create_project("Box", &spec("Box")).unwrap();
+    store.set_assistant_chat(p.id, &serde_json::json!({})).unwrap();
+}

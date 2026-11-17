@@ -43,7 +43,7 @@ pub enum StoreError {
 
 pub type Result<T> = std::result::Result<T, StoreError>;
 
-const MIGRATIONS: &[&str] = &[include_str!("schema.sql")];
+const MIGRATIONS: &[&str] = &[include_str!("schema.sql"), include_str!("schema_v2.sql")];
 
 /// Milliseconds since the Unix epoch.
 pub fn now_ms() -> i64 {
@@ -435,6 +435,37 @@ impl Store {
             )
             .optional()?
             .ok_or(StoreError::NoteNotFound(id))
+    }
+
+    // -----------------------------------------------------------------------------------------
+    // The design assistant's chat — a JSON object the UI owns, one per project.
+
+    pub fn assistant_chat(&self, project_id: i64) -> Result<Option<Value>> {
+        let text: Option<String> = self
+            .conn
+            .query_row(
+                "SELECT chat FROM assistant_chats WHERE project_id = ?1",
+                [project_id],
+                |r| r.get(0),
+            )
+            .optional()?;
+        Ok(text.and_then(|t| serde_json::from_str(&t).ok()))
+    }
+
+    /// Keeps the chat for a project; `null` forgets it.
+    pub fn set_assistant_chat(&self, project_id: i64, chat: &Value) -> Result<()> {
+        if chat.is_null() {
+            self.conn
+                .execute("DELETE FROM assistant_chats WHERE project_id = ?1", [project_id])?;
+            return Ok(());
+        }
+        self.get_project(project_id)?;
+        self.conn.execute(
+            "INSERT INTO assistant_chats (project_id, chat, updated_at) VALUES (?1, ?2, ?3)
+             ON CONFLICT (project_id) DO UPDATE SET chat = excluded.chat, updated_at = excluded.updated_at",
+            params![project_id, chat.to_string(), now_ms()],
+        )?;
+        Ok(())
     }
 
     // -----------------------------------------------------------------------------------------

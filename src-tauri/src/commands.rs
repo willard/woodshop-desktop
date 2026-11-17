@@ -226,6 +226,19 @@ pub fn delete_note(lib: State<'_, Library>, note_id: i64) -> CmdResult<()> {
 }
 
 // ---------------------------------------------------------------------------------------------
+// The design assistant's saved chat (one per project; the panel owns its shape)
+
+#[tauri::command]
+pub fn get_assistant_chat(lib: State<'_, Library>, id: i64) -> CmdResult<Option<Value>> {
+    lib.with(|s| s.assistant_chat(id))
+}
+
+#[tauri::command]
+pub fn set_assistant_chat(lib: State<'_, Library>, id: i64, chat: Value) -> CmdResult<()> {
+    lib.with(|s| s.set_assistant_chat(id, &chat))
+}
+
+// ---------------------------------------------------------------------------------------------
 // Settings
 
 #[tauri::command]

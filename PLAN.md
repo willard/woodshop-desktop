@@ -548,7 +548,9 @@ have to look up, and the editor screenshot would make someone want to try it fro
   fallback partway through, the declined attempt's thinking and tool calls are neither run nor
   echoed back. Stop (`assistant_stop`) ends a turn: no further request or tool runs, a reply cut
   off mid-stream is dropped, and calls left unrun get an error result, so the conversation can
-  go on.
+  go on. Each design keeps its chat in the library (`assistant_chats`, schema v2; the panel
+  owns the JSON: what it shows plus the provider's history, which restarts after a provider
+  switch). It goes with the project when deleted; `.woodshop` files leave it out.
 - iPad companion viewer for the shop.
 
 ---

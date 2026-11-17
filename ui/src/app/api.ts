@@ -237,6 +237,10 @@ export const api = {
     /** Saves a provider's key in the keychain, or removes it when `key` is null. */
     assistantSetKey: (provider: AssistantProvider, key: string | null) =>
         invoke<void>('assistant_set_key', { provider, key }),
+    /** The assistant chat the panel saved for a project, or null. */
+    getAssistantChat: (id: number) => invoke<unknown>('get_assistant_chat', { id }),
+    /** Keeps a project's assistant chat; null forgets it. */
+    setAssistantChat: (id: number, chat: unknown) => invoke<void>('set_assistant_chat', { id, chat }),
     /** Asks the running turn to stop; it finishes the step it is on and returns. */
     assistantStop: () => invoke<void>('assistant_stop'),
     assistantSend: (projectId: number, history: unknown[], text: string) =>
