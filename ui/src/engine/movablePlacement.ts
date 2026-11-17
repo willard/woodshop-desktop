@@ -5,6 +5,7 @@
  */
 import type { Spec, Part, Movable, Vec3 } from '../spec/types';
 import { extentAlong, frontNormal, hingeEdgeLength, hingeCountFor, movableAnchorId } from '../spec/movables';
+import { localAxesWorld } from '../spec/geometry';
 import { hingeLineLocal } from './open';
 import { findItem } from '@/hardware/catalog';
 
@@ -137,6 +138,26 @@ export function hardwarePlacements(spec: Spec, movable: Movable): HardwarePlacem
     const slide = findItem(movable.slide);
     const slideItem = slide?.role === 'slide' ? slide : undefined;
     const railInset = 0.1;
+    if (slideItem?.model.mount === 'under') {
+        // Undermount: a rail under each side of the box, in the recess below its bottom.
+        const box = members.filter((part: Part) => part.id !== anchor.id);
+        const [x, y] = localBounds(anchor, box.length > 0 ? box : [anchor], thicknessOf);
+        const t = typeof slideItem.model.thickness === 'number' ? slideItem.model.thickness : 1.2;
+        const h = typeof slideItem.model.height === 'number' ? slideItem.model.height : 0.5;
+        const middle = (x.lo + x.hi) / 2;
+        const reach = Math.max((x.hi - x.lo) / 2 - t / 2, 0);
+        for (const side of [-1, 1]) {
+            placements.push({
+                itemId: slideItem.id,
+                partId: anchor.id,
+                kind: 'slideRail',
+                pos: [middle + side * reach, y.lo - h / 2, -thickness / 2 - depth / 2],
+                spinZ: 0,
+                length: depth,
+            });
+        }
+        return placements;
+    }
     for (const side of [-1, 1]) {
         placements.push({
             ...(slideItem === undefined ? {} : { itemId: slideItem.id }),
@@ -190,4 +211,32 @@ function knobFor(
     }
 
     return { partId: anchor.id, kind: 'knob', pos: [x, y, thickness / 2], spinZ: 0 };
+}
+
+/**
+ * How far some parts reach along the anchor's local X and Y, measured from the anchor's centre:
+ * the drawer box as the front sees it, whatever way the front is turned.
+ */
+function localBounds(
+    anchor: Part,
+    parts: readonly Part[],
+    thicknessOf: (part: Part) => number,
+): { lo: number; hi: number }[] {
+    const axes = localAxesWorld(anchor).slice(0, 2);
+    const origin = anchor.transform.pos;
+    return axes.map((axis) => {
+        let lo = Infinity;
+        let hi = -Infinity;
+        for (const part of parts) {
+            const [ax, ay, az] = localAxesWorld(part);
+            const half = [part.size.l / 2, part.size.w / 2, thicknessOf(part) / 2];
+            const dot = (v: readonly number[]) => v[0] * axis[0] + v[1] * axis[1] + v[2] * axis[2];
+            const centre = dot(part.transform.pos.map((c, i) => c - origin[i]));
+            const reach =
+                Math.abs(dot(ax) * half[0]) + Math.abs(dot(ay) * half[1]) + Math.abs(dot(az) * half[2]);
+            lo = Math.min(lo, centre - reach);
+            hi = Math.max(hi, centre + reach);
+        }
+        return { lo, hi };
+    });
 }

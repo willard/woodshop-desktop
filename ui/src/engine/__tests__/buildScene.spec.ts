@@ -367,6 +367,28 @@ describe('movable hardware in the scene (spec 1.12)', () => {
         const kinds = hardwareOf(buildSpecGroup(spec), 'p_door').map((h) => h.userData.hardware);
         expect(kinds.sort()).toEqual(['knob', 'slideRail', 'slideRail']);
     });
+
+    it('hangs undermount rails under the drawer box, side-mount ones beside it', () => {
+        const rails = (slide: string) => {
+            const raw = structuredClone(templates.nightstand) as { spec?: Spec } & Spec;
+            const spec = parseSpec(raw.spec ?? raw);
+            spec.movables![0] = { ...spec.movables![0], slide } as NonNullable<Spec['movables']>[number];
+            const t = spec.materials.find((m) => m.id === 'ply_birch_drawer')!.thickness;
+            const found = hardwareOf(buildSpecGroup(spec), 'p_drawer_front').filter(
+                (h) => h.userData.hardware === 'slideRail',
+            );
+            return { found, t };
+        };
+        // The front's centre is at y 19.75; the box bottom sits at 16.75, its sides at x ±9.75.
+        const under = rails('slide.undermount');
+        expect(under.found).toHaveLength(2);
+        for (const rail of under.found) {
+            expect(rail.position.y + 0.25).toBeCloseTo(16.75 - under.t / 2 - 19.75, 6);
+            expect(Math.abs(rail.position.x)).toBeCloseTo(9.75 + under.t / 2 - 0.6, 6);
+        }
+        const side = rails('slide.side-mount');
+        for (const rail of side.found) expect(rail.position.y).toBe(0);
+    });
 });
 
 describe('edge banding (spec 1.16)', () => {
