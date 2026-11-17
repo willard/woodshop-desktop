@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as THREE from 'three';
-import { faceHitToOpCoords, faceHitToEdge } from '@/engine/placement';
+import { faceHitToOpCoords, faceHitToEdge, hitToSide } from '@/engine/placement';
+import { mountFrame } from '@/hardware/catalog';
 import { buildPartMesh } from '@/engine/buildScene';
 import { createFlatWoodMaterial } from '@/engine/materials';
 import { makePart } from '@/engine/commands';
@@ -102,5 +103,33 @@ describe('faceHitToEdge', () => {
     it('rejects edge faces and slanted normals', () => {
         expect(faceHitToEdge(size, [12, 0, 0], [1, 0, 0])).toBeNull();
         expect(faceHitToEdge(size, [0, 0, 0], [0, 0.5, 0.5])).toBeNull();
+    });
+});
+
+describe('hitToSide', () => {
+    const t = 0.75;
+
+    it('reads a face as faceHitToOpCoords does', () => {
+        expect(hitToSide(size, t, [-2, 1, t / 2], [0, 0, 1], 0.25)).toEqual({ side: 'front', x: 10, y: 7 });
+        expect(hitToSide(size, t, [-2, 1, -t / 2], [0, 0, -1], 0.25)).toEqual({ side: 'back', x: 10, y: 7 });
+    });
+
+    it('puts a hit on an edge or an end on that side, centred across the thickness when near it', () => {
+        expect(hitToSide(size, t, [3, -6, 0.1], [0, -1, 0], 0.25)).toEqual({ side: 'l0', x: 15, y: t / 2 });
+        expect(hitToSide(size, t, [3, 6, -0.05], [0, 1, 0], 0.25)).toEqual({ side: 'l1', x: 15, y: t / 2 });
+        expect(hitToSide(size, t, [12, 2, 0], [1, 0, 0], 0.25)).toEqual({ side: 'w1', x: 8, y: t / 2 });
+        expect(hitToSide(size, t, [-12, -5.9, 0], [-1, 0, 0], 0.25)).toEqual({ side: 'w0', x: 0, y: t / 2 });
+        // Well off the centre line of a thick end, it follows the pointer.
+        expect(hitToSide(size, 3.5, [12, 0, 1.4], [1, 0, 0], 0.25)?.y).toBeCloseTo(3.25);
+    });
+
+    it('lands where mountFrame puts the piece', () => {
+        const point: [number, number, number] = [-7.5, 6, 0];
+        const at = hitToSide(size, t, point, [0, 1, 0], 0.25)!;
+        expect(mountFrame({ size }, t, at).point).toEqual(point);
+    });
+
+    it('ignores slanted surfaces', () => {
+        expect(hitToSide(size, t, [0, 0, 0], [0.7, 0, 0.7], 0.25)).toBeNull();
     });
 });

@@ -120,6 +120,7 @@ import { assessSturdiness } from '@/struct';
 import { dowelLabelOf, nominalOf } from '@/lib/lumberSizes';
 import { handleEditorKeydown, SHORTCUTS, type NudgeDirection, type NudgeStep } from '@/lib/shortcuts';
 import { Modal } from './Modal';
+import { SIDES } from './HardwareFittings';
 import { activeTheme, onThemeChange, sceneFor } from '@/lib/theme';
 import { AddMovableDialog } from './AddMovableDialog';
 import { AddPartDialog } from './AddPartDialog';
@@ -951,7 +952,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         id: uniqueHardwareId(d.spec, request.item),
                         item: request.item,
                         partId: preview.partId,
-                        side: preview.face,
+                        side: preview.side,
                         x: preview.x,
                         y: preview.y,
                         rot: request.rot,
@@ -994,7 +995,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 return preview.edge === null ? null : `edge ${preview.edge} · ${placing.count} screws`;
             if (placing.kind === 'hardware') {
                 const on = spec.parts.find((p) => p.id === preview.partId)?.name ?? '';
-                return `${on} · ${preview.face} · (${len(preview.x)}, ${len(preview.y)})`;
+                const side = SIDES.find((x) => x.value === preview.side)?.label.toLowerCase() ?? preview.side;
+                return `${on} · ${side} · (${len(preview.x)}, ${len(preview.y)})`;
             }
             return `(${len(preview.x)}, ${len(preview.y)}) · ${preview.face}`;
         })();
@@ -1981,7 +1983,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                                     const item = findItem(placing.item);
                                                     return item === undefined ? 'hardware' : itemName(item);
                                                 })()}{' '}
-                                                — click a face of a part
+                                                — click a face, edge or end of a part
                                             </>
                                         ) : (
                                             <>

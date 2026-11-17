@@ -17,7 +17,7 @@ import { computeSnap, clampAnchorToWorkspace, aabbFromPart, type AABB, type Vec3
 import { DEFAULT_SNAP_CONFIG, WORKSPACE_POS_BOUND, type SnapConfig } from './config';
 import { explodedPositions } from './explode';
 import { openedPoses } from './open';
-import { faceHitToOpCoords, faceHitToEdge, type Edge } from './placement';
+import { faceHitToOpCoords, faceHitToEdge, hitToSide, type Edge, type Side } from './placement';
 import { mountTargets, sideCoords, sidePlane, snapMount, type MountTargets } from './hardwareDrag';
 import {
     heightDimension,
@@ -118,6 +118,8 @@ export type PlacementRequest =
 /** A live (or committed) placement position in §3.1 op coordinates. */
 export interface PlacementPreview {
     partId: string;
+    /** Which side the point is on. Cuts only go on a face; hardware also on an edge or an end. */
+    side: Side;
     face: 'front' | 'back';
     x: number;
     y: number;
@@ -588,6 +590,20 @@ export class EditorEngine {
         // Raycaster reports the point in world space but the face normal in object space.
         const local = (hit.object as THREE.Mesh).worldToLocal(hit.point.clone());
         const normal = hit.face.normal;
+        if (this.placement.kind === 'hardware') {
+            const at = hitToSide(
+                dims,
+                dims.thickness,
+                [local.x, local.y, local.z],
+                [normal.x, normal.y, normal.z],
+                this.snapConfig.gridSize,
+            );
+            if (at === null) {
+                return null;
+            }
+            const face = at.side === 'back' ? 'back' : 'front';
+            return { partId, side: at.side, face, x: at.x, y: at.y, offset: null, edge: null };
+        }
         const coords = faceHitToOpCoords(
             dims,
             [local.x, local.y, local.z],
@@ -603,7 +619,7 @@ export class EditorEngine {
             this.placement.kind === 'pocket'
                 ? faceHitToEdge(dims, [local.x, local.y, local.z], [normal.x, normal.y, normal.z])
                 : null;
-        return { partId, face: coords.face, x: coords.x, y: coords.y, offset, edge };
+        return { partId, side: coords.face, face: coords.face, x: coords.x, y: coords.y, offset, edge };
     }
 
     /** Moves/rebuilds the translucent op ghost to follow the pointer. */
@@ -635,15 +651,16 @@ export class EditorEngine {
         // The ghost's turn within the part's frame; only hardware has one.
         const turn = new THREE.Quaternion();
         if (request.kind === 'hardware') {
-            // The piece itself, standing on the face where the pointer is: origin on the surface,
-            // +Z out of it (so flipped over on the back face), then its quarter turns.
+            // The piece itself, standing on the side where the pointer is, oriented as it will be
+            // drawn once placed: origin on the surface, +Z out of it, then its quarter turns.
             geometry = buildHardwareGeometry(findItem(request.item)?.model);
-            local.set(
-                preview.x - dims.l / 2,
-                preview.y - dims.w / 2,
-                (front ? 1 : -1) * (dims.thickness / 2),
+            const frame = mountFrame({ size: { l: dims.l, w: dims.w } }, dims.thickness, preview);
+            local.set(...frame.point);
+            const vx = new THREE.Vector3(...frame.along);
+            const vz = new THREE.Vector3(...frame.normal);
+            turn.setFromRotationMatrix(
+                new THREE.Matrix4().makeBasis(vx, new THREE.Vector3().crossVectors(vz, vx), vz),
             );
-            if (!front) turn.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI);
             turn.multiply(
                 new THREE.Quaternion().setFromAxisAngle(
                     new THREE.Vector3(0, 0, 1),

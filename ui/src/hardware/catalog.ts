@@ -84,7 +84,7 @@ export function sideExtent(part: Part, thickness: number, side: HardwareMount['s
  * thickness from the back on an edge.
  */
 export function mountFrame(
-    part: Part,
+    part: Pick<Part, 'size'>,
     thickness: number,
     mount: Pick<HardwareMount, 'side' | 'x' | 'y'>,
 ): MountFrame {

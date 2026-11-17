@@ -260,7 +260,7 @@
                 "items": [
                     "Open Add ▸ Hardware… in the editor toolbar, or select a part and choose + Add hardware in the inspector.",
                     "Pick a category or search, and click an item to see a preview and its size.",
-                    "Choose Place on the model, then click where it goes on a part's face. Press R to turn it a quarter turn. You can keep clicking to place more; press Esc or Done when you are finished.",
+                    "Choose Place on the model, then click where it goes on a part: a face, an edge or an end. Press R to turn it a quarter turn. You can keep clicking to place more; press Esc or Done when you are finished.",
                     "Or pick a part under \"Or add to the centre of\" and choose Add to drop it in the middle of that part's front face."
                 ]
             },
@@ -274,7 +274,7 @@
             },
             {
                 "type": "p",
-                "text": "Click a piece in the 3D view, or select its part, to see it in the inspector's Hardware section. There you can change which side it is on (front or back face, an edge, or an end), type its position in inches, turn it 90°, or remove it. Casters and feet usually go on an end: the end of a leg or the bottom edge of a base."
+                "text": "Click a piece in the 3D view, or select its part, to see it in the inspector's Hardware section. There you can change which side it is on (front or back face, an edge, or an end), type its position in inches, turn it 90°, or remove it. Casters and feet usually go on an end: the end of a leg or the bottom edge of a base. On an edge or an end, a piece placed near the middle of the thickness snaps to its centre line."
             },
             {
                 "type": "h",

@@ -71,3 +71,61 @@ export function faceHitToEdge(
     ];
     return distances.reduce((nearest, cur) => (cur.d < nearest.d ? cur : nearest)).edge;
 }
+
+export type Side = 'front' | 'back' | Edge;
+
+export interface SideHit {
+    side: Side;
+    /** The side's own coordinates, as a mount stores them (see `mountFrame`). */
+    x: number;
+    y: number;
+}
+
+/**
+ * Maps a local-space hit on ANY of a part's six sides to a hardware mount's side and `(x, y)`:
+ * faces as `faceHitToOpCoords`, the long edges (l0/l1) with `x` along the length and `y` across
+ * the thickness from the back, the ends (w0/w1) with `x` along the width. Across a thickness, the
+ * centre line wins when the pointer is near it, since that is where hardware on an edge goes.
+ * Returns null on a slanted or curved surface.
+ */
+export function hitToSide(
+    size: { l: number; w: number },
+    thickness: number,
+    localPoint: Vec3,
+    localNormal: Vec3,
+    gridSize: number,
+): SideHit | null {
+    const length = Math.hypot(...localNormal) || 1;
+    const n = localNormal.map((v) => v / length);
+    const axis = n.findIndex((v) => Math.abs(v) >= FACE_NORMAL_MIN);
+    if (axis === -1) {
+        return null;
+    }
+    const snap = (value: number): number => (gridSize > 0 ? Math.round(value / gridSize) * gridSize : value);
+    const clamp = (value: number, max: number): number => Math.min(Math.max(value, 0), max);
+    const across = (value: number): number => {
+        const centre = thickness / 2;
+        return Math.abs(value - centre) <= thickness * 0.25 ? centre : clamp(snap(value), thickness);
+    };
+    const [px, py, pz] = localPoint;
+    const positive = n[axis] > 0;
+    if (axis === 2) {
+        return {
+            side: positive ? 'front' : 'back',
+            x: clamp(snap(px + size.l / 2), size.l),
+            y: clamp(snap(py + size.w / 2), size.w),
+        };
+    }
+    if (axis === 1) {
+        return {
+            side: positive ? 'l1' : 'l0',
+            x: clamp(snap(px + size.l / 2), size.l),
+            y: across(pz + thickness / 2),
+        };
+    }
+    return {
+        side: positive ? 'w1' : 'w0',
+        x: clamp(snap(py + size.w / 2), size.w),
+        y: across(pz + thickness / 2),
+    };
+}

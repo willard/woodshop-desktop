@@ -9,7 +9,8 @@ import type { HardwarePatch } from '@/engine';
 import { Field, Select, TextInput } from './form';
 import { lenValue, parseLen } from '@/lib/display';
 
-const SIDES: { value: Side; label: string }[] = [
+/** The six sides a piece can sit on, as the inspector and the placement label name them. */
+export const SIDES: { value: Side; label: string }[] = [
     { value: 'front', label: 'Front face' },
     { value: 'back', label: 'Back face' },
     { value: 'l0', label: 'Bottom edge' },
