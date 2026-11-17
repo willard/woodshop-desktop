@@ -174,7 +174,9 @@ export interface AssistantTurn {
 
 /** Progress while a turn runs, sent as the `assistant-event` event. */
 export type AssistantEvent =
-    { kind: 'tool'; name: string } | { kind: 'toolDone'; name: string; ok: boolean; message: string | null };
+    | { kind: 'text'; delta: string }
+    | { kind: 'tool'; name: string }
+    | { kind: 'toolDone'; name: string; ok: boolean; message: string | null };
 
 export const api = {
     libraryInfo: () => invoke<LibraryInfo>('library_info'),

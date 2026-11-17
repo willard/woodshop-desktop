@@ -59,13 +59,24 @@ pub struct HttpError {
 }
 
 pub trait Http {
-    fn post(&self, url: &str, headers: &[(&str, String)], body: &Value) -> Result<Value, HttpError>;
+    /// POSTs `body` and feeds the payload of each server-sent `data:` line to `on_data`, in order.
+    fn post_stream(
+        &self,
+        url: &str,
+        headers: &[(&str, String)],
+        body: &Value,
+        on_data: &mut dyn FnMut(&str),
+    ) -> Result<(), HttpError>;
 }
 
 /// Something that happened during a turn, for a live progress line.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum Event {
+    /// More of the reply being written. A new round (after tools run) starts a new reply.
+    Text {
+        delta: String,
+    },
     Tool {
         name: String,
     },
@@ -204,14 +215,13 @@ fn anthropic(
             "tools": tools,
             "messages": messages,
             "output_config": { "effort": "high" },
+            "stream": true,
         });
         if fallbacks {
             body["fallbacks"] = json!("default");
         }
-        let response = http
-            .post(ANTHROPIC_URL, &headers, &body)
-            .map_err(|e| http_message(e, "Anthropic"))?;
-        let content = response["content"].as_array().cloned().unwrap_or_default();
+        let response = anthropic_stream(http, &headers, &body, on_event)?;
+        let content = echoable(response["content"].as_array().cloned().unwrap_or_default());
         // The whole content goes back: thinking and fallback blocks must be returned unchanged.
         messages.push(json!({ "role": "assistant", "content": content }));
         let reply: String = content
@@ -329,14 +339,8 @@ fn openai(
     let mut actions = Vec::new();
     let mut changed = false;
     for _ in 0..MAX_ROUNDS {
-        let body = json!({ "model": config.model, "messages": messages, "tools": tools });
-        let response = http
-            .post(&url, &headers, &body)
-            .map_err(|e| http_message(e, "The model server"))?;
-        let message = response["choices"][0]["message"].clone();
-        if message.is_null() {
-            return Err("The model server sent back an answer Woodshop couldn't read.".into());
-        }
+        let body = json!({ "model": config.model, "messages": messages, "tools": tools, "stream": true });
+        let message = openai_stream(http, &url, &headers, &body, on_event)?;
         messages.push(message.clone());
         let calls = message["tool_calls"].as_array().cloned().unwrap_or_default();
         if calls.is_empty() {
@@ -372,4 +376,167 @@ fn openai(
         }
     }
     Ok(stopped(actions, messages, changed))
+}
+
+/// Reads one streamed Messages API response back into the message it describes: the content
+/// blocks as the API would have returned them, and the stop reason.
+fn anthropic_stream(
+    http: &dyn Http,
+    headers: &[(&str, String)],
+    body: &Value,
+    on_event: &mut dyn FnMut(Event),
+) -> Result<Value, String> {
+    let mut content: Vec<Value> = Vec::new();
+    let mut partial_json: Vec<String> = Vec::new();
+    let mut stop_reason = Value::Null;
+    let mut failure: Option<String> = None;
+    http.post_stream(ANTHROPIC_URL, headers, body, &mut |data| {
+        let Ok(event) = serde_json::from_str::<Value>(data) else {
+            return;
+        };
+        match event["type"].as_str() {
+            Some("content_block_start") => {
+                let index = event["index"].as_u64().unwrap_or(content.len() as u64) as usize;
+                if content.len() <= index {
+                    content.resize(index + 1, Value::Null);
+                    partial_json.resize(index + 1, String::new());
+                }
+                content[index] = event["content_block"].clone();
+            }
+            Some("content_block_delta") => {
+                let index = event["index"].as_u64().unwrap_or(0) as usize;
+                let (Some(block), delta) = (content.get_mut(index), &event["delta"]) else {
+                    return;
+                };
+                match delta["type"].as_str() {
+                    Some("text_delta") => {
+                        let text = delta["text"].as_str().unwrap_or_default();
+                        append(block, "text", text);
+                        on_event(Event::Text {
+                            delta: text.to_string(),
+                        });
+                    }
+                    Some("thinking_delta") => append(block, "thinking", delta["thinking"].as_str().unwrap_or_default()),
+                    Some("signature_delta") => block["signature"] = delta["signature"].clone(),
+                    Some("input_json_delta") => {
+                        partial_json[index].push_str(delta["partial_json"].as_str().unwrap_or_default())
+                    }
+                    _ => {}
+                }
+            }
+            Some("content_block_stop") => {
+                let index = event["index"].as_u64().unwrap_or(0) as usize;
+                if let (Some(block), Some(json)) = (content.get_mut(index), partial_json.get(index))
+                    && block["type"] == "tool_use"
+                {
+                    block["input"] = if json.is_empty() {
+                        json!({})
+                    } else {
+                        serde_json::from_str(json).unwrap_or_else(|_| json!({}))
+                    };
+                }
+            }
+            Some("message_delta") => {
+                if !event["delta"]["stop_reason"].is_null() {
+                    stop_reason = event["delta"]["stop_reason"].clone();
+                }
+            }
+            Some("error") => {
+                failure = Some(
+                    event["error"]["message"]
+                        .as_str()
+                        .unwrap_or("the stream failed")
+                        .to_string(),
+                );
+            }
+            _ => {}
+        }
+    })
+    .map_err(|e| http_message(e, "Anthropic"))?;
+    if let Some(message) = failure {
+        return Err(format!("Anthropic stopped answering: {message}"));
+    }
+    content.retain(|b| !b.is_null());
+    Ok(json!({ "content": content, "stop_reason": stop_reason }))
+}
+
+fn append(block: &mut Value, field: &str, more: &str) {
+    let mut text = block[field].as_str().unwrap_or_default().to_string();
+    text.push_str(more);
+    block[field] = Value::String(text);
+}
+
+/// The content to send back, and to act on. After a refusal fallback partway through a reply, the
+/// declined attempt's thinking and tool calls before the last `fallback` block are left out (its
+/// text and the block itself stay where they were), as the Messages API requires.
+fn echoable(content: Vec<Value>) -> Vec<Value> {
+    let Some(boundary) = content.iter().rposition(|b| b["type"] == "fallback") else {
+        return content;
+    };
+    content
+        .into_iter()
+        .enumerate()
+        .filter(|(i, b)| *i >= boundary || b["type"] == "text")
+        .map(|(_, b)| b)
+        .collect()
+}
+
+/// Reads one streamed chat-completions response back into the assistant message it describes.
+fn openai_stream(
+    http: &dyn Http,
+    url: &str,
+    headers: &[(&str, String)],
+    body: &Value,
+    on_event: &mut dyn FnMut(Event),
+) -> Result<Value, String> {
+    let mut text = String::new();
+    let mut calls: Vec<Value> = Vec::new();
+    let mut saw_choice = false;
+    http.post_stream(url, headers, body, &mut |data| {
+        if data.trim() == "[DONE]" {
+            return;
+        }
+        let Ok(chunk) = serde_json::from_str::<Value>(data) else {
+            return;
+        };
+        let delta = &chunk["choices"][0]["delta"];
+        if delta.is_null() {
+            return;
+        }
+        saw_choice = true;
+        if let Some(more) = delta["content"].as_str() {
+            text.push_str(more);
+            on_event(Event::Text {
+                delta: more.to_string(),
+            });
+        }
+        for call in delta["tool_calls"].as_array().into_iter().flatten() {
+            let index = call["index"].as_u64().unwrap_or(calls.len() as u64) as usize;
+            if calls.len() <= index {
+                calls.resize(
+                    index + 1,
+                    json!({ "type": "function", "function": { "name": "", "arguments": "" } }),
+                );
+            }
+            let slot = &mut calls[index];
+            if let Some(id) = call["id"].as_str() {
+                slot["id"] = json!(id);
+            }
+            if let Some(name) = call["function"]["name"].as_str() {
+                append(&mut slot["function"], "name", name);
+            }
+            if let Some(args) = call["function"]["arguments"].as_str() {
+                append(&mut slot["function"], "arguments", args);
+            }
+        }
+    })
+    .map_err(|e| http_message(e, "The model server"))?;
+    if !saw_choice {
+        return Err("The model server sent back an answer Woodshop couldn't read.".into());
+    }
+    let mut message = json!({ "role": "assistant", "content": text });
+    if !calls.is_empty() {
+        message["tool_calls"] = json!(calls);
+    }
+    Ok(message)
 }

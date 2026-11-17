@@ -542,8 +542,11 @@ have to look up, and the editor screenshot would make someone want to try it fro
   the key in the system keychain (`keyring` 4), posts with the updater's reqwest/rustls, and
   writes through its own store connection so the editor reloads each change; the editor saves
   first and loads the result without the "updated outside" toast. Settings ▸ AI agents chooses
-  provider, model and key. PRIVACY.md lists what is sent. Not done: streaming replies (a turn
-  shows progress per tool, then the answer).
+  provider, model and key. PRIVACY.md lists what is sent. Replies stream: both providers are
+  asked for server-sent events, the reply is rebuilt block by block (thinking and signatures
+  kept, tool input JSON joined) and its text shows in the panel as it arrives; after a refusal
+  fallback partway through, the declined attempt's thinking and tool calls are neither run nor
+  echoed back.
 - iPad companion viewer for the shop.
 
 ---

@@ -44,6 +44,8 @@ export function AssistantPanel({
     const [draft, setDraft] = useState('');
     const [busy, setBusy] = useState(false);
     const [progress, setProgress] = useState<string | null>(null);
+    /** The reply as it streams in; replaced by the finished message. */
+    const [live, setLive] = useState('');
     const end = useRef<HTMLDivElement>(null);
 
     // A conversation is in one provider's format: switching provider starts a new one.
@@ -53,12 +55,19 @@ export function AssistantPanel({
 
     useEffect(() => {
         end.current?.scrollIntoView({ block: 'end' });
-    }, [messages, progress]);
+    }, [messages, progress, live]);
 
     useEffect(() => {
         if (!busy) return;
         const off = listen<AssistantEvent>('assistant-event', ({ payload }) => {
-            if (payload.kind === 'tool') setProgress(`Using ${toolWords(payload.name)}…`);
+            if (payload.kind === 'text') {
+                setLive((t) => t + payload.delta);
+                setProgress(null);
+            } else if (payload.kind === 'tool') {
+                // What it wrote before reaching for a tool was a note to itself; the answer comes after.
+                setLive('');
+                setProgress(`Using ${toolWords(payload.name)}…`);
+            }
         });
         return () => void off.then((fn) => fn());
     }, [busy]);
@@ -83,6 +92,7 @@ export function AssistantPanel({
             setBusy(false);
             onBusyChange(false);
             setProgress(null);
+            setLive('');
         }
     }
 
@@ -155,6 +165,11 @@ export function AssistantPanel({
                         )}
                     </div>
                 ))}
+                {busy && live !== '' && (
+                    <div className="text-sm whitespace-pre-wrap" data-testid="assistant-live">
+                        {live}
+                    </div>
+                )}
                 {progress && (
                     <p className="text-muted text-xs" data-testid="assistant-progress">
                         {progress}

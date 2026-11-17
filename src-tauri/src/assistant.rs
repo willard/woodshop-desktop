@@ -113,13 +113,19 @@ fn config(lib: &Library) -> CmdResult<Config> {
 struct Client(reqwest::Client);
 
 impl Http for Client {
-    fn post(&self, url: &str, headers: &[(&str, String)], body: &Value) -> Result<Value, HttpError> {
-        let mut request = self.0.post(url).json(body);
+    fn post_stream(
+        &self,
+        url: &str,
+        headers: &[(&str, String)],
+        body: &Value,
+        on_data: &mut dyn FnMut(&str),
+    ) -> Result<(), HttpError> {
+        let mut request = self.0.post(url).json(body).header("accept", "text/event-stream");
         for (name, value) in headers {
             request = request.header(*name, value);
         }
         tauri::async_runtime::block_on(async move {
-            let response = request.send().await.map_err(|e| HttpError {
+            let mut response = request.send().await.map_err(|e| HttpError {
                 status: None,
                 message: if e.is_timeout() {
                     "it took too long to answer".into()
@@ -128,12 +134,9 @@ impl Http for Client {
                 },
             })?;
             let status = response.status();
-            let text = response.text().await.map_err(|e| HttpError {
-                status: Some(status.as_u16()),
-                message: e.to_string(),
-            })?;
             if !status.is_success() {
-                // Providers put a readable reason in the body; keep it for the log, not the key.
+                let text = response.text().await.unwrap_or_default();
+                // Providers put a readable reason in the body; keep it for the log.
                 log::warn!(
                     "assistant: {status} from the provider: {}",
                     text.chars().take(500).collect::<String>()
@@ -143,11 +146,47 @@ impl Http for Client {
                     message: text,
                 });
             }
-            serde_json::from_str(&text).map_err(|e| HttpError {
-                status: Some(status.as_u16()),
-                message: e.to_string(),
-            })
+            let mut lines = SseLines::default();
+            loop {
+                let chunk = response.chunk().await.map_err(|e| HttpError {
+                    status: Some(status.as_u16()),
+                    message: e.to_string(),
+                })?;
+                let Some(chunk) = chunk else { break };
+                lines.feed(&chunk, on_data);
+            }
+            lines.finish(on_data);
+            Ok(())
         })
+    }
+}
+
+/// Splits a server-sent-events body into the payloads of its `data:` lines, across chunk edges.
+#[derive(Default)]
+struct SseLines {
+    pending: Vec<u8>,
+}
+
+impl SseLines {
+    fn feed(&mut self, bytes: &[u8], on_data: &mut dyn FnMut(&str)) {
+        self.pending.extend_from_slice(bytes);
+        while let Some(end) = self.pending.iter().position(|&b| b == b'\n') {
+            let line: Vec<u8> = self.pending.drain(..=end).collect();
+            Self::line(&line, on_data);
+        }
+    }
+
+    fn finish(&mut self, on_data: &mut dyn FnMut(&str)) {
+        let rest = std::mem::take(&mut self.pending);
+        Self::line(&rest, on_data);
+    }
+
+    fn line(line: &[u8], on_data: &mut dyn FnMut(&str)) {
+        let line = String::from_utf8_lossy(line);
+        let line = line.trim_end_matches(['\r', '\n']);
+        if let Some(data) = line.strip_prefix("data:") {
+            on_data(data.strip_prefix(' ').unwrap_or(data));
+        }
     }
 }
 
@@ -240,25 +279,42 @@ mod tests {
         (url, handle)
     }
 
+    fn stream(client: &Client, url: &str, headers: &[(&str, String)]) -> Result<Vec<String>, HttpError> {
+        let mut seen = Vec::new();
+        client.post_stream(url, headers, &json!({ "model": "m" }), &mut |d| {
+            seen.push(d.to_string())
+        })?;
+        Ok(seen)
+    }
+
     #[test]
-    fn posts_json_with_its_headers_and_reads_the_answer() {
-        let (url, server) = stub("200 OK", r#"{"ok":true}"#);
-        let answer = client()
-            .unwrap()
-            .post(&url, &[("authorization", "Bearer k".into())], &json!({ "model": "m" }))
-            .unwrap();
-        assert_eq!(answer, json!({ "ok": true }));
+    fn posts_json_with_its_headers_and_reads_the_stream() {
+        let body = "event: a\r\ndata: {\"n\":1}\r\n\r\n: keep-alive\ndata:{\"n\":2}\n\ndata: [DONE]";
+        let (url, server) = stub("200 OK", body);
+        let seen = stream(&client().unwrap(), &url, &[("authorization", "Bearer k".into())]).unwrap();
+        assert_eq!(seen, [r#"{"n":1}"#, r#"{"n":2}"#, "[DONE]"]);
         let request = server.join().unwrap().to_ascii_lowercase();
         assert!(request.starts_with("post /v1/chat/completions"));
         assert!(request.contains("authorization: bearer k"));
-        assert!(request.contains("content-type: application/json"));
+        assert!(request.contains("accept: text/event-stream"));
         assert!(request.ends_with(r#"{"model":"m"}"#));
+    }
+
+    #[test]
+    fn lines_split_across_chunks_come_out_whole() {
+        let mut lines = SseLines::default();
+        let mut seen = Vec::new();
+        for piece in ["data: {\"a\"", ":1}\nda", "ta: x\n"] {
+            lines.feed(piece.as_bytes(), &mut |d| seen.push(d.to_string()));
+        }
+        lines.finish(&mut |d| seen.push(d.to_string()));
+        assert_eq!(seen, [r#"{"a":1}"#, "x"]);
     }
 
     #[test]
     fn an_error_status_comes_back_with_its_code() {
         let (url, server) = stub("401 Unauthorized", r#"{"error":"bad key"}"#);
-        let err = client().unwrap().post(&url, &[], &json!({})).unwrap_err();
+        let err = stream(&client().unwrap(), &url, &[]).unwrap_err();
         server.join().unwrap();
         assert_eq!(err.status, Some(401));
     }
@@ -266,14 +322,14 @@ mod tests {
     #[test]
     fn works_from_a_blocking_task_on_the_app_runtime() {
         // How assistant_send runs it: an async command hands the turn to spawn_blocking.
-        let (url, server) = stub("200 OK", r#"{"ok":1}"#);
-        let answer = tauri::async_runtime::block_on(async move {
-            tauri::async_runtime::spawn_blocking(move || client().unwrap().post(&url, &[], &json!({})))
+        let (url, server) = stub("200 OK", "data: ok\n");
+        let seen = tauri::async_runtime::block_on(async move {
+            tauri::async_runtime::spawn_blocking(move || stream(&client().unwrap(), &url, &[]))
                 .await
                 .unwrap()
         })
         .unwrap();
         server.join().unwrap();
-        assert_eq!(answer, json!({ "ok": 1 }));
+        assert_eq!(seen, ["ok"]);
     }
 }
