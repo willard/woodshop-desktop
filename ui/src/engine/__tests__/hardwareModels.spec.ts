@@ -42,6 +42,29 @@ describe('catalog hardware geometry', () => {
         expect(piano.max.x - piano.min.x).toBeCloseTo(30, 1); // cut to the lid, not the stock length
     });
 
+    it('draws a T-hinge as a leaf, a knuckle and a strap tapering across the door', () => {
+        const model = findItem('hinge.tee-6in')!.model;
+        const b = boundsOf(buildHardwareGeometry(model));
+        expect(b.max.x).toBeCloseTo(6, 2); // the strap's tip
+        expect(b.min.x).toBeLessThan(-0.8); // the leaf on the frame
+        expect(b.max.y - b.min.y).toBeCloseTo(3.25, 1);
+        // The strap is about an inch wide at the knuckle and half that out along the door.
+        const position = buildHardwareGeometry(model).getAttribute('position');
+        let outAlong = 0;
+        for (let v = 0; v < position.count; v += 1) {
+            if (position.getX(v) > 1) outAlong = Math.max(outAlong, Math.abs(position.getY(v)));
+        }
+        expect(outAlong).toBeLessThan(0.3);
+        expect(outAlong).toBeGreaterThan(0.2);
+    });
+
+    it('shows a shelf pin as a collar and a spoon flat on top', () => {
+        const b = boundsOf(buildHardwareGeometry(findItem('shelf.pin-1-4in')!.model));
+        expect(b.max.z).toBeCloseTo(0.36, 2); // reaches out about as far as it goes in
+        expect(b.max.y).toBeCloseTo(0.2, 2); // the collar's rim is the top; the spoon is just under
+        expect(b.min.z).toBeGreaterThanOrEqual(-1e-6);
+    });
+
     it('keeps a concealed hinge inside the cabinet, whatever its overlay', () => {
         // +X runs from the cup toward the hinge edge, +Z back into the cabinet; the side's inside
         // face is at x = boring − overlay. The cup's flange lies on the door's back face, but the

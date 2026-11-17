@@ -84,7 +84,7 @@ workflows, crash logging, the macOS fixes, and **most of Phase 1**.
 | 1.5 Hardware browser with search and a 3D preview; click-to-place | Done. Click-to-place covers the front and back faces, with a live ghost, R to turn, and repeat placing. Edges and ends are still set from the inspector. |
 | 1.6 Inspector: per-part hardware list; hinge, slide and pull pickers | Done |
 | 1.7 Click a hardware mesh to select it | Done: selects its part, opens the inspector on that piece's row, and tints the piece |
-| 1.8 MCP tools, conventions, server instructions | Done, except `explain_part` does not report mounts yet |
+| 1.8 MCP tools, conventions, server instructions | Done; `explain_part` reports each mount's side and world position |
 | 1.9 Templates with real hardware; help article | Done: mobile workbench (locking casters, legs shortened to keep a 34" top), nightstand (soft-close slides, bar pull), dado record stand (concealed hinges, pull); help article "Adding hardware" |
 | 1.10 Verify; exports | PDF and HTML viewer checked with hardware (rows, casters drawn, overall height includes casters). CSV uses the same rows. Still to do: click through the native save dialogs in the real window. |
 
@@ -92,7 +92,9 @@ Known rough edges in what is done:
 - ~~Hardware is one flat metal colour.~~ Done (spec 1.16): a `finish` (nickel, black, brass,
   bronze) on a door or drawer colours its pull and hinges, and on a mount colours that piece; the
   hardware list names it and keeps each finish on its own row.
-- The T-hinge strap and the shelf pin are crude; fine at furniture zoom, weak in the preview.
+- ~~The T-hinge strap and the shelf pin are crude.~~ Redrawn: the T-hinge has a rounded leaf, a
+  three-barrel knuckle, a strap tapering to a round tip and screw heads; the shelf pin is a
+  collar and a spoon.
 - ~~An undermount slide is drawn in the side-mount position.~~ Fixed: its rails run under the
   box, below each side.
 - At default zoom hardware is only a few pixels; F or the Selected view button zooms in on the

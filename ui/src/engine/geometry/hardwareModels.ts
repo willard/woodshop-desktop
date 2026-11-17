@@ -53,6 +53,34 @@ const num = (model: HardwareModel, key: string, fallback: number): number => {
 /** Sheet-metal thickness for leaves, plates and brackets. */
 const PLATE = 0.08;
 
+/** A flat outline as sheet metal: extruded PLATE thick, from the surface out (+Z). */
+function plate(shape: THREE.Shape): THREE.BufferGeometry {
+    return new THREE.ExtrudeGeometry(shape, { depth: PLATE, bevelEnabled: false, curveSegments: 8 });
+}
+
+/** A rectangle from (x0, y0) to (x1, y1) with its corners rounded by `r`. */
+function roundedRect(x0: number, y0: number, x1: number, y1: number, r: number): THREE.Shape {
+    const s = new THREE.Shape();
+    s.moveTo(x0 + r, y0);
+    s.lineTo(x1 - r, y0);
+    s.absarc(x1 - r, y0 + r, r, -Math.PI / 2, 0, false);
+    s.lineTo(x1, y1 - r);
+    s.absarc(x1 - r, y1 - r, r, 0, Math.PI / 2, false);
+    s.lineTo(x0 + r, y1);
+    s.absarc(x0 + r, y1 - r, r, Math.PI / 2, Math.PI, false);
+    s.lineTo(x0, y0 + r);
+    s.absarc(x0 + r, y0 + r, r, Math.PI, Math.PI * 1.5, false);
+    return s;
+}
+
+/** A pan screw head sitting on a plate at (x, y). */
+function screwHead(x: number, y: number): THREE.BufferGeometry {
+    return new THREE.SphereGeometry(0.09, 10, 4, 0, Math.PI * 2, 0, Math.PI / 2)
+        .rotateX(Math.PI / 2)
+        .scale(1, 1, 0.45)
+        .translate(x, y, PLATE);
+}
+
 type Builder = (m: HardwareModel, length?: number) => THREE.BufferGeometry[];
 
 const BUILDERS: Record<string, Builder> = {
@@ -111,9 +139,30 @@ const BUILDERS: Record<string, Builder> = {
         const l = num(m, 'length', 6);
         const h = num(m, 'height', 3.25);
         const k = num(m, 'knuckle', 0.25);
-        const strap = new THREE.CylinderGeometry(h * 0.12, h * 0.32, l, 4, 1).rotateZ(-Math.PI / 2);
-        strap.scale(1, 1, PLATE / (h * 0.45)).translate(l / 2, 0, PLATE / 2);
-        return [cyl(k / 2, h * 0.9, 'y', 0, 0, k / 2), box(1.1, h, PLATE, -0.55, 0, PLATE / 2), strap];
+        // The crossbar of the T is a leaf on the frame (−X); the strap runs out across the door
+        // (+X), tapering to a rounded tip. Both are plate, joined by a knuckle along Y.
+        const leafW = Math.max(0.8, h * 0.34);
+        const leaf = plate(roundedRect(-leafW, -h / 2, 0, h / 2, 0.08));
+        const root = h * 0.32;
+        const tip = Math.max(h * 0.15, 0.3);
+        const strap = new THREE.Shape();
+        strap.moveTo(0, -root / 2);
+        strap.lineTo(l - tip / 2, -tip / 2);
+        strap.absarc(l - tip / 2, 0, tip / 2, -Math.PI / 2, Math.PI / 2, false);
+        strap.lineTo(0, root / 2);
+        strap.closePath();
+        // Three barrels with a hairline between, and the pin's head and foot.
+        const gap = 0.03;
+        const barrel = (h * 0.9 - 2 * gap) / 3;
+        const knuckle = [-1, 0, 1].map((i) => cyl(k / 2, barrel, 'y', 0, i * (barrel + gap), k / 2));
+        const pinEnd = (y: number) => cyl(k * 0.3, 0.06, 'y', 0, y, k / 2, 10);
+        const screws = [
+            screwHead(-leafW / 2, h * 0.32),
+            screwHead(-leafW / 2, -h * 0.32),
+            ...[0.3, 0.6].map((f) => screwHead(l * f, 0)),
+            screwHead(l - tip / 2, 0),
+        ];
+        return [leaf, plate(strap), ...knuckle, pinEnd(h * 0.45 + 0.03), pinEnd(-h * 0.45 - 0.03), ...screws];
     },
 
     euroHinge: (m) => {
@@ -184,9 +233,27 @@ const BUILDERS: Record<string, Builder> = {
 
     shelfPin: (m) => {
         const d = num(m, 'diameter', 0.25);
-        const l = num(m, 'length', 0.6);
-        // The pin stands out of its hole; the flat on top is what the shelf rests on.
-        return [cyl(d / 2, l, 'z', 0, 0, l / 2, 12), box(d * 1.6, d * 0.5, l * 0.6, 0, d * 0.75, l * 0.7)];
+        // The shank is in its hole; what shows is a collar against the wood and the spoon the
+        // shelf rests on, flat on top (+Y), reaching out about as far as the shank goes in.
+        const reach = num(m, 'length', 0.6) * 0.6;
+        const collar = 0.04;
+        const w = d * 1.4;
+        const spoon = new THREE.Shape();
+        spoon.moveTo(-w / 2, 0);
+        spoon.lineTo(w / 2, 0);
+        spoon.lineTo(w / 2, reach - w / 2);
+        spoon.absarc(0, reach - w / 2, w / 2, 0, Math.PI, false);
+        spoon.closePath();
+        const t = d * 0.28;
+        // Drawn in X/out, extruded down: rotateX(90°) turns the shape's y into +Z (out of the wall).
+        const pad = new THREE.ExtrudeGeometry(spoon, { depth: t, bevelEnabled: false })
+            .rotateX(Math.PI / 2)
+            .translate(0, d * 0.2, 0);
+        return [
+            cyl(d * 0.8, collar, 'z', 0, 0, collar / 2, 16),
+            cyl(d / 2, d * 0.5, 'z', 0, 0, d * 0.25, 12),
+            pad,
+        ];
     },
 
     barrelBolt: (m) => {
