@@ -500,3 +500,87 @@ fn a_picture_of_the_view_goes_first_in_the_message() {
     assert_eq!(content[0]["image_url"]["url"], "data:image/jpeg;base64,SlBFRw==");
     assert_eq!(content[1]["text"], "How does it look?");
 }
+
+/// A turn that lengthens `part` twice, an inch at a time.
+fn two_resizes(w: &Woodshop, id: i64, part: &str, length: f64) -> assistant::Turn {
+    let resize = |n: f64, tu: &str| {
+        Ok(json!({
+            "stop_reason": "tool_use",
+            "content": [{ "type": "tool_use", "id": tu, "name": "resize_part",
+                          "input": { "part_id": part, "length": length + n } }],
+        }))
+    };
+    let http = Script::new(vec![
+        resize(1.0, "tu_1"),
+        resize(2.0, "tu_2"),
+        Ok(json!({ "stop_reason": "end_turn", "content": [{ "type": "text", "text": "Done." }] })),
+    ]);
+    assistant::send(
+        w,
+        &http,
+        &claude("claude-opus-5-5"),
+        id,
+        vec![],
+        &ask("Longer"),
+        &|| false,
+        &mut |_| {},
+    )
+    .unwrap()
+}
+
+#[test]
+fn a_turn_that_changes_the_design_names_the_version_that_undoes_it() {
+    // The design as a version already (a new design from a template is one).
+    let (w, id) = library();
+    let (part, length) = first_part(&w, id);
+    let turn = two_resizes(&w, id, &part, length);
+    let point = turn.restore_point.expect("a restore point");
+    assert_eq!(first_part(&w, id).1, length + 2.0);
+    w.store().restore_version(id, point).unwrap();
+    assert_eq!(first_part(&w, id).1, length);
+
+    // Edited since the last version: the edit is kept as the restore point, not lost.
+    let (w, id) = library();
+    let (part, length) = first_part(&w, id);
+    let args = json!({ "project_id": id, "part_id": part, "length": length + 0.5 });
+    tools::call(&w, "resize_part", args.as_object().unwrap()).unwrap();
+    {
+        // An edit made in the editor: the draft moves on without a new version.
+        let store = w.store();
+        let mut draft = store.get_project(id).unwrap().draft;
+        draft.parts[0].size.w += 0.5;
+        store.save_draft(id, &draft, None).unwrap();
+    }
+    let width = w.load(id).unwrap().spec().parts[0].size.w;
+    let turn = two_resizes(&w, id, &part, length);
+    w.store().restore_version(id, turn.restore_point.unwrap()).unwrap();
+    let spec = w.load(id).unwrap().spec().clone();
+    assert_eq!(spec.parts[0].size.l, length + 0.5);
+    assert_eq!(spec.parts[0].size.w, width);
+}
+
+#[test]
+fn a_turn_that_only_reads_has_no_restore_point() {
+    let (w, id) = library();
+    let http = Script::new(vec![
+        Ok(json!({
+            "stop_reason": "tool_use",
+            "content": [{ "type": "tool_use", "id": "tu_1", "name": "get_design", "input": {} }],
+        })),
+        Ok(json!({ "stop_reason": "end_turn", "content": [{ "type": "text", "text": "Six parts." }] })),
+    ]);
+    let turn = assistant::send(
+        &w,
+        &http,
+        &claude("claude-opus-5-5"),
+        id,
+        vec![],
+        &ask("How many?"),
+        &|| false,
+        &mut |_| {},
+    )
+    .unwrap();
+    assert!(!turn.changed);
+    assert_eq!(turn.restore_point, None);
+    assert!(serde_json::to_value(&turn).unwrap().get("restorePoint").is_none());
+}

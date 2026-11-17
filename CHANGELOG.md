@@ -13,6 +13,7 @@ All notable changes to Woodshop are listed here. The format follows
 - A design assistant in the editor's Assistant tab: ask for changes in plain words and it makes
   them with the same checked tools as an MCP agent. Bring your own API key for Claude or an
   OpenAI-compatible server (Settings ▸ AI agents); the key is kept in the system keychain.
+  A reply that changed the design can be undone in one click.
 - Settings ▸ About: the version, the licence, links to the source and privacy note, and the
   licenses of the open-source software inside the app.
 - Report a problem opens the bug form with your version and system filled in.

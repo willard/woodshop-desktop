@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { listen } from '@tauri-apps/api/event';
-import { Camera } from 'lucide-react';
+import { Camera, Undo2 } from 'lucide-react';
 import {
     api,
     errorMessage,
@@ -22,6 +22,10 @@ interface Message {
     /** It went with a picture of the 3D view. */
     picture?: boolean;
     actions?: AssistantAction[];
+    /** The version that undoes this reply's changes. */
+    restorePoint?: number;
+    /** Its changes were undone. */
+    undone?: boolean;
 }
 
 /** What the library keeps for a design's chat. */
@@ -129,7 +133,12 @@ export function AssistantPanel({
             const turn = await api.assistantSend(projectId, history, text, image);
             const answered = [
                 ...asked,
-                { from: 'assistant' as const, text: turn.reply, actions: turn.actions },
+                {
+                    from: 'assistant' as const,
+                    text: turn.reply,
+                    actions: turn.actions,
+                    ...(turn.restorePoint !== undefined ? { restorePoint: turn.restorePoint } : {}),
+                },
             ];
             const next = { provider, history: turn.history };
             setMessages(answered);
@@ -146,6 +155,29 @@ export function AssistantPanel({
             setProgress(null);
             setLive('');
             setStopping(false);
+        }
+    }
+
+    /** Puts the design back as it was before reply `i`; the restore itself is kept in Versions. */
+    async function undo(i: number): Promise<void> {
+        const point = messages[i]?.restorePoint;
+        if (point === undefined || busy) return;
+        setBusy(true);
+        onBusyChange(true);
+        try {
+            await beforeSend();
+            await api.restoreVersion(projectId, point);
+            const next = messages.map((m, j) => (j === i ? { ...m, undone: true } : m));
+            setMessages(next);
+            keep(next, conversation);
+            onChanged();
+        } catch (e) {
+            const failed = [...messages, { from: 'error' as const, text: errorMessage(e) }];
+            setMessages(failed);
+            keep(failed, conversation);
+        } finally {
+            setBusy(false);
+            onBusyChange(false);
         }
     }
 
@@ -222,6 +254,22 @@ export function AssistantPanel({
                                 ))}
                             </ul>
                         )}
+                        {m.restorePoint !== undefined &&
+                            (m.undone ? (
+                                <p className="text-muted mt-1.5 text-xs" data-testid="assistant-undone">
+                                    Undone. The design is back as it was before this reply.
+                                </p>
+                            ) : (
+                                <button
+                                    className="text-muted hover:text-fg mt-1.5 flex items-center gap-1 text-xs disabled:opacity-50"
+                                    disabled={busy}
+                                    title="Put the design back as it was before this reply. Versions keeps both."
+                                    data-testid="assistant-undo"
+                                    onClick={() => void undo(i)}
+                                >
+                                    <Undo2 size={12} aria-hidden /> Undo these changes
+                                </button>
+                            ))}
                     </div>
                 ))}
                 {busy && live !== '' && (

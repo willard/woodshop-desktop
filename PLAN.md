@@ -560,6 +560,9 @@ have to look up, and the editor screenshot would make someone want to try it fro
   switch). It goes with the project when deleted; `.woodshop` files leave it out.
   Show the view sends a picture of the 3D view with a message (JPEG ≤1024 px from
   `EditorEngine.snapshot`, an image block for Claude, a data URL for OpenAI-compatible servers).
+  Undo these changes on a reply restores the turn's `restorePoint`: the version holding the
+  design as the turn found it (the newest version if the draft matched it, else the first
+  version the turn's changes kept). The restore is itself kept, so it can be undone.
 - iPad companion viewer for the shop.
 
 ---

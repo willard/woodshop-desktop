@@ -170,6 +170,8 @@ export interface AssistantTurn {
     /** The conversation in the provider's own format; sent back with the next message. */
     history: unknown[];
     changed: boolean;
+    /** The version that undoes this turn's changes; only there when something changed. */
+    restorePoint?: number;
 }
 
 /** Progress while a turn runs, sent as the `assistant-event` event. */

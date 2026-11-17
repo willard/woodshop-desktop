@@ -303,6 +303,30 @@ export function installMockBackend(): void {
             }
             const r = row(a.projectId as number);
             const history = [...(a.history as unknown[]), { role: 'user', content: a.text }];
+            // "longer…" stands for a change: the first part grows an inch, kept as a version first.
+            if (String(a.text).startsWith('longer')) {
+                const point = {
+                    id: nextId++,
+                    projectId: r.project.id,
+                    label: 'Resize part',
+                    createdBy: 'mcp' as const,
+                    createdAt: now(),
+                    spec: r.project.draft,
+                };
+                r.versions.unshift(point);
+                const draft = structuredClone(r.project.draft);
+                draft.parts[0].size.l += 1;
+                r.project.draft = draft;
+                r.project.draftUpdatedAt = now();
+                const reply = 'Made the first part an inch longer.';
+                return {
+                    reply,
+                    actions: [{ tool: 'resize_part', ok: true }],
+                    history: [...history, { role: 'assistant', content: reply }],
+                    changed: true,
+                    restorePoint: point.id,
+                };
+            }
             const seen = typeof a.image === 'string' && a.image.length > 0 ? ' I can see the view.' : '';
             const reply = `“${r.project.name}” has ${r.project.draft.parts.length} parts.${seen} (This is the browser preview; the real assistant runs in the desktop app.)`;
             return {

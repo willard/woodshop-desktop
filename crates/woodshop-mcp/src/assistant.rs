@@ -117,6 +117,10 @@ pub struct Turn {
     pub history: Vec<Value>,
     /// Whether any tool changed the design.
     pub changed: bool,
+    /// The version holding the design as it was before this turn changed it: restoring it undoes
+    /// the whole turn. Only set when something changed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub restore_point: Option<i64>,
 }
 
 fn system_prompt(project_id: i64, name: &str) -> String {
@@ -179,14 +183,59 @@ pub fn send(
 ) -> Result<Turn, String> {
     let name = woodshop.load(project_id)?.name().to_string();
     let system = system_prompt(project_id, &name);
-    match config.provider {
+    let before = newest_version(woodshop, project_id)?;
+    let mut turn = match config.provider {
         Provider::Anthropic => anthropic(
             woodshop, http, config, project_id, &system, history, ask, stop, on_event,
         ),
         Provider::Openai => openai(
             woodshop, http, config, project_id, &system, history, ask, stop, on_event,
         ),
+    }?;
+    if turn.changed {
+        turn.restore_point = restore_point(woodshop, project_id, before)?;
     }
+    Ok(turn)
+}
+
+/// Where the design stood when a turn began: the newest version, and whether the draft is that
+/// version unchanged.
+struct Before {
+    newest: Option<i64>,
+    saved: bool,
+}
+
+fn newest_version(woodshop: &Woodshop, project_id: i64) -> Result<Before, String> {
+    let store = woodshop.store();
+    let newest = store
+        .list_versions(project_id)
+        .map_err(|e| e.to_string())?
+        .iter()
+        .map(|v| v.id)
+        .max();
+    let saved = match newest {
+        Some(id) => {
+            let draft = store.get_project(project_id).map_err(|e| e.to_string())?.draft;
+            store.get_version_spec(project_id, id).ok().as_ref() == Some(&draft)
+        }
+        None => false,
+    };
+    Ok(Before { newest, saved })
+}
+
+/// The version that holds the design as it was when the turn began. If the draft was already the
+/// newest version, that is it; otherwise the turn's first change kept the draft as a version
+/// before replacing it, so it is the first version the turn added.
+fn restore_point(woodshop: &Woodshop, project_id: i64, before: Before) -> Result<Option<i64>, String> {
+    if before.saved {
+        return Ok(before.newest);
+    }
+    let versions = woodshop.store().list_versions(project_id).map_err(|e| e.to_string())?;
+    Ok(versions
+        .iter()
+        .map(|v| v.id)
+        .filter(|&id| before.newest.is_none_or(|b| id > b))
+        .min())
 }
 
 fn http_message(e: HttpError, who: &str) -> String {
@@ -309,6 +358,7 @@ fn anthropic(
                     actions,
                     history: messages,
                     changed,
+                    restore_point: None,
                 });
             }
             Some("max_tokens") => {
@@ -319,6 +369,7 @@ fn anthropic(
                     actions,
                     history: messages,
                     changed,
+                    restore_point: None,
                 });
             }
             _ => {
@@ -327,6 +378,7 @@ fn anthropic(
                     actions,
                     history: messages,
                     changed,
+                    restore_point: None,
                 });
             }
         }
@@ -342,6 +394,7 @@ fn user_stopped(actions: Vec<Action>, history: Vec<Value>, changed: bool) -> Tur
         actions,
         history,
         changed,
+        restore_point: None,
     }
 }
 
@@ -354,6 +407,7 @@ fn stopped(actions: Vec<Action>, history: Vec<Value>, changed: bool) -> Turn {
         actions,
         history,
         changed,
+        restore_point: None,
     }
 }
 
@@ -416,6 +470,7 @@ fn openai(
                 actions,
                 history: messages,
                 changed,
+                restore_point: None,
             });
         }
         for call in calls {

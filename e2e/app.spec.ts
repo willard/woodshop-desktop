@@ -1027,6 +1027,34 @@ test('the design assistant is set up in Settings and answers in the editor', asy
     await expect(panel.getByTestId('assistant-message-you')).toHaveCount(0);
 });
 
+test('a change the assistant made is undone from its reply', async ({ page }) => {
+    await page.goto('/#/settings');
+    await page.getByTestId('settings-group-agents').click();
+    await page.getByTestId('assistant-settings').getByTestId('assistant-key').fill('sk-ant-test');
+    await page.getByTestId('assistant-settings').getByTestId('assistant-key-save').click();
+    await expect(page.getByTestId('assistant-key-status')).toContainText('saved in your system keychain');
+    await page.goto('/#/projects/1');
+    const totals = page.getByTestId('cutlist-totals');
+    const before = await totals.innerText();
+    await page.getByTestId('assistant-tab').click();
+    const panel = page.getByTestId('assistant-panel');
+    await panel.getByTestId('assistant-input').fill('longer, please');
+    await panel.getByTestId('assistant-input').press('Enter');
+    await expect(panel.getByTestId('assistant-message-assistant')).toContainText('an inch longer');
+    await page.getByTestId('cutlist-toggle').click();
+    await expect.poll(() => totals.innerText()).not.toBe(before);
+
+    await page.getByTestId('assistant-tab').click();
+    await panel.getByTestId('assistant-undo').click();
+    await expect(panel.getByTestId('assistant-undone')).toBeVisible();
+    await expect(panel.getByTestId('assistant-undo')).toHaveCount(0);
+    await page.getByTestId('cutlist-toggle').click();
+    await expect.poll(() => totals.innerText()).toBe(before);
+    // The restore is a version too, so the undo can itself be undone.
+    await page.getByTestId('versions-toggle').click();
+    await expect(page.getByTestId('version-row').first()).toContainText('Before restore');
+});
+
 test('hardware takes prices from one price list, and the estimate and CSV include them', async ({ page }) => {
     await page.goto('/#/projects/1');
     await expect(page.getByTestId('cutlist-totals')).toContainText('$285.00');
