@@ -13,7 +13,15 @@ import { AppLayout } from '@/components/AppLayout';
 import { CrashScreen } from '@/components/CrashScreen';
 import { ProjectsPage } from '@/pages/ProjectsPage';
 import { TemplatesPage } from '@/pages/TemplatesPage';
-import { EditorPage, HelpArticlePage, HelpPage, SettingsPage, ToolPage, ToolsPage } from './pages';
+import {
+    EditorPage,
+    HelpArticlePage,
+    HelpPage,
+    SettingsPage,
+    ShoppingPage,
+    ToolPage,
+    ToolsPage,
+} from './pages';
 import { prefetchProject } from './projectQuery';
 
 const rootRoute = createRootRoute({ component: Outlet });
@@ -30,6 +38,7 @@ const routeTree = rootRoute.addChildren([
             component: () => <ProjectsPage trashed />,
         }),
         createRoute({ getParentRoute: () => shell, path: '/templates', component: TemplatesPage }),
+        createRoute({ getParentRoute: () => shell, path: '/shopping', component: ShoppingPage }),
         createRoute({ getParentRoute: () => shell, path: '/tools', component: ToolsPage }),
         createRoute({ getParentRoute: () => shell, path: '/tools/$slug', component: ToolPage }),
         createRoute({ getParentRoute: () => shell, path: '/help', component: HelpPage }),

@@ -5,11 +5,13 @@
 pub mod grouping;
 pub mod hardware;
 pub mod pack;
+pub mod shopping;
 pub mod stock_advice;
 pub mod types;
 
 pub use grouping::{CutListSection, group_cut_list};
 pub use hardware::{compute_hardware, compute_hardware_in};
+pub use shopping::{ShoppingList, shopping_list};
 pub use stock_advice::{StockSuggestion, stock_advice};
 pub use types::*;
 

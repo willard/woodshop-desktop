@@ -1071,6 +1071,47 @@ test('a change the assistant made is undone from its reply', async ({ page }) =>
     await expect(page.getByTestId('version-row').first()).toContainText('Before restore');
 });
 
+test('a shopping list buys shared material once for several designs', async ({ page }) => {
+    await page.goto('/#/');
+    const cards = page.getByTestId('project-row');
+    await cards.first().getByTestId('project-menu-toggle').click();
+    await page.getByTestId('project-menu').getByRole('button', { name: 'Duplicate' }).click();
+    await expect(cards).toHaveCount(2);
+
+    await page.getByTestId('shopping-link').click();
+    const list = page.getByTestId('shopping-list');
+    await expect(list).toContainText('Pick one or more designs');
+    const designs = page.getByTestId('shopping-design');
+    await designs.nth(0).check();
+    await expect(page.getByTestId('shopping-summary')).toHaveText(
+        '1 design: 3 sheets, 22.9 board feet, about $285.00.',
+    );
+    await designs.nth(1).check();
+    // Two record stands share the Baltic birch: fewer sheets than 3 + 3, the screws doubled.
+    const summary = page.getByTestId('shopping-summary');
+    await expect(summary).toContainText('2 designs:');
+    await expect(summary).toContainText('45.7 board feet');
+    const sheets = Number((await summary.innerText()).match(/(\d+) sheets/)![1]);
+    expect(sheets).toBeLessThan(6);
+    await expect(page.getByTestId('shopping-saving')).toContainText(`saves ${6 - sheets} sheet`);
+    await expect(list.getByTestId('shopping-row').filter({ hasText: 'pocket screws' })).toContainText('24');
+
+    // The choice is remembered, and the list saves as CSV.
+    await page.getByRole('link', { name: '← Your projects' }).click();
+    await page.getByTestId('shopping-link').click();
+    await expect(page.getByTestId('shopping-summary')).toContainText('2 designs:');
+    await page.getByTestId('shopping-csv').click();
+    await expect(page.getByText('Shopping list saved.')).toBeVisible();
+    const csv = await page.evaluate(
+        () =>
+            (window as unknown as { __written: Record<string, string> }).__written[
+                '/mock/exports/Shopping list.csv'
+            ],
+    );
+    expect(csv).toContain(`Baltic Birch 18mm,${sheets},`);
+    expect(csv).toMatch(/pocket screws",?24,/);
+});
+
 test('hardware takes prices from one price list, and the estimate and CSV include them', async ({ page }) => {
     await page.goto('/#/projects/1');
     await expect(page.getByTestId('cutlist-totals')).toContainText('$285.00');

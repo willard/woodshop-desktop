@@ -8,7 +8,7 @@ import { wasm } from '@/domain';
 import { getUnits } from '@/lib/display';
 import type { Spec } from '../spec/types';
 import { getHardwarePrices } from './prices';
-import { DEFAULT_CUTLIST_CONFIG, type CutList, type CutListConfig } from './types';
+import { DEFAULT_CUTLIST_CONFIG, type CutList, type CutListConfig, type ShoppingList } from './types';
 
 export * from './types';
 export * from './grouping';
@@ -20,6 +20,15 @@ export function computeCutList(spec: Spec, config: CutListConfig = DEFAULT_CUTLI
         hardwarePrices: getHardwarePrices(),
         ...config,
     }) as CutList;
+}
+
+/** One list to buy for several designs: shared material packed together, hardware added up. */
+export function shoppingList(specs: Spec[], config: CutListConfig = DEFAULT_CUTLIST_CONFIG): ShoppingList {
+    return wasm.shoppingList(specs, {
+        units: getUnits(),
+        hardwarePrices: getHardwarePrices(),
+        ...config,
+    }) as ShoppingList;
 }
 
 /** Smaller panel to buy when a single sheet is mostly offcut (advisory only). */

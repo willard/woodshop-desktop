@@ -87,6 +87,14 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
                                 Import…
                             </button>
                             <Link
+                                to="/shopping"
+                                className="border-fg/12 text-muted hover:bg-surface-2 hover:text-fg-strong rounded-md border px-3 py-1.5"
+                                title="One list to buy for several designs, with shared material packed together"
+                                data-testid="shopping-link"
+                            >
+                                Shopping list
+                            </Link>
+                            <Link
                                 to="/templates"
                                 className="border-fg/12 text-accent hover:bg-surface-2 rounded-md border px-3 py-1.5"
                             >

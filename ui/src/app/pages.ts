@@ -10,6 +10,7 @@ export const ToolsPage = lazyRouteComponent(() => import('@/pages/ToolsPage'));
 export const ToolPage = lazyRouteComponent(() => import('@/pages/ToolPage'));
 export const HelpPage = lazyRouteComponent(() => import('@/pages/HelpPage'));
 export const HelpArticlePage = lazyRouteComponent(() => import('@/pages/HelpArticlePage'));
+export const ShoppingPage = lazyRouteComponent(() => import('@/pages/ShoppingPage'));
 export const SettingsPage = lazyRouteComponent(() => import('@/pages/SettingsPage'));
 
 /** Warms the editor's code while the user is still looking at the project list. */

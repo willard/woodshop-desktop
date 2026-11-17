@@ -521,6 +521,12 @@ have to look up, and the editor screenshot would make someone want to try it fro
   The same steps fold out under the cut list in the app, and agents read them as
   `assemblyOrder` on `get_cut_list`.
 
+- **Shopping list** (`/shopping`, `cutlist::shopping`, WASM `shoppingList`): designs ticked on the
+  page (remembered in localStorage) are bought together. Materials merge when kind, name,
+  thickness, sheet size, grain, species and stock sizes match (a price from either counts); their
+  pieces are packed in one plan. Hardware is summed by key and priced on the total. The page shows
+  the sheets and boards saved against buying each design alone, and saves a CSV.
+
 - **Part labels** (`woodshop-export::labels`, `export_labels`): one label per piece, ordered sheet
   by sheet then board by board from the cut list layouts, "n of qty" for repeated parts, on Avery
   5160 (Letter, 3 × 10) or, in metric, L7160 (A4, 3 × 7). Typst, sharing the plan's `typeset`.

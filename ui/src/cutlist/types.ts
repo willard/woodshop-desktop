@@ -127,3 +127,16 @@ export interface CutListConfig {
 export const DEFAULT_CUTLIST_CONFIG: CutListConfig = {
     kerf: 0.125,
 };
+
+/** One shopping list for several designs (`woodshop-core::cutlist::shopping`). */
+export interface ShoppingList {
+    /** One plan per material, the designs' pieces packed onto shared sheets. */
+    sheets: SheetPlan[];
+    lumber: LumberPlan[];
+    /** Every design's hardware, added up by key. */
+    hardware: HardwareRow[];
+    totals: CutListTotals;
+    /** What the designs would need bought one at a time. */
+    separateSheets: number;
+    separateBoards: number;
+}

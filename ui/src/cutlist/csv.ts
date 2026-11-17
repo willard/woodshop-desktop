@@ -24,12 +24,12 @@ function header(units: Units): string[] {
 }
 
 /** RFC 4180: quote a field when it holds a comma, quote or line break; double inner quotes. */
-function field(value: string | number): string {
+export function field(value: string | number): string {
     const text = String(value);
     return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-function row(values: (string | number)[]): string {
+export function row(values: (string | number)[]): string {
     return values.map(field).join(',');
 }
 

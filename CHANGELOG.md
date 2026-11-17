@@ -8,6 +8,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Shopping list: one list to buy for several designs, from the projects page. Shared material is
+  bought once and packed together, hardware is added up, and it saves as CSV.
 - Part labels: print a sticky label for every piece (name, size, material, which sheet or board),
   in cutting order, on Avery 5160 (Letter) or L7160 (A4) sheets, starting at any label of a
   partly used sheet. In the editor's ⋯ menu.

@@ -236,6 +236,19 @@ pub fn compute_cut_list(spec: JsValue, config: JsValue) -> JsResult<JsValue> {
     to_js(&cutlist::compute_cut_list(&spec_from_js(spec)?, config))
 }
 
+/// One shopping list for several designs (specs already parsed by [`parse_spec`]).
+#[wasm_bindgen(js_name = shoppingList)]
+pub fn shopping_list(specs: JsValue, config: JsValue) -> JsResult<JsValue> {
+    let config: CutListConfig = if config.is_undefined() || config.is_null() {
+        CutListConfig::default()
+    } else {
+        from_js(config)?
+    };
+    let specs: Vec<Spec> = from_js(specs)?;
+    let refs: Vec<&Spec> = specs.iter().collect();
+    to_js(&cutlist::shopping_list(&refs, &config))
+}
+
 #[wasm_bindgen(js_name = groupCutList)]
 pub fn group_cut_list(cut_list: JsValue) -> JsResult<JsValue> {
     let cut_list: CutList = from_js(cut_list)?;

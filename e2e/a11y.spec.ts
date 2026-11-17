@@ -113,6 +113,11 @@ test('every control on every page has a name', async ({ page }) => {
         await expectAllNamed(page, `calculator ${slug}`);
     }
 
+    await page.goto('/#/shopping');
+    await page.getByTestId('shopping-design').first().check();
+    await expect(page.getByTestId('shopping-summary')).toBeVisible();
+    await expectAllNamed(page, 'shopping list');
+
     await page.goto('/#/help');
     await expectAllNamed(page, 'help');
 
