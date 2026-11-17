@@ -92,7 +92,8 @@ Known rough edges in what is done:
 - Hardware is one flat metal colour. Pulls and knobs want finishes (black, brass); see 5b.1.
 - The T-hinge strap and the shelf pin are crude; fine at furniture zoom, weak in the preview.
 - An undermount slide is drawn in the side-mount position.
-- At default zoom hardware is only a few pixels; the editor has no "zoom to selection".
+- At default zoom hardware is only a few pixels; F or the Selected view button zooms in on the
+  selected parts.
 - Caster height is now in the overall size; levelers and other mounted hardware count by their projection.
 
 ---

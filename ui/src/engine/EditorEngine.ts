@@ -2096,11 +2096,39 @@ export class EditorEngine {
         }
         direction.normalize();
         const distance = fitDistance(box, center, direction, this.camera.fov, this.camera.aspect, 0.6);
+        this.aim(center, direction, distance, distance * 20);
+    }
 
+    /**
+     * Zooms in on some parts from the current direction, filling about half the view, so a hinge
+     * or a shelf can be seen up close. Returns false (and leaves the camera) when none is in the
+     * scene.
+     */
+    frameParts(ids: readonly string[]): boolean {
+        if (this.partsGroup === null) return false;
+        const box = new THREE.Box3();
+        for (const id of ids) {
+            const mesh = this.partsGroup.getObjectByName(id);
+            if (mesh !== undefined) box.expandByObject(mesh);
+        }
+        if (box.isEmpty()) return false;
+        const center = box.getCenter(new THREE.Vector3());
+        const direction = this.camera.position.clone().sub(this.controls.target);
+        if (direction.lengthSq() < 1e-9) direction.set(1, 0.85, 1);
+        direction.normalize();
+        const distance = fitDistance(box, center, direction, this.camera.fov, this.camera.aspect, 0.5);
+        // Far enough to keep the whole design in view when zooming back out from up close.
+        const whole = new THREE.Box3().setFromObject(this.partsGroup);
+        const reach = distance + whole.getSize(new THREE.Vector3()).length();
+        this.aim(center, direction, distance, Math.max(distance * 20, reach * 20));
+        return true;
+    }
+
+    private aim(center: THREE.Vector3, direction: THREE.Vector3, distance: number, far: number): void {
         this.controls.target.copy(center);
         this.camera.position.copy(center).addScaledVector(direction, distance);
         this.camera.near = Math.max(distance / 200, 0.1);
-        this.camera.far = distance * 20;
+        this.camera.far = far;
         this.camera.updateProjectionMatrix();
         this.controls.update();
         this.requestRender();

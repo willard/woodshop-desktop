@@ -44,7 +44,7 @@ export const SHORTCUTS: { keys: string; does: string }[] = [
     { keys: 'E', does: 'Explode the view' },
     { keys: 'O', does: 'Open the doors and drawers' },
     { keys: 'M', does: 'Measure' },
-    { keys: 'F', does: 'Fit the design in view' },
+    { keys: 'F', does: 'Zoom to the selection, or fit the design in view' },
     { keys: 'V', does: 'Switch between Edit and View' },
     { keys: 'P', does: 'Show or hide the parts list' },
     { keys: 'Esc', does: 'Deselect, or leave a tool' },

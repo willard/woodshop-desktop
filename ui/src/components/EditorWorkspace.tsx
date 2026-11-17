@@ -1095,7 +1095,11 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 toggleMeasure: () => {
                     if (measuring || (explode === 0 && doorsOpen === 0)) toggleMeasure();
                 },
-                fit: () => engineRef.current?.viewFrom('fit'),
+                // The selection up close when there is one, else the whole design.
+                fit: () => {
+                    const engine = engineRef.current;
+                    if (engine && !engine.frameParts(d.selectedIds)) engine.viewFrom('fit');
+                },
                 toggleMode,
                 toggleOutline: () => setOutlineOpen(!outlineOpen),
                 showShortcuts: () => setShortcutsOpen(true),
@@ -1926,6 +1930,16 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         {label}
                                     </button>
                                 ))}
+                                {selectedIds.length > 0 && (
+                                    <button
+                                        className="text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong h-7 rounded-md px-2 text-[12px] font-medium"
+                                        title="Zoom in on the selection (F)"
+                                        data-testid="view-selection"
+                                        onClick={() => engineRef.current?.frameParts(selectedIds)}
+                                    >
+                                        Selected
+                                    </button>
+                                )}
                             </div>
 
                             {dragBlocked !== null ? (

@@ -94,7 +94,7 @@
             },
             {
                 "type": "p",
-                "text": "The buttons over the 3D view look from the front, the side or the top, go back to the three-quarter view, or fit the whole design in view. Press ? or the ? button for every keyboard shortcut. The ones you will use most: E explodes the view, O opens the doors and drawers, M measures, F fits the design in view, V switches between Edit and View, H hides the selection, and ⌘Z undoes."
+                "text": "The buttons over the 3D view look from the front, the side or the top, go back to the three-quarter view, or fit the whole design in view; with parts selected, Selected zooms in on them. Press ? or the ? button for every keyboard shortcut. The ones you will use most: E explodes the view, O opens the doors and drawers, M measures, F zooms to the selection (or fits the design in view when nothing is selected), V switches between Edit and View, H hides the selection, and ⌘Z undoes."
             },
             {
                 "type": "h",

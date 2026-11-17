@@ -72,6 +72,29 @@ test('the view buttons look from the front, side and top, and fit the design', a
     expect(errors).toEqual([]);
 });
 
+test('the selection can be zoomed in on, with the button or F', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto('/#/projects/1');
+    const canvas = page.getByTestId('editor-shell').locator('canvas').first();
+    await expect(canvas).toBeVisible();
+    await expect(page.getByTestId('view-selection')).toHaveCount(0);
+    await page.getByTestId('outline').getByRole('button', { name: 'Middle Shelf', exact: true }).click();
+    await page.waitForTimeout(300);
+    const whole = await canvas.screenshot();
+    await page.getByTestId('view-selection').click();
+    await page.waitForTimeout(300);
+    const close = await canvas.screenshot();
+    expect(Buffer.compare(whole, close)).not.toBe(0);
+    // F with nothing selected fits the whole design again.
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('view-selection')).toHaveCount(0);
+    await page.keyboard.press('f');
+    await page.waitForTimeout(300);
+    expect(Buffer.compare(close, await canvas.screenshot())).not.toBe(0);
+    expect(errors).toEqual([]);
+});
+
 test('moving between screens never shows a blank window', async ({ page }) => {
     // Make the next pages' code slow to arrive, the way a cold start is.
     const slow = async (route: import('@playwright/test').Route) => {
