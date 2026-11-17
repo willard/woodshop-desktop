@@ -26,6 +26,7 @@ export function installMockBackend(): void {
     const rows = new Map<number, Row>();
     const settings: Record<string, unknown> = {};
     const keychain = new Set<string>();
+    let stopAssistant: (() => void) | null = null;
     const backups: { file: string; createdAt: number; bytes: number; projects: Row[] }[] = [];
     let nextId = 1;
     let clock = Date.now();
@@ -280,7 +281,19 @@ export function installMockBackend(): void {
             if (key) keychain.add(a.provider as string);
             else keychain.delete(a.provider as string);
         },
+        assistant_stop: () => {
+            stopAssistant?.();
+        },
         assistant_send: (a) => {
+            // "wait…" stands for a long turn: it runs until Stop.
+            if (String(a.text).startsWith('wait')) {
+                return new Promise((resolve) => {
+                    stopAssistant = () => {
+                        stopAssistant = null;
+                        resolve({ reply: 'Stopped.', actions: [], history: a.history, changed: false });
+                    };
+                });
+            }
             const r = row(a.projectId as number);
             const history = [...(a.history as unknown[]), { role: 'user', content: a.text }];
             const reply = `“${r.project.name}” has ${r.project.draft.parts.length} parts. (This is the browser preview; the real assistant runs in the desktop app.)`;

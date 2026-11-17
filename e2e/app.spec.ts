@@ -992,4 +992,11 @@ test('the design assistant is set up in Settings and answers in the editor', asy
     await expect(panel.getByTestId('assistant-message-you')).toHaveText('How many parts?');
     await expect(panel.getByTestId('assistant-message-assistant')).toContainText('has 6 parts');
     await expect(panel.getByTestId('assistant-actions')).toContainText('get design');
+
+    // A long turn can be stopped.
+    await panel.getByTestId('assistant-input').fill('wait for a long time');
+    await panel.getByTestId('assistant-send').click();
+    await panel.getByTestId('assistant-stop').click();
+    await expect(panel.getByTestId('assistant-message-assistant').last()).toHaveText('Stopped.');
+    await expect(panel.getByTestId('assistant-send')).toBeVisible();
 });

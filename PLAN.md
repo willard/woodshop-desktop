@@ -546,7 +546,9 @@ have to look up, and the editor screenshot would make someone want to try it fro
   asked for server-sent events, the reply is rebuilt block by block (thinking and signatures
   kept, tool input JSON joined) and its text shows in the panel as it arrives; after a refusal
   fallback partway through, the declined attempt's thinking and tool calls are neither run nor
-  echoed back.
+  echoed back. Stop (`assistant_stop`) ends a turn: no further request or tool runs, a reply cut
+  off mid-stream is dropped, and calls left unrun get an error result, so the conversation can
+  go on.
 - iPad companion viewer for the shop.
 
 ---

@@ -2,6 +2,8 @@
 //! the provider, and the command the chat panel calls. The conversation itself lives in
 //! `woodshop_mcp::assistant`.
 
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
@@ -118,7 +120,7 @@ impl Http for Client {
         url: &str,
         headers: &[(&str, String)],
         body: &Value,
-        on_data: &mut dyn FnMut(&str),
+        on_data: &mut dyn FnMut(&str) -> bool,
     ) -> Result<(), HttpError> {
         let mut request = self.0.post(url).json(body).header("accept", "text/event-stream");
         for (name, value) in headers {
@@ -153,7 +155,10 @@ impl Http for Client {
                     message: e.to_string(),
                 })?;
                 let Some(chunk) = chunk else { break };
-                lines.feed(&chunk, on_data);
+                if !lines.feed(&chunk, on_data) {
+                    // Stopped: dropping the response closes the connection.
+                    return Ok(());
+                }
             }
             lines.finish(on_data);
             Ok(())
@@ -168,24 +173,29 @@ struct SseLines {
 }
 
 impl SseLines {
-    fn feed(&mut self, bytes: &[u8], on_data: &mut dyn FnMut(&str)) {
+    /// Feeds the complete lines in `bytes`; false once `on_data` asks to stop.
+    fn feed(&mut self, bytes: &[u8], on_data: &mut dyn FnMut(&str) -> bool) -> bool {
         self.pending.extend_from_slice(bytes);
         while let Some(end) = self.pending.iter().position(|&b| b == b'\n') {
             let line: Vec<u8> = self.pending.drain(..=end).collect();
-            Self::line(&line, on_data);
+            if !Self::line(&line, on_data) {
+                return false;
+            }
         }
+        true
     }
 
-    fn finish(&mut self, on_data: &mut dyn FnMut(&str)) {
+    fn finish(&mut self, on_data: &mut dyn FnMut(&str) -> bool) {
         let rest = std::mem::take(&mut self.pending);
         Self::line(&rest, on_data);
     }
 
-    fn line(line: &[u8], on_data: &mut dyn FnMut(&str)) {
+    fn line(line: &[u8], on_data: &mut dyn FnMut(&str) -> bool) -> bool {
         let line = String::from_utf8_lossy(line);
         let line = line.trim_end_matches(['\r', '\n']);
-        if let Some(data) = line.strip_prefix("data:") {
-            on_data(data.strip_prefix(' ').unwrap_or(data));
+        match line.strip_prefix("data:") {
+            Some(data) => on_data(data.strip_prefix(' ').unwrap_or(data)),
+            None => true,
         }
     }
 }
@@ -203,11 +213,21 @@ fn client() -> CmdResult<Client> {
     Ok(Client(inner))
 }
 
+/// Set by Stop; the running turn checks it between steps and while a reply streams in.
+#[derive(Default)]
+pub struct AssistantStop(Arc<AtomicBool>);
+
+#[tauri::command]
+pub fn assistant_stop(stop: State<'_, AssistantStop>) {
+    stop.0.store(true, Ordering::SeqCst);
+}
+
 /// One message to the assistant about design `project_id`. `history` is the conversation so far,
 /// as the last [`Turn`] returned it. Progress goes out as `assistant-event` while it works.
 #[tauri::command]
 pub async fn assistant_send(
     lib: State<'_, Library>,
+    stop: State<'_, AssistantStop>,
     app: tauri::AppHandle,
     project_id: i64,
     history: Vec<Value>,
@@ -216,6 +236,8 @@ pub async fn assistant_send(
     let config = config(&lib)?;
     let dir = lib.dir.clone();
     let http = client()?;
+    let stop = Arc::clone(&stop.0);
+    stop.store(false, Ordering::SeqCst);
     tauri::async_runtime::spawn_blocking(move || {
         // Its own connection, like an MCP agent's: the editor sees each change through the
         // library watcher and reloads it.
@@ -223,8 +245,11 @@ pub async fn assistant_send(
         let mut emit = |event| {
             let _ = app.emit("assistant-event", event);
         };
-        assistant::send(&woodshop, &http, &config, project_id, history, &text, &mut emit)
-            .map_err(|message| CommandError::Io { message })
+        let stopped = || stop.load(Ordering::SeqCst);
+        assistant::send(
+            &woodshop, &http, &config, project_id, history, &text, &stopped, &mut emit,
+        )
+        .map_err(|message| CommandError::Io { message })
     })
     .await
     .map_err(CommandError::internal)?
@@ -282,7 +307,8 @@ mod tests {
     fn stream(client: &Client, url: &str, headers: &[(&str, String)]) -> Result<Vec<String>, HttpError> {
         let mut seen = Vec::new();
         client.post_stream(url, headers, &json!({ "model": "m" }), &mut |d| {
-            seen.push(d.to_string())
+            seen.push(d.to_string());
+            true
         })?;
         Ok(seen)
     }
@@ -305,10 +331,24 @@ mod tests {
         let mut lines = SseLines::default();
         let mut seen = Vec::new();
         for piece in ["data: {\"a\"", ":1}\nda", "ta: x\n"] {
-            lines.feed(piece.as_bytes(), &mut |d| seen.push(d.to_string()));
+            lines.feed(piece.as_bytes(), &mut |d| {
+                seen.push(d.to_string());
+                true
+            });
         }
-        lines.finish(&mut |d| seen.push(d.to_string()));
+        lines.finish(&mut |d| {
+            seen.push(d.to_string());
+            true
+        });
         assert_eq!(seen, [r#"{"a":1}"#, "x"]);
+        // Asked to stop, it stops at once, even mid-chunk.
+        let mut first = Vec::new();
+        let going = SseLines::default().feed(b"data: 1\ndata: 2\n", &mut |d| {
+            first.push(d.to_string());
+            false
+        });
+        assert!(!going);
+        assert_eq!(first, ["1"]);
     }
 
     #[test]

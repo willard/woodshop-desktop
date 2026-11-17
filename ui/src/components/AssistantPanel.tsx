@@ -46,6 +46,9 @@ export function AssistantPanel({
     const [progress, setProgress] = useState<string | null>(null);
     /** The reply as it streams in; replaced by the finished message. */
     const [live, setLive] = useState('');
+    const [stopping, setStopping] = useState(false);
+    const stoppingRef = useRef(false);
+    stoppingRef.current = stopping;
     const end = useRef<HTMLDivElement>(null);
 
     // A conversation is in one provider's format: switching provider starts a new one.
@@ -63,7 +66,7 @@ export function AssistantPanel({
             if (payload.kind === 'text') {
                 setLive((t) => t + payload.delta);
                 setProgress(null);
-            } else if (payload.kind === 'tool') {
+            } else if (payload.kind === 'tool' && !stoppingRef.current) {
                 // What it wrote before reaching for a tool was a note to itself; the answer comes after.
                 setLive('');
                 setProgress(`Using ${toolWords(payload.name)}…`);
@@ -93,6 +96,7 @@ export function AssistantPanel({
             onBusyChange(false);
             setProgress(null);
             setLive('');
+            setStopping(false);
         }
     }
 
@@ -201,14 +205,29 @@ export function AssistantPanel({
                     >
                         New chat
                     </button>
-                    <button
-                        className="bg-accent text-accent-ink hover:bg-accent-strong rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50"
-                        disabled={busy || draft.trim() === ''}
-                        data-testid="assistant-send"
-                        onClick={() => void send()}
-                    >
-                        {busy ? 'Working…' : 'Send'}
-                    </button>
+                    {busy ? (
+                        <button
+                            className="border-fg/12 hover:bg-surface-3 rounded-lg border px-3 py-1.5 text-sm font-semibold disabled:opacity-50"
+                            disabled={stopping}
+                            data-testid="assistant-stop"
+                            onClick={() => {
+                                setStopping(true);
+                                setProgress('Stopping…');
+                                void api.assistantStop();
+                            }}
+                        >
+                            Stop
+                        </button>
+                    ) : (
+                        <button
+                            className="bg-accent text-accent-ink hover:bg-accent-strong rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50"
+                            disabled={draft.trim() === ''}
+                            data-testid="assistant-send"
+                            onClick={() => void send()}
+                        >
+                            Send
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

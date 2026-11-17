@@ -237,6 +237,8 @@ export const api = {
     /** Saves a provider's key in the keychain, or removes it when `key` is null. */
     assistantSetKey: (provider: AssistantProvider, key: string | null) =>
         invoke<void>('assistant_set_key', { provider, key }),
+    /** Asks the running turn to stop; it finishes the step it is on and returns. */
+    assistantStop: () => invoke<void>('assistant_stop'),
     assistantSend: (projectId: number, history: unknown[], text: string) =>
         invoke<AssistantTurn>('assistant_send', { projectId, history, text }),
 

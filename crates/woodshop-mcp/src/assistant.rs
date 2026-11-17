@@ -59,13 +59,14 @@ pub struct HttpError {
 }
 
 pub trait Http {
-    /// POSTs `body` and feeds the payload of each server-sent `data:` line to `on_data`, in order.
+    /// POSTs `body` and feeds the payload of each server-sent `data:` line to `on_data`, in order,
+    /// until it returns `false` (the user stopped the assistant) or the stream ends.
     fn post_stream(
         &self,
         url: &str,
         headers: &[(&str, String)],
         body: &Value,
-        on_data: &mut dyn FnMut(&str),
+        on_data: &mut dyn FnMut(&str) -> bool,
     ) -> Result<(), HttpError>;
 }
 
@@ -154,7 +155,9 @@ fn result_text(outcome: &Result<Value, String>) -> String {
     }
 }
 
-/// Sends `text` in the conversation `history` and runs the assistant until it answers.
+/// Sends `text` in the conversation `history` and runs the assistant until it answers, or until
+/// `stop` says the user pressed Stop.
+#[allow(clippy::too_many_arguments)]
 pub fn send(
     woodshop: &Woodshop,
     http: &dyn Http,
@@ -162,13 +165,18 @@ pub fn send(
     project_id: i64,
     history: Vec<Value>,
     text: &str,
+    stop: &dyn Fn() -> bool,
     on_event: &mut dyn FnMut(Event),
 ) -> Result<Turn, String> {
     let name = woodshop.load(project_id)?.name().to_string();
     let system = system_prompt(project_id, &name);
     match config.provider {
-        Provider::Anthropic => anthropic(woodshop, http, config, project_id, &system, history, text, on_event),
-        Provider::Openai => openai(woodshop, http, config, project_id, &system, history, text, on_event),
+        Provider::Anthropic => anthropic(
+            woodshop, http, config, project_id, &system, history, text, stop, on_event,
+        ),
+        Provider::Openai => openai(
+            woodshop, http, config, project_id, &system, history, text, stop, on_event,
+        ),
     }
 }
 
@@ -191,6 +199,7 @@ fn anthropic(
     system: &str,
     mut messages: Vec<Value>,
     text: &str,
+    stop: &dyn Fn() -> bool,
     on_event: &mut dyn FnMut(Event),
 ) -> Result<Turn, String> {
     let tools: Vec<Value> = chat_tools()
@@ -208,6 +217,9 @@ fn anthropic(
     let mut actions = Vec::new();
     let mut changed = false;
     for _ in 0..MAX_ROUNDS {
+        if stop() {
+            return Ok(user_stopped(actions, messages, changed));
+        }
         let mut body = json!({
             "model": config.model,
             "max_tokens": MAX_TOKENS,
@@ -220,7 +232,11 @@ fn anthropic(
         if fallbacks {
             body["fallbacks"] = json!("default");
         }
-        let response = anthropic_stream(http, &headers, &body, on_event)?;
+        let response = anthropic_stream(http, &headers, &body, stop, on_event)?;
+        if stop() {
+            // A reply cut off part way is not sent back; the conversation ends before it.
+            return Ok(user_stopped(actions, messages, changed));
+        }
         let content = echoable(response["content"].as_array().cloned().unwrap_or_default());
         // The whole content goes back: thinking and fallback blocks must be returned unchanged.
         messages.push(json!({ "role": "assistant", "content": content }));
@@ -234,6 +250,16 @@ fn anthropic(
             Some("tool_use") => {
                 let mut results = Vec::new();
                 for call in content.iter().filter(|b| b["type"] == "tool_use") {
+                    if stop() {
+                        // Every call needs its result; the ones left over say why they didn't run.
+                        results.push(json!({
+                            "type": "tool_result",
+                            "tool_use_id": call["id"],
+                            "content": NOT_RUN,
+                            "is_error": true,
+                        }));
+                        continue;
+                    }
                     let name = call["name"].as_str().unwrap_or_default().to_string();
                     on_event(Event::Tool { name: name.clone() });
                     let (outcome, did_change) = run_tool(woodshop, project_id, &name, &call["input"]);
@@ -292,6 +318,17 @@ fn anthropic(
     Ok(stopped(actions, messages, changed))
 }
 
+const NOT_RUN: &str = "The user stopped the assistant before this ran.";
+
+fn user_stopped(actions: Vec<Action>, history: Vec<Value>, changed: bool) -> Turn {
+    Turn {
+        reply: "Stopped.".into(),
+        actions,
+        history,
+        changed,
+    }
+}
+
 fn stopped(actions: Vec<Action>, history: Vec<Value>, changed: bool) -> Turn {
     Turn {
         reply: format!(
@@ -313,6 +350,7 @@ fn openai(
     system: &str,
     mut messages: Vec<Value>,
     text: &str,
+    stop: &dyn Fn() -> bool,
     on_event: &mut dyn FnMut(Event),
 ) -> Result<Turn, String> {
     let base = config
@@ -339,8 +377,14 @@ fn openai(
     let mut actions = Vec::new();
     let mut changed = false;
     for _ in 0..MAX_ROUNDS {
+        if stop() {
+            return Ok(user_stopped(actions, messages, changed));
+        }
         let body = json!({ "model": config.model, "messages": messages, "tools": tools, "stream": true });
-        let message = openai_stream(http, &url, &headers, &body, on_event)?;
+        let message = openai_stream(http, &url, &headers, &body, stop, on_event)?;
+        if stop() {
+            return Ok(user_stopped(actions, messages, changed));
+        }
         messages.push(message.clone());
         let calls = message["tool_calls"].as_array().cloned().unwrap_or_default();
         if calls.is_empty() {
@@ -353,6 +397,10 @@ fn openai(
             });
         }
         for call in calls {
+            if stop() {
+                messages.push(json!({ "role": "tool", "tool_call_id": call["id"], "content": NOT_RUN }));
+                continue;
+            }
             let name = call["function"]["name"].as_str().unwrap_or_default().to_string();
             on_event(Event::Tool { name: name.clone() });
             let input: Value = call["function"]["arguments"]
@@ -384,6 +432,7 @@ fn anthropic_stream(
     http: &dyn Http,
     headers: &[(&str, String)],
     body: &Value,
+    stop: &dyn Fn() -> bool,
     on_event: &mut dyn FnMut(Event),
 ) -> Result<Value, String> {
     let mut content: Vec<Value> = Vec::new();
@@ -392,7 +441,7 @@ fn anthropic_stream(
     let mut failure: Option<String> = None;
     http.post_stream(ANTHROPIC_URL, headers, body, &mut |data| {
         let Ok(event) = serde_json::from_str::<Value>(data) else {
-            return;
+            return !stop();
         };
         match event["type"].as_str() {
             Some("content_block_start") => {
@@ -406,7 +455,7 @@ fn anthropic_stream(
             Some("content_block_delta") => {
                 let index = event["index"].as_u64().unwrap_or(0) as usize;
                 let (Some(block), delta) = (content.get_mut(index), &event["delta"]) else {
-                    return;
+                    return !stop();
                 };
                 match delta["type"].as_str() {
                     Some("text_delta") => {
@@ -451,6 +500,7 @@ fn anthropic_stream(
             }
             _ => {}
         }
+        !stop()
     })
     .map_err(|e| http_message(e, "Anthropic"))?;
     if let Some(message) = failure {
@@ -487,6 +537,7 @@ fn openai_stream(
     url: &str,
     headers: &[(&str, String)],
     body: &Value,
+    stop: &dyn Fn() -> bool,
     on_event: &mut dyn FnMut(Event),
 ) -> Result<Value, String> {
     let mut text = String::new();
@@ -494,14 +545,14 @@ fn openai_stream(
     let mut saw_choice = false;
     http.post_stream(url, headers, body, &mut |data| {
         if data.trim() == "[DONE]" {
-            return;
+            return !stop();
         }
         let Ok(chunk) = serde_json::from_str::<Value>(data) else {
-            return;
+            return !stop();
         };
         let delta = &chunk["choices"][0]["delta"];
         if delta.is_null() {
-            return;
+            return !stop();
         }
         saw_choice = true;
         if let Some(more) = delta["content"].as_str() {
@@ -529,6 +580,7 @@ fn openai_stream(
                 append(&mut slot["function"], "arguments", args);
             }
         }
+        !stop()
     })
     .map_err(|e| http_message(e, "The model server"))?;
     if !saw_choice {

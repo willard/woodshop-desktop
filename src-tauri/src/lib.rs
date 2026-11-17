@@ -119,6 +119,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_process::init())
+        .manage(assistant::AssistantStop::default())
         .manage(PendingOpens(Mutex::new(woodshop_files(std::env::args().skip(1)))))
         .setup(|app| {
             let dir = paths::library_dir(app.handle())?;
@@ -175,6 +176,7 @@ pub fn run() {
             assistant::assistant_keys,
             assistant::assistant_set_key,
             assistant::assistant_send,
+            assistant::assistant_stop,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Woodshop");

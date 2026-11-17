@@ -1,7 +1,7 @@
 //! The in-app assistant's loop, against scripted provider replies: what it sends, how it runs the
 //! tools it is asked to, and what it hands back.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 
 use serde_json::{Value, json};
 use woodshop_mcp::assistant::{self, Config, Event, Http, HttpError, Provider};
@@ -32,7 +32,7 @@ impl Http for Script {
         url: &str,
         headers: &[(&str, String)],
         body: &Value,
-        on_data: &mut dyn FnMut(&str),
+        on_data: &mut dyn FnMut(&str) -> bool,
     ) -> Result<(), HttpError> {
         let headers = headers.iter().map(|(k, v)| (k.to_string(), v.clone())).collect();
         self.sent.borrow_mut().push((url.to_string(), headers, body.clone()));
@@ -47,7 +47,9 @@ impl Http for Script {
             claude_stream(&reply)
         };
         for data in events {
-            on_data(&data);
+            if !on_data(&data) {
+                break;
+            }
         }
         Ok(())
     }
@@ -166,6 +168,7 @@ fn claude_runs_a_tool_on_the_open_design_and_answers() {
         id,
         vec![],
         "Longer, please",
+        &|| false,
         &mut |e| events.push(e),
     )
     .unwrap();
@@ -235,6 +238,7 @@ fn a_tool_aimed_at_another_design_is_refused() {
         id,
         vec![],
         "Delete",
+        &|| false,
         &mut |_| {},
     )
     .unwrap();
@@ -259,7 +263,17 @@ fn a_rejected_key_says_where_to_fix_it() {
         status: Some(401),
         message: "unauthorized".into(),
     })]);
-    let err = assistant::send(&w, &http, &claude("claude-opus-5-5"), id, vec![], "Hi", &mut |_| {}).unwrap_err();
+    let err = assistant::send(
+        &w,
+        &http,
+        &claude("claude-opus-5-5"),
+        id,
+        vec![],
+        "Hi",
+        &|| false,
+        &mut |_| {},
+    )
+    .unwrap_err();
     assert!(err.contains("Settings ▸ AI agents"), "{err}");
 }
 
@@ -282,7 +296,7 @@ fn an_openai_compatible_server_gets_functions_and_tool_messages() {
         base_url: Some("http://localhost:11434/v1/".into()),
         api_key: String::new(),
     };
-    let turn = assistant::send(&w, &http, &config, id, vec![], "Rename it", &mut |_| {}).unwrap();
+    let turn = assistant::send(&w, &http, &config, id, vec![], "Rename it", &|| false, &mut |_| {}).unwrap();
     assert_eq!(turn.reply, "Renamed.");
     assert!(turn.changed);
 
@@ -316,7 +330,17 @@ fn after_a_fallback_partway_through_only_the_new_attempt_is_acted_on_and_echoed(
         ] })),
         Ok(json!({ "stop_reason": "end_turn", "content": [{ "type": "text", "text": "Done." }] })),
     ]);
-    let turn = assistant::send(&w, &http, &claude("claude-opus-5-5"), id, vec![], "Look", &mut |_| {}).unwrap();
+    let turn = assistant::send(
+        &w,
+        &http,
+        &claude("claude-opus-5-5"),
+        id,
+        vec![],
+        "Look",
+        &|| false,
+        &mut |_| {},
+    )
+    .unwrap();
     // Only the call after the boundary ran: the part is still there.
     assert_eq!(turn.actions.len(), 1);
     assert_eq!(turn.actions[0].tool, "get_design");
@@ -338,6 +362,81 @@ fn an_error_in_the_stream_is_reported() {
         { "type": "message_start", "message": {} },
         { "type": "error", "error": { "type": "overloaded_error", "message": "Overloaded" } },
     ]))]);
-    let err = assistant::send(&w, &http, &claude("claude-opus-5-5"), id, vec![], "Hi", &mut |_| {}).unwrap_err();
+    let err = assistant::send(
+        &w,
+        &http,
+        &claude("claude-opus-5-5"),
+        id,
+        vec![],
+        "Hi",
+        &|| false,
+        &mut |_| {},
+    )
+    .unwrap_err();
     assert!(err.contains("Overloaded"), "{err}");
+}
+
+#[test]
+fn stopping_runs_nothing_more_and_leaves_a_conversation_that_can_go_on() {
+    let (w, id) = library();
+    let (part, length) = first_part(&w, id);
+    let http = Script::new(vec![Ok(json!({ "stop_reason": "tool_use", "content": [
+        { "type": "tool_use", "id": "tu_1", "name": "resize_part", "input": { "part_id": part, "length": length + 2.0 } },
+        { "type": "tool_use", "id": "tu_2", "name": "delete_part", "input": { "part_id": part } },
+    ] }))]);
+    // The user presses Stop while the first tool runs.
+    let stopped = Cell::new(false);
+    let turn = assistant::send(
+        &w,
+        &http,
+        &claude("claude-opus-5-5"),
+        id,
+        vec![],
+        "Go",
+        &|| stopped.get(),
+        &mut |e| {
+            if matches!(e, Event::ToolDone { .. }) {
+                stopped.set(true);
+            }
+        },
+    )
+    .unwrap();
+    assert_eq!(turn.reply, "Stopped.");
+    assert_eq!(turn.actions.len(), 1, "the second call never ran");
+    assert!(turn.changed);
+    assert_eq!(first_part(&w, id), (part, length + 2.0));
+    assert_eq!(http.sent.borrow().len(), 1, "no further request");
+    // Both calls have a result, so the next message can follow on.
+    let last = turn.history.last().unwrap();
+    assert_eq!(last["role"], "user");
+    assert_eq!(last["content"].as_array().unwrap().len(), 2);
+    assert_eq!(last["content"][1]["is_error"], true);
+}
+
+#[test]
+fn a_reply_stopped_part_way_is_not_kept() {
+    let (w, id) = library();
+    let http = Script::new(vec![Ok(json!({ "stop_reason": "end_turn", "content": [
+        { "type": "text", "text": "A long answer that is cut short" },
+    ] }))]);
+    let stopped = Cell::new(false);
+    let turn = assistant::send(
+        &w,
+        &http,
+        &claude("claude-opus-5-5"),
+        id,
+        vec![],
+        "Explain",
+        &|| stopped.get(),
+        &mut |e| {
+            if matches!(e, Event::Text { .. }) {
+                stopped.set(true);
+            }
+        },
+    )
+    .unwrap();
+    assert_eq!(turn.reply, "Stopped.");
+    // The conversation ends with the user's message, not half an answer.
+    assert_eq!(turn.history.len(), 1);
+    assert_eq!(turn.history[0]["role"], "user");
 }
