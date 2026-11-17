@@ -96,7 +96,11 @@ pub const ADD_SHELF_PIN_HOLES: ToolDef = ToolDef {
     name: "add_shelf_pin_holes",
     description: "Drill two columns of shelf-pin holes into a case side, for adjustable shelves: one \
         column `inset` from each long edge of the run, holes every `spacing` from `from` up to `to`. \
-        They are ordinary `hole` ops with purpose shelfPin, appended to the part's ops. `axis` is the \
+        They are ordinary `hole` ops with purpose shelfPin, appended to the part's ops. With \
+        `purpose: \"hardware\"` the same 32 mm rows take the screws of cup-hinge mounting plates and \
+        drawer slides instead (purpose hardware); those usually need only the FRONT column, so pass \
+        `columns: \"low\"` or `\"high\"` for the column by the l0/w0 or l1/w1 edge — whichever \
+        explain_part shows facing the front of the piece. `axis` is the \
         part's local direction the columns run — the one that is upright in the assembly (l when the \
         length is the height, w when the width is) — and `face` is the face that looks INTO the case \
         (check facesInWorld from explain_part). Defaults follow the 32 mm system: 32 mm spacing, \
@@ -116,6 +120,8 @@ pub const ADD_SHELF_PIN_HOLES: ToolDef = ToolDef {
                 "to": number("The last hole is at or before this distance along the run. Default: the run length minus `from`."),
                 "diameter": number("Hole diameter. Default 0.25."),
                 "depth": number("Hole depth; must be less than the stock thickness. Default 0.375, or 60% of thin stock."),
+                "purpose": one_of(&["shelf_pin", "hardware"], "What the holes hold: shelf pins (default), or the screws of hinge plates and slides."),
+                "columns": one_of(&["both", "low", "high"], "Both columns (default), or only the one `inset` from the low edge of the span (l0 for axis l, w0 for axis w) or the high edge (l1 / w1)."),
             }),
             &["project_id", "part_id", "face", "axis"],
         )
@@ -144,6 +150,26 @@ fn add_shelf_pin_holes(w: &Woodshop, args: &Args) -> Outcome {
         "axis must be l or w.",
         "Provide the axis the columns run along (l or w): the part's upright direction.",
     )?;
+    let purpose = match args.opt_enum(
+        "purpose",
+        &["shelf_pin", "hardware"],
+        "purpose must be shelf_pin or hardware.",
+    )? {
+        Some("hardware") => "hardware",
+        _ => "shelfPin",
+    };
+    let columns = args
+        .opt_enum(
+            "columns",
+            &["both", "low", "high"],
+            "columns must be both, low or high.",
+        )?
+        .unwrap_or("both");
+    let what = if purpose == "hardware" {
+        "hardware holes"
+    } else {
+        "shelf-pin holes"
+    };
     let design = w.load_editable(project_id)?;
     let part = find(&design.draft, "parts", part_id).ok_or_else(|| no_part(part_id))?;
     let name = text(part, "name").to_owned();
@@ -197,10 +223,11 @@ fn add_shelf_pin_holes(w: &Woodshop, args: &Args) -> Outcome {
         ));
     }
     let count = ((to - from) / spacing + EPS).floor() as usize + 1;
-    let across: Vec<f64> = if inset * 2.0 < span - EPS {
-        vec![inset, span - inset]
-    } else {
-        vec![span / 2.0]
+    let across: Vec<f64> = match columns {
+        "low" => vec![inset],
+        "high" => vec![span - inset],
+        _ if inset * 2.0 < span - EPS => vec![inset, span - inset],
+        _ => vec![span / 2.0],
     };
     let total = existing + count * across.len();
     if total > 100 {
@@ -218,11 +245,11 @@ fn add_shelf_pin_holes(w: &Woodshop, args: &Args) -> Outcome {
             } else {
                 (round(c), along)
             };
-            holes.push(json!({ "type": "hole", "face": face, "x": x, "y": y, "diameter": diameter, "depth": round(depth), "purpose": "shelfPin" }));
+            holes.push(json!({ "type": "hole", "face": face, "x": x, "y": y, "diameter": diameter, "depth": round(depth), "purpose": purpose }));
         }
     }
     let n = holes.len();
-    let result = w.apply(&design, &format!("Add shelf-pin holes to {name}"), false, |spec| {
+    let result = w.apply(&design, &format!("Add {what} to {name}"), false, |spec| {
         map_one(spec, "parts", part_id, |p| {
             match p.get_mut("ops").and_then(Value::as_array_mut) {
                 Some(ops) => ops.extend(holes.iter().cloned()),
@@ -236,7 +263,7 @@ fn add_shelf_pin_holes(w: &Woodshop, args: &Args) -> Outcome {
         result,
         &design,
         &format!(
-            "Added {n} shelf-pin holes to \"{name}\": {} column{} of {count}, ops #{existing}–#{}.",
+            "Added {n} {what} to \"{name}\": {} column{} of {count}, ops #{existing}–#{}.",
             across.len(),
             plural(across.len()),
             existing + n - 1

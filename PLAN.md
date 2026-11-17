@@ -498,7 +498,8 @@ have to look up, and the editor screenshot would make someone want to try it fro
 - **Change a cut in place** (`ReplaceOp`) and design-check messages in the display units.
 - **Shelf-pin holes**: two columns of `shelfPin` holes from one form (`engine/shelfPins.ts`, one
   undo step via `SpliceOps`), shown as one row; agents use `add_shelf_pin_holes`. The per-part
-  op limit is 100 (was 20) from spec 1.16.
+  op limit is 100 (was 20) from spec 1.16. The same form drills `hardware` rows for hinge plates
+  and slides, one column by the front edge if wanted (`purpose`/`columns` on the tool too).
 - **Mirrored copies**: a part, group or selection reflected across the design's middle
   (`engine/mirror.ts`, `MirrorCopy`): each copy is turned over across its length or width so cuts
   keep their face, with joints, hardware and doors carried over; agents use `mirror_parts`.

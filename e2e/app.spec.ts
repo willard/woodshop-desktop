@@ -501,6 +501,16 @@ test('shelf-pin holes are added as one run, changed and removed', async ({ page 
     await expect(rows).toHaveCount(before);
     await page.getByTestId('undo').click();
     await expect(rows.last()).toContainText('Shelf-pin holes ×22');
+
+    // The same rows for hinge plates and slides: only the column by the front edge.
+    await page.getByTestId('ops-add-menu').click();
+    await page.getByTestId('ops-add-pins').click();
+    await page.getByTestId('pins-purpose').selectOption('hardware');
+    await expect(page.getByTestId('pins-columns')).toHaveValue('low');
+    await expect(page.getByTestId('pins-columns').locator('option:checked')).toContainText('(front)');
+    await page.getByTestId('pins-submit').click();
+    await expect(rows).toHaveCount(before + 2);
+    await expect(rows.last()).toContainText('Hardware holes ×17');
 });
 
 test('a mirrored copy of the left side is the right side', async ({ page }) => {

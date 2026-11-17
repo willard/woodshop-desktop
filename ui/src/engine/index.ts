@@ -39,9 +39,10 @@ export {
     readShelfPins,
     shelfPinFacing,
     shelfPinFacingIn,
+    frontColumn,
     SHELF_PIN_DEFAULTS,
 } from './shelfPins';
-export type { ShelfPinOptions, ShelfPinRun } from './shelfPins';
+export type { ShelfPinOptions, ShelfPinRun, RowPurpose, RowColumns } from './shelfPins';
 export { mirrorPlane, mirrorPart, mirrorName, mirrorIdBase, flipOp, flipFor } from './mirror';
 export type { MirrorAxis, Flip } from './mirror';
 export type { ExplodeSource } from './explode';

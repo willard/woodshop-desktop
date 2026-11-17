@@ -12,10 +12,13 @@ import {
     DEFAULT_EASE_CONFIG,
     WORKSPACE_POS_BOUND,
     defaultShelfPins,
+    frontColumn,
     planShelfPins,
     readShelfPins,
     shelfPinProblem,
     shelfPinRuns,
+    type RowColumns,
+    type RowPurpose,
     type ShelfPinOptions,
     type ShelfPinRun,
 } from '@/engine';
@@ -138,6 +141,19 @@ const ROTATIONS: { axis: Axis3; label: string; hint: string }[] = [
     { axis: 2, label: 'Roll', hint: 'Roll onto its side (about the front-back axis)' },
 ];
 
+/** Which columns a run of holes can have, the front one marked when the part shows it. */
+function columnChoices(part: Part, axis: 'l' | 'w'): { value: RowColumns; label: string }[] {
+    const [low, high] = axis === 'l' ? ['l0', 'l1'] : ['w0', 'w1'];
+    const name = (edge: string) => EDGE_LABELS.find((e) => e.value === edge)!.label.toLowerCase();
+    const front = frontColumn(part, axis);
+    const mark = (c: RowColumns) => (front === c ? ' (front)' : front !== null ? ' (back)' : '');
+    return [
+        { value: 'both', label: 'Both edges' },
+        { value: 'low', label: `By the ${name(low)} only${mark('low')}` },
+        { value: 'high', label: `By the ${name(high)} only${mark('high')}` },
+    ];
+}
+
 /** The two perpendicular edges adjoining `edge`, with picker-friendly labels. */
 function endsOf(edge: string): { value: Edge; label: string }[] {
     return edge.startsWith('l')
@@ -158,8 +174,8 @@ const OP_BUTTONS: { form: OpForm; label: string; does: string; icon: string }[] 
     { form: 'hole', label: 'Hole', does: 'Dowel, shelf-pin or through hole', icon: 'hole' },
     {
         form: 'pins',
-        label: 'Shelf-pin holes',
-        does: 'Rows of holes for adjustable shelves',
+        label: 'Rows of holes',
+        does: 'Shelf pins, hinge plates and slides (32 mm)',
         icon: 'shelfPins',
     },
     { form: 'pocket', label: 'Pocket screws', does: 'Angled screws through an edge', icon: 'pocketHoles' },
@@ -371,6 +387,8 @@ export function PartInspector(p: PartInspectorProps) {
     const [pins, setPins] = useState({
         face: 'front',
         axis: 'l',
+        purpose: 'shelfPin' as RowPurpose,
+        columns: 'both' as RowColumns,
         inset: '',
         from: '',
         to: '',
@@ -646,6 +664,8 @@ export function PartInspector(p: PartInspectorProps) {
         setPins({
             face: o.face,
             axis: o.axis,
+            purpose: o.purpose ?? 'shelfPin',
+            columns: o.columns ?? 'both',
             inset: exactText(o.inset),
             from: exactText(o.from),
             to: exactText(o.to),
@@ -667,6 +687,8 @@ export function PartInspector(p: PartInspectorProps) {
         return {
             face: pins.face as 'front' | 'back',
             axis: pins.axis as 'l' | 'w',
+            purpose: pins.purpose,
+            columns: pins.columns,
             inset: inset!,
             from: from!,
             to: to!,
@@ -686,8 +708,9 @@ export function PartInspector(p: PartInspectorProps) {
             return;
         }
         const holes = planShelfPins(part, o);
-        if (editingRun === null) p.onSpliceOps(part.ops.length, 0, holes, 'Add shelf-pin holes');
-        else p.onSpliceOps(editingRun.start, editingRun.count, holes, 'Change shelf-pin holes');
+        const what = o.purpose === 'hardware' ? 'hardware holes' : 'shelf-pin holes';
+        if (editingRun === null) p.onSpliceOps(part.ops.length, 0, holes, `Add ${what}`);
+        else p.onSpliceOps(editingRun.start, editingRun.count, holes, `Change ${what}`);
         setOpenForm(null);
         setEditingRun(null);
     }
@@ -1132,7 +1155,8 @@ export function PartInspector(p: PartInspectorProps) {
                             const run = pinRuns.find((r) => i >= r.start && i < r.start + r.count);
                             if (run !== undefined) {
                                 if (run.start !== i) return null;
-                                const label = `Shelf-pin holes ×${run.count}, ${len((op as { diameter: number }).diameter)}`;
+                                const hardware = (op as { purpose?: string }).purpose === 'hardware';
+                                const label = `${hardware ? 'Hardware holes' : 'Shelf-pin holes'} ×${run.count}, ${len((op as { diameter: number }).diameter)}`;
                                 const active = editingRun?.start === run.start;
                                 return (
                                     <div
@@ -1171,7 +1195,9 @@ export function PartInspector(p: PartInspectorProps) {
                                                     run.start,
                                                     run.count,
                                                     [],
-                                                    'Remove shelf-pin holes',
+                                                    hardware
+                                                        ? 'Remove hardware holes'
+                                                        : 'Remove shelf-pin holes',
                                                 );
                                             }}
                                         >
@@ -1336,6 +1362,40 @@ export function PartInspector(p: PartInspectorProps) {
                 {openForm === 'pins' && (
                     <FormBox testId="pins-form">
                         <div className="mb-2 grid grid-cols-2 gap-2">
+                            <Field label="Holes for">
+                                <Select
+                                    value={pins.purpose}
+                                    data-testid="pins-purpose"
+                                    onChange={(e) => {
+                                        const purpose = e.target.value as RowPurpose;
+                                        // Hinge plates and slides screw to the front column.
+                                        const front = frontColumn(part, pins.axis as 'l' | 'w');
+                                        const columns: RowColumns =
+                                            purpose === 'hardware' ? (front ?? 'both') : 'both';
+                                        setPins({ ...pins, purpose, columns });
+                                    }}
+                                >
+                                    <option value="shelfPin">Shelf pins</option>
+                                    <option value="hardware">Hinge plates &amp; slides</option>
+                                </Select>
+                            </Field>
+                            <Field label="Columns">
+                                <Select
+                                    value={pins.columns}
+                                    data-testid="pins-columns"
+                                    onChange={(e) =>
+                                        setPins({ ...pins, columns: e.target.value as RowColumns })
+                                    }
+                                >
+                                    {columnChoices(part, pins.axis as 'l' | 'w').map((c) => (
+                                        <option key={c.value} value={c.value}>
+                                            {c.label}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </Field>
+                        </div>
+                        <div className="mb-2 grid grid-cols-2 gap-2">
                             <FaceField value={pins.face} onChange={(face) => setPins({ ...pins, face })} />
                             <Field label="Columns run">
                                 <Select
@@ -1401,12 +1461,17 @@ export function PartInspector(p: PartInspectorProps) {
                             </Field>
                         </div>
                         <Hint>
-                            Two columns of holes, each the inset from an edge, from the first hole to the last
-                            that fits. 32 mm spacing and 37 mm inset match most shelf-pin jigs. Drill on the
-                            face that looks into the case.
+                            Columns of holes, each the inset from an edge, from the first hole to the last
+                            that fits. 32 mm spacing and 37 mm inset match most shelf-pin jigs and the
+                            mounting plates of cup hinges and drawer slides. Drill on the face that looks into
+                            the case.
                         </Hint>
                         <PrimaryButton className="w-full" data-testid="pins-submit" onClick={submitPins}>
-                            {editingRun === null ? 'Add shelf-pin holes' : 'Save changes'}
+                            {editingRun !== null
+                                ? 'Save changes'
+                                : pins.purpose === 'hardware'
+                                  ? 'Add hardware holes'
+                                  : 'Add shelf-pin holes'}
                         </PrimaryButton>
                     </FormBox>
                 )}

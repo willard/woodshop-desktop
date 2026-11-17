@@ -247,6 +247,10 @@ their stock, and a fully connected assembly with no floating parts.
   deep, about 6" clear at each end). Do the same on the other side with ITS inward face.
 - They are plain `hole` ops with `purpose: "shelfPin"`. A part holds at most 100 ops, so a very
   tall side may need wider spacing or a shorter run.
+- The same 32 mm rows take the screws of cup-hinge mounting plates and drawer slides: pass
+  `purpose: "hardware"` (the holes get `purpose: "hardware"`) and usually `columns: "low"` or
+  `"high"` for the FRONT column only — low is the column by the l0 (axis l) or w0 (axis w) edge;
+  read `explain_part` to see which edge faces the front.
 
 ## Mirrored copies
 

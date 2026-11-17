@@ -1,7 +1,9 @@
 /**
- * Shelf-pin holes for adjustable shelves: two columns of evenly spaced holes up the inside face
- * of a case side, one near the front edge and one near the back. They are ordinary `hole` ops
- * with `purpose: "shelfPin"` so every export already understands them; this module plans a run,
+ * Rows of holes on the 32 mm system: two columns of evenly spaced holes up the inside face of a
+ * case side, one near the front edge and one near the back. They hold shelf pins for adjustable
+ * shelves, or (`purpose: "hardware"`) the screws of hinge mounting plates and drawer slides, often
+ * as the front column alone. They are ordinary `hole` ops with `purpose: "shelfPin"` or
+ * `"hardware"`, so every export already understands them; this module plans a run,
  * finds runs in a part's cut list (so the Inspector can show one row instead of forty), and reads
  * a run back into the form that made it.
  */
@@ -11,6 +13,11 @@ import { aabbFromPart } from './snapping';
 
 type Hole = Extract<Op, { type: 'hole' }>;
 type Face = Hole['face'];
+
+/** What the holes are for: shelf pins, or the screws of hinge plates and slides. */
+export type RowPurpose = 'shelfPin' | 'hardware';
+/** Both columns, or only the one by the low (`l0`/`w0`) or high (`l1`/`w1`) edge. */
+export type RowColumns = 'both' | 'low' | 'high';
 
 export interface ShelfPinOptions {
     face: Face;
@@ -25,6 +32,10 @@ export interface ShelfPinOptions {
     spacing: number;
     diameter: number;
     depth: number;
+    /** Defaults to shelf pins. */
+    purpose?: RowPurpose;
+    /** Defaults to both columns. */
+    columns?: RowColumns;
 }
 
 /** 32 mm system: 5 mm holes on 32 mm centres, 37 mm in from the edge. */
@@ -47,7 +58,15 @@ export function planShelfPins(part: Part, o: ShelfPinOptions): Hole[] {
     const span = o.axis === 'l' ? part.size.w : part.size.l;
     const count = Math.floor((o.to - o.from) / o.spacing + EPS) + 1;
     if (count < 1 || o.spacing <= 0) return [];
-    const across = o.inset * 2 < span - EPS ? [o.inset, span - o.inset] : [span / 2];
+    const columns = o.columns ?? 'both';
+    const across =
+        columns === 'low'
+            ? [o.inset]
+            : columns === 'high'
+              ? [span - o.inset]
+              : o.inset * 2 < span - EPS
+                ? [o.inset, span - o.inset]
+                : [span / 2];
     const holes: Hole[] = [];
     for (const c of across) {
         for (let i = 0; i < count; i++) {
@@ -60,7 +79,7 @@ export function planShelfPins(part: Part, o: ShelfPinOptions): Hole[] {
                 y,
                 diameter: o.diameter,
                 depth: o.depth,
-                purpose: 'shelfPin',
+                purpose: o.purpose ?? 'shelfPin',
             });
         }
     }
@@ -125,10 +144,15 @@ export interface ShelfPinRun {
     count: number;
 }
 
-const sameKind = (a: Hole, b: Hole) => a.face === b.face && a.diameter === b.diameter && a.depth === b.depth;
-const isPin = (op: Op | undefined): op is Hole => op?.type === 'hole' && op.purpose === 'shelfPin';
+const sameKind = (a: Hole, b: Hole) =>
+    a.face === b.face && a.diameter === b.diameter && a.depth === b.depth && a.purpose === b.purpose;
+const isPin = (op: Op | undefined): op is Hole =>
+    op?.type === 'hole' && (op.purpose === 'shelfPin' || op.purpose === 'hardware');
 
-/** Runs of three or more matching shelf-pin holes in a row, which the Inspector shows as one line. */
+/**
+ * Runs of three or more matching shelf-pin or hardware holes in a row, which the Inspector shows
+ * as one line. A pair of hinge-plate screw holes stays two holes.
+ */
 export function shelfPinRuns(ops: readonly Op[]): ShelfPinRun[] {
     const runs: ShelfPinRun[] = [];
     let i = 0;
@@ -157,19 +181,41 @@ export function readShelfPins(part: Part, holes: readonly Hole[]): ShelfPinOptio
     const across = axis === 'l' ? ys : xs;
     const span = axis === 'l' ? part.size.w : part.size.l;
     const first = holes[0];
+    const single = across.length === 1 && Math.abs(across[0] - span / 2) > EPS;
+    const columns: RowColumns = !single ? 'both' : across[0] < span / 2 ? 'low' : 'high';
     return {
         face: first.face,
         axis,
         inset:
             across.length > 1
                 ? round(Math.min(across[0], span - across[across.length - 1]))
-                : round(across[0]),
+                : columns === 'high'
+                  ? round(span - across[0])
+                  : round(across[0]),
         from: along[0],
         to: along[along.length - 1],
         spacing: along.length > 1 ? round(along[1] - along[0]) : SHELF_PIN_DEFAULTS.spacing,
         diameter: first.diameter,
         depth: first.depth ?? SHELF_PIN_DEFAULTS.depth,
+        purpose: first.purpose === 'hardware' ? 'hardware' : 'shelfPin',
+        columns,
     };
+}
+
+/**
+ * The column nearer the front of the piece (world +Z) for a run along `axis`, where hinge plates
+ * and slides screw on; null when neither long edge of the run faces the front.
+ */
+export function frontColumn(part: Part, axis: 'l' | 'w'): 'low' | 'high' | null {
+    const [rx, ry, rz] = part.transform.rot;
+    const d = Math.PI / 180;
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rx * d, ry * d, rz * d, 'XYZ'));
+    // Across the run is local Y for a run along the length, local X for one across the width.
+    const across = (axis === 'l' ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)).applyQuaternion(
+        q,
+    );
+    if (Math.abs(across.z) < 0.5) return null;
+    return across.z > 0 ? 'high' : 'low';
 }
 
 /**

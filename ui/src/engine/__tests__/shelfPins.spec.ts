@@ -3,6 +3,7 @@ import { EditorDocument } from '@/engine/EditorDocument';
 import { SpliceOps } from '@/engine/commands';
 import {
     defaultShelfPins,
+    frontColumn,
     planShelfPins,
     readShelfPins,
     shelfPinFacingIn,
@@ -95,7 +96,46 @@ describe('shelf-pin holes', () => {
         expect(shelfPinRuns(ops)).toEqual([{ start: 1, count: holes.length }]);
         // Two stray pins are just holes.
         expect(shelfPinRuns([holes[0], holes[1]])).toEqual([]);
-        expect(readShelfPins(side, holes as Hole[])).toEqual(o);
+        expect(readShelfPins(side, holes as Hole[])).toEqual({ ...o, purpose: 'shelfPin', columns: 'both' });
+    });
+});
+
+describe('hardware rows', () => {
+    it('drill one column for hinge plates and slides, read back as the same run', () => {
+        const side = part(spec(), 'p_side_l');
+        for (const columns of ['low', 'high'] as const) {
+            const o = opts({ purpose: 'hardware', columns });
+            const holes = planShelfPins(side, o);
+            expect(holes).toHaveLength(4); // 6, 8, 10, 12
+            expect(holes.every((h) => h.purpose === 'hardware')).toBe(true);
+            expect([...new Set(holes.map((h) => h.x))]).toEqual([columns === 'low' ? 1.5 : 17.5]);
+            expect(readShelfPins(side, holes)).toEqual(o);
+        }
+    });
+
+    it('are a run of their own, apart from shelf pins with the same size', () => {
+        const side = part(spec(), 'p_side_l');
+        const ops = [
+            ...planShelfPins(side, opts()),
+            ...planShelfPins(side, opts({ purpose: 'hardware', columns: 'high' })),
+        ];
+        expect(shelfPinRuns(ops)).toEqual([
+            { start: 0, count: 8 },
+            { start: 8, count: 4 },
+        ]);
+    });
+
+    it('know which column faces the front of the piece', () => {
+        const base = part(spec(), 'p_side_l');
+        const turned = (rot: [number, number, number]) => ({
+            ...base,
+            transform: { ...base.transform, rot },
+        });
+        // Turned -90° about Y, local +X points to the front (+Z): the high column.
+        expect(frontColumn(turned([0, -90, 0]), 'w')).toBe('high');
+        expect(frontColumn(turned([0, 90, 0]), 'w')).toBe('low');
+        // Flat, its width runs up: neither column is at the front.
+        expect(frontColumn(turned([0, 0, 0]), 'l')).toBeNull();
     });
 });
 

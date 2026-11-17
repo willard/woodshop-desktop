@@ -674,6 +674,38 @@ fn shelf_pin_holes_go_up_a_case_side_in_two_columns() {
 }
 
 #[test]
+fn hardware_holes_take_one_column_for_hinge_plates() {
+    let w = woodshop();
+    let started = ok(&w, "start_from_template", json!({ "template": "bookshelf" }));
+    let id = started["projectId"].as_i64().unwrap();
+    let added = ok(
+        &w,
+        "add_shelf_pin_holes",
+        json!({ "project_id": id, "part_id": "p_side_r", "face": "front", "axis": "w",
+                "purpose": "hardware", "columns": "high", "from": 2, "to": 10 }),
+    );
+    assert!(
+        added["summary"]
+            .as_str()
+            .unwrap()
+            .starts_with("Added 7 hardware holes to \"Right Side\": 1 column of 7"),
+        "{added}"
+    );
+    let ops = part(&w, id, "p_side_r")["ops"].as_array().unwrap().clone();
+    let holes: Vec<&Value> = ops.iter().filter(|o| o["purpose"] == "hardware").collect();
+    assert_eq!(holes.len(), 7);
+    assert!(holes.iter().all(|h| h["x"] == json!(9.7933)));
+    assert!(
+        err(
+            &w,
+            "add_shelf_pin_holes",
+            json!({ "project_id": id, "part_id": "p_side_r", "face": "front", "axis": "w", "columns": "front" })
+        )
+        .contains("both, low or high")
+    );
+}
+
+#[test]
 fn a_mirrored_left_side_stands_where_the_right_side_was() {
     let w = woodshop();
     let started = ok(&w, "start_from_template", json!({ "template": "bookshelf" }));
