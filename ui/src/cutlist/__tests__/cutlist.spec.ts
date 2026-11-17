@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeCutList, type CutList, type Placement } from '@/cutlist';
+import { assemblyOrder, computeCutList, type CutList, type Placement } from '@/cutlist';
 import { parseSpec } from '@/spec';
 import recordStand from '@fixtures/specs/record-stand.spec.json';
 import bookshelf from '@fixtures/specs/bookshelf.spec.json';
@@ -181,5 +181,16 @@ describe('computeCutList — miter flag', () => {
         // Un-mitered rows must not carry the key at all (golden-snapshot safety).
         expect('mitered' in cutList.parts.find((r) => r.partId === 'p_top')!).toBe(false);
         assertValidPacking(cutList);
+    });
+});
+
+describe('assemblyOrder', () => {
+    it('builds the bookshelf from the floor up and closes in the back last', () => {
+        const spec = parseSpec(bookshelf);
+        const steps = assemblyOrder(spec);
+        expect(steps[0].heading).toMatch(/^Start with /);
+        expect(steps.some((s) => s.heading.startsWith('Close in the back'))).toBe(true);
+        const text = JSON.stringify(steps);
+        for (const part of spec.parts) expect(text).toContain(part.name);
     });
 });

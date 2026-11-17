@@ -6,6 +6,7 @@
 import { ChevronDown, ChevronRight, Eye, EyeOff, X } from 'lucide-react';
 import { useMemo, useState, type MouseEvent } from 'react';
 import {
+    assemblyOrder,
     computeCutList,
     groupCutList,
     stockAdvice,
@@ -87,6 +88,8 @@ export function CutListPanel(props: CutListPanelProps) {
     const cutList = useMemo(() => computeCutList(spec, { kerf, units }), [spec, kerf, units]);
     const sections = useMemo(() => groupCutList(cutList), [cutList]);
     const advice = useMemo(() => stockAdvice(cutList, spec), [cutList, spec]);
+    const steps = useMemo(() => assemblyOrder(spec), [spec]);
+    const [assemblyOpen, setAssemblyOpen] = useState(false);
     const overall = useMemo(() => overallSize(spec), [spec]);
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
     const [fastenersOpen, setFastenersOpen] = useState(false);
@@ -406,6 +409,43 @@ export function CutListPanel(props: CutListPanelProps) {
                             <HardwareLine key={row.description} row={row} />
                         ))}
                     </div>
+                </div>
+            )}
+
+            {steps.length > 0 && (
+                <div className="mb-4" data-testid="cutlist-assembly">
+                    <button
+                        className="mb-2 flex w-full items-center text-left"
+                        aria-expanded={assemblyOpen}
+                        onClick={() => setAssemblyOpen(!assemblyOpen)}
+                        data-testid="cutlist-assembly-toggle"
+                    >
+                        {assemblyOpen ? (
+                            <ChevronDown size={13} aria-hidden="true" className="text-faint mr-1" />
+                        ) : (
+                            <ChevronRight size={13} aria-hidden="true" className="text-faint mr-1" />
+                        )}
+                        <span className="text-muted text-xs font-semibold tracking-wider uppercase">
+                            Assembly order
+                        </span>
+                        <span className="text-faint ml-1 text-xs">({plural(steps.length, 'step')})</span>
+                    </button>
+                    {assemblyOpen && (
+                        <ol className="bg-surface-2 space-y-2 rounded-lg px-3 py-2">
+                            {steps.map((step, i) => (
+                                <li key={i} data-testid="assembly-step">
+                                    <div className="font-medium">
+                                        {i + 1}. {step.heading}
+                                    </div>
+                                    {step.lines.map((line, j) => (
+                                        <div key={j} className="text-fg/70 pl-4">
+                                            {line}
+                                        </div>
+                                    ))}
+                                </li>
+                            ))}
+                        </ol>
+                    )}
                 </div>
             )}
 

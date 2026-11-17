@@ -225,16 +225,21 @@ test('the cut list totals the design', async ({ page }) => {
     // Parts to cut come first; hardware after them, its screws folded into one line.
     const panel = page.getByTestId('cutlist');
     const order = await panel.evaluate((el) =>
-        ['cutlist-section', 'cutlist-hardware', 'cutlist-settings'].map((id) =>
+        ['cutlist-section', 'cutlist-hardware', 'cutlist-assembly', 'cutlist-settings'].map((id) =>
             [...el.querySelectorAll('[data-testid]')].findIndex((n) => n.getAttribute('data-testid') === id),
         ),
     );
     expect(order[0]).toBeLessThan(order[1]);
     expect(order[1]).toBeLessThan(order[2]);
+    expect(order[2]).toBeLessThan(order[3]);
     const hardware = page.getByTestId('cutlist-hardware');
     await expect(hardware).not.toContainText('pocket screws');
     await page.getByTestId('cutlist-fasteners').click();
     await expect(hardware).toContainText('pocket screws');
+    // The assembly order, folded until asked for: the same steps the PDF plan prints.
+    await expect(page.getByTestId('assembly-step')).toHaveCount(0);
+    await page.getByTestId('cutlist-assembly-toggle').click();
+    await expect(page.getByTestId('assembly-step').first()).toContainText('1. Start with');
     // A design with prices shows its cost.
     await expect(totals).toContainText('$');
 

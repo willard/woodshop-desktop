@@ -366,6 +366,15 @@ fn reading_tools_describe_a_template() {
     assert!(!cut["parts"].as_array().unwrap().is_empty());
     assert!(!cut["sections"].as_array().unwrap().is_empty());
     assert!(cut["totals"]["boardFeet"].as_f64().is_some());
+    // The assembly order names every part, from the floor up.
+    let steps = cut["assemblyOrder"].as_array().unwrap();
+    assert!(!steps.is_empty());
+    assert!(steps[0]["heading"].as_str().is_some());
+    let order = cut["assemblyOrder"].to_string();
+    for row in cut["parts"].as_array().unwrap() {
+        let name = row["name"].as_str().unwrap();
+        assert!(order.contains(name), "{name} missing from {order}");
+    }
 
     let explained = ok(&w, "explain_part", json!({ "project_id": id }));
     let first = &explained["parts"][0];

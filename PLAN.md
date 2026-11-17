@@ -505,6 +505,8 @@ have to look up, and the editor screenshot would make someone want to try it fro
 - **Assembly order** in the PDF (`woodshop-core::assembly`): steps up from the floor by
   connection, twins together, back panels last, then drawers, doors and hardware; each line says
   how the part is fastened, from the recorded joints, or that it only touches its neighbours.
+  The same steps fold out under the cut list in the app, and agents read them as
+  `assemblyOrder` on `get_cut_list`.
 
 ## Phase 6: After launch
 

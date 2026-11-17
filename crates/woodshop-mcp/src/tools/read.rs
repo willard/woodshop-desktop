@@ -2,6 +2,7 @@
 //! buildable, where its parts sit, and full-size part drawings. None of them write anything.
 
 use serde_json::{Map, Value, json};
+use woodshop_core::assembly::assembly_order;
 use woodshop_core::cutlist::{CutListConfig, compute_cut_list, grouping::group_cut_list, stock_advice::stock_advice};
 use woodshop_core::geometry::frame::{
     Aabb, axis_map, describe_axis, face_map, obb_penetration, overall_size, php_float, rotation_rows, round_to,
@@ -171,7 +172,11 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
         each with the stock to buy. Shaped parts carry the ops that shape them, with a pointer to \
         render_preview for the full-size outline. `hardware` counts the screws, pocket screws and \
         dowels, estimating from a recorded joint when no fastener op places them. `stockAdvice` names a \
-        smaller panel when a sheet is mostly offcut. Matches what the app shows. Read-only.",
+        smaller panel when a sheet is mostly offcut. `assemblyOrder` is the order to put the piece \
+        together, as printed in the PDF plan: steps from the floor up, each line naming how a part \
+        fastens to what is already standing (a line ending \"no joint recorded\" is a hint a joint is \
+        missing), the back panel last, then drawers, doors and hardware. Matches what the app shows. \
+        Read-only.",
     read_only: true,
     schema: || object(json!({ "project_id": integer(PROJECT_ID) }), &["project_id"]),
     run: get_cut_list,
@@ -217,6 +222,7 @@ fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
     if !advice.is_empty() {
         payload["stockAdvice"] = json!(advice);
     }
+    payload["assemblyOrder"] = json!(assembly_order(spec));
     Ok(payload)
 }
 

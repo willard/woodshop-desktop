@@ -35,3 +35,14 @@ export interface StockSuggestion {
 export function stockAdvice(cutList: CutList, spec: Spec): StockSuggestion[] {
     return wasm.stockAdvice(cutList, spec) as StockSuggestion[];
 }
+
+/** One step of putting the piece together: a heading and a line per part or piece of hardware. */
+export interface AssemblyStep {
+    heading: string;
+    lines: string[];
+}
+
+/** The order to assemble the design, the same steps the PDF plan prints. */
+export function assemblyOrder(spec: Spec): AssemblyStep[] {
+    return wasm.assemblyOrder(spec) as AssemblyStep[];
+}

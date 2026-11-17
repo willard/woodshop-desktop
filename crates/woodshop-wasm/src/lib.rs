@@ -284,6 +284,13 @@ pub fn stock_advice(cut_list: JsValue, spec: JsValue) -> JsResult<JsValue> {
     to_js(&cutlist::stock_advice(&cut_list, &spec_from_js(spec)?))
 }
 
+/// The order to put the design together, as printed on the PDF plan:
+/// `[{ heading, lines: string[] }]`.
+#[wasm_bindgen(js_name = assemblyOrder)]
+pub fn assembly_order(spec: JsValue) -> JsResult<JsValue> {
+    to_js(&woodshop_core::assembly::assembly_order(&spec_from_js(spec)?))
+}
+
 #[derive(serde::Deserialize)]
 struct SheetDims {
     l: f64,
