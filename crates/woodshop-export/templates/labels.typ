@@ -21,6 +21,8 @@
   columns: (sheet.w,) * 3,
   rows: sheet.h,
   column-gutter: sheet.gap,
+  // Labels already peeled off a partly used sheet stay blank.
+  ..range(data.skip).map(_ => []),
   ..data.labels.map(l => box(width: sheet.w, height: sheet.h, inset: (x: 9pt, y: 6pt * sheet.scale), clip: true)[
     #grid(
       columns: (1fr, auto),

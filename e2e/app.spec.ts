@@ -310,8 +310,19 @@ test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ 
 
     await page.getByTestId('toolbar-overflow-toggle').click();
     await page.getByTestId('export-labels').click();
+    // A sheet with its first four labels used: start at the fifth.
+    const labels = page.getByTestId('labels-dialog');
+    await expect(labels.getByTestId('labels-summary')).toHaveText('8 labels, starting at label 1: 1 sheet');
+    await labels.getByTestId('labels-start').nth(4).click();
+    await expect(labels.getByTestId('labels-summary')).toHaveText('8 labels, starting at label 5: 1 sheet');
+    await labels.getByTestId('labels-start').nth(25).click();
+    await expect(labels.getByTestId('labels-summary')).toContainText('2 sheets');
+    await labels.getByTestId('labels-start').nth(4).click();
+    await labels.getByTestId('labels-print').click();
     await expect(page.getByText('Part labels saved.')).toBeVisible();
-    expect((await written())['/mock/exports/Wall Cabinet.pdf']).toBe('labels for Wall Cabinet in fraction');
+    expect((await written())['/mock/exports/Wall Cabinet.pdf']).toBe(
+        'labels for Wall Cabinet in fraction from label 5',
+    );
 
     await page.getByTestId('toolbar-overflow-toggle').click();
     await page.getByTestId('export-gltf').click();

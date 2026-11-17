@@ -397,7 +397,7 @@
                 "type": "ul",
                 "items": [
                     "Cut list (CSV): one row per blank, in your units, for a spreadsheet.",
-                    "Part labels (PDF): one sticky label per piece, with its name, size, material and the sheet or board it comes from, in the order the pieces are cut, so you can stick each on as it comes off the saw. Prints on 30-up US Letter label sheets (Avery 5160 and the like), or 21-up A4 sheets (Avery L7160) if you work in millimetres.",
+                    "Part labels (PDF): one sticky label per piece, with its name, size, material and the sheet or board it comes from, in the order the pieces are cut, so you can stick each on as it comes off the saw. Prints on 30-up US Letter label sheets (Avery 5160 and the like), or 21-up A4 sheets (Avery L7160) if you work in millimetres. On a sheet you've started, click the first free label and printing starts there.",
                     "Shop templates (SVG): full-size printable patterns for shaped and drilled parts.",
                     "Parts for CNC (DXF): every part laid flat, front face up, for CAM software such as VCarve, Fusion or Easel. The outline is on layer CUT_OUTSIDE; holes and dados are on layers named by depth (HOLE_0.5, POCKET_0.375, HOLE_THROUGH), and _BACK marks one cut from the back face, which means flipping the part. Concealed-hinge cups are included. Sizes are in millimetres if you work in metric, inches otherwise.",
                     "3D model (glTF): the assembled design, hardware included, for Blender, SketchUp, Fusion or a 3D viewer."

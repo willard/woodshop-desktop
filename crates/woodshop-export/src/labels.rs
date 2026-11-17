@@ -20,6 +20,13 @@ pub struct LabelsInput<'a> {
     pub spec: &'a Spec,
     pub kerf: f64,
     pub units: Units,
+    /// Labels already used on the first sheet: printing starts after them.
+    pub skip: usize,
+}
+
+/// Labels on one sheet: 30 on Letter, 21 on A4 (metric).
+pub fn labels_per_sheet(units: Units) -> usize {
+    if units == Units::Metric { 21 } else { 30 }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -37,6 +44,7 @@ pub struct Label {
 struct LabelsView<'a> {
     title: &'a str,
     paper: &'static str,
+    skip: usize,
     labels: Vec<Label>,
 }
 
@@ -109,6 +117,7 @@ pub fn render_labels_pdf(input: &LabelsInput<'_>) -> Result<Vec<u8>, ExportError
     let view = LabelsView {
         title: input.title,
         paper: if input.units == Units::Metric { "a4" } else { "letter" },
+        skip: input.skip.min(labels_per_sheet(input.units) - 1),
         labels: part_labels(input.spec, input.kerf, input.units),
     };
     typeset(TEMPLATE, &view, None)

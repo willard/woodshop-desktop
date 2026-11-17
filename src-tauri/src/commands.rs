@@ -438,6 +438,7 @@ pub async fn export_labels(
     path: PathBuf,
     kerf: f64,
     units: Option<woodshop_core::units::Units>,
+    skip: Option<usize>,
 ) -> CmdResult<()> {
     let project = lib.with(|s| s.get_project(id))?;
     let pdf = tauri::async_runtime::spawn_blocking(move || {
@@ -446,6 +447,7 @@ pub async fn export_labels(
             spec: &project.draft,
             kerf,
             units: units.unwrap_or_default(),
+            skip: skip.unwrap_or(0),
         })
     })
     .await

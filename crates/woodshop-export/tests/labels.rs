@@ -62,6 +62,7 @@ fn every_template_prints_its_labels() {
                 spec: &spec,
                 kerf: 0.125,
                 units,
+                skip: 0,
             })
             .unwrap_or_else(|e| panic!("{}: {e}", t.id));
             assert!(pdf.starts_with(b"%PDF-"), "{}", t.id);
@@ -80,8 +81,30 @@ fn dump() {
             spec: &spec,
             kerf: 0.125,
             units,
+            skip: 4,
         })
         .unwrap();
         std::fs::write(format!("{dir}/labels-{name}.pdf"), pdf).unwrap();
     }
+}
+
+#[test]
+fn printing_can_start_partway_down_a_used_sheet() {
+    let spec = template("nightstand");
+    let input = |skip| LabelsInput {
+        title: "x",
+        spec: &spec,
+        kerf: 0.125,
+        units: Units::Fraction,
+        skip,
+    };
+    let fresh = render_labels_pdf(&input(0)).unwrap();
+    let used = render_labels_pdf(&input(7)).unwrap();
+    assert_ne!(fresh, used);
+    // More than a sheet's worth is never skipped: at most one label short of a full sheet.
+    assert_eq!(
+        render_labels_pdf(&input(29)).unwrap(),
+        render_labels_pdf(&input(500)).unwrap()
+    );
+    assert_eq!(woodshop_export::labels_per_sheet(Units::Metric), 21);
 }

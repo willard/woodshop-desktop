@@ -346,7 +346,8 @@ export function installMockBackend(): void {
             const r = row(a.id as number);
             store.__written = {
                 ...(store.__written ?? {}),
-                [String(a.path)]: `labels for ${r.project.name} in ${String(a.units)}`,
+                [String(a.path)]:
+                    `labels for ${r.project.name} in ${String(a.units)} from label ${Number(a.skip ?? 0) + 1}`,
             };
         },
         write_text_file: (a) => {

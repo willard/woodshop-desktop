@@ -269,8 +269,8 @@ export const api = {
             units: getUnits(),
         }),
     /** One label per piece to cut, on a sheet of sticky labels (Letter, or A4 in millimetres). */
-    exportLabels: (id: number, path: string, kerf: number) =>
-        invoke<void>('export_labels', { id, path, kerf, units: getUnits() }),
+    exportLabels: (id: number, path: string, kerf: number, skip = 0) =>
+        invoke<void>('export_labels', { id, path, kerf, units: getUnits(), skip }),
     exportViewer: (id: number, path: string, kerf: number) =>
         invoke<void>('export_viewer', {
             id,

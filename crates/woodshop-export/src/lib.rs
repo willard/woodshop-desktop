@@ -7,7 +7,7 @@ pub mod viewer;
 
 use thiserror::Error;
 
-pub use labels::{Label, LabelsInput, part_labels, render_labels_pdf};
+pub use labels::{Label, LabelsInput, labels_per_sheet, part_labels, render_labels_pdf};
 pub use pdf::{PlanInput, PlanNote, render_plan_pdf};
 pub use viewer::{ViewerInput, render_viewer_html};
 

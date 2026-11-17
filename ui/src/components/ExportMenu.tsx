@@ -13,6 +13,7 @@ import { wasm } from '@/domain';
 import { getUnits } from '@/lib/display';
 import { derivedHoleOps } from '@/spec/movables';
 import { useToast } from './Toast';
+import { LabelsDialog } from './LabelsDialog';
 
 export interface ExportTarget {
     projectId: number;
@@ -54,11 +55,12 @@ export function useProjectExports(target: ExportTarget) {
                 (path) => api.exportPdf(target.projectId, path, target.kerf),
                 'PDF plan saved.',
             ),
-        labels: () =>
+        /** `skip`: labels already used on the first sheet. */
+        labels: (skip = 0) =>
             exportTo(
                 'pdf',
                 'Part labels (PDF)',
-                (path) => api.exportLabels(target.projectId, path, target.kerf),
+                (path) => api.exportLabels(target.projectId, path, target.kerf, skip),
                 'Part labels saved.',
             ),
         viewer: () =>
@@ -145,7 +147,13 @@ export function useProjectExports(target: ExportTarget) {
     };
 }
 
-export function ExportMenuItems(props: ExportTarget & { close(): void }) {
+export function ExportMenuItems(
+    props: ExportTarget & {
+        close(): void;
+        /** Opens the labels dialog (where to start on the sheet); without it, labels print from the first. */
+        onLabels?: () => void;
+    },
+) {
     const exports = useProjectExports(props);
     const item = 'enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]';
     const run = (action: () => Promise<void>) => () => {
@@ -162,7 +170,7 @@ export function ExportMenuItems(props: ExportTarget & { close(): void }) {
                 className={item}
                 data-testid="export-labels"
                 title="One sticky label per piece, in cutting order: 30 to a Letter sheet (Avery 5160), or 21 to A4 (L7160) in millimetres"
-                onClick={run(exports.labels)}
+                onClick={run(async () => (props.onLabels ? props.onLabels() : exports.labels()))}
             >
                 Print part labels (PDF)…
             </button>
@@ -240,5 +248,21 @@ export function CutListExportButtons(props: ExportTarget & { cutList: CutList })
                 CSV
             </button>
         </>
+    );
+}
+
+/** The labels dialog for the open project: choose where to start on the sheet, then save. */
+export function LabelsExport(props: ExportTarget & { onClose(): void }) {
+    const exports = useProjectExports(props);
+    const pieces = computeCutList(props.getSpec(), { kerf: props.kerf }).parts.reduce((n, r) => n + r.qty, 0);
+    return (
+        <LabelsDialog
+            pieces={pieces}
+            onClose={props.onClose}
+            onPrint={(skip) => {
+                props.onClose();
+                void exports.labels(skip);
+            }}
+        />
     );
 }

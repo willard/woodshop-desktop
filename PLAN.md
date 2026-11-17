@@ -524,6 +524,7 @@ have to look up, and the editor screenshot would make someone want to try it fro
 - **Part labels** (`woodshop-export::labels`, `export_labels`): one label per piece, ordered sheet
   by sheet then board by board from the cut list layouts, "n of qty" for repeated parts, on Avery
   5160 (Letter, 3 × 10) or, in metric, L7160 (A4, 3 × 7). Typst, sharing the plan's `typeset`.
+  `LabelsDialog` picks the first free label on a used sheet (`skip`, capped below a full sheet).
 
 - **Hardware prices**: one price list for every design (the `hardwarePrices` setting, by the
   hardware row's new `key`, which stays the same across units; banding is keyed per foot or per
