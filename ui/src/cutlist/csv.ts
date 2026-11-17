@@ -50,6 +50,9 @@ function written(l: number, w: number, t: number, units: Units): string {
         : `${len(l, units)} × ${len(w, units)} × ${len(t, units)}`;
 }
 
+/** Money as a spreadsheet reads it: plain, two decimals; blank when there is no price. */
+const cash = (n: number | undefined): string => (n === undefined ? '' : n.toFixed(2));
+
 export function cutListCsv(cutList: CutList, units: Units = getUnits()): string {
     const lines = [row(header(units))];
     for (const section of groupCutList(cutList)) {
@@ -76,12 +79,17 @@ export function cutListCsv(cutList: CutList, units: Units = getUnits()): string 
         }
     }
     if (cutList.hardware.length > 0) {
-        lines.push('', row(['Hardware', 'Qty']));
+        // Prices add two columns, and a total, once any hardware has one.
+        const priced = cutList.hardware.some((h) => h.cost !== undefined);
+        lines.push('', row(priced ? ['Hardware', 'Qty', 'Price each', 'Cost'] : ['Hardware', 'Qty']));
         for (const item of cutList.hardware) {
             // An estimate already says so in its description; don't say it twice.
             const flagged = item.derived && !item.description.includes('estimated');
-            lines.push(row([item.description + (flagged ? ' (estimated)' : ''), item.qty]));
+            const cells: (string | number)[] = [item.description + (flagged ? ' (estimated)' : ''), item.qty];
+            if (priced) cells.push(cash(item.unitPrice), cash(item.cost));
+            lines.push(row(cells));
         }
+        if (priced) lines.push(row(['Hardware total', '', '', cash(cutList.totals.hardwareCost)]));
     }
     // A byte-order mark so Excel reads the × and inch marks as UTF-8.
     return `\ufeff${lines.join('\r\n')}\r\n`;

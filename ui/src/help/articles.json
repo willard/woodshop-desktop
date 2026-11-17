@@ -371,6 +371,14 @@
             },
             {
                 "type": "h",
+                "text": "Prices"
+            },
+            {
+                "type": "p",
+                "text": "Type a price per sheet or per board foot next to each material, and choose **Add prices** above the hardware to price pulls, hinges, slides, screws and edge banding (each, or per foot or metre of banding). Hardware prices are one list for all your designs, so a price you enter once costs every design that uses the same thing. The estimated cost adds up both, and the PDF plan and CSV show what each line of hardware costs."
+            },
+            {
+                "type": "h",
                 "text": "Printable plan"
             },
             {

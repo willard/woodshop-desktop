@@ -76,14 +76,25 @@
 
 #if data.hardware.len() > 0 [
   == Hardware
-  #table(
-    columns: (8%, 92%),
-    stroke: (_, y) => (bottom: 0.5pt + faint),
-    inset: (x: 3pt, y: 4pt),
-    align: (center, left),
-    table.header(label("Qty"), label("Item")),
-    ..data.hardware.map(h => (strong(str(h.qty)), h.description)).flatten(),
-  )
+  #if data.hardwarePriced {
+    table(
+      columns: (8%, 77%, 15%),
+      stroke: (_, y) => (bottom: 0.5pt + faint),
+      inset: (x: 3pt, y: 4pt),
+      align: (center, left, right),
+      table.header(label("Qty"), label("Item"), label("Cost")),
+      ..data.hardware.map(h => (strong(str(h.qty)), h.description, h.cost)).flatten(),
+    )
+  } else {
+    table(
+      columns: (8%, 92%),
+      stroke: (_, y) => (bottom: 0.5pt + faint),
+      inset: (x: 3pt, y: 4pt),
+      align: (center, left),
+      table.header(label("Qty"), label("Item")),
+      ..data.hardware.map(h => (strong(str(h.qty)), h.description)).flatten(),
+    )
+  }
 ]
 
 #if data.drilling.len() > 0 [

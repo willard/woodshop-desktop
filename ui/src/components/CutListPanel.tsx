@@ -18,6 +18,7 @@ import {
 import { overallSize, type Material, type Spec } from '@/spec';
 import { dims, len, lenValue, parseLen, size as sizeOf, useUnits } from '@/lib/display';
 import { plural } from '@/app/format';
+import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -85,7 +86,13 @@ const FLAG_BADGES: {
 export function CutListPanel(props: CutListPanelProps) {
     const { spec, kerf, readonly = false, selectedIds = [], hiddenIds } = props;
     const units = useUnits();
-    const cutList = useMemo(() => computeCutList(spec, { kerf, units }), [spec, kerf, units]);
+    const hardwarePrices = useHardwarePrices();
+    const cutList = useMemo(
+        () => computeCutList(spec, { kerf, units, hardwarePrices }),
+        [spec, kerf, units, hardwarePrices],
+    );
+    /** Showing a price box on each hardware line. */
+    const [pricing, setPricing] = useState(false);
     const sections = useMemo(() => groupCutList(cutList), [cutList]);
     const advice = useMemo(() => stockAdvice(cutList, spec), [cutList, spec]);
     const steps = useMemo(() => assemblyOrder(spec), [spec]);
@@ -177,7 +184,15 @@ export function CutListPanel(props: CutListPanelProps) {
                         </div>
                     </button>
                 ) : (
-                    <Stat label="Est. cost" value={money(cutList.totals.estimatedCost)} />
+                    <Stat
+                        label="Est. cost"
+                        value={money(cutList.totals.estimatedCost)}
+                        title={
+                            cutList.totals.hardwareCost !== undefined
+                                ? `Materials ${money(cutList.totals.materialCost ?? 0)} + hardware ${money(cutList.totals.hardwareCost)}`
+                                : undefined
+                        }
+                    />
                 )}
                 {/* A sheet much bigger than the job is offcut you keep, not waste: say so, and why. */}
                 <Stat
@@ -366,7 +381,31 @@ export function CutListPanel(props: CutListPanelProps) {
 
             {cutList.hardware.length > 0 && (
                 <div className="mb-4" data-testid="cutlist-hardware">
-                    <SectionHeading>Hardware</SectionHeading>
+                    <div className="flex items-baseline justify-between">
+                        <SectionHeading>Hardware</SectionHeading>
+                        {!readonly && (
+                            <button
+                                className="text-accent mb-2 text-xs font-semibold"
+                                aria-pressed={pricing}
+                                data-testid="hardware-prices-toggle"
+                                onClick={() => {
+                                    setPricing(!pricing);
+                                    if (!pricing) setFastenersOpen(true);
+                                }}
+                            >
+                                {pricing
+                                    ? 'Done'
+                                    : cutList.totals.hardwareCost !== undefined
+                                      ? 'Prices'
+                                      : 'Add prices'}
+                            </button>
+                        )}
+                    </div>
+                    {pricing && (
+                        <p className="text-faint mb-2 text-xs">
+                            Prices are each (banding per foot or metre) and apply to every design.
+                        </p>
+                    )}
                     <div className="bg-surface-2 rounded-lg px-3 py-1">
                         {fasteners.length > 0 && (
                             <>
@@ -401,12 +440,12 @@ export function CutListPanel(props: CutListPanelProps) {
                                 </button>
                                 {fastenersOpen &&
                                     fasteners.map((row) => (
-                                        <HardwareLine key={row.description} row={row} indent />
+                                        <HardwareLine key={row.key} row={row} indent pricing={pricing} />
                                     ))}
                             </>
                         )}
                         {fittings.map((row) => (
-                            <HardwareLine key={row.description} row={row} />
+                            <HardwareLine key={row.key} row={row} pricing={pricing} />
                         ))}
                     </div>
                 </div>
@@ -629,9 +668,20 @@ export function SheetDiagram({ plan, sheet }: { plan: CutList['sheets'][number];
     );
 }
 
-function Stat({ label, value, tone }: { label: string; value: string; tone?: 'warn' }) {
+function Stat({
+    label,
+    value,
+    tone,
+    title,
+}: {
+    label: string;
+    value: string;
+    tone?: 'warn';
+    title?: string;
+}) {
     return (
         <div
+            title={title}
             className={`rounded-lg px-3 py-2.5 ${tone === 'warn' ? 'bg-warn/10 border-warn/30 border' : 'bg-surface-2'}`}
             data-tone={tone}
         >
@@ -643,15 +693,58 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: 'wa
     );
 }
 
-/** One line of the hardware list. */
-function HardwareLine({ row, indent = false }: { row: CutList['hardware'][number]; indent?: boolean }) {
+/** One line of the hardware list; with `pricing`, a box for its price. */
+function HardwareLine({
+    row,
+    indent = false,
+    pricing = false,
+}: {
+    row: CutList['hardware'][number];
+    indent?: boolean;
+    pricing?: boolean;
+}) {
+    const per = row.kind === 'edgeBanding' ? (row.key.endsWith('|m') ? 'per m' : 'per ft') : 'each';
     return (
         <div
             className={`border-fg/5 flex items-center justify-between gap-2 border-b py-2 last:border-0 ${indent ? 'pl-4' : ''}`}
             data-testid="hardware-line"
         >
             <span className="text-fg/70">{row.description}</span>
-            <span className="shrink-0 font-semibold">×{row.qty}</span>
+            <span className="flex shrink-0 items-center gap-2">
+                {pricing ? (
+                    <label className="text-faint flex items-center gap-1 text-xs">
+                        $
+                        <input
+                            key={row.unitPrice ?? 'none'}
+                            defaultValue={row.unitPrice ?? ''}
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="0.00"
+                            aria-label={`Price ${per} for ${row.description}`}
+                            data-testid="hardware-price"
+                            className="bg-surface-1 focus:border-accent border-fg/10 text-fg h-7 w-16 rounded-lg border px-1 text-center text-xs focus:outline-none"
+                            onBlur={(e) => {
+                                const raw = e.target.value.trim();
+                                const v = Number(raw);
+                                if (raw === '') {
+                                    if (row.unitPrice !== undefined) void saveHardwarePrice(row.key, null);
+                                } else if (Number.isFinite(v) && v >= 0 && v !== row.unitPrice) {
+                                    void saveHardwarePrice(row.key, v);
+                                }
+                            }}
+                        />
+                        {per}
+                    </label>
+                ) : (
+                    row.cost !== undefined && (
+                        <span className="text-faint text-xs" data-testid="hardware-cost">
+                            {money(row.cost)}
+                        </span>
+                    )
+                )}
+                <span className="font-semibold">×{row.qty}</span>
+            </span>
         </div>
     );
 }

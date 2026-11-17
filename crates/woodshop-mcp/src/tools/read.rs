@@ -185,7 +185,21 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
 fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
     let design = w.load(args.project_id(PROVIDE_PROJECT)?)?;
     let spec = design.spec();
-    let built = compute_cut_list(spec, CutListConfig::default());
+    // Costed with the user's own hardware price list, as the app shows it.
+    let hardware_prices = w
+        .store()
+        .settings()
+        .ok()
+        .and_then(|s| s.get("hardwarePrices").cloned())
+        .and_then(|v| serde_json::from_value(v).ok())
+        .unwrap_or_default();
+    let built = compute_cut_list(
+        spec,
+        CutListConfig {
+            hardware_prices,
+            ..CutListConfig::default()
+        },
+    );
     let mut payload = json!({ "projectId": design.id(), "name": design.name() });
     let body = spec::to_value(&built);
     for (key, value) in body.as_object().into_iter().flatten() {

@@ -9,6 +9,7 @@ import { initDomain } from '@/domain';
 import { api, setThumbnailsDir } from '@/app/api';
 import { installErrorCapture } from '@/app/diagnostics';
 import { isUnits, setUnits } from '@/lib/display';
+import { parseHardwarePrices, setHardwarePrices } from '@/cutlist/prices';
 import { CrashScreen } from '@/components/CrashScreen';
 import { router } from '@/app/router';
 import { queryClient } from '@/app/queryClient';
@@ -28,6 +29,7 @@ async function boot(): Promise<void> {
     const [info, settings] = await Promise.all([api.libraryInfo(), api.getSettings()]);
     // A saved choice of units; until there is one, the default follows the system's region.
     if (isUnits(settings.units)) setUnits(settings.units);
+    setHardwarePrices(parseHardwarePrices(settings.hardwarePrices));
     setThumbnailsDir(info.thumbnailsDir);
     watchSystemTheme(() => undefined);
     // macOS draws no title bar (tauri.conf.json: titleBarStyle Overlay); the app's own header sits

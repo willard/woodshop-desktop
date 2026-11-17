@@ -1,6 +1,7 @@
 //! Cut list types. Everything is derived from the spec and never stored. Decimal inches.
 
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 fn is_false(b: &bool) -> bool {
     !*b
@@ -106,7 +107,10 @@ pub enum HardwareKind {
 
 /// One line of the hardware list: the metal to buy.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HardwareRow {
+    /// Stable for the same thing to buy, whatever the units or wording: what a price is kept by.
+    pub key: String,
     pub kind: HardwareKind,
     /// Shop notation, e.g. `#8 × 1 1/4" wood screws`.
     pub description: String,
@@ -114,6 +118,12 @@ pub struct HardwareRow {
     /// Estimated from a joint rather than counted off a fastener op.
     #[serde(default, skip_serializing_if = "is_false")]
     pub derived: bool,
+    /// The price of one (or one foot or metre of banding), from the user's price list.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit_price: Option<f64>,
+    /// `qty × unit_price`, when it has a price.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cost: Option<f64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -121,7 +131,14 @@ pub struct HardwareRow {
 pub struct CutListTotals {
     pub board_feet: f64,
     pub sheet_count: usize,
+    /// Materials plus priced hardware; `None` when nothing has a price.
     pub estimated_cost: Option<f64>,
+    /// What the priced sheets and lumber cost.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub material_cost: Option<f64>,
+    /// What the priced hardware costs (rows without a price count nothing).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hardware_cost: Option<f64>,
     /// Overall offcut fraction across all material (0..1).
     pub waste_percent: f64,
 }
@@ -135,13 +152,16 @@ pub struct CutList {
     pub totals: CutListTotals,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CutListConfig {
     /// Saw kerf between adjacent pieces.
     pub kerf: f64,
     /// How the hardware list words its sizes. The cut list's numbers are inches regardless.
     #[serde(default)]
     pub units: crate::units::Units,
+    /// The user's hardware prices, by [`HardwareRow::key`]: each, or per foot or metre of banding.
+    #[serde(default, rename = "hardwarePrices", skip_serializing_if = "BTreeMap::is_empty")]
+    pub hardware_prices: BTreeMap<String, f64>,
 }
 
 impl Default for CutListConfig {
@@ -149,6 +169,7 @@ impl Default for CutListConfig {
         Self {
             kerf: 0.125,
             units: crate::units::Units::Fraction,
+            hardware_prices: BTreeMap::new(),
         }
     }
 }

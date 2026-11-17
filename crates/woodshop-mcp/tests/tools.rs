@@ -843,3 +843,31 @@ fn a_finish_rides_on_a_drawer_and_a_mounted_pull() {
         .contains("nickel, black, brass, bronze or steel")
     );
 }
+
+#[test]
+fn the_cut_list_is_costed_with_the_users_hardware_prices() {
+    let w = woodshop();
+    let started = ok(&w, "start_from_template", json!({ "template": "nightstand" }));
+    let id = started["projectId"].as_i64().unwrap();
+    let list = ok(&w, "get_cut_list", json!({ "project_id": id }));
+    let pull = list["hardware"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|h| h["kind"] == "knob")
+        .unwrap()
+        .clone();
+    assert!(pull.get("cost").is_none());
+    let key = pull["key"].as_str().unwrap().to_string();
+    w.store().set_setting("hardwarePrices", &json!({ key: 7.25 })).unwrap();
+    let list = ok(&w, "get_cut_list", json!({ "project_id": id }));
+    let pull = list["hardware"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|h| h["kind"] == "knob")
+        .unwrap()
+        .clone();
+    assert_eq!(pull["unitPrice"], 7.25);
+    assert_eq!(list["totals"]["hardwareCost"], 7.25 * pull["qty"].as_f64().unwrap());
+}

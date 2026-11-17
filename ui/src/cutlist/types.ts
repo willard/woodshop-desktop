@@ -75,6 +75,8 @@ export interface LumberPlan {
 
 /** One line of the hardware list (spec 1.8, movables 1.12): the metal to buy. */
 export interface HardwareRow {
+    /** The same thing to buy, whatever the units or wording: what a price is kept by. */
+    key: string;
     kind: 'pocketScrew' | 'woodScrew' | 'dowel' | 'hinge' | 'drawerSlide' | 'knob' | 'other' | 'edgeBanding';
     /** Shop notation, e.g. `#8 × 1-1/4" wood screws`. */
     description: string;
@@ -87,12 +89,19 @@ export interface HardwareRow {
      * ops to turn an estimate into a count.
      */
     derived?: true;
+    /** The price of one (or a foot or metre of banding), from the user's price list. */
+    unitPrice?: number;
+    /** qty × unitPrice, when it has a price. */
+    cost?: number;
 }
 
 export interface CutListTotals {
     boardFeet: number;
     sheetCount: number;
+    /** Materials plus priced hardware; null when nothing has a price. */
     estimatedCost: number | null;
+    materialCost?: number;
+    hardwareCost?: number;
     /** Overall offcut fraction across all material (0..1). */
     wastePercent: number;
 }
@@ -111,6 +120,8 @@ export interface CutListConfig {
     kerf: number;
     /** How the hardware list words sizes; the numbers stay inches. Defaults to the setting. */
     units?: 'fraction' | 'decimal' | 'metric';
+    /** Prices by hardware row key. Defaults to the user's price list. */
+    hardwarePrices?: Readonly<Record<string, number>>;
 }
 
 export const DEFAULT_CUTLIST_CONFIG: CutListConfig = {

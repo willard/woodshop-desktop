@@ -5,6 +5,7 @@
 use std::sync::LazyLock;
 
 use serde::Serialize;
+use std::collections::BTreeMap;
 use typst::diag::{FileError, FileResult};
 use typst::foundations::{Bytes, Datetime, Dict, IntoValue};
 use typst::syntax::{FileId, RootedPath, Source, VirtualPath, VirtualRoot};
@@ -14,6 +15,7 @@ use typst::{Library, LibraryExt, World};
 use typst_layout::PagedDocument;
 use woodshop_core::assembly::{AssemblyStep, assembly_order};
 use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
+
 use woodshop_core::cutlist::{CutList, CutListConfig, CutListSection, compute_cut_list, group_cut_list};
 use woodshop_core::geometry::overall_size;
 use woodshop_core::movables::derived_borings;
@@ -42,6 +44,8 @@ pub struct PlanInput<'a> {
     pub thumbnail: Option<Vec<u8>>,
     /// How sizes are printed: fractions, decimal inches or millimetres (the reader's setting).
     pub units: Units,
+    /// The reader's hardware prices, by hardware row key (see `CutListConfig::hardware_prices`).
+    pub hardware_prices: BTreeMap<String, f64>,
 }
 
 // --- The view model the template lays out --------------------------------------------------
@@ -58,6 +62,8 @@ struct PlanView {
     notes: Vec<PlanNote>,
     sections: Vec<SectionView>,
     hardware: Vec<HardwareView>,
+    /// Some hardware has a price: the table gets a cost column.
+    hardware_priced: bool,
     /// Holes the hardware needs that are on no part's op list: hinge cups.
     drilling: Vec<String>,
     sheets: Vec<SheetView>,
@@ -92,6 +98,7 @@ struct RowView {
 struct HardwareView {
     qty: u32,
     description: String,
+    cost: String,
 }
 
 #[derive(Serialize)]
@@ -318,8 +325,10 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             .map(|h| HardwareView {
                 qty: h.qty,
                 description: h.description.clone(),
+                cost: h.cost.map_or_else(String::new, |c| money(Some(c))),
             })
             .collect(),
+        hardware_priced: cut_list.hardware.iter().any(|h| h.cost.is_some()),
         drilling: drilling_notes(input.spec, units),
         assembly: assembly_order(input.spec),
         sheets: cut_list
@@ -449,6 +458,7 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
         CutListConfig {
             kerf: input.kerf,
             units: input.units,
+            hardware_prices: input.hardware_prices.clone(),
         },
     );
     let view = plan_view(input, &cut_list);
@@ -530,9 +540,49 @@ mod tests {
             notes: vec![],
             thumbnail: None,
             units: Units::Metric,
+            hardware_prices: BTreeMap::from([("item|pull.bar-96mm".to_string(), 6.5)]),
         })
         .unwrap();
         assert!(pdf.starts_with(b"%PDF-"));
+    }
+
+    #[test]
+    fn priced_hardware_gets_a_cost_column() {
+        let raw = include_str!("../../../resources/templates/dresser.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let unpriced = compute_cut_list(&spec, CutListConfig::default());
+        let pull = unpriced
+            .hardware
+            .iter()
+            .find(|h| h.key.starts_with("item|pull."))
+            .unwrap();
+        let input = PlanInput {
+            title: "Dresser",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 17, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Fraction,
+            hardware_prices: BTreeMap::from([(pull.key.clone(), 4.0)]),
+        };
+        let config = CutListConfig {
+            hardware_prices: input.hardware_prices.clone(),
+            ..CutListConfig::default()
+        };
+        let view = plan_view(&input, &compute_cut_list(&spec, config));
+        assert!(view.hardware_priced);
+        let row = view
+            .hardware
+            .iter()
+            .find(|h| h.description == pull.description)
+            .unwrap();
+        assert_eq!(row.cost, format!("${:.2}", 4.0 * f64::from(pull.qty)));
+        assert!(
+            view.hardware.iter().any(|h| h.cost.is_empty()),
+            "unpriced rows stay blank"
+        );
+        assert!(render_plan_pdf(&input).unwrap().starts_with(b"%PDF-"));
     }
 
     #[test]
@@ -547,12 +597,14 @@ mod tests {
             notes: vec![],
             thumbnail: None,
             units: Units::Fraction,
+            hardware_prices: BTreeMap::new(),
         };
         let cut_list = compute_cut_list(
             &spec,
             CutListConfig {
                 kerf: 0.125,
                 units: Units::Fraction,
+                ..CutListConfig::default()
             },
         );
         let view = plan_view(&input, &cut_list);

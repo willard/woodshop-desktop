@@ -408,12 +408,15 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
         match index.get(&row.key) {
             Some(&i) => merged[i].qty += row.qty,
             None => {
-                index.insert(row.key, merged.len());
+                index.insert(row.key.clone(), merged.len());
                 merged.push(HardwareRow {
+                    key: row.key,
                     kind: row.kind,
                     description: row.description,
                     qty: row.qty,
                     derived: row.derived,
+                    unit_price: None,
+                    cost: None,
                 });
             }
         }
@@ -456,16 +459,20 @@ fn edge_banding(spec: &Spec, units: Units) -> Vec<HardwareRow> {
         .into_iter()
         .map(|(material, inches)| {
             let width = crate::units::format_length(material.thickness, units);
-            let (qty, unit) = if units == Units::Metric {
-                ((inches * 0.0254 * BANDING_SPARE).ceil(), "Metres")
+            let (qty, unit, per) = if units == Units::Metric {
+                ((inches * 0.0254 * BANDING_SPARE).ceil(), "Metres", "m")
             } else {
-                ((inches / 12.0 * BANDING_SPARE).ceil(), "Feet")
+                ((inches / 12.0 * BANDING_SPARE).ceil(), "Feet", "ft")
             };
             HardwareRow {
+                // Priced per foot or per metre, by its width.
+                key: format!("edgeBanding|{}|{per}", key_num(material.thickness)),
                 kind: HardwareKind::EdgeBanding,
                 description: format!("{unit} of {width} edge banding ({})", material.name),
                 qty: qty as u32,
                 derived: false,
+                unit_price: None,
+                cost: None,
             }
         })
         .collect()

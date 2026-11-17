@@ -15,6 +15,7 @@ fn every_template_renders_a_pdf() {
             }],
             thumbnail: None,
             units: Default::default(),
+            hardware_prices: Default::default(),
         })
         .unwrap_or_else(|e| panic!("{}: {e}", t.id));
         assert!(pdf.starts_with(b"%PDF-"), "{}", t.id);

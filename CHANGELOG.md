@@ -8,6 +8,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Hardware prices: price pulls, hinges, slides, screws and edge banding once, in one list for
+  every design. The estimated cost includes them, and the PDF plan and CSV show each line's cost.
 - A design assistant in the editor's Assistant tab: ask for changes in plain words and it makes
   them with the same checked tools as an MCP agent. Bring your own API key for Claude or an
   OpenAI-compatible server (Settings ▸ AI agents); the key is kept in the system keychain.

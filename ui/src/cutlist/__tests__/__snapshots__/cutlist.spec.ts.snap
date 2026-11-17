@@ -5,11 +5,13 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
   "hardware": [
     {
       "description": "1 1/4" coarse-thread pocket screws",
+      "key": "pocketScrew|1.25|coarse",
       "kind": "pocketScrew",
       "qty": 20,
     },
     {
       "description": "#8 × 1 1/4" wood screws",
+      "key": "woodScrew|1.25|#8",
       "kind": "woodScrew",
       "qty": 49,
     },
@@ -203,6 +205,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
   "totals": {
     "boardFeet": 29.135,
     "estimatedCost": 156,
+    "materialCost": 156,
     "sheetCount": 2,
     "wastePercent": 0.393,
   },
@@ -214,11 +217,13 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
   "hardware": [
     {
       "description": "1 1/4" coarse-thread pocket screws",
+      "key": "pocketScrew|1.25|coarse",
       "kind": "pocketScrew",
       "qty": 12,
     },
     {
       "description": "#8 × 1" wood screws",
+      "key": "woodScrew|1|#8",
       "kind": "woodScrew",
       "qty": 24,
     },
@@ -370,6 +375,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
   "totals": {
     "boardFeet": 22.853,
     "estimatedCost": 285,
+    "materialCost": 285,
     "sheetCount": 3,
     "wastePercent": 0.57,
   },

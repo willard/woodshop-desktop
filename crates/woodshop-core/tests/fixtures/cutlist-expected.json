@@ -4,12 +4,14 @@
       {
         "description": "1 1/4\" coarse-thread pocket screws",
         "kind": "pocketScrew",
-        "qty": 20
+        "qty": 20,
+        "key": "pocketScrew|1.25|coarse"
       },
       {
-        "description": "#8 \u00d7 1 1/4\" wood screws",
+        "description": "#8 × 1 1/4\" wood screws",
         "kind": "woodScrew",
-        "qty": 49
+        "qty": 49,
+        "key": "woodScrew|1.25|#8"
       }
     ],
     "lumber": [],
@@ -202,7 +204,8 @@
       "boardFeet": 29.135,
       "estimatedCost": 156,
       "sheetCount": 2,
-      "wastePercent": 0.393
+      "wastePercent": 0.393,
+      "materialCost": 156
     }
   },
   "record-stand": {
@@ -210,12 +213,14 @@
       {
         "description": "1 1/4\" coarse-thread pocket screws",
         "kind": "pocketScrew",
-        "qty": 12
+        "qty": 12,
+        "key": "pocketScrew|1.25|coarse"
       },
       {
-        "description": "#8 \u00d7 1\" wood screws",
+        "description": "#8 × 1\" wood screws",
         "kind": "woodScrew",
-        "qty": 24
+        "qty": 24,
+        "key": "woodScrew|1|#8"
       }
     ],
     "lumber": [],
@@ -366,7 +371,8 @@
       "boardFeet": 22.853,
       "estimatedCost": 285,
       "sheetCount": 3,
-      "wastePercent": 0.57
+      "wastePercent": 0.57,
+      "materialCost": 285
     }
   }
 }

@@ -1026,3 +1026,31 @@ test('the design assistant is set up in Settings and answers in the editor', asy
     await expect(panel).toContainText('Ask about this design');
     await expect(panel.getByTestId('assistant-message-you')).toHaveCount(0);
 });
+
+test('hardware takes prices from one price list, and the estimate and CSV include them', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('cutlist-totals')).toContainText('$285.00');
+    const hardware = page.getByTestId('cutlist-hardware');
+    await hardware.getByTestId('hardware-prices-toggle').click();
+    // The fasteners open so every line can be priced: pocket screws first.
+    const price = hardware.getByTestId('hardware-price').first();
+    await price.fill('0.10');
+    await price.blur();
+    await hardware.getByTestId('hardware-prices-toggle').click();
+    await expect(hardware.getByTestId('hardware-cost').first()).toHaveText('$1.20'); // 12 screws
+    // The price box shows the saved price when prices are opened again.
+    await hardware.getByTestId('hardware-prices-toggle').click();
+    await expect(hardware.getByTestId('hardware-price').first()).toHaveValue('0.1');
+    await hardware.getByTestId('hardware-prices-toggle').click();
+    await expect(page.getByTestId('cutlist-totals')).toContainText('$286.20');
+
+    await page.getByTestId('cutlist-export-csv').click();
+    await expect(page.getByText('Cut list saved.')).toBeVisible();
+    const files = await page.evaluate(
+        () => (window as unknown as { __written?: Record<string, string> }).__written ?? {},
+    );
+    const csv = Object.entries(files).find(([path]) => path.endsWith('.csv'))![1];
+    expect(csv).toContain('Hardware,Qty,Price each,Cost');
+    expect(csv).toMatch(/pocket screws",12,0\.10,1\.20/);
+    expect(csv).toContain('Hardware total,,,1.20');
+});

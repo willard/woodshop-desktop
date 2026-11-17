@@ -380,6 +380,15 @@ fn plan_notes(store: &Store, id: i64) -> woodshop_store::Result<Vec<woodshop_exp
         .collect())
 }
 
+/// The user's hardware prices (the `hardwarePrices` setting), for costing a plan.
+fn hardware_prices(store: &Store) -> woodshop_store::Result<std::collections::BTreeMap<String, f64>> {
+    Ok(store
+        .settings()?
+        .get("hardwarePrices")
+        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .unwrap_or_default())
+}
+
 /// The printable PDF plan: cut list, sheet layouts, hardware and shop notes.
 #[tauri::command]
 pub async fn export_pdf(
@@ -390,15 +399,16 @@ pub async fn export_pdf(
     date: String,
     units: Option<woodshop_core::units::Units>,
 ) -> CmdResult<()> {
-    let (project, notes, thumbnail) = lib.with(|s| {
+    let (project, notes, thumbnail, hardware_prices) = lib.with(|s| {
         let project = s.get_project(id)?;
         let notes = plan_notes(s, id)?;
+        let hardware_prices = hardware_prices(s)?;
         let thumbnail = s
             .thumbnail_path(id)
             .filter(|p| p.exists())
             .map(std::fs::read)
             .transpose()?;
-        Ok((project, notes, thumbnail))
+        Ok((project, notes, thumbnail, hardware_prices))
     })?;
     // Typesetting takes a moment; keep it off the thread that serves other commands.
     let pdf = tauri::async_runtime::spawn_blocking(move || {
@@ -410,6 +420,7 @@ pub async fn export_pdf(
             notes,
             thumbnail,
             units: units.unwrap_or_default(),
+            hardware_prices,
         })
     })
     .await

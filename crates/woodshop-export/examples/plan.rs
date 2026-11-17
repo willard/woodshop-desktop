@@ -21,6 +21,7 @@ fn main() {
             Ok("decimal") => woodshop_core::units::Units::Decimal,
             _ => woodshop_core::units::Units::Fraction,
         },
+        hardware_prices: Default::default(),
     })
     .expect("renders");
     std::fs::write(out, pdf).expect("writable");

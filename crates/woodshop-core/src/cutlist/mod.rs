@@ -78,12 +78,29 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
         }
     }
 
-    let totals = totals_of(&parts, &sheets, &lumber, &[sheet_stock, lumber_stock].concat());
+    let mut hardware = compute_hardware_in(spec, config.units);
+    for row in &mut hardware {
+        if let Some(&price) = config
+            .hardware_prices
+            .get(&row.key)
+            .filter(|p| p.is_finite() && **p >= 0.0)
+        {
+            row.unit_price = Some(price);
+            row.cost = Some(price * f64::from(row.qty));
+        }
+    }
+    let totals = totals_of(
+        &parts,
+        &sheets,
+        &lumber,
+        &[sheet_stock, lumber_stock].concat(),
+        &hardware,
+    );
     CutList {
         parts,
         sheets,
         lumber,
-        hardware: compute_hardware_in(spec, config.units),
+        hardware,
         totals,
     }
 }
@@ -180,7 +197,13 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64) -> LumberPlan {
     }
 }
 
-fn totals_of(parts: &[PartRow], sheets: &[SheetPlan], lumber: &[LumberPlan], allocated_bf: &[f64]) -> CutListTotals {
+fn totals_of(
+    parts: &[PartRow],
+    sheets: &[SheetPlan],
+    lumber: &[LumberPlan],
+    allocated_bf: &[f64],
+    hardware: &[HardwareRow],
+) -> CutListTotals {
     let board_feet_total = parts.iter().map(|p| p.board_feet).sum();
     let sheet_count = sheets.iter().map(|s| s.sheet_count).sum();
 
@@ -189,10 +212,18 @@ fn totals_of(parts: &[PartRow], sheets: &[SheetPlan], lumber: &[LumberPlan], all
         .map(|p| p.cost)
         .chain(lumber.iter().map(|p| p.cost))
         .collect();
-    let estimated_cost = costs
+    let material_cost: Option<f64> = costs
         .iter()
         .any(Option::is_some)
         .then(|| costs.iter().map(|c| c.unwrap_or(0.0)).sum());
+    let hardware_cost: Option<f64> = hardware
+        .iter()
+        .any(|h| h.cost.is_some())
+        .then(|| hardware.iter().filter_map(|h| h.cost).sum());
+    let estimated_cost = match (material_cost, hardware_cost) {
+        (None, None) => None,
+        (m, h) => Some(m.unwrap_or(0.0) + h.unwrap_or(0.0)),
+    };
 
     // Each plan's waste is in its own units (area vs length); weigh by board feet of stock bought.
     let wastes = sheets.iter().map(|p| p.waste).chain(lumber.iter().map(|p| p.waste));
@@ -207,6 +238,8 @@ fn totals_of(parts: &[PartRow], sheets: &[SheetPlan], lumber: &[LumberPlan], all
         board_feet: board_feet_total,
         sheet_count,
         estimated_cost,
+        material_cost,
+        hardware_cost,
         waste_percent: if allocated > 0.0 { offcut / allocated } else { 0.0 },
     }
 }

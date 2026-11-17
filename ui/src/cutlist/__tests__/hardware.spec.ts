@@ -3,6 +3,10 @@ import { computeHardware } from '@/cutlist/hardware';
 import { computeCutList } from '@/cutlist';
 import { parseSpec, type Spec } from '@/spec';
 import recordStand from '@fixtures/specs/record-stand.spec.json';
+import type { HardwareRow } from '@/cutlist/types';
+
+/** These tests are about what a row says; its price key has its own test. */
+const withoutKeys = (rows: HardwareRow[]) => rows.map(({ key: _key, ...rest }) => rest);
 
 /** Two 3/4" boards, screwed and pocket-screwed, plus a dowelled pair — one of each hardware kind. */
 function fastenedSpec(ops: unknown[], joints: unknown[] = [], qty = 1): Spec {
@@ -51,7 +55,7 @@ describe('computeHardware', () => {
             [{ type: 'pocketScrew', hostPartId: 'p_a', insertPartId: 'p_b', opRef: 0 }],
         );
         // 3/4" host → 1-1/4" screws; the mate is oak → fine thread.
-        expect(computeHardware(spec)).toEqual([
+        expect(withoutKeys(computeHardware(spec))).toEqual([
             { kind: 'pocketScrew', description: '1 1/4" fine-thread pocket screws', qty: 3 },
         ]);
     });
@@ -70,7 +74,7 @@ describe('computeHardware', () => {
             2, // two copies of the part → twice the screws
         );
         // 3/4 through + 2/3 of a 1-1/2" oak mate = 1.75 ideal → 1-1/2" stocked.
-        expect(computeHardware(spec)).toEqual([
+        expect(withoutKeys(computeHardware(spec))).toEqual([
             { kind: 'woodScrew', description: '#8 × 1 1/2" wood screws', qty: 8 },
         ]);
     });
@@ -87,7 +91,9 @@ describe('computeHardware', () => {
         };
         const spec = fastenedSpec([hole, { ...hole, x: 12 }, { ...hole, x: 20, purpose: 'shelfPin' }]);
         // Two dowel holes merge into one row; the shelf pin is not hardware the list buys.
-        expect(computeHardware(spec)).toEqual([{ kind: 'dowel', description: '3/8" × 1" dowels', qty: 2 }]);
+        expect(withoutKeys(computeHardware(spec))).toEqual([
+            { kind: 'dowel', description: '3/8" × 1" dowels', qty: 2 },
+        ]);
     });
 
     it('is empty for a design with no fasteners', () => {
@@ -96,7 +102,7 @@ describe('computeHardware', () => {
 
     it('rides along on the cut list', () => {
         const cutList = computeCutList(parseSpec(recordStand) as Spec);
-        expect(cutList.hardware).toEqual([
+        expect(withoutKeys(cutList.hardware)).toEqual([
             { kind: 'pocketScrew', description: '1 1/4" coarse-thread pocket screws', qty: 12 },
             { kind: 'woodScrew', description: '#8 × 1" wood screws', qty: 24 },
         ]);
@@ -270,7 +276,7 @@ describe('computeHardware — movables (spec 1.12)', () => {
         };
         const rows = computeHardware(parseSpec(tall));
         const hinges = rows.filter((r) => r.kind === 'hinge');
-        expect(hinges).toEqual([
+        expect(withoutKeys(hinges)).toEqual([
             { kind: 'hinge', description: 'inset butt hinges', qty: 3 },
             { kind: 'hinge', description: 'overlay cabinet hinges', qty: 2 },
         ]);
@@ -288,5 +294,15 @@ describe('computeHardware — movables (spec 1.12)', () => {
     it('leaves the frozen golden fixtures untouched (no movables, no new rows)', () => {
         const rows = computeHardware(parseSpec(recordStand));
         expect(rows.every((r) => ['pocketScrew', 'woodScrew', 'dowel'].includes(r.kind))).toBe(true);
+    });
+});
+
+describe('hardware keys', () => {
+    it('name each line for its price, the same whatever the units', () => {
+        const spec = parseSpec(recordStand);
+        const keys = (units: 'fraction' | 'metric') =>
+            computeCutList(spec, { kerf: 0.125, units }).hardware.map((r) => r.key);
+        expect(keys('fraction')).toEqual(['pocketScrew|1.25|coarse', 'woodScrew|1|#8']);
+        expect(keys('metric')).toEqual(keys('fraction'));
     });
 });
