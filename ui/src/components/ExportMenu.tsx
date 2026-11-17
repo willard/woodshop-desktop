@@ -54,6 +54,13 @@ export function useProjectExports(target: ExportTarget) {
                 (path) => api.exportPdf(target.projectId, path, target.kerf),
                 'PDF plan saved.',
             ),
+        labels: () =>
+            exportTo(
+                'pdf',
+                'Part labels (PDF)',
+                (path) => api.exportLabels(target.projectId, path, target.kerf),
+                'Part labels saved.',
+            ),
         viewer: () =>
             exportTo(
                 'html',
@@ -150,6 +157,14 @@ export function ExportMenuItems(props: ExportTarget & { close(): void }) {
         <>
             <button className={item} data-testid="export-pdf" onClick={run(exports.pdf)}>
                 Export PDF plan…
+            </button>
+            <button
+                className={item}
+                data-testid="export-labels"
+                title="One sticky label per piece, in cutting order: 30 to a Letter sheet (Avery 5160), or 21 to A4 (L7160) in millimetres"
+                onClick={run(exports.labels)}
+            >
+                Print part labels (PDF)…
             </button>
             <button
                 className={item}

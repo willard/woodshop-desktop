@@ -282,7 +282,7 @@ test('the cut list totals the design', async ({ page }) => {
     }
 });
 
-test('parts export as DXF for a CNC, and the assembly as glTF', async ({ page }) => {
+test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ page }) => {
     await page.goto('/#/templates');
     await page
         .getByTestId('template-card')
@@ -307,6 +307,11 @@ test('parts export as DXF for a CNC, and the assembly as glTF', async ({ page })
         expect(cup).toMatch(/^8\nHOLE_0\.4724_BACK\n/);
         expect(cup).toMatch(/\n40\n0\.689(\n|$)/); // the catalog's 1.378" cup
     }
+
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('export-labels').click();
+    await expect(page.getByText('Part labels saved.')).toBeVisible();
+    expect((await written())['/mock/exports/Wall Cabinet.pdf']).toBe('labels for Wall Cabinet in fraction');
 
     await page.getByTestId('toolbar-overflow-toggle').click();
     await page.getByTestId('export-gltf').click();

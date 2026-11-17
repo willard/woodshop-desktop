@@ -8,6 +8,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Part labels: print a sticky label for every piece (name, size, material, which sheet or board),
+  in cutting order, on Avery 5160 (Letter) or L7160 (A4) sheets. In the editor's ⋯ menu.
 - Hardware prices: price pulls, hinges, slides, screws and edge banding once, in one list for
   every design. The estimated cost includes them, and the PDF plan and CSV show each line's cost.
 - A design assistant in the editor's Assistant tab: ask for changes in plain words and it makes

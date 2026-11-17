@@ -521,6 +521,10 @@ have to look up, and the editor screenshot would make someone want to try it fro
   The same steps fold out under the cut list in the app, and agents read them as
   `assemblyOrder` on `get_cut_list`.
 
+- **Part labels** (`woodshop-export::labels`, `export_labels`): one label per piece, ordered sheet
+  by sheet then board by board from the cut list layouts, "n of qty" for repeated parts, on Avery
+  5160 (Letter, 3 × 10) or, in metric, L7160 (A4, 3 × 7). Typst, sharing the plan's `typeset`.
+
 - **Hardware prices**: one price list for every design (the `hardwarePrices` setting, by the
   hardware row's new `key`, which stays the same across units; banding is keyed per foot or per
   metre). `CutListConfig.hardwarePrices` costs each row (`unitPrice`, `cost`) and the totals

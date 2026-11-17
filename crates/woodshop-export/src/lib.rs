@@ -1,10 +1,13 @@
-//! Exports that leave the app: the printable PDF plan and the self-contained 3D viewer page.
+//! Exports that leave the app: the printable PDF plan, part labels and the self-contained 3D
+//! viewer page.
 
+pub mod labels;
 pub mod pdf;
 pub mod viewer;
 
 use thiserror::Error;
 
+pub use labels::{Label, LabelsInput, part_labels, render_labels_pdf};
 pub use pdf::{PlanInput, PlanNote, render_plan_pdf};
 pub use viewer::{ViewerInput, render_viewer_html};
 

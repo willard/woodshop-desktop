@@ -134,7 +134,7 @@ struct CutView {
 }
 
 /// Three sizes as one, the unit said once in metric: `24" × 16" × 3/4"`, `610 × 406 × 19 mm`.
-fn dims3(a: f64, b: f64, c: f64, units: Units) -> String {
+pub(crate) fn dims3(a: f64, b: f64, c: f64, units: Units) -> String {
     match units {
         Units::Metric => format!(
             "{} × {} × {} mm",
@@ -462,17 +462,20 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
         },
     );
     let view = plan_view(input, &cut_list);
-    let data = serde_json::to_string(&view).map_err(|e| ExportError::Render(e.to_string()))?;
+    typeset(TEMPLATE, &view, input.thumbnail.as_deref())
+}
+
+/// Typesets `template` with `data` as its `sys.inputs.data` (JSON), and an optional PNG served
+/// as `/thumb.png`.
+pub(crate) fn typeset(template: &str, data: &impl Serialize, thumbnail: Option<&[u8]>) -> Result<Vec<u8>, ExportError> {
+    let data = serde_json::to_string(data).map_err(|e| ExportError::Render(e.to_string()))?;
 
     let mut inputs = Dict::new();
     inputs.insert("data".into(), data.into_value());
     let world = PlanWorld {
         library: LazyHash::new(Library::builder().with_inputs(inputs).build()),
-        main: Source::new(file_id("/main.typ"), TEMPLATE.to_owned()),
-        thumbnail: input
-            .thumbnail
-            .as_ref()
-            .map(|png| (file_id("/thumb.png"), Bytes::new(png.clone()))),
+        main: Source::new(file_id("/main.typ"), template.to_owned()),
+        thumbnail: thumbnail.map(|png| (file_id("/thumb.png"), Bytes::new(png.to_vec()))),
     };
 
     let document: PagedDocument = typst::compile(&world).output.map_err(|errors| {

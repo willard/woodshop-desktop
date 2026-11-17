@@ -340,6 +340,15 @@ export function installMockBackend(): void {
         // Exports: the save dialog picks a fixed folder; written files are kept for the tests.
         'plugin:dialog|save': (a) =>
             `/mock/exports/${String((a.options as { defaultPath?: string } | undefined)?.defaultPath ?? 'file')}`,
+        // The PDFs are typeset in Rust; the preview notes what was asked for instead.
+        export_labels: (a) => {
+            const store = window as unknown as { __written?: Record<string, string> };
+            const r = row(a.id as number);
+            store.__written = {
+                ...(store.__written ?? {}),
+                [String(a.path)]: `labels for ${r.project.name} in ${String(a.units)}`,
+            };
+        },
         write_text_file: (a) => {
             const file = a.file as { path: string; contents: string };
             const store = window as unknown as { __written?: Record<string, string> };

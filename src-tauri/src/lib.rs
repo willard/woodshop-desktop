@@ -174,6 +174,7 @@ pub fn run() {
             commands::write_text_file,
             commands::mcp_setup,
             commands::export_pdf,
+            commands::export_labels,
             commands::export_viewer,
             assistant::assistant_keys,
             assistant::assistant_set_key,

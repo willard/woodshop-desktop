@@ -430,6 +430,31 @@ pub async fn export_pdf(
     Ok(())
 }
 
+/// One label per piece to cut, on a standard sheet of sticky labels (Letter, or A4 in metric).
+#[tauri::command]
+pub async fn export_labels(
+    lib: State<'_, Library>,
+    id: i64,
+    path: PathBuf,
+    kerf: f64,
+    units: Option<woodshop_core::units::Units>,
+) -> CmdResult<()> {
+    let project = lib.with(|s| s.get_project(id))?;
+    let pdf = tauri::async_runtime::spawn_blocking(move || {
+        woodshop_export::render_labels_pdf(&woodshop_export::LabelsInput {
+            title: &project.name,
+            spec: &project.draft,
+            kerf,
+            units: units.unwrap_or_default(),
+        })
+    })
+    .await
+    .map_err(CommandError::internal)?
+    .map_err(CommandError::internal)?;
+    std::fs::write(&path, pdf)?;
+    Ok(())
+}
+
 /// The interactive 3D plan as one self-contained HTML file that opens in any browser, offline.
 #[tauri::command]
 pub fn export_viewer(
