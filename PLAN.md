@@ -521,6 +521,12 @@ have to look up, and the editor screenshot would make someone want to try it fro
   The same steps fold out under the cut list in the app, and agents read them as
   `assemblyOrder` on `get_cut_list`.
 
+- **Tighter sheet packing** (`pack_guillotine_into`): 24 first-fit runs (pieces by area or by
+  longer side; first fit, best short side or best area; four ways to split the space left) and
+  the fewest sheets wins, then the fewest pieces on hand used; ties keep the original rule, so
+  layouts only change when stock is saved. Templates: 44 → 39 sheets. `tests/packing.rs` holds
+  every template's layouts to being cuttable (inside the sheet, no overlap, kerf between).
+
 - **Stock on hand** (the `offcuts` setting, `CutListConfig.offcuts`): pieces the user owns, by
   material name and thickness (to 1/64"); sheet pieces need a width. Plans pack onto them first
   (smallest first), then onto bought stock; `sheetCount`/`stickCount` count bought stock only and

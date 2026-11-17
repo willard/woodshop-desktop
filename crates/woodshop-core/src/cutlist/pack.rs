@@ -58,15 +58,83 @@ pub fn pack_guillotine(items: Vec<SheetItem>, sheet_l: f64, sheet_w: f64, kerf: 
     pack_guillotine_into(items, &[], sheet_l, sheet_w, kerf)
 }
 
+/// Which free space a piece goes into.
+#[derive(Clone, Copy)]
+enum Choice {
+    /// The first that fits.
+    First,
+    /// The one leaving the least on the tighter side.
+    BestShortSide,
+    /// The one leaving the least area.
+    BestArea,
+}
+
+/// How the space left around a placed piece is cut in two (both are table-saw cuts).
+#[derive(Clone, Copy)]
+enum Split {
+    /// A strip across the full width above the piece, the rest beside it.
+    Across,
+    /// A strip the full height beside the piece, the rest above it.
+    Along,
+    /// Along the side with less left over.
+    Shorter,
+    /// Along the side with more left over.
+    Longer,
+}
+
+/// Largest longer side first, then area, then part id.
+fn order_by_side(a: &SheetItem, b: &SheetItem) -> Ordering {
+    let (side_a, side_b) = (a.w.max(a.h), b.w.max(b.h));
+    if (side_a - side_b).abs() > EPS {
+        return side_b.partial_cmp(&side_a).unwrap_or(Ordering::Equal);
+    }
+    order(a, b)
+}
+
 /// Packs onto `offcuts` (length, width) first, in the order given, then onto new sheets.
+///
+/// Several first-fit rules are tried and the one buying the fewest sheets (then using the fewest
+/// offcuts) wins; on a tie the first rule, the long-standing one, is kept, so a layout only changes
+/// when another saves stock.
 pub fn pack_guillotine_into(
-    mut items: Vec<SheetItem>,
+    items: Vec<SheetItem>,
     offcuts: &[(f64, f64)],
     sheet_l: f64,
     sheet_w: f64,
     kerf: f64,
 ) -> PackedSheets {
-    items.sort_by(order);
+    let mut by_area = items;
+    by_area.sort_by(order);
+    let mut by_side: Vec<&SheetItem> = by_area.iter().collect();
+    by_side.sort_by(|a, b| order_by_side(a, b));
+    let by_area: Vec<&SheetItem> = by_area.iter().collect();
+
+    let mut best: Option<PackedSheets> = None;
+    for items in [&by_area, &by_side] {
+        for choice in [Choice::First, Choice::BestShortSide, Choice::BestArea] {
+            for split in [Split::Across, Split::Along, Split::Shorter, Split::Longer] {
+                let packed = pack_with(items, offcuts, sheet_l, sheet_w, kerf, choice, split);
+                let better = best.as_ref().is_none_or(|b| {
+                    (packed.sheet_count, packed.offcuts_used.len()) < (b.sheet_count, b.offcuts_used.len())
+                });
+                if better {
+                    best = Some(packed);
+                }
+            }
+        }
+    }
+    best.expect("at least one rule runs")
+}
+
+fn pack_with(
+    items: &[&SheetItem],
+    offcuts: &[(f64, f64)],
+    sheet_l: f64,
+    sheet_w: f64,
+    kerf: f64,
+    choice: Choice,
+    split: Split,
+) -> PackedSheets {
     let mut sheets: Vec<Vec<FreeRect>> = offcuts
         .iter()
         .map(|&(w, h)| vec![FreeRect { x: 0.0, y: 0.0, w, h }])
@@ -74,8 +142,8 @@ pub fn pack_guillotine_into(
     let mut placements = Vec::new();
     let mut used_area = 0.0;
 
-    for item in &items {
-        let placed = (0..sheets.len()).any(|s| place(item, &mut sheets[s], s, kerf, &mut placements));
+    for item in items {
+        let placed = (0..sheets.len()).any(|s| place(item, &mut sheets[s], s, kerf, choice, split, &mut placements));
         if !placed {
             sheets.push(vec![FreeRect {
                 x: 0.0,
@@ -84,7 +152,7 @@ pub fn pack_guillotine_into(
                 h: sheet_w,
             }]);
             let s = sheets.len() - 1;
-            place(item, &mut sheets[s], s, kerf, &mut placements);
+            place(item, &mut sheets[s], s, kerf, choice, split, &mut placements);
         }
         used_area += item.w * item.h;
     }
@@ -110,56 +178,105 @@ pub fn pack_guillotine_into(
     }
 }
 
-/// First fit over the free rects, non-rotated preferred.
-fn place(item: &SheetItem, free: &mut Vec<FreeRect>, sheet: usize, kerf: f64, out: &mut Vec<Placement>) -> bool {
-    for i in 0..free.len() {
-        let rect = free[i];
-        let Some((w, h, rotated)) = fit_orientation(item, &rect) else {
-            continue;
-        };
-        out.push(Placement {
-            part_id: item.part_id.clone(),
-            name: item.name.clone(),
-            sheet,
-            x: rect.x,
-            y: rect.y,
-            w,
-            h,
-            rotated,
-        });
-        // Guillotine split: a right offcut and a top offcut, separated by the kerf.
-        let right = FreeRect {
-            x: rect.x + w + kerf,
-            y: rect.y,
-            w: rect.w - w - kerf,
-            h,
-        };
-        let top = FreeRect {
-            x: rect.x,
-            y: rect.y + h + kerf,
-            w: rect.w,
-            h: rect.h - h - kerf,
-        };
-        free.remove(i);
-        if top.w > EPS && top.h > EPS {
-            free.push(top);
+/// Places `item` in one of a sheet's free rects, chosen by `choice`, and splits what is left.
+fn place(
+    item: &SheetItem,
+    free: &mut Vec<FreeRect>,
+    sheet: usize,
+    kerf: f64,
+    choice: Choice,
+    split: Split,
+    out: &mut Vec<Placement>,
+) -> bool {
+    let mut pick: Option<(usize, f64, f64, bool, f64)> = None;
+    for (i, rect) in free.iter().enumerate() {
+        for (w, h, rotated) in orientations(item, rect) {
+            let score = match choice {
+                Choice::First => 0.0,
+                Choice::BestShortSide => (rect.w - w).min(rect.h - h),
+                Choice::BestArea => rect.w * rect.h - w * h,
+            };
+            if pick.is_none_or(|(.., best)| score < best - EPS) {
+                pick = Some((i, w, h, rotated, score));
+            }
         }
-        if right.w > EPS && right.h > EPS {
-            free.push(right);
+        if matches!(choice, Choice::First) && pick.is_some() {
+            break;
         }
-        return true;
     }
-    false
+    let Some((i, w, h, rotated, _)) = pick else {
+        return false;
+    };
+    let rect = free[i];
+    out.push(Placement {
+        part_id: item.part_id.clone(),
+        name: item.name.clone(),
+        sheet,
+        x: rect.x,
+        y: rect.y,
+        w,
+        h,
+        rotated,
+    });
+    let (left_w, left_h) = (rect.w - w - kerf, rect.h - h - kerf);
+    let across = match split {
+        Split::Across => true,
+        Split::Along => false,
+        Split::Shorter => left_w < left_h,
+        Split::Longer => left_w >= left_h,
+    };
+    // Two offcuts separated by the kerf: one spans the rect's full width (across) or full height.
+    let (top, right) = if across {
+        (
+            FreeRect {
+                x: rect.x,
+                y: rect.y + h + kerf,
+                w: rect.w,
+                h: left_h,
+            },
+            FreeRect {
+                x: rect.x + w + kerf,
+                y: rect.y,
+                w: left_w,
+                h,
+            },
+        )
+    } else {
+        (
+            FreeRect {
+                x: rect.x,
+                y: rect.y + h + kerf,
+                w,
+                h: left_h,
+            },
+            FreeRect {
+                x: rect.x + w + kerf,
+                y: rect.y,
+                w: left_w,
+                h: rect.h,
+            },
+        )
+    };
+    free.remove(i);
+    if top.w > EPS && top.h > EPS {
+        free.push(top);
+    }
+    if right.w > EPS && right.h > EPS {
+        free.push(right);
+    }
+    true
 }
 
-fn fit_orientation(item: &SheetItem, rect: &FreeRect) -> Option<(f64, f64, bool)> {
+/// The ways `item` fits `rect`: as it is first, then turned if it may be.
+fn orientations(item: &SheetItem, rect: &FreeRect) -> Vec<(f64, f64, bool)> {
+    let mut out = Vec::with_capacity(2);
     if item.w <= rect.w + EPS && item.h <= rect.h + EPS {
-        return Some((item.w, item.h, false));
+        out.push((item.w, item.h, false));
     }
     if item.rotatable && item.h <= rect.w + EPS && item.w <= rect.h + EPS {
-        return Some((item.h, item.w, true));
+        out.push((item.h, item.w, true));
     }
-    None
+    out
 }
 
 #[derive(serde::Deserialize)]

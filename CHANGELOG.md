@@ -42,6 +42,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- Sheet layouts pack tighter: when another way of fitting the pieces saves a sheet, the cut list
+  uses it. Across the templates that is 39 sheets instead of 44 (the nightstand, wall cabinet,
+  bookcase with doors, record stand and desk with drawers each need one fewer).
 - Larger, higher-contrast text throughout; Settings is split into sections; icons replace text
   symbols; on macOS the window's own header sits beside the traffic lights, with no separate
   title bar.
