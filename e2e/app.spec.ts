@@ -536,6 +536,22 @@ test('shelf-pin holes are added as one run, changed and removed', async ({ page 
     await expect(rows.last()).toContainText('Hardware holes ×17');
 });
 
+test("a drawer's pull takes a finish, and the hardware list says so", async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Nightstand', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('outline').getByRole('button', { name: 'Drawer Front', exact: true }).click();
+    await expect(page.getByTestId('movable-finish')).toHaveValue('');
+    await page.getByTestId('movable-finish').selectOption('black');
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('cutlist-hardware')).toContainText('matte black');
+    await page.getByTestId('undo').click();
+    await expect(page.getByTestId('cutlist-hardware')).not.toContainText('matte black');
+});
+
 test('a mirrored copy of the left side is the right side', async ({ page }) => {
     await page.goto('/#/projects/1');
     const outline = page.getByTestId('outline');

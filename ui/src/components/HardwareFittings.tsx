@@ -18,6 +18,36 @@ const SIDES: { value: Side; label: string }[] = [
     { value: 'w1', label: 'Right end' },
 ];
 
+type Finish = NonNullable<HardwareMount['finish']>;
+const FINISHES: { value: Finish; label: string }[] = [
+    { value: 'nickel', label: 'Satin nickel' },
+    { value: 'black', label: 'Matte black' },
+    { value: 'brass', label: 'Brass' },
+    { value: 'bronze', label: 'Oil-rubbed bronze' },
+];
+
+/** Plain steel, or one of the finishes; the empty value clears it. */
+function FinishSelect(props: {
+    value: Finish | undefined;
+    testId: string;
+    onChange(f: Finish | undefined): void;
+}) {
+    return (
+        <Select
+            value={props.value ?? ''}
+            data-testid={props.testId}
+            onChange={(e) => props.onChange(e.target.value === '' ? undefined : (e.target.value as Finish))}
+        >
+            <option value="">Plain steel</option>
+            {FINISHES.map((f) => (
+                <option key={f.value} value={f.value}>
+                    {f.label}
+                </option>
+            ))}
+        </Select>
+    );
+}
+
 /** A length field that takes shop fractions and commits on blur or Enter. */
 function LengthInput(props: {
     value: number;
@@ -159,6 +189,15 @@ export function PartHardware(props: {
                                 />
                             </Field>
                         </div>
+                        <div className="mt-2">
+                            <Field label="Finish">
+                                <FinishSelect
+                                    value={mount.finish}
+                                    testId="hardware-finish"
+                                    onChange={(finish) => props.onUpdate(mount.id, { finish })}
+                                />
+                            </Field>
+                        </div>
                         {item === undefined && (
                             <p className="text-warn-fg mt-1.5 text-xs">
                                 Not in this version's catalog; shown as a plain block.
@@ -213,6 +252,15 @@ export function MovableFittings(props: { movable: Movable; onChange(patch: Recor
                 ? pick('hinge', 'Hinge', m.style === 'inset' ? 'Standard (butt)' : 'Standard (concealed)')
                 : pick('slide', 'Slides', 'Standard (side-mount)')}
             {pick('pull', 'Pull', 'Standard (knob)', true)}
+            <div className="col-span-2">
+                <Field label={m.kind === 'door' ? 'Finish (pull and hinges)' : 'Finish (pull)'}>
+                    <FinishSelect
+                        value={m.finish}
+                        testId="movable-finish"
+                        onChange={(finish) => props.onChange({ finish })}
+                    />
+                </Field>
+            </div>
         </div>
     );
 }

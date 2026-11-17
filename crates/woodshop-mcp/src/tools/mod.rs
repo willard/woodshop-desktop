@@ -114,6 +114,11 @@ pub(crate) const PROVIDE_PROJECT: &str = "Provide the id of the design (see list
 
 pub(crate) const SPECIES: &[&str] = &["pine", "oak", "maple", "walnut", "cherry"];
 pub(crate) const EDGES: &[&str] = &["l0", "l1", "w0", "w1"];
+/// Hardware finishes (spec 1.16); omitted means plain steel.
+pub(crate) const FINISHES: &[&str] = &["nickel", "black", "brass", "bronze"];
+pub(crate) const FINISHES_OR_STEEL: &[&str] = &["nickel", "black", "brass", "bronze", "steel"];
+pub(crate) const FINISH_INVALID: &str = "finish must be nickel, black, brass or bronze.";
+pub(crate) const FINISH_OR_STEEL_INVALID: &str = "finish must be nickel, black, brass, bronze or steel.";
 pub(crate) const JOINT_TYPES: &[&str] = &["dado", "rabbet", "butt", "pocketScrew", "screw", "dowel"];
 
 /// "No part "x" in this design. …" — the not-found message the part tools share.

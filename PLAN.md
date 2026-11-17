@@ -89,7 +89,9 @@ workflows, crash logging, the macOS fixes, and **most of Phase 1**.
 | 1.10 Verify; exports | PDF and HTML viewer checked with hardware (rows, casters drawn, overall height includes casters). CSV uses the same rows. Still to do: click through the native save dialogs in the real window. |
 
 Known rough edges in what is done:
-- Hardware is one flat metal colour. Pulls and knobs want finishes (black, brass); see 5b.1.
+- ~~Hardware is one flat metal colour.~~ Done (spec 1.16): a `finish` (nickel, black, brass,
+  bronze) on a door or drawer colours its pull and hinges, and on a mount colours that piece; the
+  hardware list names it and keeps each finish on its own row.
 - The T-hinge strap and the shelf pin are crude; fine at furniture zoom, weak in the preview.
 - ~~An undermount slide is drawn in the side-mount position.~~ Fixed: its rails run under the
   box, below each side.

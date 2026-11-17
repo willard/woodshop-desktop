@@ -237,6 +237,11 @@ their stock, and a fully connected assembly with no floating parts.
     needs `rot: 90`.
 - Mount hardware where it would really go: pulls 2–4 in from the opening edge, casters 1–2 in
   in from each corner of the base, corner braces in the inside corner they brace.
+- A `finish` (spec 1.16: `nickel`, `black`, `brass` or `bronze`; omitted is plain steel) can sit
+  on a mount (`add_hardware` / `update_hardware`) or on a door or drawer (`add_movable` /
+  `update_movable`), where it colours the pull and a door's hinges; slides stay steel. Match the
+  finish across a piece unless asked otherwise; `"steel"` in an update clears it. The hardware
+  list names the finish, so differently finished pulls are bought as separate rows.
 
 ## Shelf-pin holes
 

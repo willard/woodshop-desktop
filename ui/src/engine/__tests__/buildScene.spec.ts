@@ -368,6 +368,24 @@ describe('movable hardware in the scene (spec 1.12)', () => {
         expect(kinds.sort()).toEqual(['knob', 'slideRail', 'slideRail']);
     });
 
+    it("draws the pull in the drawer's finish and leaves the slides steel", () => {
+        const raw = structuredClone(templates.nightstand) as { spec?: Spec } & Spec;
+        const spec = parseSpec(raw.spec ?? raw);
+        const colour = (finish?: 'brass') => {
+            spec.movables![0] = { ...spec.movables![0], finish } as NonNullable<Spec['movables']>[number];
+            const pieces = hardwareOf(buildSpecGroup(spec), 'p_drawer_front') as THREE.Mesh[];
+            const of = (kind: string) =>
+                (
+                    pieces.find((h) => h.userData.hardware === kind)!.material as THREE.MeshStandardMaterial
+                ).color.getHex();
+            return { pull: of('knob'), rail: of('slideRail') };
+        };
+        const steel = colour();
+        const brass = colour('brass');
+        expect(brass.pull).not.toBe(steel.pull);
+        expect(brass.rail).toBe(steel.rail);
+    });
+
     it('hangs undermount rails under the drawer box, side-mount ones beside it', () => {
         const rails = (slide: string) => {
             const raw = structuredClone(templates.nightstand) as { spec?: Spec } & Spec;

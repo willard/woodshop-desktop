@@ -27,7 +27,7 @@ import {
     hingeGeometry,
     knobGeometry,
     slideRailGeometry,
-    createHardwareMaterial,
+    hardwareMaterials,
 } from './geometry/movableHardware';
 import { POCKET_ANGLE } from '../spec/fasteners';
 
@@ -254,7 +254,7 @@ function addMountedHardware(
     if (mounts.length === 0) {
         return;
     }
-    const material = createHardwareMaterial();
+    const materialFor = hardwareMaterials();
     const partsById = new Map(spec.parts.map((p) => [p.id, p]));
 
     for (const mount of mounts) {
@@ -265,7 +265,10 @@ function addMountedHardware(
         }
         const thickness = materialsById.get(part.materialId)?.thickness ?? 0.75;
         const frame = mountFrame(part, thickness, mount);
-        const piece = new THREE.Mesh(buildHardwareGeometry(findItem(mount.item)?.model), material);
+        const piece = new THREE.Mesh(
+            buildHardwareGeometry(findItem(mount.item)?.model),
+            materialFor(mount.finish),
+        );
         orient(piece, frame.point, frame.along, frame.normal);
         // Quarter turns about the outward normal, which is the piece's own +Z.
         piece.rotateZ(((mount.rot ?? 0) * Math.PI) / 180);
@@ -284,11 +287,13 @@ function addMovableHardware(spec: Spec, meshesById: Map<string, THREE.Mesh>): vo
     if (movables.length === 0) {
         return;
     }
-    const material = createHardwareMaterial();
+    const materialFor = hardwareMaterials();
     const hinge = hingeGeometry();
 
     for (const movable of movables) {
         for (const placement of hardwarePlacements(spec, movable)) {
+            // The finish is on the pull and the hinges; slides stay steel.
+            const material = materialFor(placement.kind === 'slideRail' ? undefined : movable.finish);
             const mesh = meshesById.get(placement.partId);
             if (mesh === undefined) {
                 continue;

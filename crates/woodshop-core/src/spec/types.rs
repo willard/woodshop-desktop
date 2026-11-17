@@ -615,6 +615,9 @@ pub enum Movable {
         /// Catalog pull or knob (1.15), or `"none"`; `None` = a plain knob.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pull: Option<String>,
+        /// Finish of the visible hardware (1.16); `None` = plain steel.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        finish: Option<Finish>,
     },
     Drawer {
         id: Id,
@@ -631,6 +634,9 @@ pub enum Movable {
         /// Catalog pull or knob (1.15), or `"none"`; `None` = a plain knob.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pull: Option<String>,
+        /// Finish of the visible hardware (1.16); `None` = plain steel.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        finish: Option<Finish>,
     },
 }
 
@@ -668,6 +674,13 @@ impl Movable {
         }
     }
 
+    /// The finish of the pull (and a door's hinges); `None` = plain steel.
+    pub fn finish(&self) -> Option<Finish> {
+        match self {
+            Movable::Door { finish, .. } | Movable::Drawer { finish, .. } => *finish,
+        }
+    }
+
     pub fn style(&self) -> MovableStyle {
         match self {
             Movable::Door { style, .. } | Movable::Drawer { style, .. } => *style,
@@ -700,4 +713,39 @@ pub struct HardwareMount {
     pub y: f64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rot: Option<u16>,
+    /// The piece's finish (1.16); `None` = plain steel.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub finish: Option<Finish>,
+}
+
+/// A metal finish for visible hardware (1.16).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Finish {
+    Nickel,
+    Black,
+    Brass,
+    Bronze,
+}
+
+impl Finish {
+    /// The spec value, as stored.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Finish::Nickel => "nickel",
+            Finish::Black => "black",
+            Finish::Brass => "brass",
+            Finish::Bronze => "bronze",
+        }
+    }
+
+    /// As a shop or a catalog names it.
+    pub fn label(self) -> &'static str {
+        match self {
+            Finish::Nickel => "satin nickel",
+            Finish::Black => "matte black",
+            Finish::Brass => "brass",
+            Finish::Bronze => "oil-rubbed bronze",
+        }
+    }
 }

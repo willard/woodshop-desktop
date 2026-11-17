@@ -54,7 +54,34 @@ export function slideRailGeometry(length: number): THREE.BufferGeometry {
  * Brushed nickel. Kept light and only slightly metallic: the scene has no environment to reflect,
  * so a truly metallic surface renders near black and disappears against wood.
  */
-export function createHardwareMaterial(): THREE.MeshStandardMaterial {
+export function createHardwareMaterial(finish?: Finish): THREE.MeshStandardMaterial {
     // Brushed steel: a metal needs something to reflect, which the scene's room light provides.
-    return new THREE.MeshStandardMaterial({ color: 0xd4d7dc, metalness: 0.85, roughness: 0.45 });
+    const look = finish === undefined ? STEEL : FINISH_LOOKS[finish];
+    return new THREE.MeshStandardMaterial(look);
+}
+
+/** A metal finish for visible hardware (spec 1.16); absent is plain steel. */
+export type Finish = 'nickel' | 'black' | 'brass' | 'bronze';
+
+const STEEL = { color: 0xd4d7dc, metalness: 0.85, roughness: 0.45 };
+/** Each finish as the scene draws it: a tint, and how much it shines. */
+export const FINISH_LOOKS: Record<Finish, { color: number; metalness: number; roughness: number }> = {
+    nickel: { color: 0xc8c4ba, metalness: 0.85, roughness: 0.38 },
+    black: { color: 0x26262a, metalness: 0.35, roughness: 0.62 },
+    brass: { color: 0xd1a54a, metalness: 0.9, roughness: 0.32 },
+    bronze: { color: 0x5a3e2b, metalness: 0.7, roughness: 0.5 },
+};
+
+/** One material per finish, shared by every piece in it. */
+export function hardwareMaterials(): (finish?: Finish) => THREE.MeshStandardMaterial {
+    const made = new Map<string, THREE.MeshStandardMaterial>();
+    return (finish) => {
+        const key = finish ?? 'steel';
+        let material = made.get(key);
+        if (material === undefined) {
+            material = createHardwareMaterial(finish);
+            made.set(key, material);
+        }
+        return material;
+    };
 }

@@ -289,6 +289,12 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
         let Some(anchor) = spec.part(movable.anchor_part_id()) else {
             continue;
         };
+        // A finish names itself on the hinges and the pull, and keeps them on rows of their own.
+        let finish = movable.finish();
+        let finished = |key: String, desc: String| match finish {
+            Some(f) => (format!("{key}|{}", f.as_str()), format!("{desc}, {}", f.label())),
+            None => (key, desc),
+        };
         match movable {
             Movable::Door {
                 hinge_edge,
@@ -310,6 +316,7 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
                         MovableStyle::Inset => ("hinge|inset".into(), "inset butt hinges".into()),
                     },
                 };
+                let (key, desc) = finished(key, desc);
                 rows.push(Sized {
                     key,
                     kind: HardwareKind::Hinge,
@@ -339,21 +346,25 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
             Some("none") => {}
             Some(id) if hardware::find(id).is_some() => {
                 let item = hardware::find(id).expect("checked");
+                let (key, description) = finished(format!("item|{}", item.id), words.list(item));
                 rows.push(Sized {
-                    key: format!("item|{}", item.id),
+                    key,
                     kind: HardwareKind::Knob,
-                    description: words.list(item),
+                    description,
                     qty: 1,
                     derived: false,
                 });
             }
-            _ => rows.push(Sized {
-                key: "knob".into(),
-                kind: HardwareKind::Knob,
-                description: "cabinet knobs".into(),
-                qty: 1,
-                derived: false,
-            }),
+            _ => {
+                let (key, description) = finished("knob".into(), "cabinet knobs".into());
+                rows.push(Sized {
+                    key,
+                    kind: HardwareKind::Knob,
+                    description,
+                    qty: 1,
+                    derived: false,
+                });
+            }
         }
     }
 
@@ -374,8 +385,15 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
                 format!("{} (not in this version's catalog)", mount.item),
             ),
         };
+        let (key, description) = match mount.finish {
+            Some(f) => (
+                format!("item|{}|{}", mount.item, f.as_str()),
+                format!("{description}, {}", f.label()),
+            ),
+            None => (format!("item|{}", mount.item), description),
+        };
         rows.push(Sized {
-            key: format!("item|{}", mount.item),
+            key,
             kind,
             description,
             qty: 1,

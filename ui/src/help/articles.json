@@ -244,7 +244,7 @@
         "blocks": [
             {
                 "type": "p",
-                "text": "Woodshop has a catalog of real hardware with true dimensions: knobs and pulls, hinges, drawer slides, casters, leveling feet, brackets and plates, shelf pins, latches, lid stays and handles, and hooks. Hardware shows in the 3D view, moves with the part it is screwed to, and is counted in the hardware list, so the cut list, PDF and CSV tell you what to buy."
+                "text": "Woodshop has a catalog of real hardware with true dimensions: knobs and pulls, hinges, drawer slides, casters, leveling feet, brackets and plates, shelf pins, latches, lid stays and handles, and hooks. Hardware shows in the 3D view, moves with the part it is screwed to, and is counted in the hardware list, so the cut list, PDF and CSV tell you what to buy. Pulls, knobs and hinges can be finished in satin nickel, matte black, brass or oil-rubbed bronze: pick a Finish on a door or drawer, or on any piece in a part's hardware list. The 3D view shows the colour and the hardware list names it."
             },
             {
                 "type": "img",

@@ -75,7 +75,7 @@ export class AddHardware implements Command {
     }
 }
 
-export type HardwarePatch = Partial<Pick<HardwareMount, 'item' | 'side' | 'x' | 'y' | 'rot'>>;
+export type HardwarePatch = Partial<Pick<HardwareMount, 'item' | 'side' | 'x' | 'y' | 'rot' | 'finish'>>;
 
 export class UpdateHardware implements Command {
     readonly label = 'Edit hardware';

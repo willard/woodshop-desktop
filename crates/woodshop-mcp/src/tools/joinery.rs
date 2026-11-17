@@ -550,6 +550,7 @@ pub const ADD_MOVABLE: ToolDef = ToolDef {
                 "hinge": string("Doors only: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style."),
                 "slide": string("Drawers only: a catalog slide id (list_hardware with role \"slide\"). Omit for side-mount ball-bearing slides."),
                 "pull": string("A catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
+                "finish": one_of(FINISHES, "The finish of the pull (and a door's hinges): satin nickel, matte black, brass or oil-rubbed bronze. Omit for plain steel."),
             }),
             &["project_id", "kind", "part_ids", "anchor_part_id"],
         )
@@ -590,6 +591,7 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
     let hinge = fitting(args, "hinge", Role::Hinge)?;
     let slide = fitting(args, "slide", Role::Slide)?;
     let pull = fitting(args, "pull", Role::Pull)?;
+    let finish = args.opt_enum("finish", FINISHES, FINISH_INVALID)?;
     if kind == "drawer" && hinge.is_some() {
         return Err("A drawer has no hinge; give it a `slide` instead.".into());
     }
@@ -647,6 +649,7 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
         "hinge": if door { hinge } else { None },
         "slide": if door { None } else { slide },
         "pull": pull,
+        "finish": finish,
     }));
     let result = w.apply(&design, &format!("Add {kind}"), false, |spec| {
         push(spec, "movables", movable)
@@ -686,6 +689,7 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
                 "hinge": string("Doors only: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style."),
                 "slide": string("Drawers only: a catalog slide id (list_hardware with role \"slide\"). Omit for side-mount ball-bearing slides."),
                 "pull": string("A catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
+                "finish": one_of(FINISHES_OR_STEEL, "The finish of the pull (and a door's hinges), or \"steel\" to go back to plain steel."),
             }),
             &["project_id", "movable_id"],
         )
@@ -713,12 +717,16 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
             ("hinge", fitting(args, "hinge", Role::Hinge)?),
             ("slide", fitting(args, "slide", Role::Slide)?),
             ("pull", fitting(args, "pull", Role::Pull)?),
+            (
+                "finish",
+                args.opt_enum("finish", FINISHES_OR_STEEL, FINISH_OR_STEEL_INVALID)?,
+            ),
         ]
         .into_iter()
         .filter_map(|(k, v)| v.map(|v| (k, v)))
         .collect();
         if changes.is_empty() {
-            return Err("Provide what to change: hinge_edge, style, name, hinge, slide or pull.".into());
+            return Err("Provide what to change: hinge_edge, style, name, hinge, slide, pull or finish.".into());
         }
         let design = w.load_editable(project_id)?;
         let movable = find(&design.draft, "movables", movable_id).ok_or_else(|| no_movable(movable_id))?;
@@ -743,7 +751,11 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
         let result = w.apply(&design, &format!("Update movable {movable_id}"), true, |spec| {
             map_one(spec, "movables", movable_id, |m| {
                 for (k, v) in &changes {
-                    m.insert((*k).into(), (*v).into());
+                    if (*k, *v) == ("finish", "steel") {
+                        m.remove("finish");
+                    } else {
+                        m.insert((*k).into(), (*v).into());
+                    }
                 }
             });
         });

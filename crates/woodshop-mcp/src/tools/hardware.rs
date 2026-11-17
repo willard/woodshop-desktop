@@ -124,6 +124,7 @@ pub const ADD_HARDWARE: ToolDef = ToolDef {
                 "x": number(X_HELP),
                 "y": number(Y_HELP),
                 "rot": { "type": "integer", "enum": [0, 90, 180, 270], "description": "Quarter turns about the outward normal. At 0 the piece's long axis runs along the side's first axis." },
+                "finish": one_of(FINISHES, "Satin nickel, matte black, brass or oil-rubbed bronze. Omit for plain steel."),
             }),
             &["project_id", "item", "part_id"],
         )
@@ -139,6 +140,7 @@ pub const ADD_HARDWARE: ToolDef = ToolDef {
             .opt_enum("side", SIDES, "side must be one of: front, back, l0, l1, w0, w1.")?
             .unwrap_or("front");
         let rot = args.opt_int("rot")?.unwrap_or(0);
+        let finish = args.opt_enum("finish", FINISHES, FINISH_INVALID)?;
         if ![0, 90, 180, 270].contains(&rot) {
             return Err("rot must be 0, 90, 180 or 270.".into());
         }
@@ -165,6 +167,9 @@ pub const ADD_HARDWARE: ToolDef = ToolDef {
         if rot != 0 {
             mount["rot"] = rot.into();
         }
+        if let Some(finish) = finish {
+            mount["finish"] = finish.into();
+        }
         let result = w.apply(&design, &format!("Add {}", item.name), false, |spec| {
             push(spec, "hardware", mount)
         });
@@ -183,8 +188,8 @@ pub const ADD_HARDWARE: ToolDef = ToolDef {
 
 pub const UPDATE_HARDWARE: ToolDef = ToolDef {
     name: "update_hardware",
-    description: "Move, turn or swap one mounted piece of hardware: a new position, side, quarter-turn, or a \
-        different catalog item in the same place. Pass only what changes. Changing `side` without a position \
+    description: "Move, turn, refinish or swap one mounted piece of hardware: a new position, side, \
+        quarter-turn, finish, or a different catalog item in the same place. Pass only what changes. Changing `side` without a position \
         centres it on the new side.",
     read_only: false,
     schema: || {
@@ -197,6 +202,7 @@ pub const UPDATE_HARDWARE: ToolDef = ToolDef {
                 "x": number(X_HELP),
                 "y": number(Y_HELP),
                 "rot": { "type": "integer", "enum": [0, 90, 180, 270], "description": "Quarter turns about the outward normal." },
+                "finish": one_of(FINISHES_OR_STEEL, "A new finish, or \"steel\" to go back to plain steel."),
             }),
             &["project_id", "hardware_id"],
         )
@@ -212,11 +218,12 @@ pub const UPDATE_HARDWARE: ToolDef = ToolDef {
         let x = args.opt_num("x", 0.0, 240.0)?;
         let y = args.opt_num("y", 0.0, 240.0)?;
         let rot = args.opt_int("rot")?;
+        let finish = args.opt_enum("finish", FINISHES_OR_STEEL, FINISH_OR_STEEL_INVALID)?;
         if rot.is_some_and(|r| ![0, 90, 180, 270].contains(&r)) {
             return Err("rot must be 0, 90, 180 or 270.".into());
         }
-        if item.is_none() && side.is_none() && x.is_none() && y.is_none() && rot.is_none() {
-            return Err("Provide what to change: item, side, x, y or rot.".into());
+        if item.is_none() && side.is_none() && x.is_none() && y.is_none() && rot.is_none() && finish.is_none() {
+            return Err("Provide what to change: item, side, x, y, rot or finish.".into());
         }
         if let Some(id) = item {
             let found = hardware::find(id)
@@ -261,6 +268,15 @@ pub const UPDATE_HARDWARE: ToolDef = ToolDef {
                 }
                 if let Some(rot) = rot {
                     h.insert("rot".into(), rot.into());
+                }
+                match finish {
+                    Some("steel") => {
+                        h.remove("finish");
+                    }
+                    Some(f) => {
+                        h.insert("finish".into(), f.into());
+                    }
+                    None => {}
                 }
             });
         });

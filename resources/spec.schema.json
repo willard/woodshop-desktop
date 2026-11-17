@@ -1010,6 +1010,10 @@
                             "type": "string",
                             "pattern": "^(none|[a-z][a-z0-9.-]{1,59})$",
                             "description": "Which catalog pull or knob it opens with (added in 1.15), or \"none\" for a push latch or a wooden pull. Omit for a plain knob."
+                        },
+                        "finish": {
+                            "$ref": "#/$defs/finish",
+                            "description": "The finish of the door's pull and hinges (added in 1.16). Omit for plain steel."
                         }
                     },
                     "description": "A hinged door: swings on the front arris of the named panel edge (§3.3)."
@@ -1063,11 +1067,24 @@
                             "type": "string",
                             "pattern": "^(none|[a-z][a-z0-9.-]{1,59})$",
                             "description": "Which catalog pull or knob it opens with (added in 1.15), or \"none\" for a push latch or a wooden pull. Omit for a plain knob."
+                        },
+                        "finish": {
+                            "$ref": "#/$defs/finish",
+                            "description": "The finish of the drawer's pull (added in 1.16). Omit for plain steel."
                         }
                     },
                     "description": "A drawer riding side-mount slides: pulls out along the front's face normal (§3.3)."
                 }
             ]
+        },
+        "finish": {
+            "enum": [
+                "nickel",
+                "black",
+                "brass",
+                "bronze"
+            ],
+            "description": "A metal finish for visible hardware: satin nickel, matte black, brass or oil-rubbed bronze."
         },
         "hardwareItemId": {
             "type": "string",
@@ -1128,6 +1145,10 @@
                     ],
                     "default": 0,
                     "description": "Quarter turns about the outward normal. At 0 the piece's long axis runs along the side's first axis."
+                },
+                "finish": {
+                    "$ref": "#/$defs/finish",
+                    "description": "The piece's finish (added in 1.16). Omit for plain steel."
                 }
             },
             "description": "One piece of catalog hardware mounted on a part (added in 1.15): a pull, caster, bracket, latch… Annotation only: it adds to the hardware list and the 3D view and never cuts the part."

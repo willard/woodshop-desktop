@@ -777,3 +777,69 @@ fn a_mirrored_left_side_stands_where_the_right_side_was() {
         .contains("direction")
     );
 }
+
+#[test]
+fn a_finish_rides_on_a_drawer_and_a_mounted_pull() {
+    let w = woodshop();
+    let started = ok(&w, "start_from_template", json!({ "template": "nightstand" }));
+    let id = started["projectId"].as_i64().unwrap();
+    ok(
+        &w,
+        "update_movable",
+        json!({ "project_id": id, "movable_id": "mv_drawer", "finish": "black" }),
+    );
+    let spec = ok(&w, "get_design", json!({ "project_id": id }))["spec"].clone();
+    assert_eq!(spec["movables"][0]["finish"], "black");
+    let cut = ok(&w, "get_cut_list", json!({ "project_id": id }));
+    assert!(
+        cut["hardware"].to_string().contains("matte black"),
+        "{}",
+        cut["hardware"]
+    );
+
+    let added = ok(
+        &w,
+        "add_hardware",
+        json!({ "project_id": id, "item": "knob.round-1-1-4", "part_id": "p_drawer_front", "finish": "brass" }),
+    );
+    let hw = added["summary"]
+        .as_str()
+        .unwrap()
+        .rsplit('"')
+        .nth(1)
+        .unwrap()
+        .to_owned();
+    let spec = ok(&w, "get_design", json!({ "project_id": id }))["spec"].clone();
+    let mount = spec["hardware"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|h| h["id"] == hw.as_str())
+        .unwrap()
+        .clone();
+    assert_eq!(mount["finish"], "brass");
+
+    // "steel" takes a finish off again; a made-up one is refused.
+    ok(
+        &w,
+        "update_hardware",
+        json!({ "project_id": id, "hardware_id": hw, "finish": "steel" }),
+    );
+    let spec = ok(&w, "get_design", json!({ "project_id": id }))["spec"].clone();
+    let mount = spec["hardware"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|h| h["id"] == hw.as_str())
+        .unwrap()
+        .clone();
+    assert!(mount.get("finish").is_none());
+    assert!(
+        err(
+            &w,
+            "update_movable",
+            json!({ "project_id": id, "movable_id": "mv_drawer", "finish": "gold" })
+        )
+        .contains("nickel, black, brass, bronze or steel")
+    );
+}
