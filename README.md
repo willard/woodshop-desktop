@@ -23,9 +23,10 @@ can be shared as `.woodshop` files.
   list as a spreadsheet, and full-size SVG templates for shaped parts.
 - **Inches or millimetres**, everywhere: on screen, in every export, and in what you type.
 - **Version history and daily backups** of your library, with one-click restore.
-- **Works with AI agents:** the app is also a local [MCP](https://modelcontextprotocol.io) server,
-  so an agent such as Claude can read and edit your designs, with every change validated and
-  undoable.
+- **Works with AI:** a design assistant in the editor takes requests in plain words, using your own
+  API key for Claude or an OpenAI-compatible server. The app is also a local
+  [MCP](https://modelcontextprotocol.io) server, so an agent such as Claude can read and edit your
+  designs. Either way, every change is validated and undoable.
 
 ## Installing
 

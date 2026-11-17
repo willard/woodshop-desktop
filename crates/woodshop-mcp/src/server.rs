@@ -17,7 +17,7 @@ use crate::ctx::Woodshop;
 use crate::resources::{self, CONVENTIONS_RESOURCE, ResourceDef, SCHEMA_RESOURCE, TEMPLATE_RESOURCE};
 use crate::tools::{self, TOOLS};
 
-const INSTRUCTIONS: &str = "Woodshop designs woodworking furniture in 3D. Each design is a parametric \
+pub(crate) const INSTRUCTIONS: &str = "Woodshop designs woodworking furniture in 3D. Each design is a parametric \
 spec — a JSON document of parts and joinery in decimal inches — that Woodshop renders and turns into \
 cut lists. This server works on the designs in the Woodshop library on this computer; changes show up \
 in the Woodshop app as you make them.

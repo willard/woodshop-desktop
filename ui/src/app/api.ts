@@ -147,6 +147,35 @@ export interface McpSetup {
     claudeCodeCommand: string;
 }
 
+/** The design assistant (`src-tauri/src/assistant.rs`). */
+export type AssistantProvider = 'anthropic' | 'openai';
+
+/** What Settings ▸ AI agents stores as the `assistant` setting. The API key is in the keychain. */
+export interface AssistantSetting {
+    provider?: AssistantProvider;
+    anthropicModel?: string;
+    openaiModel?: string;
+    openaiBaseUrl?: string;
+}
+
+export interface AssistantAction {
+    tool: string;
+    ok: boolean;
+    error?: string;
+}
+
+export interface AssistantTurn {
+    reply: string;
+    actions: AssistantAction[];
+    /** The conversation in the provider's own format; sent back with the next message. */
+    history: unknown[];
+    changed: boolean;
+}
+
+/** Progress while a turn runs, sent as the `assistant-event` event. */
+export type AssistantEvent =
+    { kind: 'tool'; name: string } | { kind: 'toolDone'; name: string; ok: boolean; message: string | null };
+
 export const api = {
     libraryInfo: () => invoke<LibraryInfo>('library_info'),
     logClientError: (message: string, detail?: string) =>
@@ -201,6 +230,13 @@ export const api = {
     writeTextFile: (path: string, contents: string) =>
         invoke<void>('write_text_file', { file: { path, contents } }),
     mcpSetup: () => invoke<McpSetup>('mcp_setup'),
+    /** Which providers have an API key in the keychain (the keys never come back). */
+    assistantKeys: () => invoke<Record<AssistantProvider, boolean>>('assistant_keys'),
+    /** Saves a provider's key in the keychain, or removes it when `key` is null. */
+    assistantSetKey: (provider: AssistantProvider, key: string | null) =>
+        invoke<void>('assistant_set_key', { provider, key }),
+    assistantSend: (projectId: number, history: unknown[], text: string) =>
+        invoke<AssistantTurn>('assistant_send', { projectId, history, text }),
 
     listBackups: () => invoke<BackupInfo[]>('list_backups'),
     backupNow: () => invoke<BackupInfo>('backup_now'),

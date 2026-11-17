@@ -534,7 +534,16 @@ have to look up, and the editor screenshot would make someone want to try it fro
   and channels on layers named by depth (`_BACK` for back-face work), hinge cups included; glTF
   is the assembled model with hardware, in metres. STEP is not done: it needs a B-rep kernel
   (OpenCascade or similar), which is far heavier than anything else the app ships.
-- In-app AI design chat (bring-your-own API key), reusing the MCP tool layer.
+- In-app AI design chat: done. The editor's Assistant tab chats about the open design
+  (`AssistantPanel`); `woodshop-mcp::assistant` runs the conversation over the MCP tool registry
+  (held to the open design; no list/start tools), for Anthropic (Messages API `2026-10-21`,
+  default `claude-opus-5-5`, effort high, server-side refusal fallbacks where the model takes
+  them) or any OpenAI-compatible server. The desktop side (`src-tauri/src/assistant.rs`) keeps
+  the key in the system keychain (`keyring` 4), posts with the updater's reqwest/rustls, and
+  writes through its own store connection so the editor reloads each change; the editor saves
+  first and loads the result without the "updated outside" toast. Settings ▸ AI agents chooses
+  provider, model and key. PRIVACY.md lists what is sent. Not done: streaming replies (a turn
+  shows progress per tool, then the answer).
 - iPad companion viewer for the shop.
 
 ---

@@ -151,6 +151,8 @@ export interface EditorWorkspaceProps {
     toolbar?: ReactNode;
     /** Content for the Notes tab; the tab hides without it. */
     notes?: ReactNode;
+    /** The design assistant's chat (EditorPage); kept mounted like the notes. */
+    assistant?: ReactNode;
     /** Header actions for the cut list (exports). */
     cutListActions?: (cutList: CutList, kerf: number) => ReactNode;
     /** Extra items in the toolbar's overflow menu. */
@@ -161,7 +163,7 @@ export interface EditorWorkspaceProps {
     onNewProjectFromParts?(partIds: readonly string[], name: string): void;
 }
 
-type DockTab = 'cutlist' | 'inspector' | 'notes';
+type DockTab = 'cutlist' | 'inspector' | 'notes' | 'assistant';
 
 /** Subscribe React to an EditorDocument: re-render on every change. */
 function useDocRevision(doc: EditorDocument): number {
@@ -2135,6 +2137,15 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     Notes
                                 </button>
                             )}
+                            {props.assistant && (
+                                <button
+                                    className={tabClass('assistant')}
+                                    data-testid="assistant-tab"
+                                    onClick={() => setActiveTab('assistant')}
+                                >
+                                    Assistant
+                                </button>
+                            )}
                         </div>
                         {activeTab === 'cutlist' && (
                             <CutListPanel
@@ -2163,6 +2174,14 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 className={`min-h-0 flex-1 flex-col ${activeTab === 'notes' ? 'flex' : 'hidden'}`}
                             >
                                 {props.notes}
+                            </div>
+                        )}
+                        {/* The chat stays mounted too: a conversation must survive a trip to another tab. */}
+                        {props.assistant && (
+                            <div
+                                className={`min-h-0 flex-1 flex-col ${activeTab === 'assistant' ? 'flex' : 'hidden'}`}
+                            >
+                                {props.assistant}
                             </div>
                         )}
                     </div>

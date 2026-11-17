@@ -12,6 +12,7 @@ import { useToast } from '@/components/Toast';
 import { problemReportUrl } from '@/app/diagnostics';
 import { BackupsPanel } from '@/components/BackupsPanel';
 import { AboutPanel } from '@/components/AboutPanel';
+import { AssistantSettings } from '@/components/AssistantSettings';
 import { KERF_OPTIONS, useDefaultKerf } from '@/app/settings';
 
 /** The groups Settings is split into, in the order the list shows them. */
@@ -243,6 +244,14 @@ export default function SettingsPage() {
                         description="Woodshop copies your whole library once a day and keeps the last week. If a project goes wrong or is deleted, look inside a backup and restore it."
                     >
                         <BackupsPanel />
+                    </Section>
+
+                    <Section
+                        group="agents"
+                        title="Design assistant"
+                        description="Chat with an AI model about the open design, in the editor's Assistant tab. It reads the design and makes changes with the same tools as an MCP agent. Bring your own API key."
+                    >
+                        <AssistantSettings />
                     </Section>
 
                     <Section

@@ -14,6 +14,7 @@ import { extractParts } from '@/engine/extract';
 import { parseSpec, type Spec } from '@/spec';
 import { EditorWorkspace, type EditorWorkspaceHandle } from '@/components/EditorWorkspace';
 import { NotesPanel } from '@/components/NotesPanel';
+import { AssistantPanel } from '@/components/AssistantPanel';
 import { VersionsPanel } from '@/components/VersionsPanel';
 import { CutListExportButtons, ExportMenuItems } from '@/components/ExportMenu';
 import { useToast } from '@/components/Toast';
@@ -208,10 +209,14 @@ function Editor({ project }: { project: Project }) {
         setSaveState('saved');
     }, []);
 
-    // An MCP agent (or another window) edited this project: take it if we have nothing unsaved,
-    // otherwise let the user choose.
+    /** True while the design assistant works: its edits are expected, so they load without a toast. */
+    const assistantBusy = useRef(false);
+    const [assistantChanged, setAssistantChanged] = useState(0);
+
+    // An MCP agent, the assistant or another window edited this project: take it if we have
+    // nothing unsaved, otherwise let the user choose.
     useEffect(() => {
-        async function onLibraryChanged(): Promise<void> {
+        async function onLibraryChanged(quiet = false): Promise<void> {
             let latest: Project;
             try {
                 latest = await api.getProject(project.id);
@@ -222,7 +227,8 @@ function Editor({ project }: { project: Project }) {
             if (latest.draftUpdatedAt === base.current || running.current !== null) return;
             if (revision.current === savedRevision.current && conflictRef.current === null) {
                 swapDoc(latest.draft, latest.draftUpdatedAt);
-                toast.info('This design was updated outside the editor.');
+                if (!quiet && !assistantBusy.current)
+                    toast.info('This design was updated outside the editor.');
             } else {
                 setConflict({ draft: latest.draft, updatedAt: latest.draftUpdatedAt });
                 setSaveState('conflict');
@@ -230,8 +236,9 @@ function Editor({ project }: { project: Project }) {
         }
         const handler = () => void onLibraryChanged();
         window.addEventListener('woodshop:library-changed', handler);
+        if (assistantChanged > 0) void onLibraryChanged(true);
         return () => window.removeEventListener('woodshop:library-changed', handler);
-    }, [project.id, swapDoc, toast]);
+    }, [project.id, swapDoc, toast, assistantChanged]);
 
     function keepMine(): void {
         if (conflict === null) return;
@@ -317,6 +324,14 @@ function Editor({ project }: { project: Project }) {
                 doc={doc}
                 toolbar={toolbar}
                 notes={<NotesPanel projectId={project.id} />}
+                assistant={
+                    <AssistantPanel
+                        projectId={project.id}
+                        beforeSend={flush}
+                        onBusyChange={(busy) => (assistantBusy.current = busy)}
+                        onChanged={() => setAssistantChanged((n) => n + 1)}
+                    />
+                }
                 kerf={kerf ?? defaultKerf}
                 onKerfChange={setKerf}
                 onNewProjectFromParts={(ids, partName) => void newProjectFromParts(ids, partName)}

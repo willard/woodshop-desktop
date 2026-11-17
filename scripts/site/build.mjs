@@ -111,7 +111,7 @@ const FEATURES = [
     ['Inches or millimetres', 'On screen, in every export and in what you type.'],
     [
         'Works with AI agents',
-        'Woodshop is also a local MCP server, so an agent such as Claude can read and edit your designs, every change checked and undoable.',
+        'Ask the built-in design assistant for changes in plain words, with your own API key, or connect an agent such as Claude over MCP. Every change is checked and undoable.',
     ],
 ];
 

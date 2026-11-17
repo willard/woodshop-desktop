@@ -968,3 +968,28 @@ test('a door on concealed hinges gets its cups bored in the 3D view', async ({ p
         )
         .toBe(2);
 });
+
+test('the design assistant is set up in Settings and answers in the editor', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('assistant-tab').click();
+    // No key yet: the tab says where to set it up.
+    await page.getByTestId('assistant-setup').getByRole('link').click();
+    await expect(page).toHaveURL(/#\/settings$/);
+    const settings = page.getByTestId('assistant-settings');
+    await expect(settings.getByTestId('assistant-model')).toHaveValue('claude-opus-5-5');
+    await expect(page.getByTestId('assistant-key-status')).toContainText('No key saved yet');
+    await settings.getByTestId('assistant-key').fill('sk-ant-test');
+    await settings.getByTestId('assistant-key-save').click();
+    await expect(page.getByTestId('assistant-key-status')).toContainText('saved in your system keychain');
+    // The key field empties: the key never comes back to the page.
+    await expect(settings.getByTestId('assistant-key')).toHaveValue('');
+
+    await page.goto('/#/projects/1');
+    await page.getByTestId('assistant-tab').click();
+    const panel = page.getByTestId('assistant-panel');
+    await panel.getByTestId('assistant-input').fill('How many parts?');
+    await panel.getByTestId('assistant-input').press('Enter');
+    await expect(panel.getByTestId('assistant-message-you')).toHaveText('How many parts?');
+    await expect(panel.getByTestId('assistant-message-assistant')).toContainText('has 6 parts');
+    await expect(panel.getByTestId('assistant-actions')).toContainText('get design');
+});

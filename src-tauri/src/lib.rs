@@ -1,6 +1,7 @@
 //! Woodshop desktop shell: a Tauri window over the React editor, a local SQLite project library,
 //! and the Rust domain core. Everything stays on this computer — no account, no server.
 
+mod assistant;
 mod backups;
 mod commands;
 mod error;
@@ -171,6 +172,9 @@ pub fn run() {
             commands::mcp_setup,
             commands::export_pdf,
             commands::export_viewer,
+            assistant::assistant_keys,
+            assistant::assistant_set_key,
+            assistant::assistant_send,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Woodshop");

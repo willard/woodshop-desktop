@@ -453,11 +453,35 @@
         "slug": "connect-your-ai-agent",
         "title": "Using Woodshop with an AI agent",
         "icon": "🔌",
-        "summary": "Let Claude Desktop, Claude Code, or another MCP client build in Woodshop for you.",
+        "summary": "Chat with the built-in design assistant, or let Claude Desktop, Claude Code or another MCP client build in Woodshop.",
         "blocks": [
             {
                 "type": "p",
-                "text": "Woodshop includes an MCP server that runs on this computer, so your own AI agent (Claude Desktop, Claude Code, an IDE assistant, or something you build) can list, read, create, and edit your designs. No account or token is needed — the server only ever talks to the library on this machine."
+                "text": "Woodshop works with AI in two ways: a design assistant built into the editor, and an MCP server that runs on this computer, so your own AI agent (Claude Desktop, Claude Code, an IDE assistant, or something you build) can list, read, create, and edit your designs. The MCP server needs no account or token — it only ever talks to the library on this machine."
+            },
+            {
+                "type": "h",
+                "text": "The design assistant, inside the editor"
+            },
+            {
+                "type": "p",
+                "text": "The quickest way in: the editor's **Assistant** tab is a chat about the design you have open. Ask for a change in plain words and the assistant makes it with the same tools an MCP agent uses, so every change is checked, lands in the editor straight away, and is saved as a version you can go back to."
+            },
+            {
+                "type": "ol",
+                "items": [
+                    "Get an API key from console.anthropic.com (or use an OpenAI-compatible server, such as OpenAI or a local Ollama).",
+                    "In Settings ▸ AI agents ▸ Design assistant, choose the provider and model and paste the key. It is kept in your system keychain, not in Woodshop's library.",
+                    "Open a design, click the Assistant tab and ask. Enter sends; Shift+Enter starts a new line. New chat starts over."
+                ]
+            },
+            {
+                "type": "note",
+                "text": "While you use the assistant, your messages and the parts of the design it reads are sent to the provider you chose, and its use is billed to your key. Nothing is sent until you send a message."
+            },
+            {
+                "type": "h",
+                "text": "Your own agent, over MCP"
             },
             {
                 "type": "img",

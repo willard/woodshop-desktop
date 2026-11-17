@@ -11,6 +11,7 @@ use rmcp::ServiceExt;
 use woodshop_store::Store;
 
 mod args;
+pub mod assistant;
 mod ctx;
 mod resources;
 mod server;
