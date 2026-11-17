@@ -112,6 +112,22 @@ pub fn pack_guillotine_into(
     sheet_w: f64,
     kerf: f64,
 ) -> PackedSheets {
+    let keep = |r: &FreeRect| r.w.max(r.h) >= KEEP_LONG - EPS && r.w.min(r.h) >= KEEP_SHORT - EPS;
+    pack_best(items, offcuts, sheet_l, sheet_w, kerf, &keep, false)
+}
+
+/// The best of every rule's layout, as described on [`pack_guillotine_into`]; `keep` says which
+/// free rects are leftovers. With `most_kept`, a tie goes to the layout leaving the most to keep.
+fn pack_best(
+    items: Vec<SheetItem>,
+    offcuts: &[(f64, f64)],
+    sheet_l: f64,
+    sheet_w: f64,
+    kerf: f64,
+    keep: &dyn Fn(&FreeRect) -> bool,
+    most_kept: bool,
+) -> PackedSheets {
+    let kept = |p: &PackedSheets| p.leftovers.iter().map(|l| l.l * l.w.unwrap_or(0.0)).sum::<f64>();
     let mut by_area = items;
     by_area.sort_by(order);
     let mut by_side: Vec<&SheetItem> = by_area.iter().collect();
@@ -122,9 +138,13 @@ pub fn pack_guillotine_into(
     for items in [&by_area, &by_side] {
         for choice in [Choice::First, Choice::BestShortSide, Choice::BestArea] {
             for split in [Split::Across, Split::Along, Split::Shorter, Split::Longer] {
-                let packed = pack_with(items, offcuts, sheet_l, sheet_w, kerf, choice, split);
+                let packed = pack_with(items, offcuts, (sheet_l, sheet_w), kerf, (choice, split), keep);
                 let better = best.as_ref().is_none_or(|b| {
-                    (packed.sheet_count, packed.offcuts_used.len()) < (b.sheet_count, b.offcuts_used.len())
+                    let (now, was) = (
+                        (packed.sheet_count, packed.offcuts_used.len()),
+                        (b.sheet_count, b.offcuts_used.len()),
+                    );
+                    now < was || (most_kept && now == was && kept(&packed) > kept(b) + EPS)
                 });
                 if better {
                     best = Some(packed);
@@ -138,11 +158,10 @@ pub fn pack_guillotine_into(
 fn pack_with(
     items: &[&SheetItem],
     offcuts: &[(f64, f64)],
-    sheet_l: f64,
-    sheet_w: f64,
+    (sheet_l, sheet_w): (f64, f64),
     kerf: f64,
-    choice: Choice,
-    split: Split,
+    (choice, split): (Choice, Split),
+    keep: &dyn Fn(&FreeRect) -> bool,
 ) -> PackedSheets {
     let mut sheets: Vec<Vec<FreeRect>> = offcuts
         .iter()
@@ -188,15 +207,13 @@ fn pack_with(
         .enumerate()
         .filter_map(|(s, free)| renumber(s).map(|n| (n, free)))
         .flat_map(|(sheet, free)| {
-            free.iter()
-                .filter(|r| r.w.max(r.h) >= KEEP_LONG - EPS && r.w.min(r.h) >= KEEP_SHORT - EPS)
-                .map(move |r| Leftover {
-                    sheet,
-                    x: r.x,
-                    y: r.y,
-                    l: r.w,
-                    w: Some(r.h),
-                })
+            free.iter().filter(|r| keep(r)).map(move |r| Leftover {
+                sheet,
+                x: r.x,
+                y: r.y,
+                l: r.w,
+                w: Some(r.h),
+            })
         })
         .collect();
     leftovers.sort_by_key(|l| l.sheet);
@@ -316,6 +333,9 @@ pub struct LumberItem {
     pub part_id: String,
     pub name: String,
     pub length: f64,
+    /// Across the board; 0 when not known, and then the part is never ripped beside another.
+    #[serde(default)]
+    pub width: f64,
 }
 
 #[derive(serde::Serialize)]
@@ -357,6 +377,12 @@ pub fn pack_lumber_into(mut items: Vec<LumberItem>, offcuts: &[f64], stock_lengt
                 remaining.len() - 1
             }
         };
+        let start = if stick < offcuts.len() {
+            offcuts[stick]
+        } else {
+            stock_length
+        };
+        let x = start - remaining[stick];
         // Consume the cut plus one kerf for the saw.
         remaining[stick] -= item.length + kerf;
         used_length += item.length;
@@ -365,6 +391,8 @@ pub fn pack_lumber_into(mut items: Vec<LumberItem>, offcuts: &[f64], stock_lengt
             name: item.name,
             length: item.length,
             stick,
+            x,
+            y: 0.0,
         });
     }
 
@@ -404,6 +432,66 @@ pub fn pack_lumber_into(mut items: Vec<LumberItem>, offcuts: &[f64], stock_lengt
         leftovers,
         cuts,
         used_length,
+    }
+}
+
+/// Like [`pack_lumber_into`], but where the board width is known and narrow parts can be ripped
+/// side by side, lays the boards out as strips (crosscuts and rips, grain along the board) and
+/// keeps that layout when it buys fewer boards. Offcuts are taken to be full width.
+pub fn pack_boards_into(
+    items: Vec<LumberItem>,
+    offcuts: &[f64],
+    stock_length: f64,
+    stock_width: Option<f64>,
+    kerf: f64,
+) -> PackedLumber {
+    let strips = stock_width.filter(|&sw| {
+        let narrowest = items.iter().map(|i| i.width).fold(f64::INFINITY, f64::min);
+        items.iter().all(|i| i.width > EPS && i.width <= sw + EPS) && 2.0 * narrowest + kerf <= sw + EPS
+    });
+    let Some(sw) = strips else {
+        return pack_lumber_into(items, offcuts, stock_length, kerf);
+    };
+    let sheet_items = items
+        .iter()
+        .map(|i| SheetItem {
+            part_id: i.part_id.clone(),
+            name: i.name.clone(),
+            w: i.length,
+            h: i.width,
+            rotatable: false,
+        })
+        .collect();
+    let single = pack_lumber_into(items, offcuts, stock_length, kerf);
+    let bins: Vec<(f64, f64)> = offcuts.iter().map(|&l| (l, sw)).collect();
+    // Only a full-width end is a board worth keeping.
+    let keep = |r: &FreeRect| r.w >= KEEP_BOARD - EPS && r.h >= sw - EPS;
+    let ripped = pack_best(sheet_items, &bins, stock_length, sw, kerf, &keep, true);
+    if (ripped.sheet_count, ripped.offcuts_used.len()) >= (single.stick_count, single.offcuts_used.len()) {
+        return single;
+    }
+    PackedLumber {
+        stick_count: ripped.sheet_count,
+        offcuts_used: ripped.offcuts_used,
+        // As board length, so two strips side by side count once, as one length of board would.
+        used_length: ripped.used_area / sw,
+        cuts: ripped
+            .placements
+            .into_iter()
+            .map(|p| LumberCut {
+                part_id: p.part_id,
+                name: p.name,
+                length: p.w,
+                stick: p.sheet,
+                x: p.x,
+                y: p.y,
+            })
+            .collect(),
+        leftovers: ripped
+            .leftovers
+            .into_iter()
+            .map(|l| Leftover { w: None, y: 0.0, ..l })
+            .collect(),
     }
 }
 

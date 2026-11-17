@@ -282,6 +282,28 @@ test('the cut list totals the design', async ({ page }) => {
     }
 });
 
+test('boards are laid out like sheets, with narrow parts ripped side by side', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Kitchen Cart', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    // The four 1 1/2" legs come out of one 3 1/2" board, two across.
+    const maple = page.getByTestId('cutlist-boards').filter({ hasText: 'Maple 8/4' });
+    await expect(maple).toContainText('Maple 8/4: 1 board of 96"');
+    const board = maple.getByTestId('cutlist-board');
+    await expect(board).toHaveCount(1);
+    for (const leg of ['Leg FL', 'Leg FR', 'Leg BL', 'Leg BR']) {
+        await expect(board.getByText(leg, { exact: true })).toBeVisible();
+    }
+    // The rest of that board is left full width, outlined to keep, as is the end of a rail board.
+    await expect(board.getByTestId('cutlist-leftover')).toHaveCount(1);
+    const rails = page.getByTestId('cutlist-boards').filter({ hasText: 'Maple 1x4' });
+    await expect(rails.getByTestId('cutlist-leftover').first()).toBeAttached();
+});
+
 test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ page }) => {
     await page.goto('/#/templates');
     await page

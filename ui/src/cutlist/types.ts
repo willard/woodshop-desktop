@@ -94,6 +94,10 @@ export interface LumberCut {
     length: number;
     /** 0-based index of the stock stick this cut is on. */
     stick: number;
+    /** Where the cut starts along the board. */
+    x: number;
+    /** Where it starts across the board, when ripped beside another piece; absent means 0. */
+    y?: number;
 }
 
 /** 1D stock-cutting result for one lumber material. */
@@ -101,6 +105,8 @@ export interface LumberPlan {
     materialId: string;
     materialName: string;
     stockLength: number;
+    /** The board width, when the material gives one. */
+    stockWidth?: number;
     stickCount: number;
     cuts: LumberCut[];
     waste: number;

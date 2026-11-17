@@ -135,6 +135,16 @@ pub struct LumberCut {
     /// 0-based stick index. Indices from `stick_count` on are the user's own offcuts, in the
     /// order of [`LumberPlan::offcuts`].
     pub stick: usize,
+    /// Where the cut starts along the board.
+    #[serde(default)]
+    pub x: f64,
+    /// Where it starts across the board, when narrow parts are ripped side by side.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub y: f64,
+}
+
+fn is_zero(v: &f64) -> bool {
+    *v == 0.0
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -143,6 +153,9 @@ pub struct LumberPlan {
     pub material_id: String,
     pub material_name: String,
     pub stock_length: f64,
+    /// The board width, when the material gives one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stock_width: Option<f64>,
     /// Boards to buy.
     pub stick_count: usize,
     pub cuts: Vec<LumberCut>,

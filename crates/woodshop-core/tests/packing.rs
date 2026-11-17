@@ -85,22 +85,88 @@ fn leftovers_are_real_pieces_clear_of_every_part() {
                 }
             }
         }
+    }
+}
+
+#[test]
+fn every_board_layout_can_be_cut() {
+    for t in woodshop_core::templates::all() {
+        let spec = woodshop_core::templates::find(t.id).unwrap();
+        let list = compute_cut_list(&spec, CutListConfig::default());
         for plan in &list.lumber {
-            for left in &plan.leftovers {
-                assert!(left.l >= 12.0 - 1e-9 && left.w.is_none(), "{}: {left:?}", t.id);
+            let width = |id: &str| list.parts.iter().find(|p| p.part_id == id).unwrap().width;
+            let pieces: u32 = spec
+                .parts
+                .iter()
+                .filter(|p| p.material_id == plan.material_id)
+                .map(|p| p.qty())
+                .sum();
+            assert_eq!(plan.cuts.len(), pieces as usize, "{}: every piece cut once", t.id);
+            for (i, a) in plan.cuts.iter().enumerate() {
+                assert!(a.stick < plan.stick_count, "{}: {a:?}", t.id);
                 assert!(
-                    (left.x + left.l - plan.stock_length).abs() < 1e-6,
-                    "{}: the end of the board",
+                    a.x >= -1e-9 && a.y >= -1e-9 && a.x + a.length <= plan.stock_length + 1e-6,
+                    "{}: {a:?} off the board",
                     t.id
                 );
-                let cut: f64 = plan
+                if a.y > 0.0 {
+                    let sw = plan.stock_width.expect("only a board of known width is ripped");
+                    assert!(a.y + width(&a.part_id) <= sw + 1e-6, "{}: {a:?} off the board", t.id);
+                }
+                for b in &plan.cuts[i + 1..] {
+                    let apart = a.stick != b.stick
+                        || a.x + a.length + KERF <= b.x + 1e-6
+                        || b.x + b.length + KERF <= a.x + 1e-6
+                        || a.y + width(&a.part_id) + KERF <= b.y + 1e-6
+                        || b.y + width(&b.part_id) + KERF <= a.y + 1e-6;
+                    assert!(apart, "{}: {a:?} overlaps {b:?}", t.id);
+                }
+            }
+            // A board end worth keeping starts past every cut on its board.
+            for left in &plan.leftovers {
+                let end = plan
                     .cuts
                     .iter()
                     .filter(|c| c.stick == left.sheet)
-                    .map(|c| c.length)
-                    .sum();
-                assert!(cut + left.l <= plan.stock_length + 1e-6, "{}: {left:?}", t.id);
+                    .map(|c| c.x + c.length)
+                    .fold(0.0, f64::max);
+                assert!(
+                    left.x >= end - 1e-6 && left.l >= 12.0 - 1e-9 && left.w.is_none(),
+                    "{}: {left:?}",
+                    t.id
+                );
+                assert!((left.x + left.l - plan.stock_length).abs() < 1e-6, "{}: {left:?}", t.id);
             }
         }
     }
+}
+
+#[test]
+fn narrow_parts_are_ripped_side_by_side_when_it_saves_a_board() {
+    // The kitchen cart's 1 1/2" maple legs fit two across a 3 1/2" board.
+    let spec = woodshop_core::templates::find("kitchen-cart").unwrap();
+    let list = compute_cut_list(&spec, CutListConfig::default());
+    let maple = list
+        .lumber
+        .iter()
+        .find(|p| p.material_name.starts_with("Maple"))
+        .unwrap();
+    assert_eq!(maple.stick_count, 1);
+    assert!(maple.cuts.iter().any(|c| c.y > 0.0));
+    // And the rest of the board is left in one piece, full width, to keep.
+    assert_eq!(maple.leftovers.len(), 1);
+
+    // With no board width given, nothing is ripped.
+    let mut plain = spec.clone();
+    for m in &mut plain.materials {
+        m.stock_width = None;
+    }
+    let list = compute_cut_list(&plain, CutListConfig::default());
+    let maple = list
+        .lumber
+        .iter()
+        .find(|p| p.material_name.starts_with("Maple"))
+        .unwrap();
+    assert_eq!(maple.stick_count, 2);
+    assert!(maple.cuts.iter().all(|c| c.y == 0.0));
 }

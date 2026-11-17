@@ -398,6 +398,33 @@ export function CutListPanel(props: CutListPanelProps) {
                 </div>
             ))}
 
+            {cutList.lumber.map((plan) => (
+                <div key={plan.materialId} className="mb-4" data-testid="cutlist-boards">
+                    <SectionHeading>
+                        {plan.materialName}: {plural(plan.stickCount, 'board')} of {len(plan.stockLength)}
+                        {(plan.offcuts ?? []).length > 0 &&
+                            ` + ${plural(plan.offcuts!.length, 'piece')} on hand`}
+                        , {pct(plan.waste)} offcut
+                    </SectionHeading>
+                    <div className="space-y-1.5">
+                        {Array.from({ length: plan.stickCount }, (_, n) => (
+                            <BoardDiagram key={n} plan={plan} board={n} parts={cutList.parts} />
+                        ))}
+                        {(plan.offcuts ?? []).map((o, i) => (
+                            <div key={o.id} data-testid="cutlist-on-hand-board">
+                                <p className="text-muted mb-1 text-xs">On hand, {len(o.l)}</p>
+                                <BoardDiagram
+                                    plan={plan}
+                                    board={plan.stickCount + i}
+                                    parts={cutList.parts}
+                                    length={o.l}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+
             {cutList.hardware.length > 0 && (
                 <div className="mb-4" data-testid="cutlist-hardware">
                     <div className="flex items-baseline justify-between">
@@ -712,6 +739,78 @@ export function SheetDiagram({
                     );
                 })}
         </svg>
+    );
+}
+
+/**
+ * One board with its cuts, drawn to the plan's stock length. Boards are long and thin, so this is
+ * a bar of fixed height rather than a drawing to scale across the board; ripped pieces sit in
+ * lanes across it.
+ */
+export function BoardDiagram({
+    plan,
+    board,
+    parts,
+    length = plan.stockLength,
+}: {
+    plan: CutList['lumber'][number];
+    board: number;
+    parts: CutList['parts'];
+    /** A piece on hand's own length; a bought board is the plan's. */
+    length?: number;
+}) {
+    const width = (id: string) => parts.find((r) => r.partId === id)?.width ?? 0;
+    const cuts = plan.cuts.filter((c) => c.stick === board);
+    const across = plan.stockWidth ?? Math.max(...plan.cuts.map((c) => width(c.partId)), 1);
+    const ripped = cuts.some((c) => (c.y ?? 0) > 0);
+    const at = (v: number, of: number) => `${(v / of) * 100}%`;
+    return (
+        <div
+            className="bg-surface-2 border-fg/10 relative overflow-hidden rounded border"
+            style={{
+                height: ripped ? 52 : 28,
+                width:
+                    length === plan.stockLength
+                        ? undefined
+                        : at(Math.min(length, plan.stockLength), plan.stockLength),
+            }}
+            data-testid="cutlist-board"
+        >
+            {(plan.leftovers ?? [])
+                .filter((left) => left.sheet === board)
+                .map((left) => (
+                    <div
+                        key={`left-${left.x}`}
+                        className="absolute inset-y-0.5 rounded-sm border border-dashed border-neutral-400"
+                        style={{ left: at(left.x, length), width: at(left.l, length) }}
+                        title={`Leftover worth keeping: ${len(left.l)}`}
+                        data-testid="cutlist-leftover"
+                    />
+                ))}
+            {cuts.map((c) => {
+                const y = c.y ?? 0;
+                // Across the board, a piece of full width fills the bar.
+                const w = ripped ? width(c.partId) : across;
+                return (
+                    <div
+                        key={`${c.partId}-${c.x}-${y}`}
+                        className="absolute truncate rounded-sm border border-amber-900 px-1 text-xs leading-none text-stone-900"
+                        style={{
+                            left: at(c.x, length),
+                            width: at(c.length, length),
+                            bottom: at(y, across),
+                            height: at(Math.min(w, across), across),
+                            background: 'rgb(185 138 85 / 0.85)',
+                            display: 'flex',
+                            alignItems: 'center',
+                        }}
+                        title={`${c.name}, ${len(c.length)}`}
+                    >
+                        {c.name}
+                    </div>
+                );
+            })}
+        </div>
     );
 }
 

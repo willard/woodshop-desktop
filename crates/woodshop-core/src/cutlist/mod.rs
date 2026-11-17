@@ -15,7 +15,7 @@ pub use shopping::{ShoppingList, shopping_list};
 pub use stock_advice::{StockSuggestion, stock_advice};
 pub use types::*;
 
-use pack::{LumberItem, SheetItem, board_feet, pack_guillotine_into, pack_lumber_into, round_board_feet};
+use pack::{LumberItem, SheetItem, board_feet, pack_boards_into, pack_guillotine_into, round_board_feet};
 
 use crate::spec::{GrainAxis, Material, MaterialType, Op, Part, Spec};
 
@@ -207,13 +207,16 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
                 part_id: part.id.clone(),
                 name: part.name.clone(),
                 length: part.size.l,
+                width: part.size.w,
             });
         }
     }
 
     let mine = offcuts_of(material, offcuts, false);
     let bins: Vec<f64> = mine.iter().map(|o| o.l).collect();
-    let packed = pack_lumber_into(items, &bins, stock_length, kerf);
+    // Round stock is never ripped.
+    let stock_width = material.stock_width.filter(|_| material.kind != MaterialType::Round);
+    let packed = pack_boards_into(items, &bins, stock_length, stock_width, kerf);
     let offcut_length: f64 = packed.offcuts_used.iter().map(|&i| bins[i]).sum();
     let allocated = packed.stick_count as f64 * stock_length + offcut_length;
     // Only what comes off bought boards costs anything; the user's offcuts are already paid for.
@@ -237,6 +240,7 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
         material_id: material.id.clone(),
         material_name: material.name.clone(),
         stock_length,
+        stock_width,
         stick_count: packed.stick_count,
         // An oversized part would read as negative waste; the linter errors it, this floors at 0.
         waste: if allocated > 0.0 {

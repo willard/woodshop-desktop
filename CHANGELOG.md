@@ -8,6 +8,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Board layouts: the cut list draws each board with the parts cut from it, as it does sheets.
+  Where the material gives a board width, narrow parts are ripped side by side when that buys
+  fewer boards (the kitchen cart's four legs now come from one board).
 - Stock on hand: list the part sheets and short boards you already have, and the cut list cuts
   from them before it has you buy anything. Used pieces show in the layouts, PDF and labels.
   Leftovers worth keeping are outlined on the layouts, and Keep the leftovers adds them to the

@@ -527,6 +527,14 @@ have to look up, and the editor screenshot would make someone want to try it fro
   layouts only change when stock is saved. Templates: 44 → 39 sheets. `tests/packing.rs` holds
   every template's layouts to being cuttable (inside the sheet, no overlap, kerf between).
 
+- **Board layouts and ripping** (`pack_boards_into`): each `LumberCut` has `x` along its board and
+  `y` across it; the plan carries `stockWidth`. With a board width known and two of the narrowest
+  parts fitting across it, the boards are also packed as strips by the guillotine rules (no
+  turning; offcuts taken as full width) and that layout is kept only when it buys fewer boards;
+  among equal ones the layout leaving the most full-width end wins. Only full-width ends count
+  as leftovers. The panel draws boards as fixed-height bars (`BoardDiagram`), with ripped parts in
+  lanes. Templates: 97 → 95 boards. The PDF lists which board each cut is on, not where.
+
 - **Stock on hand** (the `offcuts` setting, `CutListConfig.offcuts`): pieces the user owns, by
   material name and thickness (to 1/64"); sheet pieces need a width. Plans pack onto them first
   (smallest first), then onto bought stock; `sheetCount`/`stickCount` count bought stock only and
