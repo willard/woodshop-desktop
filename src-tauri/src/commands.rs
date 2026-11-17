@@ -389,6 +389,15 @@ fn hardware_prices(store: &Store) -> woodshop_store::Result<std::collections::BT
         .unwrap_or_default())
 }
 
+/// The stock the user already has (the `offcuts` setting), used before anything is bought.
+fn offcuts(store: &Store) -> woodshop_store::Result<Vec<woodshop_core::cutlist::Offcut>> {
+    Ok(store
+        .settings()?
+        .get("offcuts")
+        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .unwrap_or_default())
+}
+
 /// The printable PDF plan: cut list, sheet layouts, hardware and shop notes.
 #[tauri::command]
 pub async fn export_pdf(
@@ -399,16 +408,17 @@ pub async fn export_pdf(
     date: String,
     units: Option<woodshop_core::units::Units>,
 ) -> CmdResult<()> {
-    let (project, notes, thumbnail, hardware_prices) = lib.with(|s| {
+    let (project, notes, thumbnail, hardware_prices, offcuts) = lib.with(|s| {
         let project = s.get_project(id)?;
         let notes = plan_notes(s, id)?;
         let hardware_prices = hardware_prices(s)?;
+        let offcuts = offcuts(s)?;
         let thumbnail = s
             .thumbnail_path(id)
             .filter(|p| p.exists())
             .map(std::fs::read)
             .transpose()?;
-        Ok((project, notes, thumbnail, hardware_prices))
+        Ok((project, notes, thumbnail, hardware_prices, offcuts))
     })?;
     // Typesetting takes a moment; keep it off the thread that serves other commands.
     let pdf = tauri::async_runtime::spawn_blocking(move || {
@@ -421,6 +431,7 @@ pub async fn export_pdf(
             thumbnail,
             units: units.unwrap_or_default(),
             hardware_prices,
+            offcuts,
         })
     })
     .await
@@ -440,7 +451,7 @@ pub async fn export_labels(
     units: Option<woodshop_core::units::Units>,
     skip: Option<usize>,
 ) -> CmdResult<()> {
-    let project = lib.with(|s| s.get_project(id))?;
+    let (project, offcuts) = lib.with(|s| Ok((s.get_project(id)?, offcuts(s)?)))?;
     let pdf = tauri::async_runtime::spawn_blocking(move || {
         woodshop_export::render_labels_pdf(&woodshop_export::LabelsInput {
             title: &project.name,
@@ -448,6 +459,7 @@ pub async fn export_labels(
             kerf,
             units: units.unwrap_or_default(),
             skip: skip.unwrap_or(0),
+            offcuts,
         })
     })
     .await

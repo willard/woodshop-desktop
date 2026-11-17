@@ -19,6 +19,8 @@ import { overallSize, type Material, type Spec } from '@/spec';
 import { dims, len, lenValue, parseLen, size as sizeOf, useUnits } from '@/lib/display';
 import { plural } from '@/app/format';
 import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
+import { useOffcuts } from '@/cutlist/offcuts';
+import { OnHandSection } from './OnHandSection';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -87,9 +89,11 @@ export function CutListPanel(props: CutListPanelProps) {
     const { spec, kerf, readonly = false, selectedIds = [], hiddenIds } = props;
     const units = useUnits();
     const hardwarePrices = useHardwarePrices();
+    const onHand = useOffcuts();
     const cutList = useMemo(
-        () => computeCutList(spec, { kerf, units, hardwarePrices }),
-        [spec, kerf, units, hardwarePrices],
+        // The exported plan is read elsewhere: it uses no one's stock on hand.
+        () => computeCutList(spec, { kerf, units, hardwarePrices, offcuts: readonly ? [] : onHand }),
+        [spec, kerf, units, hardwarePrices, onHand, readonly],
     );
     /** Showing a price box on each hardware line. */
     const [pricing, setPricing] = useState(false);
@@ -369,11 +373,26 @@ export function CutListPanel(props: CutListPanelProps) {
             {cutList.sheets.map((plan) => (
                 <div key={plan.materialId} className="mb-4">
                     <SectionHeading>
-                        {plan.materialName}: {plural(plan.sheetCount, 'sheet')}, {pct(plan.waste)} offcut
+                        {plan.materialName}: {plural(plan.sheetCount, 'sheet')}
+                        {(plan.offcuts ?? []).length > 0 &&
+                            ` + ${plural(plan.offcuts!.length, 'piece')} on hand`}
+                        , {pct(plan.waste)} offcut
                     </SectionHeading>
                     <div className="space-y-3">
                         {Array.from({ length: plan.sheetCount }, (_, n) => (
                             <SheetDiagram key={n} plan={plan} sheet={n} />
+                        ))}
+                        {(plan.offcuts ?? []).map((o, i) => (
+                            <div key={o.id} data-testid="cutlist-on-hand-sheet">
+                                <p className="text-muted mb-1 text-xs">
+                                    On hand, {len(o.l)} × {len(o.w ?? 0)}
+                                </p>
+                                <SheetDiagram
+                                    plan={plan}
+                                    sheet={plan.sheetCount + i}
+                                    size={{ l: o.l, w: o.w ?? 0 }}
+                                />
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -487,6 +506,8 @@ export function CutListPanel(props: CutListPanelProps) {
                     )}
                 </div>
             )}
+
+            {!readonly && <OnHandSection spec={spec} cutList={cutList} />}
 
             <div className="mb-4" data-testid="cutlist-settings">
                 <SectionHeading>Stock &amp; kerf</SectionHeading>
@@ -620,25 +641,31 @@ export function CutListPanel(props: CutListPanelProps) {
 }
 
 /** One physical sheet with its placed parts (SVG origin is top-left, so y flips). */
-export function SheetDiagram({ plan, sheet }: { plan: CutList['sheets'][number]; sheet: number }) {
+export function SheetDiagram({
+    plan,
+    sheet,
+    size = plan.sheetSize,
+}: {
+    plan: CutList['sheets'][number];
+    sheet: number;
+    /** A piece on hand's own size; a bought sheet is the plan's. */
+    size?: { l: number; w: number };
+}) {
+    // A piece on hand is drawn to the same scale as a full sheet, against the left edge.
+    const scale = Math.max(size.l / plan.sheetSize.l, 0.0001);
     return (
         <svg
-            viewBox={`-1 -1 ${plan.sheetSize.l + 2} ${plan.sheetSize.w + 2}`}
+            viewBox={`-1 -1 ${size.l + 2} ${size.w + 2}`}
+            style={size === plan.sheetSize ? undefined : { width: `${Math.min(scale, 1) * 100}%` }}
             className="bg-surface-2 border-fg/10 w-full rounded-lg border"
             preserveAspectRatio="xMidYMid meet"
             data-testid="cutlist-sheet"
         >
-            <rect
-                width={plan.sheetSize.l}
-                height={plan.sheetSize.w}
-                fill="#16171b"
-                stroke="#3a3d44"
-                strokeWidth="0.3"
-            />
+            <rect width={size.l} height={size.w} fill="#16171b" stroke="#3a3d44" strokeWidth="0.3" />
             {plan.placements
                 .filter((p) => p.sheet === sheet)
                 .map((p) => {
-                    const y = plan.sheetSize.w - p.y - p.h;
+                    const y = size.w - p.y - p.h;
                     return (
                         <g key={`${p.partId}-${p.x}-${p.y}`}>
                             <rect

@@ -85,12 +85,12 @@ pub fn shopping_list(designs: &[&Spec], config: &CutListConfig) -> ShoppingList 
         }
         match (material.kind, material.sheet_size) {
             (MaterialType::Sheet, Some(size)) => {
-                let plan = plan_sheets(material, size.l, size.w, &group, config.kerf);
+                let plan = plan_sheets(material, size.l, size.w, &group, config.kerf, &config.offcuts);
                 allocated.push(board_feet(size.l, size.w, material.thickness, plan.sheet_count as u32));
                 sheets.push(plan);
             }
             (MaterialType::Lumber | MaterialType::Round, _) => {
-                let plan = plan_lumber(material, &group, config.kerf);
+                let plan = plan_lumber(material, &group, config.kerf, &config.offcuts);
                 allocated.push(stick_board_feet(material, &group, &plan));
                 lumber.push(plan);
             }

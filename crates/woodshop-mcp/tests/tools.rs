@@ -871,3 +871,27 @@ fn the_cut_list_is_costed_with_the_users_hardware_prices() {
     assert_eq!(pull["unitPrice"], 7.25);
     assert_eq!(list["totals"]["hardwareCost"], 7.25 * pull["qty"].as_f64().unwrap());
 }
+
+#[test]
+fn the_cut_list_cuts_from_the_users_stock_on_hand() {
+    let w = woodshop();
+    let started = ok(&w, "start_from_template", json!({ "template": "nightstand" }));
+    let id = started["projectId"].as_i64().unwrap();
+    let sheets = |list: &serde_json::Value| list["totals"]["sheetCount"].as_u64().unwrap();
+    let before = sheets(&ok(&w, "get_cut_list", json!({ "project_id": id })));
+    w.store()
+        .set_setting(
+            "offcuts",
+            &json!([{ "id": "o1", "material": "Birch Plywood (drawer parts)", "thickness": 0.5, "l": 30, "w": 26 }]),
+        )
+        .unwrap();
+    let list = ok(&w, "get_cut_list", json!({ "project_id": id }));
+    assert_eq!(sheets(&list), before - 1);
+    let drawer = list["sheets"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|p| p["materialName"] == "Birch Plywood (drawer parts)")
+        .unwrap();
+    assert_eq!(drawer["offcuts"][0]["id"], "o1");
+}

@@ -10,6 +10,7 @@ import { api, setThumbnailsDir } from '@/app/api';
 import { installErrorCapture } from '@/app/diagnostics';
 import { isUnits, setUnits } from '@/lib/display';
 import { parseHardwarePrices, setHardwarePrices } from '@/cutlist/prices';
+import { parseOffcuts, setOffcuts } from '@/cutlist/offcuts';
 import { CrashScreen } from '@/components/CrashScreen';
 import { router } from '@/app/router';
 import { queryClient } from '@/app/queryClient';
@@ -30,6 +31,7 @@ async function boot(): Promise<void> {
     // A saved choice of units; until there is one, the default follows the system's region.
     if (isUnits(settings.units)) setUnits(settings.units);
     setHardwarePrices(parseHardwarePrices(settings.hardwarePrices));
+    setOffcuts(parseOffcuts(settings.offcuts));
     setThumbnailsDir(info.thumbnailsDir);
     watchSystemTheme(() => undefined);
     // macOS draws no title bar (tauri.conf.json: titleBarStyle Overlay); the app's own header sits

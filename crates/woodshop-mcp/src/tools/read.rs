@@ -175,8 +175,10 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
         smaller panel when a sheet is mostly offcut. `assemblyOrder` is the order to put the piece \
         together, as printed in the PDF plan: steps from the floor up, each line naming how a part \
         fastens to what is already standing (a line ending \"no joint recorded\" is a hint a joint is \
-        missing), the back panel last, then drawers, doors and hardware. Matches what the app shows. \
-        Read-only.",
+        missing), the back panel last, then drawers, doors and hardware. Costs use the user's hardware \
+        prices, and pieces are cut first from the stock the user has on hand: a plan's `offcuts` lists \
+        the pieces it uses, and a placement or cut whose sheet or stick index is at or past \
+        `sheetCount`/`stickCount` is on one of them (not bought). Matches what the app shows. Read-only.",
     read_only: true,
     schema: || object(json!({ "project_id": integer(PROJECT_ID) }), &["project_id"]),
     run: get_cut_list,
@@ -185,18 +187,18 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
 fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
     let design = w.load(args.project_id(PROVIDE_PROJECT)?)?;
     let spec = design.spec();
-    // Costed with the user's own hardware price list, as the app shows it.
-    let hardware_prices = w
-        .store()
-        .settings()
-        .ok()
-        .and_then(|s| s.get("hardwarePrices").cloned())
-        .and_then(|v| serde_json::from_value(v).ok())
-        .unwrap_or_default();
+    // The user's hardware prices and stock on hand, as the app's cut list uses them.
+    let settings = w.store().settings().ok();
+    let setting = |key: &str| settings.as_ref().and_then(|s| s.get(key).cloned());
     let built = compute_cut_list(
         spec,
         CutListConfig {
-            hardware_prices,
+            hardware_prices: setting("hardwarePrices")
+                .and_then(|v| serde_json::from_value(v).ok())
+                .unwrap_or_default(),
+            offcuts: setting("offcuts")
+                .and_then(|v| serde_json::from_value(v).ok())
+                .unwrap_or_default(),
             ..CutListConfig::default()
         },
     );

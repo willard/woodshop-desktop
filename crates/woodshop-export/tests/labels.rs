@@ -11,7 +11,7 @@ fn every_piece_gets_one_label_in_cutting_order() {
     let mut spec = template("dresser");
     spec.parts[0].qty = Some(3);
     let cut_list = compute_cut_list(&spec, CutListConfig::default());
-    let labels = part_labels(&spec, 0.125, Units::Fraction);
+    let labels = part_labels(&spec, 0.125, Units::Fraction, &[]);
     let pieces: u32 = cut_list.parts.iter().map(|r| r.qty).sum();
     assert_eq!(labels.len(), pieces as usize);
 
@@ -46,9 +46,9 @@ fn every_piece_gets_one_label_in_cutting_order() {
 #[test]
 fn sizes_follow_the_units() {
     let spec = template("nightstand");
-    let inches = part_labels(&spec, 0.125, Units::Fraction);
+    let inches = part_labels(&spec, 0.125, Units::Fraction, &[]);
     assert!(inches[0].size.contains('"'), "{}", inches[0].size);
-    let metric = part_labels(&spec, 0.125, Units::Metric);
+    let metric = part_labels(&spec, 0.125, Units::Metric, &[]);
     assert!(metric[0].size.ends_with(" mm"), "{}", metric[0].size);
 }
 
@@ -63,6 +63,7 @@ fn every_template_prints_its_labels() {
                 kerf: 0.125,
                 units,
                 skip: 0,
+                offcuts: Vec::new(),
             })
             .unwrap_or_else(|e| panic!("{}: {e}", t.id));
             assert!(pdf.starts_with(b"%PDF-"), "{}", t.id);
@@ -82,6 +83,7 @@ fn dump() {
             kerf: 0.125,
             units,
             skip: 4,
+            offcuts: Vec::new(),
         })
         .unwrap();
         std::fs::write(format!("{dir}/labels-{name}.pdf"), pdf).unwrap();
@@ -97,6 +99,7 @@ fn printing_can_start_partway_down_a_used_sheet() {
         kerf: 0.125,
         units: Units::Fraction,
         skip,
+        offcuts: Vec::new(),
     };
     let fresh = render_labels_pdf(&input(0)).unwrap();
     let used = render_labels_pdf(&input(7)).unwrap();
@@ -107,4 +110,30 @@ fn printing_can_start_partway_down_a_used_sheet() {
         render_labels_pdf(&input(500)).unwrap()
     );
     assert_eq!(woodshop_export::labels_per_sheet(Units::Metric), 21);
+}
+
+#[test]
+fn a_piece_cut_from_stock_on_hand_says_so() {
+    let spec = template("nightstand");
+    let top = woodshop_core::cutlist::Offcut {
+        id: "top".into(),
+        material: "Birch Plywood".into(),
+        thickness: 0.75,
+        l: 25.0,
+        w: Some(17.0),
+    };
+    let labels = part_labels(&spec, 0.125, Units::Fraction, std::slice::from_ref(&top));
+    let label = labels.iter().find(|l| l.name == "Top Panel").unwrap();
+    assert_eq!(label.source, "On hand 1");
+    // And the plan draws it, captioned.
+    let pdf = render_labels_pdf(&LabelsInput {
+        title: "x",
+        spec: &spec,
+        kerf: 0.125,
+        units: Units::Fraction,
+        skip: 0,
+        offcuts: vec![top],
+    })
+    .unwrap();
+    assert!(pdf.starts_with(b"%PDF-"));
 }

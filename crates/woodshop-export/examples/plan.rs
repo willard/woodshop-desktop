@@ -22,6 +22,7 @@ fn main() {
             _ => woodshop_core::units::Units::Fraction,
         },
         hardware_prices: Default::default(),
+        offcuts: Vec::new(),
     })
     .expect("renders");
     std::fs::write(out, pdf).expect("writable");

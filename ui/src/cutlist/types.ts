@@ -51,6 +51,27 @@ export interface SheetPlan {
     /** Fraction of used sheet area that is offcut (0..1). */
     waste: number;
     cost: number | null;
+    /** Pieces on hand cut from first; placement sheet `sheetCount + i` is `offcuts[i]`. */
+    offcuts?: UsedOffcut[];
+}
+
+/** A piece of stock the user has on hand (the `offcuts` setting). */
+export interface Offcut {
+    id: string;
+    /** The material's name; matched with the thickness. */
+    material: string;
+    thickness: number;
+    /** Length along the grain. */
+    l: number;
+    /** Width, for a sheet piece. */
+    w?: number;
+}
+
+/** A piece on hand a plan cuts from. */
+export interface UsedOffcut {
+    id: string;
+    l: number;
+    w?: number;
 }
 
 /** One cut on a stick of lumber. */
@@ -71,6 +92,8 @@ export interface LumberPlan {
     cuts: LumberCut[];
     waste: number;
     cost: number | null;
+    /** Pieces on hand cut from first; cut stick `stickCount + i` is `offcuts[i]`. */
+    offcuts?: UsedOffcut[];
 }
 
 /** One line of the hardware list (spec 1.8, movables 1.12): the metal to buy. */
@@ -122,6 +145,8 @@ export interface CutListConfig {
     units?: 'fraction' | 'decimal' | 'metric';
     /** Prices by hardware row key. Defaults to the user's price list. */
     hardwarePrices?: Readonly<Record<string, number>>;
+    /** Stock on hand, cut from first. Defaults to the user's list. */
+    offcuts?: readonly Offcut[];
 }
 
 export const DEFAULT_CUTLIST_CONFIG: CutListConfig = {

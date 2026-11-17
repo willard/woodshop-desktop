@@ -521,6 +521,14 @@ have to look up, and the editor screenshot would make someone want to try it fro
   The same steps fold out under the cut list in the app, and agents read them as
   `assemblyOrder` on `get_cut_list`.
 
+- **Stock on hand** (the `offcuts` setting, `CutListConfig.offcuts`): pieces the user owns, by
+  material name and thickness (to 1/64"); sheet pieces need a width. Plans pack onto them first
+  (smallest first), then onto bought stock; `sheetCount`/`stickCount` count bought stock only and
+  indices past them are the plan's `offcuts`. Lumber cost leaves out what comes off them. Used by
+  the cut list panel (On hand section, diagrams), shopping list, PDF, labels and `get_cut_list`;
+  the exported 3D plan shows none. Not done: cutting the remainder of a used piece back onto the
+  list as a smaller piece.
+
 - **Shopping list** (`/shopping`, `cutlist::shopping`, WASM `shoppingList`): designs ticked on the
   page (remembered in localStorage) are bought together. Materials merge when kind, name,
   thickness, sheet size, grain, species and stock sizes match (a price from either counts); their

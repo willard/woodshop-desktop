@@ -1112,6 +1112,34 @@ test('a shopping list buys shared material once for several designs', async ({ p
     expect(csv).toMatch(/pocket screws",?24,/);
 });
 
+test('pieces on hand are cut from before anything is bought', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    const totals = page.getByTestId('cutlist-totals');
+    await expect(totals).toContainText('$285.00');
+    const onHand = page.getByTestId('on-hand');
+    await expect(onHand.getByTestId('on-hand-piece')).toHaveCount(0);
+
+    // A big piece of the Baltic birch left from another job: it takes the back panel and more.
+    await onHand.getByTestId('on-hand-length').fill('60');
+    await onHand.getByTestId('on-hand-width').fill('40');
+    await onHand.getByTestId('on-hand-add').click();
+    await expect(onHand.getByTestId('on-hand-piece')).toHaveText(/Baltic Birch 18mm, 60" × 40"\s*used here/);
+    await expect(page.getByTestId('cutlist-on-hand-sheet')).toHaveCount(1);
+    await expect(page.getByTestId('cutlist-on-hand-sheet')).toContainText('On hand, 60" × 40"');
+    // One sheet fewer to buy, and its price off the estimate.
+    await expect(totals).toContainText('$190.00');
+    await expect(page.getByText('Baltic Birch 18mm: 2 sheets + 1 piece on hand')).toBeVisible();
+
+    // A width is needed for sheet goods.
+    await onHand.getByTestId('on-hand-length').fill('20');
+    await expect(onHand.getByTestId('on-hand-add')).toBeDisabled();
+
+    // After cutting, the used piece comes off the list and the estimate goes back.
+    await onHand.getByTestId('on-hand-used-up').click();
+    await expect(onHand.getByTestId('on-hand-piece')).toHaveCount(0);
+    await expect(totals).toContainText('$285.00');
+});
+
 test('hardware takes prices from one price list, and the estimate and CSV include them', async ({ page }) => {
     await page.goto('/#/projects/1');
     await expect(page.getByTestId('cutlist-totals')).toContainText('$285.00');

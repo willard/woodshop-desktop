@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 
 use serde::Serialize;
-use woodshop_core::cutlist::{CutListConfig, compute_cut_list};
+use woodshop_core::cutlist::{CutListConfig, Offcut, compute_cut_list};
 use woodshop_core::spec::Spec;
 use woodshop_core::units::Units;
 
@@ -22,6 +22,8 @@ pub struct LabelsInput<'a> {
     pub units: Units,
     /// Labels already used on the first sheet: printing starts after them.
     pub skip: usize,
+    /// Stock the user already has, cut before anything bought.
+    pub offcuts: Vec<Offcut>,
 }
 
 /// Labels on one sheet: 30 on Letter, 21 on A4 (metric).
@@ -36,7 +38,7 @@ pub struct Label {
     pub count: String,
     pub size: String,
     pub material: String,
-    /// "Sheet 2" or "Board 3"; empty for a piece with no layout (round stock, say).
+    /// "Sheet 2", "Board 3" or "On hand 1"; empty for a piece with no layout (round stock, say).
     pub source: String,
 }
 
@@ -48,13 +50,23 @@ struct LabelsView<'a> {
     labels: Vec<Label>,
 }
 
+/// "Sheet 2", or "On hand 1" for a piece the user has (numbered after the `bought` ones).
+fn source(kind: &str, index: usize, bought: usize) -> String {
+    if index < bought {
+        format!("{kind} {}", index + 1)
+    } else {
+        format!("On hand {}", index - bought + 1)
+    }
+}
+
 /// Every piece's label, in cutting order.
-pub fn part_labels(spec: &Spec, kerf: f64, units: Units) -> Vec<Label> {
+pub fn part_labels(spec: &Spec, kerf: f64, units: Units, offcuts: &[Offcut]) -> Vec<Label> {
     let cut_list = compute_cut_list(
         spec,
         CutListConfig {
             kerf,
             units,
+            offcuts: offcuts.to_vec(),
             ..CutListConfig::default()
         },
     );
@@ -66,7 +78,7 @@ pub fn part_labels(spec: &Spec, kerf: f64, units: Units) -> Vec<Label> {
         sources.extend(
             placements
                 .iter()
-                .map(|p| (p.part_id.as_str(), format!("Sheet {}", p.sheet + 1))),
+                .map(|p| (p.part_id.as_str(), source("Sheet", p.sheet, plan.sheet_count))),
         );
     }
     for plan in &cut_list.lumber {
@@ -74,7 +86,7 @@ pub fn part_labels(spec: &Spec, kerf: f64, units: Units) -> Vec<Label> {
         cuts.sort_by_key(|c| c.stick);
         sources.extend(
             cuts.iter()
-                .map(|c| (c.part_id.as_str(), format!("Board {}", c.stick + 1))),
+                .map(|c| (c.part_id.as_str(), source("Board", c.stick, plan.stick_count))),
         );
     }
 
@@ -118,7 +130,7 @@ pub fn render_labels_pdf(input: &LabelsInput<'_>) -> Result<Vec<u8>, ExportError
         title: input.title,
         paper: if input.units == Units::Metric { "a4" } else { "letter" },
         skip: input.skip.min(labels_per_sheet(input.units) - 1),
-        labels: part_labels(input.spec, input.kerf, input.units),
+        labels: part_labels(input.spec, input.kerf, input.units, &input.offcuts),
     };
     typeset(TEMPLATE, &view, None)
 }

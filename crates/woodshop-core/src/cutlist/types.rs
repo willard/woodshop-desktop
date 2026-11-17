@@ -39,7 +39,8 @@ pub struct PartRow {
 pub struct Placement {
     pub part_id: String,
     pub name: String,
-    /// 0-based sheet index within its material group.
+    /// 0-based sheet index within its material group. Indices from `sheet_count` on are the
+    /// user's own offcuts, in the order of [`SheetPlan::offcuts`].
     pub sheet: usize,
     pub x: f64,
     pub y: f64,
@@ -61,11 +62,49 @@ pub struct SheetPlan {
     pub material_id: String,
     pub material_name: String,
     pub sheet_size: SheetSize,
+    /// Sheets to buy.
     pub sheet_count: usize,
     pub placements: Vec<Placement>,
     /// Fraction of used sheet area that is offcut (0..1).
     pub waste: f64,
     pub cost: Option<f64>,
+    /// The user's offcuts that pieces are cut from, before any sheet is bought. Placement sheet
+    /// `sheet_count + i` is offcut `i`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub offcuts: Vec<UsedOffcut>,
+}
+
+/// One of the user's offcuts a plan cuts pieces from.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct UsedOffcut {
+    pub id: String,
+    /// Length (along the grain), and width for a sheet offcut.
+    pub l: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub w: Option<f64>,
+}
+
+/// A piece of stock the user already has: a part sheet or a short board.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Offcut {
+    pub id: String,
+    /// The material it is, by name ("Baltic Birch 18mm"); matched with the thickness.
+    pub material: String,
+    pub thickness: f64,
+    /// Length along the grain.
+    pub l: f64,
+    /// Width, for a sheet offcut; a board offcut is used for its length.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub w: Option<f64>,
+}
+
+impl Offcut {
+    /// Whether this offcut is `material`: the same name (any case) and thickness to a 64th.
+    pub fn is(&self, material: &crate::spec::Material) -> bool {
+        self.material.trim().eq_ignore_ascii_case(material.name.trim())
+            && (self.thickness - material.thickness).abs() < 1.0 / 64.0
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -74,7 +113,8 @@ pub struct LumberCut {
     pub part_id: String,
     pub name: String,
     pub length: f64,
-    /// 0-based stick index.
+    /// 0-based stick index. Indices from `stick_count` on are the user's own offcuts, in the
+    /// order of [`LumberPlan::offcuts`].
     pub stick: usize,
 }
 
@@ -84,10 +124,14 @@ pub struct LumberPlan {
     pub material_id: String,
     pub material_name: String,
     pub stock_length: f64,
+    /// Boards to buy.
     pub stick_count: usize,
     pub cuts: Vec<LumberCut>,
     pub waste: f64,
     pub cost: Option<f64>,
+    /// The user's offcuts cut from first. Cut stick `stick_count + i` is offcut `i`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub offcuts: Vec<UsedOffcut>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
@@ -162,6 +206,9 @@ pub struct CutListConfig {
     /// The user's hardware prices, by [`HardwareRow::key`]: each, or per foot or metre of banding.
     #[serde(default, rename = "hardwarePrices", skip_serializing_if = "BTreeMap::is_empty")]
     pub hardware_prices: BTreeMap<String, f64>,
+    /// Stock the user already has, used before anything is bought.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub offcuts: Vec<Offcut>,
 }
 
 impl Default for CutListConfig {
@@ -170,6 +217,7 @@ impl Default for CutListConfig {
             kerf: 0.125,
             units: crate::units::Units::Fraction,
             hardware_prices: BTreeMap::new(),
+            offcuts: Vec::new(),
         }
     }
 }

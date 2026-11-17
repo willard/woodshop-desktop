@@ -8,6 +8,7 @@ import { wasm } from '@/domain';
 import { getUnits } from '@/lib/display';
 import type { Spec } from '../spec/types';
 import { getHardwarePrices } from './prices';
+import { getOffcuts } from './offcuts';
 import { DEFAULT_CUTLIST_CONFIG, type CutList, type CutListConfig, type ShoppingList } from './types';
 
 export * from './types';
@@ -18,6 +19,7 @@ export function computeCutList(spec: Spec, config: CutListConfig = DEFAULT_CUTLI
     return wasm.computeCutList(spec, {
         units: getUnits(),
         hardwarePrices: getHardwarePrices(),
+        offcuts: getOffcuts(),
         ...config,
     }) as CutList;
 }
@@ -27,6 +29,7 @@ export function shoppingList(specs: Spec[], config: CutListConfig = DEFAULT_CUTL
     return wasm.shoppingList(specs, {
         units: getUnits(),
         hardwarePrices: getHardwarePrices(),
+        offcuts: getOffcuts(),
         ...config,
     }) as ShoppingList;
 }

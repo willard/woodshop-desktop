@@ -15,7 +15,7 @@ pub use shopping::{ShoppingList, shopping_list};
 pub use stock_advice::{StockSuggestion, stock_advice};
 pub use types::*;
 
-use pack::{LumberItem, SheetItem, board_feet, pack_guillotine, pack_lumber, round_board_feet};
+use pack::{LumberItem, SheetItem, board_feet, pack_guillotine_into, pack_lumber_into, round_board_feet};
 
 use crate::spec::{GrainAxis, Material, MaterialType, Op, Part, Spec};
 
@@ -66,13 +66,13 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
         }
         match (material.kind, material.sheet_size) {
             (MaterialType::Sheet, Some(size)) => {
-                let plan = plan_sheets(material, size.l, size.w, &group, config.kerf);
+                let plan = plan_sheets(material, size.l, size.w, &group, config.kerf, &config.offcuts);
                 sheet_stock.push(board_feet(size.l, size.w, material.thickness, plan.sheet_count as u32));
                 sheets.push(plan);
             }
             (MaterialType::Lumber | MaterialType::Round, _) => {
                 // Round stock comes in sticks and is cross-cut to length, exactly like lumber.
-                let plan = plan_lumber(material, &group, config.kerf);
+                let plan = plan_lumber(material, &group, config.kerf, &config.offcuts);
                 lumber_stock.push(stick_board_feet(material, &group, &plan));
                 lumber.push(plan);
             }
@@ -119,7 +119,38 @@ fn stick_board_feet(material: &Material, parts: &[&Part], plan: &LumberPlan) -> 
     board_feet(plan.stock_length, width, material.thickness, plan.stick_count as u32)
 }
 
-fn plan_sheets(material: &Material, sheet_l: f64, sheet_w: f64, parts: &[&Part], kerf: f64) -> SheetPlan {
+/// The user's offcuts of `material`, smallest first, so small pieces use them up before large ones.
+fn offcuts_of<'a>(material: &Material, offcuts: &'a [Offcut], sheet: bool) -> Vec<&'a Offcut> {
+    let mut mine: Vec<&Offcut> = offcuts
+        .iter()
+        .filter(|o| o.is(material) && o.l > 0.0 && (!sheet || o.w.is_some_and(|w| w > 0.0)))
+        .collect();
+    mine.sort_by(|a, b| {
+        let size = |o: &Offcut| o.l * o.w.unwrap_or(1.0);
+        size(a).total_cmp(&size(b)).then_with(|| a.id.cmp(&b.id))
+    });
+    mine
+}
+
+fn used(offcuts: &[&Offcut], indices: &[usize], sheet: bool) -> Vec<UsedOffcut> {
+    indices
+        .iter()
+        .map(|&i| UsedOffcut {
+            id: offcuts[i].id.clone(),
+            l: offcuts[i].l,
+            w: if sheet { offcuts[i].w } else { None },
+        })
+        .collect()
+}
+
+fn plan_sheets(
+    material: &Material,
+    sheet_l: f64,
+    sheet_w: f64,
+    parts: &[&Part],
+    kerf: f64,
+    offcuts: &[Offcut],
+) -> SheetPlan {
     let grained = material.has_grain();
     let mut items = Vec::new();
     for part in parts {
@@ -141,31 +172,34 @@ fn plan_sheets(material: &Material, sheet_l: f64, sheet_w: f64, parts: &[&Part],
         }
     }
 
-    let packed = pack_guillotine(items, sheet_l, sheet_w, kerf);
-    let allocated = packed.sheet_count as f64 * sheet_l * sheet_w;
+    let mine = offcuts_of(material, offcuts, true);
+    let bins: Vec<(f64, f64)> = mine.iter().map(|o| (o.l, o.w.unwrap_or(0.0))).collect();
+    let packed = pack_guillotine_into(items, &bins, sheet_l, sheet_w, kerf);
+    let offcut_area: f64 = packed.offcuts_used.iter().map(|&i| bins[i].0 * bins[i].1).sum();
+    let allocated = packed.sheet_count as f64 * sheet_l * sheet_w + offcut_area;
     SheetPlan {
         material_id: material.id.clone(),
         material_name: material.name.clone(),
         sheet_size: SheetSize { l: sheet_l, w: sheet_w },
         sheet_count: packed.sheet_count,
-        placements: packed.placements,
         waste: if allocated > 0.0 {
             1.0 - packed.used_area / allocated
         } else {
             0.0
         },
         cost: material.cost_per_sheet.map(|c| packed.sheet_count as f64 * c),
+        offcuts: used(&mine, &packed.offcuts_used, true),
+        placements: packed.placements,
     }
 }
 
-fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64) -> LumberPlan {
+fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcut]) -> LumberPlan {
     let stock_length = match material.stock_lengths.as_deref() {
         Some(lengths) if !lengths.is_empty() => lengths.iter().copied().fold(f64::NEG_INFINITY, f64::max),
         _ => DEFAULT_STOCK_LENGTH,
     };
 
     let mut items = Vec::new();
-    let mut bf = 0.0;
     for part in parts {
         for _ in 0..part.qty() {
             items.push(LumberItem {
@@ -174,28 +208,44 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64) -> LumberPlan {
                 length: part.size.l,
             });
         }
-        bf += if material.kind == MaterialType::Round {
-            round_board_feet(part.size.l, material.thickness, part.qty())
-        } else {
-            board_feet(part.size.l, part.size.w, material.thickness, part.qty())
-        };
     }
 
-    let packed = pack_lumber(items, stock_length, kerf);
-    let allocated = packed.stick_count as f64 * stock_length;
+    let mine = offcuts_of(material, offcuts, false);
+    let bins: Vec<f64> = mine.iter().map(|o| o.l).collect();
+    let packed = pack_lumber_into(items, &bins, stock_length, kerf);
+    let offcut_length: f64 = packed.offcuts_used.iter().map(|&i| bins[i]).sum();
+    let allocated = packed.stick_count as f64 * stock_length + offcut_length;
+    // Only what comes off bought boards costs anything; the user's offcuts are already paid for.
+    let piece_bf = |p: &Part, qty: u32| {
+        if material.kind == MaterialType::Round {
+            round_board_feet(p.size.l, material.thickness, qty)
+        } else {
+            board_feet(p.size.l, p.size.w, material.thickness, qty)
+        }
+    };
+    let all_bf: f64 = parts.iter().map(|p| piece_bf(p, p.qty())).sum();
+    let offcut_bf: f64 = packed
+        .cuts
+        .iter()
+        .filter(|c| c.stick >= packed.stick_count)
+        .filter_map(|c| parts.iter().find(|p| p.id == c.part_id))
+        .map(|p| piece_bf(p, 1))
+        .sum();
+    let bought_bf = all_bf - offcut_bf;
     LumberPlan {
         material_id: material.id.clone(),
         material_name: material.name.clone(),
         stock_length,
         stick_count: packed.stick_count,
-        cuts: packed.cuts,
         // An oversized part would read as negative waste; the linter errors it, this floors at 0.
         waste: if allocated > 0.0 {
             (1.0 - packed.used_length / allocated).max(0.0)
         } else {
             0.0
         },
-        cost: material.cost_per_board_foot.map(|c| bf * c),
+        cost: material.cost_per_board_foot.map(|c| bought_bf * c),
+        offcuts: used(&mine, &packed.offcuts_used, false),
+        cuts: packed.cuts,
     }
 }
 

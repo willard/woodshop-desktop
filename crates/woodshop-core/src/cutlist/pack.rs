@@ -22,7 +22,12 @@ pub struct SheetItem {
 #[derive(serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PackedSheets {
+    /// New sheets; placements on them come first, numbered from 0.
     pub sheet_count: usize,
+    /// The given offcuts that were used, as indices into the `offcuts` passed in. Placement sheet
+    /// `sheet_count + i` is offcut `offcuts_used[i]`.
+    #[serde(skip)]
+    pub offcuts_used: Vec<usize>,
     pub placements: Vec<Placement>,
     /// Area consumed by placed parts (excludes kerf and offcut).
     pub used_area: f64,
@@ -49,9 +54,23 @@ fn order(a: &SheetItem, b: &SheetItem) -> Ordering {
     a.part_id.cmp(&b.part_id)
 }
 
-pub fn pack_guillotine(mut items: Vec<SheetItem>, sheet_l: f64, sheet_w: f64, kerf: f64) -> PackedSheets {
+pub fn pack_guillotine(items: Vec<SheetItem>, sheet_l: f64, sheet_w: f64, kerf: f64) -> PackedSheets {
+    pack_guillotine_into(items, &[], sheet_l, sheet_w, kerf)
+}
+
+/// Packs onto `offcuts` (length, width) first, in the order given, then onto new sheets.
+pub fn pack_guillotine_into(
+    mut items: Vec<SheetItem>,
+    offcuts: &[(f64, f64)],
+    sheet_l: f64,
+    sheet_w: f64,
+    kerf: f64,
+) -> PackedSheets {
     items.sort_by(order);
-    let mut sheets: Vec<Vec<FreeRect>> = Vec::new();
+    let mut sheets: Vec<Vec<FreeRect>> = offcuts
+        .iter()
+        .map(|&(w, h)| vec![FreeRect { x: 0.0, y: 0.0, w, h }])
+        .collect();
     let mut placements = Vec::new();
     let mut used_area = 0.0;
 
@@ -69,8 +88,23 @@ pub fn pack_guillotine(mut items: Vec<SheetItem>, sheet_l: f64, sheet_w: f64, ke
         }
         used_area += item.w * item.h;
     }
+
+    // New sheets first, numbered from 0; then the offcuts that were used.
+    let fixed = offcuts.len();
+    let sheet_count = sheets.len() - fixed;
+    let offcuts_used: Vec<usize> = (0..fixed)
+        .filter(|&b| placements.iter().any(|p| p.sheet == b))
+        .collect();
+    for p in &mut placements {
+        p.sheet = if p.sheet >= fixed {
+            p.sheet - fixed
+        } else {
+            sheet_count + offcuts_used.iter().position(|&b| b == p.sheet).unwrap_or(0)
+        };
+    }
     PackedSheets {
-        sheet_count: sheets.len(),
+        sheet_count,
+        offcuts_used,
         placements,
         used_area,
     }
@@ -139,12 +173,21 @@ pub struct LumberItem {
 #[derive(serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PackedLumber {
+    /// New sticks; cuts on them come first, numbered from 0.
     pub stick_count: usize,
+    /// The given offcuts that were used: cut stick `stick_count + i` is offcut `offcuts_used[i]`.
+    #[serde(skip)]
+    pub offcuts_used: Vec<usize>,
     pub cuts: Vec<LumberCut>,
     pub used_length: f64,
 }
 
-pub fn pack_lumber(mut items: Vec<LumberItem>, stock_length: f64, kerf: f64) -> PackedLumber {
+pub fn pack_lumber(items: Vec<LumberItem>, stock_length: f64, kerf: f64) -> PackedLumber {
+    pack_lumber_into(items, &[], stock_length, kerf)
+}
+
+/// Cuts from `offcuts` (lengths) first, in the order given, then from new sticks.
+pub fn pack_lumber_into(mut items: Vec<LumberItem>, offcuts: &[f64], stock_length: f64, kerf: f64) -> PackedLumber {
     items.sort_by(|a, b| {
         if (a.length - b.length).abs() > EPS {
             return b.length.partial_cmp(&a.length).unwrap_or(Ordering::Equal);
@@ -152,7 +195,7 @@ pub fn pack_lumber(mut items: Vec<LumberItem>, stock_length: f64, kerf: f64) -> 
         a.part_id.cmp(&b.part_id)
     });
 
-    let mut remaining: Vec<f64> = Vec::new(); // free length left on each stick
+    let mut remaining: Vec<f64> = offcuts.to_vec(); // free length left on each stick
     let mut cuts = Vec::new();
     let mut used_length = 0.0;
     for item in items {
@@ -173,8 +216,20 @@ pub fn pack_lumber(mut items: Vec<LumberItem>, stock_length: f64, kerf: f64) -> 
             stick,
         });
     }
+
+    let fixed = offcuts.len();
+    let stick_count = remaining.len() - fixed;
+    let offcuts_used: Vec<usize> = (0..fixed).filter(|&b| cuts.iter().any(|c| c.stick == b)).collect();
+    for c in &mut cuts {
+        c.stick = if c.stick >= fixed {
+            c.stick - fixed
+        } else {
+            stick_count + offcuts_used.iter().position(|&b| b == c.stick).unwrap_or(0)
+        };
+    }
     PackedLumber {
-        stick_count: remaining.len(),
+        stick_count,
+        offcuts_used,
         cuts,
         used_length,
     }

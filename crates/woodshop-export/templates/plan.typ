@@ -105,10 +105,13 @@
 #let sheet-width = 100%
 #for plan in data.sheets [
   == #plan.title
-  #for n in range(plan.count) {
-    let (sl, sw) = (plan.l, plan.w)
+  #for board in plan.boards {
+    let (n, sl, sw) = (board.sheet, board.l, board.w)
     block(breakable: false, below: 10pt, layout(size => {
-      let s = size.width / sl
+      // An offcut is drawn to the same scale as the full sheets, with its caption above.
+      let full = plan.boards.at(0, default: board).l
+      let s = size.width / calc.max(sl, full)
+      if board.caption != "" { text(size: 8.5pt, fill: muted, board.caption) }
       box(width: sl * s, height: sw * s, fill: rgb("#f5f5f4"), stroke: 0.5pt + rgb("#a8a29e"), {
         for p in plan.placements.filter(p => p.sheet == n) {
           let fs = calc.max(calc.min(p.w, p.h) * s * 0.22, 5pt)
@@ -134,7 +137,7 @@
     inset: (x: 3pt, y: 4pt),
     align: (left, center, right),
     table.header(label("Cut"), label("Stick"), label("Length")),
-    ..plan.cuts.map(c => (c.name, str(c.stick), c.length)).flatten(),
+    ..plan.cuts.map(c => (c.name, c.stick, c.length)).flatten(),
   )
 ]
 

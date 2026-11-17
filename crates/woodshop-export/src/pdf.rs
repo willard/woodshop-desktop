@@ -16,7 +16,7 @@ use typst_layout::PagedDocument;
 use woodshop_core::assembly::{AssemblyStep, assembly_order};
 use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 
-use woodshop_core::cutlist::{CutList, CutListConfig, CutListSection, compute_cut_list, group_cut_list};
+use woodshop_core::cutlist::{CutList, CutListConfig, CutListSection, Offcut, compute_cut_list, group_cut_list};
 use woodshop_core::geometry::overall_size;
 use woodshop_core::movables::derived_borings;
 use woodshop_core::spec::{Edge, Movable, Spec};
@@ -46,6 +46,8 @@ pub struct PlanInput<'a> {
     pub units: Units,
     /// The reader's hardware prices, by hardware row key (see `CutListConfig::hardware_prices`).
     pub hardware_prices: BTreeMap<String, f64>,
+    /// Stock the reader already has, used before anything is bought.
+    pub offcuts: Vec<Offcut>,
 }
 
 // --- The view model the template lays out --------------------------------------------------
@@ -104,10 +106,18 @@ struct HardwareView {
 #[derive(Serialize)]
 struct SheetView {
     title: String,
-    count: usize,
+    /// Each sheet to lay out: the bought ones, then the user's offcuts.
+    boards: Vec<BoardView>,
+    placements: Vec<PlacementView>,
+}
+
+#[derive(Serialize)]
+struct BoardView {
+    sheet: usize,
     l: f64,
     w: f64,
-    placements: Vec<PlacementView>,
+    /// Empty for a bought sheet; "On hand, 24\" × 18\"" for a piece the reader has.
+    caption: String,
 }
 
 #[derive(Serialize)]
@@ -129,8 +139,18 @@ struct LumberView {
 #[derive(Serialize)]
 struct CutView {
     name: String,
-    stick: usize,
+    /// "2", or "On hand 1" for a piece the reader has.
+    stick: String,
     length: String,
+}
+
+/// " + 2 pieces on hand" when any of the reader's own stock is used.
+fn offcut_note(n: usize) -> String {
+    match n {
+        0 => String::new(),
+        1 => " + 1 piece on hand".into(),
+        n => format!(" + {n} pieces on hand"),
+    }
 }
 
 /// Three sizes as one, the unit said once in metric: `24" × 16" × 3/4"`, `610 × 406 × 19 mm`.
@@ -336,14 +356,29 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             .iter()
             .map(|p| SheetView {
                 title: format!(
-                    "{} — {}, {} waste",
+                    "{} — {}{}, {} waste",
                     p.material_name,
                     plural(p.sheet_count, "sheet"),
+                    offcut_note(p.offcuts.len()),
                     pct(p.waste)
                 ),
-                count: p.sheet_count,
-                l: p.sheet_size.l,
-                w: p.sheet_size.w,
+                boards: (0..p.sheet_count)
+                    .map(|n| BoardView {
+                        sheet: n,
+                        l: p.sheet_size.l,
+                        w: p.sheet_size.w,
+                        caption: String::new(),
+                    })
+                    .chain(p.offcuts.iter().enumerate().map(|(i, o)| {
+                        let w = o.w.unwrap_or(0.0);
+                        BoardView {
+                            sheet: p.sheet_count + i,
+                            l: o.l,
+                            w,
+                            caption: format!("On hand, {} × {}", format_length(o.l, units), format_length(w, units)),
+                        }
+                    }))
+                    .collect(),
                 placements: p
                     .placements
                     .iter()
@@ -363,10 +398,11 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             .iter()
             .map(|p| LumberView {
                 title: format!(
-                    "{} — {} @ {}, {} waste",
+                    "{} — {} @ {}{}, {} waste",
                     p.material_name,
                     plural(p.stick_count, "stick"),
                     format_length(p.stock_length, units),
+                    offcut_note(p.offcuts.len()),
                     pct(p.waste)
                 ),
                 cuts: p
@@ -374,7 +410,11 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                     .iter()
                     .map(|c| CutView {
                         name: c.name.clone(),
-                        stick: c.stick + 1,
+                        stick: if c.stick < p.stick_count {
+                            (c.stick + 1).to_string()
+                        } else {
+                            format!("On hand {}", c.stick - p.stick_count + 1)
+                        },
                         length: format_length(c.length, units),
                     })
                     .collect(),
@@ -459,6 +499,7 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
             kerf: input.kerf,
             units: input.units,
             hardware_prices: input.hardware_prices.clone(),
+            offcuts: input.offcuts.clone(),
         },
     );
     let view = plan_view(input, &cut_list);
@@ -544,6 +585,7 @@ mod tests {
             thumbnail: None,
             units: Units::Metric,
             hardware_prices: BTreeMap::from([("item|pull.bar-96mm".to_string(), 6.5)]),
+            offcuts: Vec::new(),
         })
         .unwrap();
         assert!(pdf.starts_with(b"%PDF-"));
@@ -568,6 +610,7 @@ mod tests {
             thumbnail: None,
             units: Units::Fraction,
             hardware_prices: BTreeMap::from([(pull.key.clone(), 4.0)]),
+            offcuts: Vec::new(),
         };
         let config = CutListConfig {
             hardware_prices: input.hardware_prices.clone(),
@@ -601,6 +644,7 @@ mod tests {
             thumbnail: None,
             units: Units::Fraction,
             hardware_prices: BTreeMap::new(),
+            offcuts: Vec::new(),
         };
         let cut_list = compute_cut_list(
             &spec,
