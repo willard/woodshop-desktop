@@ -8,6 +8,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Cut order for sheet goods: tick Show the cut order under the cut list's sheets to number the
+  saw cuts on each layout, edge to edge, in the order to make them: rip each sheet into strips,
+  then crosscut the strips. The PDF plan always shows them.
 - Boards are bought at the shortest length on sale that their cuts fit. A material sold at 96"
   and 120" no longer buys every board at 120": the picnic table's 2x6s are now four 120" and five
   96" boards, and its 2x4s three 96" boards (waste down from 29% and 31% to 20% and 14%).

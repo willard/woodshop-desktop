@@ -319,6 +319,26 @@ test('each board is bought at the shortest length on sale that its cuts fit', as
     await expect(page.getByTestId('cutlist-stock').filter({ hasText: '4 × 120", 5 × 96"' })).toHaveCount(1);
 });
 
+test('the sheet layouts can show the order to make the saw cuts', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Bookshelf', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    const sheet = page.getByTestId('cutlist-sheet').first();
+    await expect(sheet).toBeVisible();
+    await expect(sheet.getByTestId('cutlist-saw-cut')).toHaveCount(0);
+    await page.getByTestId('cutlist-cut-order').check();
+    // The first cut on a full sheet is a rip, and the cuts are numbered from 1.
+    await expect(sheet.getByTestId('cutlist-saw-cut').first()).toContainText('1');
+    await expect(sheet.getByTestId('cutlist-saw-cut').first().locator('title')).toHaveText(
+        /^Cut 1: rip 96"$/,
+    );
+    expect(await sheet.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
+});
+
 test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ page }) => {
     await page.goto('/#/templates');
     await page

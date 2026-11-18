@@ -5,6 +5,7 @@
 pub mod grouping;
 pub mod hardware;
 pub mod pack;
+pub mod sequence;
 pub mod shopping;
 pub mod stock_advice;
 pub mod types;
@@ -195,6 +196,15 @@ fn plan_sheets(
         },
         cost: material.cost_per_sheet.map(|c| packed.sheet_count as f64 * c),
         offcuts: used(&mine, &packed.offcuts_used, true),
+        cuts: (0..packed.sheet_count + packed.offcuts_used.len())
+            .flat_map(|n| {
+                let (l, w) = match n.checked_sub(packed.sheet_count) {
+                    Some(i) => bins[packed.offcuts_used[i]],
+                    None => (sheet_l, sheet_w),
+                };
+                sequence::sheet_cuts(&packed.placements, n, l, w, kerf)
+            })
+            .collect(),
         leftovers: packed.leftovers,
         placements: packed.placements,
     }

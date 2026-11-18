@@ -103,8 +103,12 @@
 ]
 
 #let sheet-width = 100%
+#let saw = rgb("#dc2626")
 #for plan in data.sheets [
   == #plan.title
+  #if plan.cuts.len() > 0 {
+    block(below: 6pt, text(size: 8.5pt, fill: muted)[The red numbers are the order to make the saw cuts: rip each sheet into strips, then crosscut the strips.])
+  }
   #for board in plan.boards {
     let (n, sl, sw) = (board.sheet, board.l, board.w)
     block(breakable: false, below: 10pt, layout(size => {
@@ -123,6 +127,19 @@
             inset: 1pt,
             align(center + horizon, text(size: calc.min(fs, 8pt), p.name)),
           ))
+        }
+        // A rip runs along the length at y; a crosscut runs up from y at x.
+        let r = 4.5pt
+        for c in plan.cuts.filter(c => c.sheet == n) {
+          let (x, y) = (c.x * s, (sw - c.y) * s)
+          if c.rip {
+            place(dx: x, dy: y, line(end: (c.l * s, 0pt), stroke: 0.9pt + saw))
+          } else {
+            place(dx: x, dy: y, line(end: (0pt, -c.l * s), stroke: 0.9pt + saw))
+          }
+          let (cx, cy) = if c.rip { (x + r * 1.3, y) } else { (x, y - r * 1.3) }
+          place(dx: cx - r, dy: cy - r, box(width: 2 * r, height: 2 * r, radius: r, fill: saw,
+            align(center + horizon, text(size: 5.5pt, weight: "bold", fill: white, str(c.n)))))
         }
       })
     }))

@@ -55,6 +55,22 @@ export interface SheetPlan {
     offcuts?: UsedOffcut[];
     /** Pieces worth keeping once the parts are cut out. */
     leftovers?: Leftover[];
+    /** The saw cuts that free the parts, sheet by sheet, in the order to make them. */
+    cuts?: SheetCut[];
+}
+
+/** One straight saw cut, edge to edge of the piece of sheet it is made on. */
+export interface SheetCut {
+    /** The sheet, numbered as placements are. */
+    sheet: number;
+    /** Its place in that sheet's order, from 1. */
+    n: number;
+    /** Where it starts (as placements are measured) and how long it runs. */
+    x: number;
+    y: number;
+    l: number;
+    /** Along the sheet's length (a rip, at `y`); otherwise across it (at `x`). */
+    rip: boolean;
 }
 
 /** A piece left over once a plan's parts are cut: at least 12" × 6" of sheet, or 12" of board. */

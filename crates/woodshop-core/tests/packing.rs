@@ -214,3 +214,46 @@ fn a_board_is_not_bought_longer_than_its_cuts_need() {
     let two_by_four = list.lumber.iter().find(|p| p.material_name.starts_with("2x4")).unwrap();
     assert_eq!(two_by_four.bought(), vec![(96.0, 3)]);
 }
+
+#[test]
+fn the_cut_order_frees_every_part_on_every_template_sheet() {
+    // Make each cut on the piece it crosses edge to edge; at the end every part must sit alone on
+    // a piece of exactly its size.
+    for t in woodshop_core::templates::all() {
+        let spec = woodshop_core::templates::find(t.id).unwrap();
+        let list = compute_cut_list(&spec, CutListConfig::default());
+        for plan in &list.sheets {
+            for sheet in 0..plan.sheet_count {
+                let mut pieces = vec![(0.0, 0.0, plan.sheet_size.l, plan.sheet_size.w)];
+                let cuts: Vec<_> = plan.cuts.iter().filter(|c| c.sheet == sheet).collect();
+                for (i, c) in cuts.iter().enumerate() {
+                    assert_eq!(c.n as usize, i + 1, "{}: cuts numbered in order", t.id);
+                    let at = pieces.iter().position(|&(x, y, l, w)| {
+                        if c.rip {
+                            (c.x - x).abs() < 1e-6 && (c.l - l).abs() < 1e-6 && c.y > y && c.y < y + w
+                        } else {
+                            (c.y - y).abs() < 1e-6 && (c.l - w).abs() < 1e-6 && c.x > x && c.x < x + l
+                        }
+                    });
+                    let (x, y, l, w) = pieces.remove(at.unwrap_or_else(|| panic!("{}: {c:?} crosses no piece", t.id)));
+                    if c.rip {
+                        pieces.push((x, y, l, c.y - y));
+                        pieces.push((x, c.y + KERF, l, y + w - c.y - KERF));
+                    } else {
+                        pieces.push((x, y, c.x - x, w));
+                        pieces.push((c.x + KERF, y, x + l - c.x - KERF, w));
+                    }
+                }
+                for p in plan.placements.iter().filter(|p| p.sheet == sheet) {
+                    let freed = pieces.iter().any(|&(x, y, l, w)| {
+                        (p.x - x).abs() < 1e-6
+                            && (p.y - y).abs() < 1e-6
+                            && (p.w - l).abs() < 1e-6
+                            && (p.h - w).abs() < 1e-6
+                    });
+                    assert!(freed, "{}: {p:?} is not cut free", t.id);
+                }
+            }
+        }
+    }
+}

@@ -111,6 +111,8 @@ struct SheetView {
     /// Each sheet to lay out: the bought ones, then the user's offcuts.
     boards: Vec<BoardView>,
     placements: Vec<PlacementView>,
+    /// The saw cuts, numbered in the order to make them on each sheet.
+    cuts: Vec<woodshop_core::cutlist::SheetCut>,
 }
 
 #[derive(Serialize)]
@@ -420,6 +422,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                         h: pl.h,
                     })
                     .collect(),
+                cuts: p.cuts.clone(),
             })
             .collect(),
         lumber: cut_list
@@ -757,6 +760,34 @@ mod tests {
             std::fs::write(format!("{dir}/dresser.pdf"), &pdf).unwrap();
         }
         assert!(pdf.starts_with(b"%PDF-"));
+    }
+
+    #[test]
+    fn sheets_are_drawn_with_their_saw_cuts_numbered() {
+        let raw = include_str!("../../../resources/templates/bookshelf.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let input = PlanInput {
+            title: "Bookshelf",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 18, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Fraction,
+            hardware_prices: BTreeMap::new(),
+            offcuts: vec![],
+        };
+        let cut_list = compute_cut_list(&spec, CutListConfig::default());
+        let view = plan_view(&input, &cut_list);
+        let sheet = &view.sheets[0];
+        let first: Vec<u32> = sheet.cuts.iter().filter(|c| c.sheet == 0).map(|c| c.n).collect();
+        assert!(!first.is_empty() && first.iter().enumerate().all(|(i, &n)| n as usize == i + 1));
+        // A full sheet is ripped first.
+        assert!(sheet.cuts[0].rip);
+        let pdf = render_plan_pdf(&input).unwrap();
+        if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
+            std::fs::write(format!("{dir}/bookshelf.pdf"), &pdf).unwrap();
+        }
     }
 
     #[test]

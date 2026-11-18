@@ -544,6 +544,14 @@ have to look up, and the editor screenshot would make someone want to try it fro
   leftovers end at their board's length. The stock line (`CutListStock.lengths`), panel, PDF,
   shopping list and CSV say "1 × 120\", 2 × 96\"". Picnic table: 2x6 9 × 120" → 4 × 120" + 5 × 96".
 
+- **Cut order for sheets** (`cutlist::sequence`, `SheetPlan.cuts`): each sheet layout (and piece
+  on hand) is split into edge-to-edge saw cuts: on each piece the nearest cut along its long way
+  that crosses no part, else the nearest across it, waste cut off only where it frees a part; the
+  rest of a piece is cut before the pieces cut off it, so sheets are ripped into strips, then the
+  strips crosscut. `SheetCut { sheet, n, x, y, l, rip }`. The panel draws them as numbered red
+  lines behind Show the cut order; the PDF always does. `tests/packing.rs` makes every
+  template's cuts in order and checks each part ends up alone on a piece its size.
+
 - **Stock on hand** (the `offcuts` setting, `CutListConfig.offcuts`): pieces the user owns, by
   material name and thickness (to 1/64"); sheet pieces need a width. Plans pack onto them first
   (smallest first), then onto bought stock; `sheetCount`/`stickCount` count bought stock only and

@@ -116,6 +116,8 @@ export function CutListPanel(props: CutListPanelProps) {
     const overall = useMemo(() => overallSize(spec), [spec]);
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
     const [fastenersOpen, setFastenersOpen] = useState(false);
+    /** Drawing the numbered saw cuts over the sheet layouts. */
+    const [cutOrder, setCutOrder] = useState(false);
     const fasteners = cutList.hardware.filter((row) => FASTENER_KINDS.has(row.kind));
     const fittings = cutList.hardware.filter((row) => !FASTENER_KINDS.has(row.kind));
 
@@ -382,6 +384,18 @@ export function CutListPanel(props: CutListPanelProps) {
                 </div>
             ))}
 
+            {cutList.sheets.some((plan) => (plan.cuts ?? []).length > 0) && (
+                <label className="text-fg/75 mb-3 flex cursor-pointer items-center gap-2 text-[13px]">
+                    <input
+                        checked={cutOrder}
+                        type="checkbox"
+                        data-testid="cutlist-cut-order"
+                        className="accent-accent"
+                        onChange={(e) => setCutOrder(e.target.checked)}
+                    />
+                    Show the cut order: rip each sheet into strips, then crosscut the strips
+                </label>
+            )}
             {cutList.sheets.map((plan) => (
                 <div key={plan.materialId} className="mb-4">
                     <SectionHeading>
@@ -392,7 +406,7 @@ export function CutListPanel(props: CutListPanelProps) {
                     </SectionHeading>
                     <div className="space-y-3">
                         {Array.from({ length: plan.sheetCount }, (_, n) => (
-                            <SheetDiagram key={n} plan={plan} sheet={n} />
+                            <SheetDiagram key={n} plan={plan} sheet={n} cutOrder={cutOrder} />
                         ))}
                         {(plan.offcuts ?? []).map((o, i) => (
                             <div key={o.id} data-testid="cutlist-on-hand-sheet">
@@ -403,6 +417,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                     plan={plan}
                                     sheet={plan.sheetCount + i}
                                     size={{ l: o.l, w: o.w ?? 0 }}
+                                    cutOrder={cutOrder}
                                 />
                             </div>
                         ))}
@@ -693,14 +708,19 @@ export function SheetDiagram({
     plan,
     sheet,
     size = plan.sheetSize,
+    cutOrder = false,
 }: {
     plan: CutList['sheets'][number];
     sheet: number;
     /** A piece on hand's own size; a bought sheet is the plan's. */
     size?: { l: number; w: number };
+    /** Draw the saw cuts, numbered in the order to make them. */
+    cutOrder?: boolean;
 }) {
     // A piece on hand is drawn to the same scale as a full sheet, against the left edge.
     const scale = Math.max(size.l / plan.sheetSize.l, 0.0001);
+    // Number markers are sized to the full sheet so they read the same on every diagram.
+    const r = Math.min(plan.sheetSize.l, plan.sheetSize.w) * 0.03;
     return (
         <svg
             viewBox={`-1 -1 ${size.l + 2} ${size.w + 2}`}
@@ -759,6 +779,35 @@ export function SheetDiagram({
                         </g>
                     );
                 })}
+            {cutOrder &&
+                (plan.cuts ?? [])
+                    .filter((c) => c.sheet === sheet)
+                    .map((c) => {
+                        // A rip runs along the length at y; a crosscut runs up from y at x.
+                        const [x1, y1] = [c.x, size.w - c.y];
+                        const [x2, y2] = c.rip ? [c.x + c.l, y1] : [x1, y1 - c.l];
+                        const [cx, cy] = c.rip ? [x1 + r * 1.3, y1] : [x1, y1 - r * 1.3];
+                        return (
+                            <g key={`cut-${c.n}`} data-testid="cutlist-saw-cut">
+                                <title>
+                                    Cut {c.n}: {c.rip ? 'rip' : 'crosscut'} {len(c.l)}
+                                </title>
+                                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#ef4444" strokeWidth="0.4" />
+                                <circle cx={cx} cy={cy} r={r} fill="#ef4444" />
+                                <text
+                                    x={cx}
+                                    y={cy}
+                                    fill="#fff"
+                                    fontSize={r * 1.2}
+                                    fontWeight="600"
+                                    textAnchor="middle"
+                                    dominantBaseline="central"
+                                >
+                                    {c.n}
+                                </text>
+                            </g>
+                        );
+                    })}
         </svg>
     );
 }
