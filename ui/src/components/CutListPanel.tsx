@@ -20,6 +20,7 @@ import { dims, len, lenValue, parseLen, size as sizeOf, useUnits } from '@/lib/d
 import { plural } from '@/app/format';
 import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
 import { useOffcuts } from '@/cutlist/offcuts';
+import { boardLength, boardSizes, boughtBoards } from '@/cutlist/boards';
 import { OnHandSection } from './OnHandSection';
 
 export interface CutListPanelProps {
@@ -61,9 +62,14 @@ function stockLine(section: CutListSection, spec: Spec): string {
     if (section.stock === null) {
         return 'No stock plan for this material';
     }
-    const { count, l, w } = section.stock;
+    const { count, l, w, lengths } = section.stock;
     const unit = section.stock.unit === 'sheet' ? 'sheet' : boardWord(spec, section.materialId);
-    const size = w === undefined ? fmt(l) : sizeOf(l, w);
+    const size =
+        w !== undefined
+            ? sizeOf(l, w)
+            : lengths !== undefined
+              ? lengths.map((s) => `${s.count} × ${fmt(s.l)}`).join(', ')
+              : fmt(l);
     return `${count} ${unit}${count === 1 ? '' : 's'} · ${size}`;
 }
 
@@ -407,15 +413,23 @@ export function CutListPanel(props: CutListPanelProps) {
             {cutList.lumber.map((plan) => (
                 <div key={plan.materialId} className="mb-4" data-testid="cutlist-boards">
                     <SectionHeading>
-                        {plan.materialName}: {plural(plan.stickCount, boardWord(spec, plan.materialId))} of{' '}
-                        {len(plan.stockLength)}
+                        {plan.materialName}: {plural(plan.stickCount, boardWord(spec, plan.materialId))}
+                        {boughtBoards(plan).length > 1
+                            ? ` (${boardSizes(plan, len)})`
+                            : ` of ${len(plan.stockLength)}`}
                         {(plan.offcuts ?? []).length > 0 &&
                             ` + ${plural(plan.offcuts!.length, 'piece')} on hand`}
                         , {pct(plan.waste)} offcut
                     </SectionHeading>
                     <div className="space-y-1.5">
                         {Array.from({ length: plan.stickCount }, (_, n) => (
-                            <BoardDiagram key={n} plan={plan} board={n} parts={cutList.parts} />
+                            <BoardDiagram
+                                key={n}
+                                plan={plan}
+                                board={n}
+                                parts={cutList.parts}
+                                length={boardLength(plan, n)}
+                            />
                         ))}
                         {(plan.offcuts ?? []).map((o, i) => (
                             <div key={o.id} data-testid="cutlist-on-hand-board">

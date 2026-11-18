@@ -167,7 +167,9 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
     description: "Get the full cut list for a design by id: every part with its dimensions (decimal \
         inches), quantity, and board feet; the sheet-goods layout (how many sheets and where each part \
         is placed, grain- and kerf-aware); lumber stock cutting (each cut's `x` along its board, and \
-        `y` across it when narrow parts are ripped side by side from a board of known `stockWidth`); \
+        `y` across it when narrow parts are ripped side by side from a board of known `stockWidth`; \
+        each board is the shortest listed stock length its cuts fit, with `boardLengths` giving \
+        each bought board's length when they differ); \
         and totals — board feet, sheet count, \
         estimated cost, and waste. `sections` is the shop-friendly view of the same data: identical \
         blanks merged into one row with a quantity, bucketed per material into sheet goods and lumber, \

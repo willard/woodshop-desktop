@@ -40,6 +40,8 @@ export interface CutListStock {
     l: number;
     /** Sheet width; absent for lumber, whose width is the board's nominal size. */
     w?: number;
+    /** Boards of more than one length, longest first; absent when every one is `l` long. */
+    lengths?: { count: number; l: number }[];
 }
 
 /** One material's worth of the cut list. */

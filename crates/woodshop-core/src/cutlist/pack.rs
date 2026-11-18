@@ -327,7 +327,7 @@ fn orientations(item: &SheetItem, rect: &FreeRect) -> Vec<(f64, f64, bool)> {
     out
 }
 
-#[derive(serde::Deserialize)]
+#[derive(Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LumberItem {
     pub part_id: String,

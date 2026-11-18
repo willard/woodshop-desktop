@@ -13,6 +13,7 @@ import { DEFAULT_CUTLIST_CONFIG, type CutList, type CutListConfig, type Shopping
 
 export * from './types';
 export * from './grouping';
+export * from './boards';
 
 /** The hardware list is worded in the reader's units unless `config.units` says otherwise. */
 export function computeCutList(spec: Spec, config: CutListConfig = DEFAULT_CUTLIST_CONFIG): CutList {

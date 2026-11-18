@@ -536,6 +536,14 @@ have to look up, and the editor screenshot would make someone want to try it fro
   lanes. Templates: 97 → 95 boards. The PDF draws them the same way (`StickView`), above its table of cuts. Lumber
   is counted in boards, dowels (`round`) in sticks, in the panel, PDF and stock calculator.
 
+- **Mixed board lengths** (`pack_lengths`): lumber is packed at each listed stock length that
+  fits the longest part (longest first), each bought board is then cut from the shortest listed
+  length its cuts fit, and the packing buying the least length wins (then fewest boards, then
+  fewest pieces on hand; a tie keeps the longest). `LumberPlan.boardLengths` holds each board's
+  length when they differ (`board_length(i)`, `bought()`), `stockLength` is the longest bought;
+  leftovers end at their board's length. The stock line (`CutListStock.lengths`), panel, PDF,
+  shopping list and CSV say "1 × 120\", 2 × 96\"". Picnic table: 2x6 9 × 120" → 4 × 120" + 5 × 96".
+
 - **Stock on hand** (the `offcuts` setting, `CutListConfig.offcuts`): pieces the user owns, by
   material name and thickness (to 1/64"); sheet pieces need a width. Plans pack onto them first
   (smallest first), then onto bought stock; `sheetCount`/`stickCount` count bought stock only and

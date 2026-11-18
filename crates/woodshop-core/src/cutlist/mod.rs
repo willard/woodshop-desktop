@@ -15,7 +15,12 @@ pub use shopping::{ShoppingList, shopping_list};
 pub use stock_advice::{StockSuggestion, stock_advice};
 pub use types::*;
 
-use pack::{LumberItem, SheetItem, board_feet, pack_boards_into, pack_guillotine_into, round_board_feet};
+use pack::{
+    KEEP_BOARD, LumberItem, PackedLumber, SheetItem, board_feet, pack_boards_into, pack_guillotine_into,
+    round_board_feet,
+};
+
+const EPS: f64 = 1e-6;
 
 use crate::spec::{GrainAxis, Material, MaterialType, Op, Part, Spec};
 
@@ -110,13 +115,14 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
 /// Board feet of stick stock a lumber plan buys; board width is `stockWidth`, else the widest
 /// part cut from it.
 fn stick_board_feet(material: &Material, parts: &[&Part], plan: &LumberPlan) -> f64 {
+    let length: f64 = (0..plan.stick_count).map(|i| plan.board_length(i)).sum();
     if material.kind == MaterialType::Round {
-        return round_board_feet(plan.stock_length, material.thickness, plan.stick_count as u32);
+        return round_board_feet(length, material.thickness, 1);
     }
     let width = material
         .stock_width
         .unwrap_or_else(|| parts.iter().map(|p| p.size.w).fold(f64::NEG_INFINITY, f64::max));
-    board_feet(plan.stock_length, width, material.thickness, plan.stick_count as u32)
+    board_feet(length, width, material.thickness, 1)
 }
 
 /// The user's offcuts of `material`, smallest first, so small pieces use them up before large ones.
@@ -195,10 +201,13 @@ fn plan_sheets(
 }
 
 fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcut]) -> LumberPlan {
-    let stock_length = match material.stock_lengths.as_deref() {
-        Some(lengths) if !lengths.is_empty() => lengths.iter().copied().fold(f64::NEG_INFINITY, f64::max),
-        _ => DEFAULT_STOCK_LENGTH,
+    // The lengths on sale, longest first.
+    let mut listed: Vec<f64> = match material.stock_lengths.as_deref() {
+        Some(lengths) if !lengths.is_empty() => lengths.to_vec(),
+        _ => vec![DEFAULT_STOCK_LENGTH],
     };
+    listed.sort_by(|a, b| b.total_cmp(a));
+    listed.dedup();
 
     let mut items = Vec::new();
     for part in parts {
@@ -216,9 +225,15 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
     let bins: Vec<f64> = mine.iter().map(|o| o.l).collect();
     // Round stock is never ripped.
     let stock_width = material.stock_width.filter(|_| material.kind != MaterialType::Round);
-    let packed = pack_boards_into(items, &bins, stock_length, stock_width, kerf);
+    let (packed, lengths) = pack_lengths(&items, &bins, &listed, stock_width, kerf);
+    // The longest board bought; with none bought, the longest on sale.
+    let stock_length = if lengths.is_empty() {
+        listed[0]
+    } else {
+        lengths.iter().copied().fold(0.0, f64::max)
+    };
     let offcut_length: f64 = packed.offcuts_used.iter().map(|&i| bins[i]).sum();
-    let allocated = packed.stick_count as f64 * stock_length + offcut_length;
+    let allocated = lengths.iter().sum::<f64>() + offcut_length;
     // Only what comes off bought boards costs anything; the user's offcuts are already paid for.
     let piece_bf = |p: &Part, qty: u32| {
         if material.kind == MaterialType::Round {
@@ -242,6 +257,11 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
         stock_length,
         stock_width,
         stick_count: packed.stick_count,
+        board_lengths: if lengths.iter().all(|&l| l == stock_length) {
+            Vec::new()
+        } else {
+            lengths
+        },
         // An oversized part would read as negative waste; the linter errors it, this floors at 0.
         waste: if allocated > 0.0 {
             (1.0 - packed.used_length / allocated).max(0.0)
@@ -253,6 +273,61 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
         leftovers: packed.leftovers,
         cuts: packed.cuts,
     }
+}
+
+/// Packs the boards at each listed length (longest first) and cuts every board from the shortest
+/// listed length its cuts fit, keeping the packing that buys the least length in all, then the
+/// fewest boards, then uses the fewest pieces on hand. A tie keeps the longest length, as before
+/// lengths were mixed. Returns the packing and each bought board's length.
+fn pack_lengths(
+    items: &[LumberItem],
+    bins: &[f64],
+    listed: &[f64],
+    stock_width: Option<f64>,
+    kerf: f64,
+) -> (PackedLumber, Vec<f64>) {
+    let longest_part = items.iter().map(|i| i.length).fold(0.0, f64::max);
+    let mut best: Option<(f64, PackedLumber, Vec<f64>)> = None;
+    for (k, &length) in listed.iter().enumerate() {
+        // A part too long for every length is still packed on the longest (the linter flags it).
+        if k > 0 && longest_part > length + EPS {
+            break;
+        }
+        let mut packed = pack_boards_into(items.to_vec(), bins, length, stock_width, kerf);
+        let lengths: Vec<f64> = (0..packed.stick_count)
+            .map(|b| {
+                let end = packed
+                    .cuts
+                    .iter()
+                    .filter(|c| c.stick == b)
+                    .map(|c| c.x + c.length)
+                    .fold(0.0, f64::max);
+                listed
+                    .iter()
+                    .copied()
+                    .filter(|&l| l <= length && l >= end - EPS)
+                    .fold(length, f64::min)
+            })
+            .collect();
+        // A shortened board's leftover ends where the board does now.
+        packed.leftovers.retain_mut(|left| {
+            if let Some(&l) = lengths.get(left.sheet) {
+                left.l = l - left.x;
+            }
+            left.l >= KEEP_BOARD - EPS
+        });
+        let total: f64 = lengths.iter().sum();
+        let better = best.as_ref().is_none_or(|(t, p, _)| {
+            total < t - EPS
+                || (total <= t + EPS
+                    && (packed.stick_count, packed.offcuts_used.len()) < (p.stick_count, p.offcuts_used.len()))
+        });
+        if better {
+            best = Some((total, packed, lengths));
+        }
+    }
+    let (_, packed, lengths) = best.expect("at least one length is listed");
+    (packed, lengths)
 }
 
 fn totals_of(

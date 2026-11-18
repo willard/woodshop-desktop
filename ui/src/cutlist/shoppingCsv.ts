@@ -3,6 +3,7 @@
  * covers on top and a total underneath.
  */
 import { len } from '@/lib/display';
+import { boardSizes } from './boards';
 import { row } from './csv';
 import type { ShoppingList } from './types';
 
@@ -21,7 +22,7 @@ export function shoppingCsv(list: ShoppingList, designs: string[]): string {
         );
     }
     for (const p of list.lumber) {
-        lines.push(row([p.materialName, p.stickCount, len(p.stockLength), cash(p.cost)]));
+        lines.push(row([p.materialName, p.stickCount, boardSizes(p, len), cash(p.cost)]));
     }
     for (const h of list.hardware) {
         lines.push(row([h.description, h.qty, '', cash(h.cost)]));

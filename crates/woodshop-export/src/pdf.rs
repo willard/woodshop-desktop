@@ -222,6 +222,10 @@ fn section_view(section: &CutListSection, spec: &Spec, units: Units) -> SectionV
         };
         let size = match stock.w {
             Some(w) => woodshop_core::units::format_size(stock.l, w, units),
+            None if !stock.lengths.is_empty() => {
+                let mix: Vec<(f64, usize)> = stock.lengths.iter().map(|c| (c.l, c.count)).collect();
+                lengths_text(&mix, units)
+            }
             None => format_length(stock.l, units),
         };
         summary.push(format!("Buy {} · {size}", plural(stock.count, unit)));
@@ -423,10 +427,9 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             .iter()
             .map(|p| LumberView {
                 title: format!(
-                    "{} — {} @ {}{}, {} waste",
+                    "{} — {}{}, {} waste",
                     p.material_name,
-                    plural(p.stick_count, board_word(input.spec, &p.material_id)),
-                    format_length(p.stock_length, units),
+                    boards_text(p, board_word(input.spec, &p.material_id), units),
                     offcut_note(p.offcuts.len()),
                     pct(p.waste)
                 ),
@@ -518,16 +521,43 @@ impl World for PlanWorld {
 }
 
 /// Typeset the plan to PDF bytes.
+/// "1 × 120\", 2 × 96\"": boards of more than one length, longest first.
+fn lengths_text(bought: &[(f64, usize)], units: Units) -> String {
+    bought
+        .iter()
+        .map(|&(l, n)| format!("{n} × {}", format_length(l, units)))
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
+/// "2 boards @ 96\"", or "3 boards (1 × 120\", 2 × 96\")" when the lengths differ.
+fn boards_text(plan: &LumberPlan, word: &str, units: Units) -> String {
+    match plan.bought().as_slice() {
+        [_, _, ..] => format!(
+            "{} ({})",
+            plural(plan.stick_count, word),
+            lengths_text(&plan.bought(), units)
+        ),
+        _ => format!(
+            "{} @ {}",
+            plural(plan.stick_count, word),
+            format_length(plan.stock_length, units)
+        ),
+    }
+}
+
 fn stick_views(plan: &LumberPlan, parts: &[PartRow], units: Units) -> Vec<StickView> {
     let width = |id: &str| parts.iter().find(|r| r.part_id == id).map_or(0.0, |r| r.width);
     let across = plan
         .stock_width
         .unwrap_or_else(|| plan.cuts.iter().map(|c| width(&c.part_id)).fold(1.0, f64::max));
-    let lengths = (0..plan.stick_count).map(|_| (plan.stock_length, String::new())).chain(
-        plan.offcuts
-            .iter()
-            .map(|o| (o.l, format!("On hand, {}", format_length(o.l, units)))),
-    );
+    let lengths = (0..plan.stick_count)
+        .map(|i| (plan.board_length(i), String::new()))
+        .chain(
+            plan.offcuts
+                .iter()
+                .map(|o| (o.l, format!("On hand, {}", format_length(o.l, units)))),
+        );
     lengths
         .enumerate()
         .map(|(n, (l, caption))| {
@@ -773,6 +803,40 @@ mod tests {
             std::fs::write(format!("{dir}/kitchen-cart.pdf"), &pdf).unwrap();
         }
         assert!(pdf.starts_with(b"%PDF-"));
+    }
+
+    #[test]
+    fn boards_of_two_lengths_are_listed_and_drawn_at_their_own_length() {
+        let raw = include_str!("../../../resources/templates/picnic-table.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let input = PlanInput {
+            title: "Picnic Table",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 17, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Fraction,
+            hardware_prices: BTreeMap::new(),
+            offcuts: Vec::new(),
+        };
+        let cut_list = compute_cut_list(&spec, CutListConfig::default());
+        let view = plan_view(&input, &cut_list);
+        let two_by_six = view.lumber.iter().find(|l| l.title.starts_with("2x6")).unwrap();
+        assert!(
+            two_by_six.title.contains("9 boards (4 × 120\", 5 × 96\")"),
+            "{}",
+            two_by_six.title
+        );
+        let drawn: Vec<f64> = two_by_six.boards.iter().map(|b| b.l).collect();
+        assert_eq!(drawn.iter().filter(|&&l| l == 96.0).count(), 5);
+        let section = view.sections.iter().find(|s| s.title.starts_with("2x6")).unwrap();
+        assert!(
+            section.summary.contains("Buy 9 boards · 4 × 120\", 5 × 96\""),
+            "{}",
+            section.summary
+        );
+        assert!(render_plan_pdf(&input).unwrap().starts_with(b"%PDF-"));
     }
 
     #[test]

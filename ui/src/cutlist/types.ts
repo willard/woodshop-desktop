@@ -107,6 +107,8 @@ export interface LumberPlan {
     stockLength: number;
     /** The board width, when the material gives one. */
     stockWidth?: number;
+    /** Each bought board's length, where they differ; absent when every one is `stockLength`. */
+    boardLengths?: number[];
     stickCount: number;
     cuts: LumberCut[];
     waste: number;

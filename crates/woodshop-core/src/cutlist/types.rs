@@ -158,6 +158,10 @@ pub struct LumberPlan {
     pub stock_width: Option<f64>,
     /// Boards to buy.
     pub stick_count: usize,
+    /// Each bought board's length, where they differ: a board is cut from the shortest listed
+    /// length its cuts fit. Empty when every board is `stock_length`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub board_lengths: Vec<f64>,
     pub cuts: Vec<LumberCut>,
     pub waste: f64,
     pub cost: Option<f64>,
@@ -167,6 +171,27 @@ pub struct LumberPlan {
     /// Board ends worth keeping once the parts are cut.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub leftovers: Vec<Leftover>,
+}
+
+impl LumberPlan {
+    /// The length of bought board `i`.
+    pub fn board_length(&self, i: usize) -> f64 {
+        self.board_lengths.get(i).copied().unwrap_or(self.stock_length)
+    }
+
+    /// The boards to buy as (length, how many), longest first.
+    pub fn bought(&self) -> Vec<(f64, usize)> {
+        let mut out: Vec<(f64, usize)> = Vec::new();
+        for i in 0..self.stick_count {
+            let l = self.board_length(i);
+            match out.iter_mut().find(|(len, _)| (len - l).abs() < 1e-9) {
+                Some((_, n)) => *n += 1,
+                None => out.push((l, 1)),
+            }
+        }
+        out.sort_by(|a, b| b.0.total_cmp(&a.0));
+        out
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]

@@ -54,6 +54,15 @@ pub struct CutListStock {
     pub l: f64,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub w: Option<f64>,
+    /// Boards of more than one length, longest first; empty when every one is `l` long.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub lengths: Vec<StockCount>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct StockCount {
+    pub count: usize,
+    pub l: f64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -132,12 +141,21 @@ pub fn group_cut_list(cut_list: &CutList) -> Vec<CutListSection> {
                     unit: StockUnit::Sheet,
                     l: s.sheet_size.l,
                     w: Some(s.sheet_size.w),
+                    lengths: Vec::new(),
                 }),
                 (None, Some(l)) => Some(CutListStock {
                     count: l.stick_count,
                     unit: StockUnit::Stick,
                     l: l.stock_length,
                     w: None,
+                    lengths: match l.bought().as_slice() {
+                        [_, _, ..] => l
+                            .bought()
+                            .into_iter()
+                            .map(|(l, count)| StockCount { count, l })
+                            .collect(),
+                        _ => Vec::new(),
+                    },
                 }),
                 _ => None,
             },

@@ -8,6 +8,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Boards are bought at the shortest length on sale that their cuts fit. A material sold at 96"
+  and 120" no longer buys every board at 120": the picnic table's 2x6s are now four 120" and five
+  96" boards, and its 2x4s three 96" boards (waste down from 29% and 31% to 20% and 14%).
 - Board layouts: the cut list draws each board with the parts cut from it, as it does sheets.
   Where the material gives a board width, narrow parts are ripped side by side when that buys
   fewer boards (the kitchen cart's four legs now come from one board).

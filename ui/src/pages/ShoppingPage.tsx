@@ -10,7 +10,7 @@ import { api, failure } from '@/app/api';
 import { chooseSavePath } from '@/app/files';
 import { plural } from '@/app/format';
 import { useDefaultKerf } from '@/app/settings';
-import { shoppingList } from '@/cutlist';
+import { boardSizes, shoppingList } from '@/cutlist';
 import { shoppingCsv } from '@/cutlist/shoppingCsv';
 import { len } from '@/lib/display';
 import { parseSpec } from '@/spec';
@@ -204,7 +204,7 @@ export default function ShoppingPage() {
                                                 {p.stickCount}
                                             </td>
                                             <td className={`${td} text-muted pl-4`}>
-                                                {len(p.stockLength)} long
+                                                {boardSizes(p, len)} long
                                             </td>
                                             <td className={`${td} text-right tabular-nums`}>
                                                 {money(p.cost)}

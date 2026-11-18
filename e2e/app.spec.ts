@@ -304,6 +304,21 @@ test('boards are laid out like sheets, with narrow parts ripped side by side', a
     await expect(rails.getByTestId('cutlist-leftover').first()).toBeAttached();
 });
 
+test('each board is bought at the shortest length on sale that its cuts fit', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Picnic Table 6ft (A-Frame)', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    // 2x6 is sold at 96" and 120": only the boards that need 120" are bought that long.
+    const twoBySix = page.getByTestId('cutlist-boards').filter({ hasText: '2x6' });
+    await expect(twoBySix).toContainText('9 boards (4 × 120", 5 × 96")');
+    await expect(twoBySix.getByTestId('cutlist-board')).toHaveCount(9);
+    await expect(page.getByTestId('cutlist-stock').filter({ hasText: '4 × 120", 5 × 96"' })).toHaveCount(1);
+});
+
 test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ page }) => {
     await page.goto('/#/templates');
     await page

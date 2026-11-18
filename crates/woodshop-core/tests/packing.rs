@@ -105,7 +105,7 @@ fn every_board_layout_can_be_cut() {
             for (i, a) in plan.cuts.iter().enumerate() {
                 assert!(a.stick < plan.stick_count, "{}: {a:?}", t.id);
                 assert!(
-                    a.x >= -1e-9 && a.y >= -1e-9 && a.x + a.length <= plan.stock_length + 1e-6,
+                    a.x >= -1e-9 && a.y >= -1e-9 && a.x + a.length <= plan.board_length(a.stick) + 1e-6,
                     "{}: {a:?} off the board",
                     t.id
                 );
@@ -135,7 +135,11 @@ fn every_board_layout_can_be_cut() {
                     "{}: {left:?}",
                     t.id
                 );
-                assert!((left.x + left.l - plan.stock_length).abs() < 1e-6, "{}: {left:?}", t.id);
+                assert!(
+                    (left.x + left.l - plan.board_length(left.sheet)).abs() < 1e-6,
+                    "{}: {left:?}",
+                    t.id
+                );
             }
         }
     }
@@ -169,4 +173,44 @@ fn narrow_parts_are_ripped_side_by_side_when_it_saves_a_board() {
         .unwrap();
     assert_eq!(maple.stick_count, 2);
     assert!(maple.cuts.iter().all(|c| c.y == 0.0));
+}
+
+#[test]
+fn each_board_is_the_shortest_length_its_cuts_fit() {
+    // The kitchen cart's rails (four 25" and four 15") from 1x4 sold at 72" and 96": one 96" board
+    // takes three 25" and a 15", and the rest fit a 72" board. All on 72" would take three boards.
+    let mut spec = woodshop_core::templates::find("kitchen-cart").unwrap();
+    for m in spec.materials.iter_mut().filter(|m| m.name == "Maple 1x4") {
+        m.stock_lengths = Some(vec![72.0, 96.0]);
+    }
+    let list = compute_cut_list(&spec, CutListConfig::default());
+    let rails = list.lumber.iter().find(|p| p.material_name == "Maple 1x4").unwrap();
+    assert_eq!(rails.board_lengths, vec![96.0, 72.0]);
+    assert_eq!(rails.bought(), vec![(96.0, 1), (72.0, 1)]);
+    assert_eq!(rails.stock_length, 96.0);
+    // The material's stock line says so.
+    let sections = woodshop_core::cutlist::group_cut_list(&list);
+    let stock = sections
+        .iter()
+        .find(|s| s.material_name == "Maple 1x4")
+        .and_then(|s| s.stock.clone())
+        .unwrap();
+    let lengths: Vec<_> = stock.lengths.iter().map(|c| (c.count, c.l)).collect();
+    assert_eq!((stock.count, lengths), (2, vec![(1, 96.0), (1, 72.0)]));
+
+    // Sold only at 96", nothing changes: no lengths are listed per board.
+    let template = woodshop_core::templates::find("kitchen-cart").unwrap();
+    let list = compute_cut_list(&template, CutListConfig::default());
+    let rails = list.lumber.iter().find(|p| p.material_name == "Maple 1x4").unwrap();
+    assert!(rails.board_lengths.is_empty());
+    assert_eq!(rails.bought(), vec![(96.0, 2)]);
+}
+
+#[test]
+fn a_board_is_not_bought_longer_than_its_cuts_need() {
+    // The picnic table's 2x4s are sold at 96" and 120"; every board's cuts fit 96".
+    let spec = woodshop_core::templates::find("picnic-table").unwrap();
+    let list = compute_cut_list(&spec, CutListConfig::default());
+    let two_by_four = list.lumber.iter().find(|p| p.material_name.starts_with("2x4")).unwrap();
+    assert_eq!(two_by_four.bought(), vec![(96.0, 3)]);
 }
