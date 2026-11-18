@@ -606,7 +606,8 @@ have to look up, and the editor screenshot would make someone want to try it fro
   page (remembered in localStorage) are bought together. Materials merge when kind, name,
   thickness, sheet size, grain, species and stock sizes match (a price from either counts); their
   pieces are packed in one plan. Hardware is summed by key and priced on the total. The page shows
-  the sheets and boards saved against buying each design alone, and saves a CSV.
+  the sheets and boards saved against buying each design alone, and saves a CSV. Its last row
+  (and the CSV's, before the total) is the finish: the designs' summed `finishArea`, per coat.
 
 - **Part labels** (`woodshop-export::labels`, `export_labels`): one label per piece, ordered sheet
   by sheet then board by board from the cut list layouts, "n of qty" for repeated parts, on Avery

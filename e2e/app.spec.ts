@@ -1262,6 +1262,8 @@ test('a shopping list buys shared material once for several designs', async ({ p
     expect(sheets).toBeLessThan(6);
     await expect(page.getByTestId('shopping-saving')).toContainText(`saves ${6 - sheets} sheet`);
     await expect(list.getByTestId('shopping-row').filter({ hasText: 'pocket screws' })).toContainText('24');
+    // And the finish for both, a coat at a time.
+    await expect(list.getByTestId('shopping-finish')).toHaveText(/^Finish\d+ sq ft, about [\d.]+ qt a coat$/);
 
     // The choice is remembered, and the list saves as CSV.
     await page.getByRole('link', { name: '← Your projects' }).click();
@@ -1277,6 +1279,7 @@ test('a shopping list buys shared material once for several designs', async ({ p
     );
     expect(csv).toContain(`Baltic Birch 18mm,${sheets},`);
     expect(csv).toMatch(/pocket screws",?24,/);
+    expect(csv).toMatch(/\r\nFinish,,"\d+ sq ft, about [\d.]+ qt a coat",\r\n/);
 });
 
 test('pieces on hand are cut from before anything is bought', async ({ page }) => {

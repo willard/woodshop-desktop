@@ -12,7 +12,7 @@ import { plural } from '@/app/format';
 import { useDefaultKerf } from '@/app/settings';
 import { boardSizes, shoppingList } from '@/cutlist';
 import { shoppingCsv } from '@/cutlist/shoppingCsv';
-import { len } from '@/lib/display';
+import { finishArea, len } from '@/lib/display';
 import { parseSpec } from '@/spec';
 import { useToast } from '@/components/Toast';
 
@@ -221,11 +221,22 @@ export default function ShoppingPage() {
                                             </td>
                                         </tr>
                                     ))}
+                                    {list.totals.finishArea > 0 && (
+                                        <tr data-testid="shopping-finish">
+                                            <td className={td}>Finish</td>
+                                            <td className={td} />
+                                            <td className={`${td} text-muted pl-4`}>
+                                                {finishArea(list.totals.finishArea)}
+                                            </td>
+                                            <td className={td} />
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                             <p className="text-faint mt-3 text-xs">
                                 Prices come from each material and from the hardware price list in the cut
-                                list.
+                                list. Finish covers both faces and every edge of each part, at 100 sq ft a
+                                quart.
                             </p>
                         </>
                     )}

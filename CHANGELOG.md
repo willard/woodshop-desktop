@@ -15,7 +15,7 @@ All notable changes to Woodshop are listed here. The format follows
 - How much finish to buy: the cut list and the PDF summary give the surface to finish (both faces
   and every edge of each part) and about how much a coat takes, at 100 sq ft a quart, as a brushed
   polyurethane or paint is labelled: "Finish: 83 sq ft, about 0.8 qt a coat". In m² and litres in
-  metric.
+  metric. The shopping list ends with the finish for all the designs it covers, in the CSV too.
 - The PDF plan lists each part's joinery and shaping: dados, grooves, rabbets, holes, miters,
   notches, curves and eased edges, with sizes and positions, in the same words as the editor's
   Inspector. Parts cut alike are listed together, and a run of like holes (shelf pins, say) is
