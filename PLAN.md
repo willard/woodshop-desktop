@@ -562,6 +562,11 @@ have to look up, and the editor screenshot would make someone want to try it fro
   for sheets and 30 for lumber. Shown on the panel's Overall tile and the PDF summary; agents read
   `totals.weight`. Hardware is not weighed.
 
+- **Finish area** (`cutlist::surface`, `CutListTotals.finishArea` in square feet,
+  `units::format_finish`, WASM `formatFinish`): both faces and four edges of every part (a dowel's
+  barrel and ends), hidden faces included so finish is never short; a coat at `SQ_FT_PER_QUART`
+  (100). Under the weight on the Overall tile, and a line under the PDF summary.
+
 - **Joinery in the PDF** (`spec::describe::op_summary`, WASM `opSummary`): the op vocabulary
   moved from `ui/src/spec/opLabel.ts` to the core, so the Inspector, the 3D plan and the PDF word
   ops the same way (the TS cases now test the Rust). The PDF's Joinery and shaping section lists

@@ -12,6 +12,10 @@ All notable changes to Woodshop are listed here. The format follows
   summary shows it too, for hanging a wall cabinet, choosing casters or moving the piece. It is
   the wood alone, at a typical density for each material, read from its name (MDF, Baltic birch,
   cedar, oak…) or species; in kilograms when working in millimetres.
+- How much finish to buy: the cut list and the PDF summary give the surface to finish (both faces
+  and every edge of each part) and about how much a coat takes, at 100 sq ft a quart, as a brushed
+  polyurethane or paint is labelled: "Finish: 83 sq ft, about 0.8 qt a coat". In m² and litres in
+  metric.
 - The PDF plan lists each part's joinery and shaping: dados, grooves, rabbets, holes, miters,
   notches, curves and eased edges, with sizes and positions, in the same words as the editor's
   Inspector. Parts cut alike are listed together, and a run of like holes (shelf pins, say) is

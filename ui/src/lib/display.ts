@@ -64,6 +64,11 @@ export function weight(pounds: number, units: Units = current): string {
     return wasm.formatWeight(pounds, units);
 }
 
+/** Surface to finish, in square feet, with about how much finish a coat takes. */
+export function finishArea(squareFeet: number, units: Units = current): string {
+    return wasm.formatFinish(squareFeet, units);
+}
+
 /** A length for an input field, with no unit mark: `3 1/2`, `3.5`, `89`. */
 export function lenValue(inches: number, units: Units = current): string {
     return wasm.formatLengthValue(inches, units);

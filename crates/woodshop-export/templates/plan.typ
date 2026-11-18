@@ -44,6 +44,7 @@
   column-gutter: 3pt,
   ..data.totals.map(t => [#label(t.label) \ #text(size: 14pt, weight: "bold", t.value)]),
 )
+#if data.finish != "" { block(above: 5pt, text(size: 8.5pt, fill: muted, data.finish)) }
 
 #if data.notes.len() > 0 [
   == Shop notes

@@ -176,6 +176,8 @@ export interface CutListTotals {
     wastePercent: number;
     /** About what the wood weighs once built, in pounds. */
     weight: number;
+    /** Surface to finish, every face and edge, in square feet. */
+    finishArea: number;
 }
 
 export interface CutList {

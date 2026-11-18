@@ -8,6 +8,7 @@ pub mod pack;
 pub mod sequence;
 pub mod shopping;
 pub mod stock_advice;
+pub mod surface;
 pub mod types;
 pub mod weight;
 
@@ -114,6 +115,7 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
         &hardware,
     );
     totals.weight = weight::wood_weight(spec);
+    totals.finish_area = surface::finish_area(spec);
     CutList {
         parts,
         sheets,
@@ -504,5 +506,6 @@ fn totals_of(
         hardware_cost,
         waste_percent: if allocated > 0.0 { offcut / allocated } else { 0.0 },
         weight: 0.0,
+        finish_area: 0.0,
     }
 }

@@ -395,6 +395,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
   "totals": {
     "boardFeet": 29.135,
     "estimatedCost": 156,
+    "finishArea": 82.669,
     "materialCost": 156,
     "sheetCount": 2,
     "wastePercent": 0.393,
@@ -727,6 +728,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
   "totals": {
     "boardFeet": 22.853,
     "estimatedCost": 285,
+    "finishArea": 67.856,
     "materialCost": 285,
     "sheetCount": 3,
     "wastePercent": 0.57,

@@ -5,7 +5,8 @@ pub mod fraction;
 pub mod length;
 
 pub use display::{
-    Units, format_length, format_length_value, format_size, format_weight, parse_length, parse_signed_length,
+    Units, format_finish, format_length, format_length_value, format_size, format_weight, parse_length,
+    parse_signed_length,
 };
 pub use fraction::{format_fraction, inch_label, parse_fraction, parse_signed_fraction};
 pub use length::{LengthUnit, MM_PER_INCH, feet_and_inches, from_inches, to_inches};

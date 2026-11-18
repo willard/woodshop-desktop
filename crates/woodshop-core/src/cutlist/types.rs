@@ -283,6 +283,9 @@ pub struct CutListTotals {
     /// About what the wood weighs once built, in pounds (`cutlist::weight`).
     #[serde(default)]
     pub weight: f64,
+    /// Surface to finish, every face and edge, in square feet (`cutlist::surface`).
+    #[serde(default)]
+    pub finish_area: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

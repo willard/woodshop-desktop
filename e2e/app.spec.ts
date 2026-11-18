@@ -331,6 +331,9 @@ test('the sheet layouts can show the order to make the saw cuts', async ({ page 
     await expect(sheet).toBeVisible();
     // The overall size says about what the wood weighs.
     await expect(page.getByTestId('cutlist-weight')).toHaveText(/^About \d+ lb of wood$/);
+    await expect(page.getByTestId('cutlist-finish')).toHaveText(
+        /^Finish: \d+ sq ft, about [\d.]+ qt a coat$/,
+    );
     await expect(sheet.getByTestId('cutlist-saw-cut')).toHaveCount(0);
     await page.getByTestId('cutlist-cut-order').check();
     // The first cut on a full sheet is a rip, and the cuts are numbered from 1.

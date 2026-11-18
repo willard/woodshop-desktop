@@ -396,7 +396,8 @@
       "sheetCount": 2,
       "wastePercent": 0.393,
       "materialCost": 156,
-      "weight": 87.404
+      "weight": 87.404,
+      "finishArea": 82.669
     }
   },
   "record-stand": {
@@ -725,7 +726,8 @@
       "sheetCount": 3,
       "wastePercent": 0.57,
       "materialCost": 285,
-      "weight": 81.891
+      "weight": 81.891,
+      "finishArea": 67.856
     }
   }
 }

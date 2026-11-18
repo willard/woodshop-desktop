@@ -23,7 +23,7 @@ use woodshop_core::geometry::overall_size;
 use woodshop_core::joinery::{Joinery, joinery};
 use woodshop_core::movables::derived_borings;
 use woodshop_core::spec::{Edge, MaterialType, Movable, Spec};
-use woodshop_core::units::{Units, format_length, format_length_value, format_weight};
+use woodshop_core::units::{Units, format_finish, format_length, format_length_value, format_weight};
 
 use crate::ExportError;
 
@@ -68,6 +68,8 @@ struct PlanView {
     part_count: usize,
     has_thumbnail: bool,
     totals: Vec<Total>,
+    /// "Finish: 83 sq ft, about 0.8 qt a coat", or empty with nothing to finish.
+    finish: String,
     notes: Vec<PlanNote>,
     sections: Vec<SectionView>,
     hardware: Vec<HardwareView>,
@@ -364,6 +366,14 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
         overall,
         part_count: input.spec.parts.len(),
         has_thumbnail: input.thumbnail.is_some(),
+        finish: if cut_list.totals.finish_area > 0.0 {
+            format!(
+                "Finish: {}, counting both faces and every edge of each part.",
+                format_finish(cut_list.totals.finish_area, units)
+            )
+        } else {
+            String::new()
+        },
         totals: vec![
             Total {
                 label: "Board feet",

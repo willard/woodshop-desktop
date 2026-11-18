@@ -17,7 +17,7 @@ import {
     type StockSuggestion,
 } from '@/cutlist';
 import { overallSize, type Material, type Spec } from '@/spec';
-import { dims, len, lenValue, parseLen, size as sizeOf, useUnits, weight } from '@/lib/display';
+import { dims, len, lenValue, parseLen, size as sizeOf, useUnits, weight, finishArea } from '@/lib/display';
 import { plural } from '@/app/format';
 import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
 import { useOffcuts } from '@/cutlist/offcuts';
@@ -216,6 +216,15 @@ export function CutListPanel(props: CutListPanelProps) {
                                 data-testid="cutlist-weight"
                             >
                                 About {weight(cutList.totals.weight)} of wood
+                            </div>
+                        )}
+                        {cutList.totals.finishArea > 0 && (
+                            <div
+                                className="text-muted text-xs"
+                                title="Both faces and every edge of each part; a coat at 100 sq ft a quart, as a brushed polyurethane or paint label gives it (oils go further)"
+                                data-testid="cutlist-finish"
+                            >
+                                Finish: {finishArea(cutList.totals.finishArea)}
                             </div>
                         )}
                     </div>

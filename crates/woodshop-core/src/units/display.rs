@@ -89,6 +89,33 @@ pub fn format_weight(pounds: f64, units: Units) -> String {
     }
 }
 
+/// Surface to finish, in square feet, and about how much finish a coat of it takes:
+/// `52 sq ft, about 0.5 qt a coat`; in metric `4.8 m², about 0.5 L a coat`. Over a gallon (or
+/// 4 L) a coat, the volume is in gallons.
+pub fn format_finish(square_feet: f64, units: Units) -> String {
+    let quarts = square_feet / crate::cutlist::surface::SQ_FT_PER_QUART;
+    match units {
+        Units::Metric => {
+            let m2 = square_feet * 0.092_903_04;
+            let litres = quarts * 0.946_352_946;
+            let area = if m2 >= 9.95 {
+                format!("{}", m2.round())
+            } else {
+                format!("{m2:.1}")
+            };
+            format!("{area} m², about {litres:.1} L a coat")
+        }
+        Units::Fraction | Units::Decimal => {
+            let volume = if quarts >= 4.0 {
+                format!("{:.1} gal", quarts / 4.0)
+            } else {
+                format!("{quarts:.1} qt")
+            };
+            format!("{} sq ft, about {volume} a coat", square_feet.round())
+        }
+    }
+}
+
 pub fn format_size(a: f64, b: f64, units: Units) -> String {
     match units {
         Units::Metric => format!("{} × {} mm", mm(a), mm(b)),
@@ -223,5 +250,12 @@ mod weight_tests {
         assert_eq!(format_weight(6.54, Units::Decimal), "6.5 lb");
         assert_eq!(format_weight(87.404, Units::Metric), "40 kg");
         assert_eq!(format_weight(6.54, Units::Metric), "3.0 kg");
+    }
+
+    #[test]
+    fn a_finish_area_says_about_how_much_finish_a_coat_takes() {
+        assert_eq!(format_finish(52.0, Units::Fraction), "52 sq ft, about 0.5 qt a coat");
+        assert_eq!(format_finish(520.0, Units::Fraction), "520 sq ft, about 1.3 gal a coat");
+        assert_eq!(format_finish(52.0, Units::Metric), "4.8 m², about 0.5 L a coat");
     }
 }
