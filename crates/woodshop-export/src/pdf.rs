@@ -21,7 +21,7 @@ use woodshop_core::cutlist::{
 };
 use woodshop_core::geometry::overall_size;
 use woodshop_core::movables::derived_borings;
-use woodshop_core::spec::{Edge, Hole, MaterialType, Movable, Op, Spec, op_summary};
+use woodshop_core::spec::{Ease, Edge, Hole, MaterialType, Movable, Op, Spec, op_summary};
 use woodshop_core::units::{Units, format_length, format_length_value};
 
 use crate::ExportError;
@@ -76,6 +76,8 @@ struct PlanView {
     drilling: Vec<String>,
     /// Each part's joinery and shaping, in shop words.
     joinery: Vec<JoineryView>,
+    /// Each tool setting the joinery needs, with every cut made at it.
+    setups: Vec<SetupView>,
     sheets: Vec<SheetView>,
     lumber: Vec<LumberView>,
     /// The order to put it together: up from the floor, the back, then drawers, doors, hardware.
@@ -102,6 +104,17 @@ struct RowView {
     dims: String,
     notes: String,
     members: String,
+}
+
+/// One setting of a tool (a dado stack, bit or blade angle) and every cut made at it.
+#[derive(Debug, Serialize)]
+struct SetupView {
+    /// "Dado stack 3/4\" wide, 3/8\" deep".
+    setup: String,
+    /// Cuts in all, counting each copy of a part.
+    cuts: u32,
+    /// The parts cut at it: "Left Side ×2 · Right Side".
+    parts: String,
 }
 
 /// The parts that are cut the same way, and the cuts that shape them.
@@ -310,13 +323,23 @@ fn section_view(section: &CutListSection, spec: &Spec, units: Units) -> SectionV
 /// Holes alike in all but position, at least this many, are summed up in one line.
 const MANY_HOLES: usize = 4;
 
+/// Parts by name, with how many of each.
+type Names = Vec<(String, u32)>;
+
+/// "Left Side ×2 · Right Side".
+fn names_text(names: &Names) -> String {
+    names
+        .iter()
+        .map(|(n, q)| if *q > 1 { format!("{n} ×{q}") } else { n.clone() })
+        .collect::<Vec<_>>()
+        .join(" · ")
+}
+
 /// Each part's dados, grooves, rabbets, holes, miters, notches, curves and eased edges (fasteners
 /// are in the assembly order), parts cut exactly alike together.
 fn joinery(spec: &Spec, units: Units) -> Vec<JoineryView> {
     /// A blank by its length, width (as bits, to compare exactly) and material.
     type Blank = (u64, u64, String);
-    /// Each part's name and how many.
-    type Names = Vec<(String, u32)>;
     let mut out: Vec<(Vec<String>, Names, Blank)> = Vec::new();
     for part in &spec.parts {
         let lines = part_joinery(part.ops.as_deref().unwrap_or_default(), units);
@@ -334,12 +357,58 @@ fn joinery(spec: &Spec, units: Units) -> Vec<JoineryView> {
     }
     out.into_iter()
         .map(|(lines, names, _)| JoineryView {
-            parts: names
-                .iter()
-                .map(|(n, q)| if *q > 1 { format!("{n} ×{q}") } else { n.clone() })
-                .collect::<Vec<_>>()
-                .join(" · "),
+            parts: names_text(&names),
             lines,
+        })
+        .collect()
+}
+
+/// The tool setting an op is cut at, if it has one: a dado or groove at the dado stack's width
+/// and depth, a rabbet, a hole by bit and depth, a miter by blade angle, an eased edge by bit.
+/// Curves and notches are cut to a line, and fasteners are left to the assembly order.
+fn setup_of(op: &Op, units: Units) -> Option<String> {
+    let len = |n: f64| format_length(n, units);
+    Some(match op {
+        Op::Dado(c) | Op::Groove(c) => format!("Dado stack {} wide, {} deep", len(c.width), len(c.depth)),
+        Op::Rabbet(r) => format!("Rabbet {} wide, {} deep", len(r.width), len(r.depth)),
+        Op::Hole(h) => match h.depth {
+            Some(d) => format!("{} bit, {} deep", len(h.diameter), len(d)),
+            None => format!("{} bit, through", len(h.diameter)),
+        },
+        Op::Miter(m) => format!("Blade or miter gauge at {}°", m.angle),
+        Op::Ease(Ease::Roundover { radius, .. }) => format!("{} roundover bit", len(*radius)),
+        Op::Ease(Ease::Chamfer { width, .. }) => format!("{} chamfer bit", len(*width)),
+        Op::Ease(Ease::Bullnose { .. }) => "Bullnose bit".to_owned(),
+        _ => return None,
+    })
+}
+
+/// Every tool setting the design's joinery needs, in the order first met, each with the cuts
+/// made at it: set it once and make them all.
+fn setups(spec: &Spec, units: Units) -> Vec<SetupView> {
+    let mut out: Vec<(String, u32, Names)> = Vec::new();
+    for part in &spec.parts {
+        for op in part.ops.as_deref().unwrap_or_default() {
+            let Some(setup) = setup_of(op, units) else { continue };
+            let at = match out.iter().position(|(s, ..)| *s == setup) {
+                Some(i) => i,
+                None => {
+                    out.push((setup, 0, Vec::new()));
+                    out.len() - 1
+                }
+            };
+            let (_, cuts, parts) = &mut out[at];
+            *cuts += part.qty();
+            if !parts.iter().any(|(n, _)| *n == part.name) {
+                parts.push((part.name.clone(), part.qty()));
+            }
+        }
+    }
+    out.into_iter()
+        .map(|(setup, cuts, parts)| SetupView {
+            setup,
+            cuts,
+            parts: names_text(&parts),
         })
         .collect()
 }
@@ -482,6 +551,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
         hardware_priced: cut_list.hardware.iter().any(|h| h.cost.is_some()),
         drilling: drilling_notes(input.spec, units),
         joinery: joinery(input.spec, units),
+        setups: setups(input.spec, units),
         assembly: assembly_order(input.spec),
         sheets: cut_list
             .sheets
@@ -989,6 +1059,35 @@ mod tests {
         if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
             std::fs::write(format!("{dir}/record-stand-dado.pdf"), &pdf).unwrap();
         }
+    }
+
+    #[test]
+    fn each_tool_setting_is_listed_once_with_every_cut_made_at_it() {
+        let raw = include_str!("../../../resources/templates/record-stand-dado.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let setups = setups(&spec, Units::Fraction);
+        let dados: u32 = spec
+            .parts
+            .iter()
+            .flat_map(|p| p.ops.iter().flatten().map(move |o| (p, o)))
+            .filter(|(_, o)| matches!(o, Op::Dado(_) | Op::Groove(_)))
+            .map(|(p, _)| p.qty())
+            .sum();
+        let stack: u32 = setups
+            .iter()
+            .filter(|s| s.setup.starts_with("Dado stack"))
+            .map(|s| s.cuts)
+            .sum();
+        assert_eq!(stack, dados);
+        assert!(
+            setups.iter().any(|s| s.setup == "Dado stack 3/4\" wide, 3/8\" deep"),
+            "{setups:?}"
+        );
+        // Settings are not repeated, and screws need none.
+        let mut names: Vec<&str> = setups.iter().map(|s| s.setup.as_str()).collect();
+        names.sort();
+        names.dedup();
+        assert_eq!(names.len(), setups.len());
     }
 
     #[test]

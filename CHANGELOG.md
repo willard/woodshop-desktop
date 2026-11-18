@@ -11,7 +11,9 @@ All notable changes to Woodshop are listed here. The format follows
 - The PDF plan lists each part's joinery and shaping: dados, grooves, rabbets, holes, miters,
   notches, curves and eased edges, with sizes and positions, in the same words as the editor's
   Inspector. Parts cut alike are listed together, and a run of like holes (shelf pins, say) is
-  one line.
+  one line. A table of tool setups comes first: each dado stack width and depth, rabbet, drill
+  bit, miter angle and router bit the design needs, with how many cuts are made at it and on
+  which parts, so each is set once.
 - Trim sheet edges and board ends: under the cut list's Stock & kerf, choose 1/8" to 1/2" to
   take off every edge of a bought sheet, or 1/2" to 2" off each end of a bought board, before
   cutting the parts: for factory edges that are dinged or out of square, and board ends that are

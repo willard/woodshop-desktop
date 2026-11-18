@@ -99,6 +99,18 @@
 
 #if data.joinery.len() > 0 [
   == Joinery and shaping
+  #if data.setups.len() > 0 [
+    #text(fill: muted)[Set each tool once and make every cut at that setting:]
+    #table(
+      columns: (40%, 8%, 52%),
+      stroke: (_, y) => (bottom: 0.5pt + faint),
+      inset: (x: 3pt, y: 4pt),
+      align: (left, center, left),
+      table.header(label("Setup"), label("Cuts"), label("Parts")),
+      ..data.setups.map(s => (s.setup, strong(str(s.cuts)), text(size: 8.5pt, s.parts))).flatten(),
+    )
+    #v(4pt)
+  ]
   #text(fill: muted)[Each part as drawn face-on: its length left to right, the bottom edge nearest you. Parts listed together are cut the same way.]
   #v(2pt)
   #for j in data.joinery [
