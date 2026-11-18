@@ -72,7 +72,15 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
         }
         match (material.kind, material.sheet_size) {
             (MaterialType::Sheet, Some(size)) => {
-                let plan = plan_sheets(material, size.l, size.w, &group, config.kerf, &config.offcuts);
+                let plan = plan_sheets(
+                    material,
+                    size.l,
+                    size.w,
+                    &group,
+                    config.kerf,
+                    config.sheet_trim,
+                    &config.offcuts,
+                );
                 sheet_stock.push(board_feet(size.l, size.w, material.thickness, plan.sheet_count as u32));
                 sheets.push(plan);
             }
@@ -156,6 +164,7 @@ fn plan_sheets(
     sheet_w: f64,
     parts: &[&Part],
     kerf: f64,
+    trim: f64,
     offcuts: &[Offcut],
 ) -> SheetPlan {
     let grained = material.has_grain();
@@ -179,9 +188,20 @@ fn plan_sheets(
         }
     }
 
+    // Bought sheets are cut inside their trimmed edges, unless a part needs the whole sheet.
+    let trim = sheet_trim(trim, &items, sheet_l, sheet_w);
     let mine = offcuts_of(material, offcuts, true);
     let bins: Vec<(f64, f64)> = mine.iter().map(|o| (o.l, o.w.unwrap_or(0.0))).collect();
-    let packed = pack_guillotine_into(items, &bins, sheet_l, sheet_w, kerf);
+    let mut packed = pack_guillotine_into(items, &bins, sheet_l - 2.0 * trim, sheet_w - 2.0 * trim, kerf);
+    let bought = packed.sheet_count;
+    for p in packed.placements.iter_mut().filter(|p| p.sheet < bought) {
+        p.x += trim;
+        p.y += trim;
+    }
+    for l in packed.leftovers.iter_mut().filter(|l| l.sheet < bought) {
+        l.x += trim;
+        l.y += trim;
+    }
     let offcut_area: f64 = packed.offcuts_used.iter().map(|&i| bins[i].0 * bins[i].1).sum();
     let allocated = packed.sheet_count as f64 * sheet_l * sheet_w + offcut_area;
     SheetPlan {
@@ -197,17 +217,53 @@ fn plan_sheets(
         cost: material.cost_per_sheet.map(|c| packed.sheet_count as f64 * c),
         offcuts: used(&mine, &packed.offcuts_used, true),
         cuts: (0..packed.sheet_count + packed.offcuts_used.len())
-            .flat_map(|n| {
-                let (l, w) = match n.checked_sub(packed.sheet_count) {
-                    Some(i) => bins[packed.offcuts_used[i]],
-                    None => (sheet_l, sheet_w),
-                };
-                sequence::sheet_cuts(&packed.placements, n, l, w, kerf)
+            .flat_map(|n| match n.checked_sub(packed.sheet_count) {
+                Some(i) => {
+                    let (l, w) = bins[packed.offcuts_used[i]];
+                    sequence::sheet_cuts(&packed.placements, n, l, w, kerf)
+                }
+                None => trimmed_cuts(&packed.placements, n, sheet_l, sheet_w, kerf, trim),
             })
             .collect(),
+        trim,
         leftovers: packed.leftovers,
         placements: packed.placements,
     }
+}
+
+/// The edge trim a material's bought sheets get: `trim`, or none when it would leave a part
+/// without room (one as long or wide as the sheet itself).
+fn sheet_trim(trim: f64, items: &[SheetItem], sheet_l: f64, sheet_w: f64) -> f64 {
+    let (l, w) = (sheet_l - 2.0 * trim, sheet_w - 2.0 * trim);
+    let fits =
+        |i: &SheetItem| (i.w <= l + 1e-6 && i.h <= w + 1e-6) || (i.rotatable && i.h <= l + 1e-6 && i.w <= w + 1e-6);
+    if trim > 0.0 && items.iter().all(fits) {
+        trim
+    } else {
+        0.0
+    }
+}
+
+/// The saw cuts on bought sheet `n`, made inside its trimmed edges and measured from them.
+fn trimmed_cuts(placements: &[Placement], n: usize, l: f64, w: f64, kerf: f64, trim: f64) -> Vec<SawCut> {
+    if trim == 0.0 {
+        return sequence::sheet_cuts(placements, n, l, w, kerf);
+    }
+    let inside: Vec<Placement> = placements
+        .iter()
+        .filter(|p| p.sheet == n)
+        .map(|p| Placement {
+            x: p.x - trim,
+            y: p.y - trim,
+            ..p.clone()
+        })
+        .collect();
+    let mut cuts = sequence::sheet_cuts(&inside, n, l - 2.0 * trim, w - 2.0 * trim, kerf);
+    for c in &mut cuts {
+        c.x += trim;
+        c.y += trim;
+    }
+    cuts
 }
 
 fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcut]) -> LumberPlan {

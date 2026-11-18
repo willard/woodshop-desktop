@@ -17,6 +17,7 @@ fn every_template_renders_a_pdf() {
             units: Default::default(),
             hardware_prices: Default::default(),
             offcuts: Vec::new(),
+            sheet_trim: 0.0,
         })
         .unwrap_or_else(|e| panic!("{}: {e}", t.id));
         assert!(pdf.starts_with(b"%PDF-"), "{}", t.id);
@@ -47,6 +48,7 @@ fn a_plan_with_stock_on_hand_renders() {
             on_hand("top", "Birch Plywood", 0.75, 25.0, Some(17.0)),
             on_hand("leg", "Solid Birch (legs/aprons/cleats)", 1.5, 27.0, None),
         ],
+        sheet_trim: 0.0,
     })
     .unwrap();
     assert!(pdf.starts_with(b"%PDF-"));

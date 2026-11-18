@@ -78,6 +78,10 @@ pub struct SheetPlan {
     /// The saw cuts that free the parts, sheet by sheet, in the order to make them.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub cuts: Vec<SawCut>,
+    /// What is trimmed off every edge of a bought sheet before it is cut: its placements, cuts
+    /// and leftovers sit inside that border, and its cuts are measured from the trimmed edges.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub trim: f64,
 }
 
 /// One straight saw cut on a sheet or board layout, edge to edge of the piece it is made on.
@@ -296,11 +300,16 @@ pub struct CutListConfig {
     /// Stock the user already has, used before anything is bought.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub offcuts: Vec<Offcut>,
+    /// Trimmed off every edge of a bought sheet before cutting (a factory edge is often dinged
+    /// or out of square). Not taken where a part needs the whole sheet.
+    #[serde(default, rename = "sheetTrim", skip_serializing_if = "is_zero")]
+    pub sheet_trim: f64,
 }
 
 impl Default for CutListConfig {
     fn default() -> Self {
         Self {
+            sheet_trim: 0.0,
             kerf: 0.125,
             units: crate::units::Units::Fraction,
             hardware_prices: BTreeMap::new(),

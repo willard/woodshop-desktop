@@ -85,7 +85,15 @@ pub fn shopping_list(designs: &[&Spec], config: &CutListConfig) -> ShoppingList 
         }
         match (material.kind, material.sheet_size) {
             (MaterialType::Sheet, Some(size)) => {
-                let plan = plan_sheets(material, size.l, size.w, &group, config.kerf, &config.offcuts);
+                let plan = plan_sheets(
+                    material,
+                    size.l,
+                    size.w,
+                    &group,
+                    config.kerf,
+                    config.sheet_trim,
+                    &config.offcuts,
+                );
                 allocated.push(board_feet(size.l, size.w, material.thickness, plan.sheet_count as u32));
                 sheets.push(plan);
             }

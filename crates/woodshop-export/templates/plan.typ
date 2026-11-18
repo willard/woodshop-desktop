@@ -117,6 +117,11 @@
       let s = size.width / calc.max(sl, full)
       if board.caption != "" { block(below: 3pt, text(size: 8.5pt, fill: muted, board.caption)) }
       box(width: sl * s, height: sw * s, fill: rgb("#f5f5f4"), stroke: 0.5pt + rgb("#a8a29e"), {
+        // The trimmed edges, dashed: everything is cut inside them.
+        if board.trim > 0 {
+          place(dx: board.trim * s, dy: board.trim * s, rect(width: (sl - 2 * board.trim) * s,
+            height: (sw - 2 * board.trim) * s, stroke: (paint: rgb("#a8a29e"), thickness: 0.5pt, dash: "dashed")))
+        }
         for p in plan.placements.filter(p => p.sheet == n) {
           let fs = calc.max(calc.min(p.w, p.h) * s * 0.22, 5pt)
           place(dx: p.x * s, dy: (sw - p.y - p.h) * s, rect(

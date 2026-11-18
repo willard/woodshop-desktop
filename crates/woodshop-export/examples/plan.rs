@@ -23,6 +23,7 @@ fn main() {
         },
         hardware_prices: Default::default(),
         offcuts: Vec::new(),
+        sheet_trim: 0.0,
     })
     .expect("renders");
     std::fs::write(out, pdf).expect("writable");

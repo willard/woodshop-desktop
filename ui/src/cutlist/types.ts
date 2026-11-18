@@ -57,6 +57,8 @@ export interface SheetPlan {
     leftovers?: Leftover[];
     /** The saw cuts that free the parts, sheet by sheet, in the order to make them. */
     cuts?: SawCut[];
+    /** Trimmed off every edge of a bought sheet first; its parts and cuts sit inside. */
+    trim?: number;
 }
 
 /** One straight saw cut on a sheet or board, edge to edge of the piece it is made on. */
@@ -190,6 +192,8 @@ export interface CutListConfig {
     hardwarePrices?: Readonly<Record<string, number>>;
     /** Stock on hand, cut from first. Defaults to the user's list. */
     offcuts?: readonly Offcut[];
+    /** Trimmed off each edge of a bought sheet first. Defaults to the setting. */
+    sheetTrim?: number;
 }
 
 export const DEFAULT_CUTLIST_CONFIG: CutListConfig = {

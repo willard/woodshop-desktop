@@ -11,6 +11,7 @@ import { installErrorCapture } from '@/app/diagnostics';
 import { isUnits, setUnits } from '@/lib/display';
 import { parseHardwarePrices, setHardwarePrices } from '@/cutlist/prices';
 import { parseOffcuts, setOffcuts } from '@/cutlist/offcuts';
+import { parseSheetTrim, setSheetTrim } from '@/cutlist/trim';
 import { CrashScreen } from '@/components/CrashScreen';
 import { router } from '@/app/router';
 import { queryClient } from '@/app/queryClient';
@@ -32,6 +33,7 @@ async function boot(): Promise<void> {
     if (isUnits(settings.units)) setUnits(settings.units);
     setHardwarePrices(parseHardwarePrices(settings.hardwarePrices));
     setOffcuts(parseOffcuts(settings.offcuts));
+    setSheetTrim(parseSheetTrim(settings.sheetTrim));
     setThumbnailsDir(info.thumbnailsDir);
     watchSystemTheme(() => undefined);
     // macOS draws no title bar (tauri.conf.json: titleBarStyle Overlay); the app's own header sits

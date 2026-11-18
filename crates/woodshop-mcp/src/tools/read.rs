@@ -184,7 +184,9 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
         missing), the back panel last, then drawers, doors and hardware. Costs use the user's hardware \
         prices, and pieces are cut first from the stock the user has on hand: a plan's `offcuts` lists \
         the pieces it uses, and a placement or cut whose sheet or stick index is at or past \
-        `sheetCount`/`stickCount` is on one of them (not bought). Matches what the app shows. Read-only.",
+        `sheetCount`/`stickCount` is on one of them (not bought). A sheet plan's `trim` is what the user \
+        trims off each edge of a bought sheet first: its parts and cuts sit inside that border. Matches \
+        what the app shows. Read-only.",
     read_only: true,
     schema: || object(json!({ "project_id": integer(PROJECT_ID) }), &["project_id"]),
     run: get_cut_list,
@@ -205,6 +207,10 @@ fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
             offcuts: setting("offcuts")
                 .and_then(|v| serde_json::from_value(v).ok())
                 .unwrap_or_default(),
+            sheet_trim: setting("sheetTrim")
+                .and_then(|v| v.as_f64())
+                .filter(|t| t.is_finite() && *t >= 0.0)
+                .unwrap_or(0.0),
             ..CutListConfig::default()
         },
     );

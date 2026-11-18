@@ -24,6 +24,8 @@ pub struct LabelsInput<'a> {
     pub skip: usize,
     /// Stock the user already has, cut before anything bought.
     pub offcuts: Vec<Offcut>,
+    /// Trimmed off each edge of a bought sheet first (see `CutListConfig::sheet_trim`).
+    pub sheet_trim: f64,
 }
 
 /// Labels on one sheet: 30 on Letter, 21 on A4 (metric).
@@ -59,17 +61,11 @@ fn source(kind: &str, index: usize, bought: usize) -> String {
     }
 }
 
-/// Every piece's label, in cutting order.
-pub fn part_labels(spec: &Spec, kerf: f64, units: Units, offcuts: &[Offcut]) -> Vec<Label> {
-    let cut_list = compute_cut_list(
-        spec,
-        CutListConfig {
-            kerf,
-            units,
-            offcuts: offcuts.to_vec(),
-            ..CutListConfig::default()
-        },
-    );
+/// Every piece's label, in cutting order, from the cut list `config` makes (its units word the
+/// sizes).
+pub fn part_labels(spec: &Spec, config: CutListConfig) -> Vec<Label> {
+    let units = config.units;
+    let cut_list = compute_cut_list(spec, config);
     // Where each piece comes from, in the order they are cut.
     let mut sources: Vec<(&str, String)> = Vec::new();
     for plan in &cut_list.sheets {
@@ -130,7 +126,16 @@ pub fn render_labels_pdf(input: &LabelsInput<'_>) -> Result<Vec<u8>, ExportError
         title: input.title,
         paper: if input.units == Units::Metric { "a4" } else { "letter" },
         skip: input.skip.min(labels_per_sheet(input.units) - 1),
-        labels: part_labels(input.spec, input.kerf, input.units, &input.offcuts),
+        labels: part_labels(
+            input.spec,
+            CutListConfig {
+                kerf: input.kerf,
+                units: input.units,
+                offcuts: input.offcuts.clone(),
+                sheet_trim: input.sheet_trim,
+                ..CutListConfig::default()
+            },
+        ),
     };
     typeset(TEMPLATE, &view, None)
 }

@@ -341,6 +341,37 @@ test('the sheet layouts can show the order to make the saw cuts', async ({ page 
     expect(await sheet.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
 });
 
+test('sheet edges can be trimmed before the parts are cut', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Bookshelf', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    const sheet = page.getByTestId('cutlist-sheet').first();
+    await expect(sheet).toBeVisible();
+    await expect(sheet.getByTestId('cutlist-sheet-trim')).toHaveCount(0);
+    await page.getByTestId('sheet-trim-select').selectOption({ label: '1/4"' });
+    // The trimmed edges are drawn, and the cut steps start by trimming them.
+    await expect(sheet.getByTestId('cutlist-sheet-trim').locator('title')).toHaveText(
+        'Trimmed edges: 1/4" off each',
+    );
+    await page.getByTestId('cutlist-cut-order').check();
+    await expect(page.getByTestId('cutlist-cut-steps').first()).toContainText(
+        /^Trim 1\/4" off each edge, then:1 Rip/,
+    );
+    // It is a setting: another design starts with it.
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Nightstand', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('sheet-trim-select')).toHaveValue('0.25');
+});
+
 test('boards show their cut order too: crosscut to length, then ripped', async ({ page }) => {
     await page.goto('/#/templates');
     await page

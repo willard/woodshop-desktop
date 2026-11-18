@@ -228,13 +228,22 @@ fn a_board_is_not_bought_longer_than_its_cuts_need() {
 #[test]
 fn the_cut_order_frees_every_part_on_every_template_sheet() {
     // At the end every part must sit alone on a piece of exactly its size.
-    for t in woodshop_core::templates::all() {
+    // With the sheets' edges trimmed first, the cuts start from the trimmed sheet.
+    for (t, trim) in woodshop_core::templates::all()
+        .iter()
+        .flat_map(|t| [(t, 0.0), (t, 0.25)])
+    {
         let spec = woodshop_core::templates::find(t.id).unwrap();
-        let list = compute_cut_list(&spec, CutListConfig::default());
+        let config = CutListConfig {
+            sheet_trim: trim,
+            ..CutListConfig::default()
+        };
+        let list = compute_cut_list(&spec, config);
         for plan in &list.sheets {
+            let (l, w) = (plan.sheet_size.l - 2.0 * plan.trim, plan.sheet_size.w - 2.0 * plan.trim);
             for sheet in 0..plan.sheet_count {
                 let cuts: Vec<_> = plan.cuts.iter().filter(|c| c.sheet == sheet).collect();
-                let pieces = make_cuts(t.id, &cuts, plan.sheet_size.l, plan.sheet_size.w);
+                let pieces = make_cuts(t.id, &cuts, (plan.trim, plan.trim, l, w));
                 for p in plan.placements.iter().filter(|p| p.sheet == sheet) {
                     let freed = pieces.iter().any(|&(x, y, l, w)| {
                         (p.x - x).abs() < 1e-6
@@ -249,10 +258,14 @@ fn the_cut_order_frees_every_part_on_every_template_sheet() {
     }
 }
 
-/// Makes `cuts` in order on a piece `l` × `w`, each on the piece it crosses edge to edge, and
-/// returns the pieces left (x, y, length, width).
-fn make_cuts(id: &str, cuts: &[&woodshop_core::cutlist::SawCut], l: f64, w: f64) -> Vec<(f64, f64, f64, f64)> {
-    let mut pieces = vec![(0.0, 0.0, l, w)];
+/// Makes `cuts` in order on a piece (x, y, length, width), each on the piece it crosses edge to
+/// edge, and returns the pieces left.
+fn make_cuts(
+    id: &str,
+    cuts: &[&woodshop_core::cutlist::SawCut],
+    piece: (f64, f64, f64, f64),
+) -> Vec<(f64, f64, f64, f64)> {
+    let mut pieces = vec![piece];
     for (i, c) in cuts.iter().enumerate() {
         assert_eq!(c.n as usize, i + 1, "{id}: cuts numbered in order");
         let at = pieces.iter().position(|&(x, y, l, w)| {
@@ -289,7 +302,7 @@ fn the_cut_order_frees_every_piece_on_every_template_board() {
                     .stock_width
                     .unwrap_or_else(|| on_board.iter().map(|c| width(&c.part_id)).fold(0.0, f64::max));
                 let cuts: Vec<_> = plan.saw_cuts.iter().filter(|c| c.sheet == board).collect();
-                let pieces = make_cuts(t.id, &cuts, plan.board_length(board), across);
+                let pieces = make_cuts(t.id, &cuts, (0.0, 0.0, plan.board_length(board), across));
                 for c in &on_board {
                     let w = width(&c.part_id).min(across - c.y);
                     let freed = pieces.iter().any(|&(x, y, l, pw)| {
@@ -303,4 +316,80 @@ fn the_cut_order_frees_every_piece_on_every_template_board() {
             }
         }
     }
+}
+
+#[test]
+fn trimmed_sheets_keep_every_part_and_leftover_inside_the_trimmed_edges() {
+    let mut trimmed = 0;
+    for t in woodshop_core::templates::all() {
+        let spec = woodshop_core::templates::find(t.id).unwrap();
+        let plain = compute_cut_list(&spec, CutListConfig::default());
+        let config = CutListConfig {
+            sheet_trim: 0.5,
+            ..CutListConfig::default()
+        };
+        let list = compute_cut_list(&spec, config);
+        for (plan, before) in list.sheets.iter().zip(&plain.sheets) {
+            assert_eq!(
+                plan.placements.len(),
+                before.placements.len(),
+                "{}: every piece placed",
+                t.id
+            );
+            assert!(plan.sheet_count >= before.sheet_count, "{}", t.id);
+            if plan.trim == 0.0 {
+                continue;
+            }
+            trimmed += 1;
+            let (lo, hi_l, hi_w) = (
+                0.5 - 1e-6,
+                plan.sheet_size.l - 0.5 + 1e-6,
+                plan.sheet_size.w - 0.5 + 1e-6,
+            );
+            for p in &plan.placements {
+                assert!(
+                    p.x >= lo && p.y >= lo && p.x + p.w <= hi_l && p.y + p.h <= hi_w,
+                    "{}: {p:?} in the trimmed border",
+                    t.id
+                );
+            }
+            for l in &plan.leftovers {
+                let w = l.w.unwrap_or(0.0);
+                assert!(
+                    l.x >= lo && l.y >= lo && l.x + l.l <= hi_l && l.y + w <= hi_w,
+                    "{}: {l:?} in the trimmed border",
+                    t.id
+                );
+            }
+        }
+    }
+    assert!(trimmed > 10, "most sheet plans take the trim ({trimmed})");
+}
+
+#[test]
+fn a_part_as_big_as_the_sheet_keeps_the_factory_edges() {
+    // A part the size of the whole sheet: trimming would leave it no room.
+    let mut spec = woodshop_core::templates::find("bookshelf").unwrap();
+    let sheet = spec.materials.iter().find(|m| m.sheet_size.is_some()).unwrap().clone();
+    let size = sheet.sheet_size.unwrap();
+    let part = spec
+        .parts
+        .iter_mut()
+        .find(|p| p.material_id == sheet.id && p.grain_axis() != woodshop_core::spec::GrainAxis::W)
+        .unwrap();
+    let id = part.id.clone();
+    part.size.l = size.l;
+    part.size.w = size.w;
+    let config = CutListConfig {
+        sheet_trim: 0.25,
+        ..CutListConfig::default()
+    };
+    let list = compute_cut_list(&spec, config);
+    let plan = list.sheets.iter().find(|p| p.material_id == sheet.id).unwrap();
+    assert_eq!(plan.trim, 0.0);
+    assert!(
+        plan.placements
+            .iter()
+            .any(|p| p.part_id == id && p.w * p.h == size.l * size.w)
+    );
 }
