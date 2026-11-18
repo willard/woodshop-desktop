@@ -533,7 +533,8 @@ have to look up, and the editor screenshot would make someone want to try it fro
   turning; offcuts taken as full width) and that layout is kept only when it buys fewer boards;
   among equal ones the layout leaving the most full-width end wins. Only full-width ends count
   as leftovers. The panel draws boards as fixed-height bars (`BoardDiagram`), with ripped parts in
-  lanes. Templates: 97 → 95 boards. The PDF lists which board each cut is on, not where.
+  lanes. Templates: 97 → 95 boards. The PDF draws them the same way (`StickView`), above its table of cuts. Lumber
+  is counted in boards, dowels (`round`) in sticks, in the panel, PDF and stock calculator.
 
 - **Stock on hand** (the `offcuts` setting, `CutListConfig.offcuts`): pieces the user owns, by
   material name and thickness (to 1/64"); sheet pieces need a width. Plans pack onto them first

@@ -52,11 +52,17 @@ function adviceText(a: StockSuggestion): string {
     return `These parts fit within ${sizeOf(n.l, n.w)}, so a ${sizeOf(p.l, p.w)} panel would do — the ${sizeOf(c.l, c.w)} sheet is ${Math.round(a.wastePercent)}% offcut.`;
 }
 
-function stockLine(section: CutListSection): string {
+/** What one length of stock is called: a board of lumber, a stick of dowel. */
+function boardWord(spec: Spec, materialId: string): string {
+    return spec.materials.find((m) => m.id === materialId)?.type === 'round' ? 'stick' : 'board';
+}
+
+function stockLine(section: CutListSection, spec: Spec): string {
     if (section.stock === null) {
         return 'No stock plan for this material';
     }
-    const { count, unit, l, w } = section.stock;
+    const { count, l, w } = section.stock;
+    const unit = section.stock.unit === 'sheet' ? 'sheet' : boardWord(spec, section.materialId);
     const size = w === undefined ? fmt(l) : sizeOf(l, w);
     return `${count} ${unit}${count === 1 ? '' : 's'} · ${size}`;
 }
@@ -235,7 +241,7 @@ export function CutListPanel(props: CutListPanelProps) {
                             {section.materialName}
                         </div>
                         <div className="text-muted mt-0.5 text-xs">
-                            <span data-testid="cutlist-stock">{stockLine(section)}</span>
+                            <span data-testid="cutlist-stock">{stockLine(section, spec)}</span>
                             {section.cost !== null && <span> · {money(section.cost)}</span>}
                             <span> · {section.boardFeet.toFixed(1)} bd ft</span>
                         </div>
@@ -401,7 +407,8 @@ export function CutListPanel(props: CutListPanelProps) {
             {cutList.lumber.map((plan) => (
                 <div key={plan.materialId} className="mb-4" data-testid="cutlist-boards">
                     <SectionHeading>
-                        {plan.materialName}: {plural(plan.stickCount, 'board')} of {len(plan.stockLength)}
+                        {plan.materialName}: {plural(plan.stickCount, boardWord(spec, plan.materialId))} of{' '}
+                        {len(plan.stockLength)}
                         {(plan.offcuts ?? []).length > 0 &&
                             ` + ${plural(plan.offcuts!.length, 'piece')} on hand`}
                         , {pct(plan.waste)} offcut

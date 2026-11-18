@@ -111,7 +111,7 @@
       // An offcut is drawn to the same scale as the full sheets, with its caption above.
       let full = plan.boards.at(0, default: board).l
       let s = size.width / calc.max(sl, full)
-      if board.caption != "" { text(size: 8.5pt, fill: muted, board.caption) }
+      if board.caption != "" { block(below: 3pt, text(size: 8.5pt, fill: muted, board.caption)) }
       box(width: sl * s, height: sw * s, fill: rgb("#f5f5f4"), stroke: 0.5pt + rgb("#a8a29e"), {
         for p in plan.placements.filter(p => p.sheet == n) {
           let fs = calc.max(calc.min(p.w, p.h) * s * 0.22, 5pt)
@@ -131,12 +131,37 @@
 
 #for plan in data.lumber [
   == #plan.title
+  #for board in plan.boards {
+    block(breakable: false, below: 6pt, layout(size => {
+      // Boards are long and thin: along is to scale, across is a bar of fixed height.
+      let full = plan.boards.at(0, default: board).l
+      let s = size.width / calc.max(board.l, full)
+      let h = if board.ripped { 26pt } else { 14pt }
+      let t = h / board.across
+      if board.caption != "" { block(below: 3pt, text(size: 8.5pt, fill: muted, board.caption)) }
+      box(width: board.l * s, height: h, fill: rgb("#f5f5f4"), stroke: 0.5pt + rgb("#a8a29e"), {
+        for c in board.cuts {
+          // Clipped: a short piece's name is cut off rather than spilling over its neighbour.
+          place(dx: c.x * s, dy: h - (c.y + c.h) * t, box(
+            width: c.w * s,
+            height: c.h * t,
+            fill: rgb("#e0b978"),
+            stroke: 0.4pt + accent,
+            inset: 1pt,
+            clip: true,
+            align(center + horizon, text(size: 6.5pt, c.name)),
+          ))
+        }
+      })
+    }))
+  }
+  #v(4pt)
   #table(
     columns: (1fr, 15%, 20%),
     stroke: (_, y) => (bottom: 0.5pt + faint),
     inset: (x: 3pt, y: 4pt),
     align: (left, center, right),
-    table.header(label("Cut"), label("Stick"), label("Length")),
+    table.header(label("Cut"), label("Board"), label("Length")),
     ..plan.cuts.map(c => (c.name, c.stick, c.length)).flatten(),
   )
 ]

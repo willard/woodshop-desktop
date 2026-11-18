@@ -66,7 +66,7 @@ export default function StockPanel() {
         mode === 'lumber'
             ? [
                   {
-                      label: 'Sticks needed',
+                      label: 'Boards needed',
                       value: lumber ? String(lumber.stickCount) : null,
                       emphasis: true,
                   },
@@ -205,7 +205,7 @@ export default function StockPanel() {
                         <NumberField
                             value={price}
                             onChange={setPrice}
-                            label={mode === 'lumber' ? 'Price per stick' : 'Price per sheet'}
+                            label={mode === 'lumber' ? 'Price per board' : 'Price per sheet'}
                             testid="st-price"
                             min={0}
                             steppers={false}

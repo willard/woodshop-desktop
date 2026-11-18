@@ -16,10 +16,12 @@ use typst_layout::PagedDocument;
 use woodshop_core::assembly::{AssemblyStep, assembly_order};
 use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 
-use woodshop_core::cutlist::{CutList, CutListConfig, CutListSection, Offcut, compute_cut_list, group_cut_list};
+use woodshop_core::cutlist::{
+    CutList, CutListConfig, CutListSection, LumberPlan, Offcut, PartRow, compute_cut_list, group_cut_list,
+};
 use woodshop_core::geometry::overall_size;
 use woodshop_core::movables::derived_borings;
-use woodshop_core::spec::{Edge, Movable, Spec};
+use woodshop_core::spec::{Edge, MaterialType, Movable, Spec};
 use woodshop_core::units::{Units, format_length, format_length_value};
 
 use crate::ExportError;
@@ -133,7 +135,21 @@ struct PlacementView {
 #[derive(Serialize)]
 struct LumberView {
     title: String,
+    /// Each board to draw: the bought ones, then the user's pieces.
+    boards: Vec<StickView>,
     cuts: Vec<CutView>,
+}
+
+/// One board drawn as a bar: along it to scale, across it in lanes when parts are ripped.
+#[derive(Serialize)]
+struct StickView {
+    /// Empty for a bought board; "On hand, 30\"" for a piece the reader has.
+    caption: String,
+    l: f64,
+    /// The board width the lanes are measured against.
+    across: f64,
+    ripped: bool,
+    cuts: Vec<PlacementView>,
 }
 
 #[derive(Serialize)]
@@ -183,7 +199,16 @@ fn plural(n: usize, one: &str) -> String {
     format!("{n} {one}{}", if n == 1 { "" } else { "s" })
 }
 
-fn section_view(section: &CutListSection, units: Units) -> SectionView {
+/// What one length of stock is called: a board of lumber, a stick of dowel.
+fn board_word(spec: &Spec, material_id: &str) -> &'static str {
+    let round = spec
+        .materials
+        .iter()
+        .any(|m| m.id == material_id && m.kind == MaterialType::Round);
+    if round { "stick" } else { "board" }
+}
+
+fn section_view(section: &CutListSection, spec: &Spec, units: Units) -> SectionView {
     let kind = match section.kind {
         SectionKind::Sheet => "Sheet goods",
         SectionKind::Lumber => "Lumber",
@@ -193,7 +218,7 @@ fn section_view(section: &CutListSection, units: Units) -> SectionView {
     if let Some(stock) = &section.stock {
         let unit = match stock.unit {
             StockUnit::Sheet => "sheet",
-            StockUnit::Stick => "stick",
+            StockUnit::Stick => board_word(spec, &section.material_id),
         };
         let size = match stock.w {
             Some(w) => woodshop_core::units::format_size(stock.l, w, units),
@@ -337,7 +362,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
         notes,
         sections: group_cut_list(cut_list)
             .iter()
-            .map(|sec| section_view(sec, units))
+            .map(|sec| section_view(sec, input.spec, units))
             .collect(),
         hardware: cut_list
             .hardware
@@ -400,11 +425,12 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                 title: format!(
                     "{} — {} @ {}{}, {} waste",
                     p.material_name,
-                    plural(p.stick_count, "stick"),
+                    plural(p.stick_count, board_word(input.spec, &p.material_id)),
                     format_length(p.stock_length, units),
                     offcut_note(p.offcuts.len()),
                     pct(p.waste)
                 ),
+                boards: stick_views(p, &cut_list.parts, units),
                 cuts: p
                     .cuts
                     .iter()
@@ -492,6 +518,43 @@ impl World for PlanWorld {
 }
 
 /// Typeset the plan to PDF bytes.
+fn stick_views(plan: &LumberPlan, parts: &[PartRow], units: Units) -> Vec<StickView> {
+    let width = |id: &str| parts.iter().find(|r| r.part_id == id).map_or(0.0, |r| r.width);
+    let across = plan
+        .stock_width
+        .unwrap_or_else(|| plan.cuts.iter().map(|c| width(&c.part_id)).fold(1.0, f64::max));
+    let lengths = (0..plan.stick_count).map(|_| (plan.stock_length, String::new())).chain(
+        plan.offcuts
+            .iter()
+            .map(|o| (o.l, format!("On hand, {}", format_length(o.l, units)))),
+    );
+    lengths
+        .enumerate()
+        .map(|(n, (l, caption))| {
+            let mine: Vec<_> = plan.cuts.iter().filter(|c| c.stick == n).collect();
+            let ripped = mine.iter().any(|c| c.y > 0.0);
+            StickView {
+                caption,
+                l,
+                across,
+                ripped,
+                cuts: mine
+                    .iter()
+                    .map(|c| PlacementView {
+                        sheet: n,
+                        name: c.name.clone(),
+                        x: c.x,
+                        y: c.y,
+                        w: c.length,
+                        // Unripped, a piece fills the bar whatever its width.
+                        h: if ripped { width(&c.part_id).min(across) } else { across },
+                    })
+                    .collect(),
+            }
+        })
+        .collect()
+}
+
 pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
     let cut_list = compute_cut_list(
         input.spec,
@@ -662,6 +725,52 @@ mod tests {
         let pdf = render_plan_pdf(&input).unwrap();
         if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
             std::fs::write(format!("{dir}/dresser.pdf"), &pdf).unwrap();
+        }
+        assert!(pdf.starts_with(b"%PDF-"));
+    }
+
+    #[test]
+    fn boards_are_drawn_with_ripped_parts_in_lanes() {
+        let raw = include_str!("../../../resources/templates/kitchen-cart.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let input = PlanInput {
+            title: "Kitchen Cart",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 17, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Fraction,
+            hardware_prices: BTreeMap::new(),
+            offcuts: vec![Offcut {
+                id: "o1".into(),
+                material: "Maple 1x4".into(),
+                thickness: 0.75,
+                l: 30.0,
+                w: None,
+            }],
+        };
+        let cut_list = compute_cut_list(
+            &spec,
+            CutListConfig {
+                offcuts: input.offcuts.clone(),
+                ..CutListConfig::default()
+            },
+        );
+        let view = plan_view(&input, &cut_list);
+        let legs = view.lumber.iter().find(|l| l.title.starts_with("Maple 8/4")).unwrap();
+        assert_eq!(legs.boards.len(), 1);
+        let board = &legs.boards[0];
+        assert!(board.ripped && board.across == 3.5 && board.cuts.len() == 4);
+        assert!(board.cuts.iter().all(|c| c.h == 1.5 && c.x + c.w <= board.l));
+        // The rails: bought boards, then the piece on hand, captioned and drawn full width.
+        let rails = view.lumber.iter().find(|l| l.title.starts_with("Maple 1x4")).unwrap();
+        let on_hand = rails.boards.last().unwrap();
+        assert_eq!(on_hand.caption, "On hand, 30\"");
+        assert!(!on_hand.ripped && on_hand.cuts.iter().all(|c| c.h == 3.5));
+        let pdf = render_plan_pdf(&input).unwrap();
+        if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
+            std::fs::write(format!("{dir}/kitchen-cart.pdf"), &pdf).unwrap();
         }
         assert!(pdf.starts_with(b"%PDF-"));
     }
