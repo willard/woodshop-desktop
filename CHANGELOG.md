@@ -8,6 +8,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Tick off parts as you cut them: each row of the cut list has a box to tick, the layouts fade
+  what is cut, and a line says how many pieces are done. Ticks are remembered per design on this
+  computer (and in the 3D plan, in its browser), and Clear starts again.
 - Cut order for sheet goods: tick Show the cut order under the cut list's sheets to number the
   saw cuts on each layout, edge to edge, in the order to make them: rip each sheet into strips,
   then crosscut the strips. The PDF plan always shows them. Each cut is listed with its fence

@@ -111,6 +111,8 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                         >
                             <CutListPanel
                                 readonly
+                                // Ticks are kept in this browser, by the design's name.
+                                progressKey={`viewer:${payload.spec.name}`}
                                 spec={payload.spec}
                                 kerf={payload.kerf}
                                 selectedIds={selectedIds}

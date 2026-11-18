@@ -336,6 +336,7 @@ function Editor({ project }: { project: Project }) {
             <EditorWorkspace
                 ref={workspace}
                 doc={doc}
+                projectId={String(project.id)}
                 toolbar={toolbar}
                 notes={<NotesPanel projectId={project.id} />}
                 assistant={

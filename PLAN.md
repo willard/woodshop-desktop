@@ -556,6 +556,11 @@ have to look up, and the editor screenshot would make someone want to try it fro
   lines behind Show the cut order; the PDF always does. `tests/packing.rs` makes every
   template's cuts in order and checks each part ends up alone on a piece its size.
 
+- **Cut progress** (`cutlist/progress.ts`, `useCutProgress`): each cut list row has a tick for
+  "cut"; ticked parts are struck through, faded in the layouts, and counted ("3 of 8 pieces
+  cut", with Clear). Kept in localStorage per design (`woodshop.cut.<project id>`, the panel's
+  `progressKey`); the exported 3D plan keys by the design's name. The design is not changed.
+
 - **Stock on hand** (the `offcuts` setting, `CutListConfig.offcuts`): pieces the user owns, by
   material name and thickness (to 1/64"); sheet pieces need a width. Plans pack onto them first
   (smallest first), then onto bought stock; `sheetCount`/`stickCount` count bought stock only and

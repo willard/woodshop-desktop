@@ -161,6 +161,8 @@ export interface EditorWorkspaceProps {
     onKerfChange(kerf: number): void;
     /** Start a new project from these parts of the design (a group, or a multi-selection). */
     onNewProjectFromParts?(partIds: readonly string[], name: string): void;
+    /** The project's id, under which the parts ticked off as cut are remembered. */
+    projectId?: string;
 }
 
 type DockTab = 'cutlist' | 'inspector' | 'notes' | 'assistant';
@@ -2152,6 +2154,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 spec={spec}
                                 kerf={props.kerf}
                                 onKerfChange={props.onKerfChange}
+                                progressKey={props.projectId}
                                 selectedIds={selectedIds}
                                 hiddenIds={hiddenIds}
                                 onMaterial={(id, patch) => doc.execute(new SetMaterial(id, patch))}

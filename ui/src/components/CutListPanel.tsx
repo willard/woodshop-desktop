@@ -23,6 +23,7 @@ import { useOffcuts } from '@/cutlist/offcuts';
 import { boardLength, boardSizes, boughtBoards } from '@/cutlist/boards';
 import type { SawCut } from '@/cutlist/types';
 import { OnHandSection } from './OnHandSection';
+import { useCutProgress } from '@/cutlist/progress';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -38,6 +39,8 @@ export interface CutListPanelProps {
     onToggleHidden?: (partId: string) => void;
     /** Header actions (Export PDF / Export 3D …), supplied by the editor. */
     actions?: (cutList: CutList) => React.ReactNode;
+    /** Where the parts ticked off as cut are remembered (the project id); no ticks without it. */
+    progressKey?: string;
 }
 
 const KERF_OPTIONS = [0.0625, 0.09375, 0.125, 0.25];
@@ -119,6 +122,11 @@ export function CutListPanel(props: CutListPanelProps) {
     const [fastenersOpen, setFastenersOpen] = useState(false);
     /** Drawing the numbered saw cuts over the sheet layouts. */
     const [cutOrder, setCutOrder] = useState(false);
+    const progress = useCutProgress(props.progressKey ?? '');
+    const tracking = props.progressKey !== undefined;
+    const done = tracking ? progress.cut : undefined;
+    const pieces = cutList.parts.reduce((n, r) => n + r.qty, 0);
+    const piecesCut = cutList.parts.reduce((n, r) => n + (progress.cut.has(r.partId) ? r.qty : 0), 0);
     const fasteners = cutList.hardware.filter((row) => FASTENER_KINDS.has(row.kind));
     const fittings = cutList.hardware.filter((row) => !FASTENER_KINDS.has(row.kind));
 
@@ -232,6 +240,25 @@ export function CutListPanel(props: CutListPanelProps) {
                 </div>
             )}
 
+            {tracking && piecesCut > 0 && (
+                <div
+                    className="bg-surface-2 mb-3 flex items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-xs"
+                    data-testid="cutlist-progress"
+                >
+                    <span className="text-fg/75">
+                        {piecesCut === pieces
+                            ? `All ${plural(pieces, 'piece')} cut`
+                            : `${piecesCut} of ${plural(pieces, 'piece')} cut`}
+                    </span>
+                    <button
+                        className="text-accent hover:underline"
+                        data-testid="cutlist-progress-clear"
+                        onClick={progress.clear}
+                    >
+                        Clear
+                    </button>
+                </div>
+            )}
             {sections.map((section, si) => (
                 <div key={section.materialId} className="mb-4" data-testid="cutlist-section">
                     {(si === 0 || sections[si - 1].kind !== section.kind) && (
@@ -259,9 +286,30 @@ export function CutListPanel(props: CutListPanelProps) {
                         {section.groups.map((group) => {
                             const open = expanded.has(group.key);
                             const sel = groupSelected(group);
+                            const ids = group.members.map((m) => m.partId);
+                            const cutCount = ids.filter((id) => progress.cut.has(id)).length;
+                            const groupCut = tracking && cutCount === ids.length;
                             return (
                                 <div key={group.key} className="flex flex-col gap-px">
                                     <div className="flex items-stretch gap-px">
+                                        {tracking && (
+                                            <label
+                                                className="hover:bg-fg/5 flex w-7 flex-none cursor-pointer items-center justify-center rounded-lg"
+                                                title={groupCut ? 'Cut. Untick if not' : 'Tick off once cut'}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    className="accent-accent"
+                                                    aria-label={`${group.label} cut`}
+                                                    data-testid="cutlist-cut-tick"
+                                                    checked={groupCut}
+                                                    ref={(el) => {
+                                                        if (el) el.indeterminate = cutCount > 0 && !groupCut;
+                                                    }}
+                                                    onChange={(e) => progress.set(ids, e.target.checked)}
+                                                />
+                                            </label>
+                                        )}
                                         <button
                                             className={`flex flex-1 items-center gap-2.5 rounded-lg border px-2 py-2 text-left ${
                                                 sel
@@ -280,7 +328,9 @@ export function CutListPanel(props: CutListPanelProps) {
                                                 ×{group.qty}
                                             </span>
                                             <span className="min-w-0 flex-1">
-                                                <span className="block truncate text-[13px] font-semibold">
+                                                <span
+                                                    className={`block truncate text-[13px] font-semibold ${groupCut ? 'text-muted line-through' : ''}`}
+                                                >
                                                     {group.label}
                                                 </span>
                                                 <span className="text-muted block truncate text-xs">
@@ -344,7 +394,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                                     }
                                                 >
                                                     <span
-                                                        className={`min-w-0 truncate text-[12px] ${hidden ? 'text-faint line-through' : 'text-fg/70'}`}
+                                                        className={`min-w-0 truncate text-[12px] ${hidden || progress.cut.has(member.partId) ? 'text-faint line-through' : 'text-fg/70'}`}
                                                     >
                                                         {member.name}
                                                     </span>
@@ -395,8 +445,7 @@ export function CutListPanel(props: CutListPanelProps) {
                         className="accent-accent"
                         onChange={(e) => setCutOrder(e.target.checked)}
                     />
-                    Show the cut order, with each cut's fence or stop setting: sheets are ripped into strips,
-                    then crosscut; boards are crosscut to rough length, then ripped
+                    Show the cut order and fence settings
                 </label>
             )}
             {cutList.sheets.map((plan) => (
@@ -410,7 +459,7 @@ export function CutListPanel(props: CutListPanelProps) {
                     <div className="space-y-3">
                         {Array.from({ length: plan.sheetCount }, (_, n) => (
                             <div key={n}>
-                                <SheetDiagram plan={plan} sheet={n} cutOrder={cutOrder} />
+                                <SheetDiagram plan={plan} sheet={n} cutOrder={cutOrder} done={done} />
                                 {cutOrder && <CutSteps cuts={plan.cuts} sheet={n} />}
                             </div>
                         ))}
@@ -424,6 +473,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                     sheet={plan.sheetCount + i}
                                     size={{ l: o.l, w: o.w ?? 0 }}
                                     cutOrder={cutOrder}
+                                    done={done}
                                 />
                                 {cutOrder && <CutSteps cuts={plan.cuts} sheet={plan.sheetCount + i} />}
                             </div>
@@ -452,6 +502,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                     parts={cutList.parts}
                                     length={boardLength(plan, n)}
                                     cutOrder={cutOrder}
+                                    done={done}
                                 />
                                 {cutOrder && <CutSteps cuts={plan.sawCuts} sheet={n} />}
                             </div>
@@ -465,6 +516,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                     parts={cutList.parts}
                                     length={o.l}
                                     cutOrder={cutOrder}
+                                    done={done}
                                 />
                                 {cutOrder && <CutSteps cuts={plan.sawCuts} sheet={plan.stickCount + i} />}
                             </div>
@@ -721,6 +773,7 @@ export function SheetDiagram({
     sheet,
     size = plan.sheetSize,
     cutOrder = false,
+    done,
 }: {
     plan: CutList['sheets'][number];
     sheet: number;
@@ -728,6 +781,8 @@ export function SheetDiagram({
     size?: { l: number; w: number };
     /** Draw the saw cuts, numbered in the order to make them. */
     cutOrder?: boolean;
+    /** Parts ticked off as cut, drawn faded. */
+    done?: ReadonlySet<string>;
 }) {
     // A piece on hand is drawn to the same scale as a full sheet, against the left edge.
     const scale = Math.max(size.l / plan.sheetSize.l, 0.0001);
@@ -774,7 +829,7 @@ export function SheetDiagram({
                                 width={p.w}
                                 height={p.h}
                                 fill="#b98a55"
-                                fillOpacity="0.85"
+                                fillOpacity={done?.has(p.partId) ? 0.3 : 0.85}
                                 stroke="#78350f"
                                 strokeWidth="0.25"
                             />
@@ -857,6 +912,7 @@ export function BoardDiagram({
     parts,
     length = plan.stockLength,
     cutOrder = false,
+    done,
 }: {
     plan: CutList['lumber'][number];
     board: number;
@@ -865,6 +921,8 @@ export function BoardDiagram({
     length?: number;
     /** Draw the saw cuts, numbered in the order to make them. */
     cutOrder?: boolean;
+    /** Parts ticked off as cut, drawn faded. */
+    done?: ReadonlySet<string>;
 }) {
     const width = (id: string) => parts.find((r) => r.partId === id)?.width ?? 0;
     const cuts = plan.cuts.filter((c) => c.stick === board);
@@ -908,6 +966,7 @@ export function BoardDiagram({
                             bottom: at(y, across),
                             height: at(Math.min(w, across), across),
                             background: 'rgb(185 138 85 / 0.85)',
+                            opacity: done?.has(c.partId) ? 0.35 : 1,
                             display: 'flex',
                             alignItems: 'center',
                         }}

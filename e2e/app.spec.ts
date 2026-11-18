@@ -356,6 +356,27 @@ test('boards show their cut order too: crosscut to length, then ripped', async (
     expect(await legs.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
 });
 
+test('parts are ticked off as they are cut, and stay ticked', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Bookshelf', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('cutlist-progress')).toHaveCount(0);
+    // The two sides are one row: ticking it marks both pieces cut.
+    await page.getByRole('checkbox', { name: 'Left Side, Right Side cut' }).check();
+    await expect(page.getByTestId('cutlist-progress')).toContainText('2 of 8 pieces cut');
+    // Closed and opened again, the ticks are still there.
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByRole('checkbox', { name: 'Left Side, Right Side cut' })).toBeChecked();
+    await page.getByTestId('cutlist-progress-clear').click();
+    await expect(page.getByTestId('cutlist-progress')).toHaveCount(0);
+    await expect(page.getByRole('checkbox', { name: 'Left Side, Right Side cut' })).not.toBeChecked();
+});
+
 test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ page }) => {
     await page.goto('/#/templates');
     await page
