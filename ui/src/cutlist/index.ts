@@ -69,3 +69,22 @@ export interface AssemblyStep {
 export function assemblyOrder(spec: Spec): AssemblyStep[] {
     return wasm.assemblyOrder(spec) as AssemblyStep[];
 }
+
+/** One tool setting (a dado stack, bit or blade angle) and every cut made at it. */
+export interface JoinerySetup {
+    setup: string;
+    /** Cuts in all, counting each copy of a part. */
+    cuts: number;
+    parts: string;
+}
+
+/** The design's joinery in shop words, as the PDF plan prints it (`woodshop-core::joinery`). */
+export interface Joinery {
+    setups: JoinerySetup[];
+    /** Parts cut the same way, and the cuts that shape them. */
+    parts: { parts: string; lines: string[] }[];
+}
+
+export function joinery(spec: Spec, units = getUnits()): Joinery {
+    return wasm.joinery(spec, units) as Joinery;
+}

@@ -7,6 +7,7 @@ import { ChevronDown, ChevronRight, Eye, EyeOff, X } from 'lucide-react';
 import { useMemo, useState, type MouseEvent } from 'react';
 import {
     assemblyOrder,
+    joinery,
     computeCutList,
     groupCutList,
     stockAdvice,
@@ -128,6 +129,8 @@ export function CutListPanel(props: CutListPanelProps) {
     const advice = useMemo(() => stockAdvice(cutList, spec), [cutList, spec]);
     const steps = useMemo(() => assemblyOrder(spec), [spec]);
     const [assemblyOpen, setAssemblyOpen] = useState(false);
+    const work = useMemo(() => joinery(spec, units), [spec, units]);
+    const [joineryOpen, setJoineryOpen] = useState(false);
     const overall = useMemo(() => overallSize(spec), [spec]);
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
     const [fastenersOpen, setFastenersOpen] = useState(false);
@@ -641,6 +644,56 @@ export function CutListPanel(props: CutListPanelProps) {
                                 </li>
                             ))}
                         </ol>
+                    )}
+                </div>
+            )}
+
+            {work.parts.length > 0 && (
+                <div className="mb-4" data-testid="cutlist-joinery">
+                    <button
+                        className="mb-2 flex w-full items-center text-left"
+                        aria-expanded={joineryOpen}
+                        onClick={() => setJoineryOpen(!joineryOpen)}
+                        data-testid="cutlist-joinery-toggle"
+                    >
+                        {joineryOpen ? (
+                            <ChevronDown size={13} aria-hidden="true" className="text-faint mr-1" />
+                        ) : (
+                            <ChevronRight size={13} aria-hidden="true" className="text-faint mr-1" />
+                        )}
+                        <span className="text-muted text-xs font-semibold tracking-wider uppercase">
+                            Joinery
+                        </span>
+                        <span className="text-faint ml-1 text-xs">
+                            ({plural(work.setups.length, 'tool setup')})
+                        </span>
+                    </button>
+                    {joineryOpen && (
+                        <div className="bg-surface-2 space-y-2 rounded-lg px-3 py-2">
+                            {work.setups.length > 0 && (
+                                <ul className="space-y-1" aria-label="Tool setups">
+                                    {work.setups.map((s) => (
+                                        <li key={s.setup} data-testid="joinery-setup">
+                                            <span className="font-medium">{s.setup}</span>
+                                            <span className="text-faint">
+                                                {' '}
+                                                · {plural(s.cuts, 'cut')}: {s.parts}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            {work.parts.map((j) => (
+                                <div key={j.parts} data-testid="joinery-part">
+                                    <div className="font-medium">{j.parts}</div>
+                                    {j.lines.map((line, i) => (
+                                        <div key={i} className="text-fg/70 pl-4">
+                                            {line}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
                     )}
                 </div>
             )}

@@ -10,6 +10,7 @@ pub mod cutlist;
 pub mod fasteners;
 pub mod geometry;
 pub mod hardware;
+pub mod joinery;
 pub mod lint;
 pub mod movables;
 pub mod spec;

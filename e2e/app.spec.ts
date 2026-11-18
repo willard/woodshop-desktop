@@ -406,6 +406,23 @@ test('boards show their cut order too: crosscut to length, then ripped', async (
     expect(await legs.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
 });
 
+test('the cut list words the joinery, with each tool setup set once', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Record Stand 38" (Dado Build)', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-joinery-toggle').click();
+    await expect(page.getByTestId('joinery-setup').first()).toHaveText(
+        /^Dado stack 3\/4" wide, 3\/8" deep · \d+ cuts: .*Left Side Panel/,
+    );
+    await expect(page.getByTestId('joinery-part').first()).toContainText(
+        /Dado 3\/4" wide × 3\/8" deep in the front face/,
+    );
+});
+
 test('parts are ticked off as they are cut, and stay ticked', async ({ page }) => {
     await page.goto('/#/templates');
     await page

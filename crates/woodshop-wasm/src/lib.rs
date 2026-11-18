@@ -304,6 +304,12 @@ pub fn assembly_order(spec: JsValue) -> JsResult<JsValue> {
     to_js(&woodshop_core::assembly::assembly_order(&spec_from_js(spec)?))
 }
 
+/// The design's joinery in shop words, as printed on the PDF plan: `{ setups, parts }`.
+#[wasm_bindgen(js_name = joinery)]
+pub fn joinery(spec: JsValue, units: &str) -> JsResult<JsValue> {
+    to_js(&woodshop_core::joinery::joinery(&spec_from_js(spec)?, units_of(units)))
+}
+
 #[derive(serde::Deserialize)]
 struct SheetDims {
     l: f64,

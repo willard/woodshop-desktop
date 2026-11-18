@@ -11,9 +11,11 @@ use woodshop_core::geometry::frame::{
 use woodshop_core::geometry::op_extent::{datum_note, local_box};
 use woodshop_core::geometry::outline_svg;
 use woodshop_core::hardware;
+use woodshop_core::joinery::joinery;
 use woodshop_core::lint::{self, LintIssue, Severity};
 use woodshop_core::movables::derived_borings;
 use woodshop_core::spec::{self, MaterialType, Op, Part, Spec, catalog, validate};
+use woodshop_core::units::Units;
 use woodshop_core::units::fraction::inch_label;
 
 use super::*;
@@ -181,7 +183,10 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
         smaller panel when a sheet is mostly offcut. `assemblyOrder` is the order to put the piece \
         together, as printed in the PDF plan: steps from the floor up, each line naming how a part \
         fastens to what is already standing (a line ending \"no joint recorded\" is a hint a joint is \
-        missing), the back panel last, then drawers, doors and hardware. Costs use the user's hardware \
+        missing), the back panel last, then drawers, doors and hardware. `joinery` (when anything is \
+        cut beyond the blanks) lists the tool `setups` to make, each with its cut count and parts, then \
+        each part's dados, grooves, rabbets, holes, miters, notches, curves and eased edges in shop \
+        words. Costs use the user's hardware \
         prices, and pieces are cut first from the stock the user has on hand: a plan's `offcuts` lists \
         the pieces it uses, and a placement or cut whose sheet or stick index is at or past \
         `sheetCount`/`stickCount` is on one of them (not bought). A sheet plan's `trim` is what the user \
@@ -256,6 +261,10 @@ fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
         payload["stockAdvice"] = json!(advice);
     }
     payload["assemblyOrder"] = json!(assembly_order(spec));
+    let joinery = joinery(spec, Units::Fraction);
+    if !joinery.is_empty() {
+        payload["joinery"] = json!(joinery);
+    }
     Ok(payload)
 }
 

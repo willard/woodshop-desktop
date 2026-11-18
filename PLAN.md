@@ -563,6 +563,9 @@ have to look up, and the editor screenshot would make someone want to try it fro
   blank together, four or more like holes as one line pointing to the shop template. Above it,
   Tool setups (`setups`, `setup_of`): each dado stack, rabbet, bit and depth, miter angle and
   router bit with its cut count (per copy of a part) and parts; curves and notches have none.
+  Both live in `woodshop-core::joinery` (`joinery(spec, units)` → `{ setups, parts }`, WASM
+  `joinery`): the cut list panel folds them out under Joinery (so the 3D plan has them too), and
+  `get_cut_list` returns `joinery` when there is any.
 
 - **Sheet edge and board end trim** (the `sheetTrim` setting, `CutListConfig.sheet_trim`,
   `cutlist/trim.ts`): bought sheets are packed and cut inside a border of that width, coordinates

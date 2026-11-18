@@ -182,6 +182,15 @@ fn authoring_session() {
         "add_op",
         json!({ "project_id": id, "part_id": "p_top", "op": { "type": "hole", "face": "front", "x": 3, "y": 2, "diameter": 0.375 } }),
     );
+    // The cut list words it as joinery, with the drill setting to make it.
+    let cut = ok(&w, "get_cut_list", json!({ "project_id": id }));
+    assert_eq!(cut["joinery"]["setups"][0]["setup"], "3/8\" bit, through", "{cut}");
+    assert!(
+        cut["joinery"]["parts"][0]["lines"][0]
+            .as_str()
+            .unwrap()
+            .starts_with("Hole ⌀ 3/8\"")
+    );
     ok(
         &w,
         "add_joint",
