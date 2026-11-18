@@ -372,6 +372,25 @@ test('sheet edges can be trimmed before the parts are cut', async ({ page }) => 
     await expect(page.getByTestId('sheet-trim-select')).toHaveValue('0.25');
 });
 
+test('board ends can be trimmed before the parts are cut', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Kitchen Cart', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    const legs = page.getByTestId('cutlist-boards').filter({ hasText: '8/4' });
+    await expect(legs.getByTestId('cutlist-board')).toBeVisible();
+    await page.getByTestId('board-trim-select').selectOption({ label: '1"' });
+    // Both trimmed ends are marked, and the cut steps start by trimming them.
+    await expect(legs.getByTestId('cutlist-board-trim')).toHaveCount(2);
+    await page.getByTestId('cutlist-cut-order').check();
+    await expect(legs.getByTestId('cutlist-cut-steps')).toContainText(
+        /^Trim 1" off each end, then:1 Crosscut/,
+    );
+});
+
 test('boards show their cut order too: crosscut to length, then ripped', async ({ page }) => {
     await page.goto('/#/templates');
     await page

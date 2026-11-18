@@ -26,6 +26,8 @@ pub struct LabelsInput<'a> {
     pub offcuts: Vec<Offcut>,
     /// Trimmed off each edge of a bought sheet first (see `CutListConfig::sheet_trim`).
     pub sheet_trim: f64,
+    /// Trimmed off each end of a bought board first (see `CutListConfig::board_trim`).
+    pub board_trim: f64,
 }
 
 /// Labels on one sheet: 30 on Letter, 21 on A4 (metric).
@@ -133,6 +135,7 @@ pub fn render_labels_pdf(input: &LabelsInput<'_>) -> Result<Vec<u8>, ExportError
                 units: input.units,
                 offcuts: input.offcuts.clone(),
                 sheet_trim: input.sheet_trim,
+                board_trim: input.board_trim,
                 ..CutListConfig::default()
             },
         ),

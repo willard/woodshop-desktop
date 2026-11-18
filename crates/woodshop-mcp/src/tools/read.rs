@@ -185,7 +185,8 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
         prices, and pieces are cut first from the stock the user has on hand: a plan's `offcuts` lists \
         the pieces it uses, and a placement or cut whose sheet or stick index is at or past \
         `sheetCount`/`stickCount` is on one of them (not bought). A sheet plan's `trim` is what the user \
-        trims off each edge of a bought sheet first: its parts and cuts sit inside that border. Matches \
+        trims off each edge of a bought sheet first, and a lumber plan's what comes off each end of a \
+        bought board: parts and cuts sit inside. Matches \
         what the app shows. Read-only.",
     read_only: true,
     schema: || object(json!({ "project_id": integer(PROJECT_ID) }), &["project_id"]),
@@ -198,6 +199,12 @@ fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
     // The user's hardware prices and stock on hand, as the app's cut list uses them.
     let settings = w.store().settings().ok();
     let setting = |key: &str| settings.as_ref().and_then(|s| s.get(key).cloned());
+    let trim = |key: &str| {
+        setting(key)
+            .and_then(|v| v.as_f64())
+            .filter(|t| t.is_finite() && *t >= 0.0)
+            .unwrap_or(0.0)
+    };
     let built = compute_cut_list(
         spec,
         CutListConfig {
@@ -207,10 +214,8 @@ fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
             offcuts: setting("offcuts")
                 .and_then(|v| serde_json::from_value(v).ok())
                 .unwrap_or_default(),
-            sheet_trim: setting("sheetTrim")
-                .and_then(|v| v.as_f64())
-                .filter(|t| t.is_finite() && *t >= 0.0)
-                .unwrap_or(0.0),
+            sheet_trim: trim("sheetTrim"),
+            board_trim: trim("boardTrim"),
             ..CutListConfig::default()
         },
     );

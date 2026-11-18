@@ -9,7 +9,7 @@ import { getUnits } from '@/lib/display';
 import type { Spec } from '../spec/types';
 import { getHardwarePrices } from './prices';
 import { getOffcuts } from './offcuts';
-import { getSheetTrim } from './trim';
+import { getTrim } from './trim';
 import { DEFAULT_CUTLIST_CONFIG, type CutList, type CutListConfig, type ShoppingList } from './types';
 
 export * from './types';
@@ -22,7 +22,8 @@ export function computeCutList(spec: Spec, config: CutListConfig = DEFAULT_CUTLI
         units: getUnits(),
         hardwarePrices: getHardwarePrices(),
         offcuts: getOffcuts(),
-        sheetTrim: getSheetTrim(),
+        sheetTrim: getTrim('sheetTrim'),
+        boardTrim: getTrim('boardTrim'),
         ...config,
     }) as CutList;
 }
@@ -33,7 +34,8 @@ export function shoppingList(specs: Spec[], config: CutListConfig = DEFAULT_CUTL
         units: getUnits(),
         hardwarePrices: getHardwarePrices(),
         offcuts: getOffcuts(),
-        sheetTrim: getSheetTrim(),
+        sheetTrim: getTrim('sheetTrim'),
+        boardTrim: getTrim('boardTrim'),
         ...config,
     }) as ShoppingList;
 }

@@ -20,7 +20,7 @@ import { dims, len, lenValue, parseLen, size as sizeOf, useUnits } from '@/lib/d
 import { plural } from '@/app/format';
 import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
 import { useOffcuts } from '@/cutlist/offcuts';
-import { TRIM_OPTIONS, saveSheetTrim, useSheetTrim } from '@/cutlist/trim';
+import { TRIM_OPTIONS, saveTrim, useTrim, type TrimKey } from '@/cutlist/trim';
 import { boardLength, boardSizes, boughtBoards } from '@/cutlist/boards';
 import type { SawCut } from '@/cutlist/types';
 import { OnHandSection } from './OnHandSection';
@@ -107,7 +107,8 @@ export function CutListPanel(props: CutListPanelProps) {
     const units = useUnits();
     const hardwarePrices = useHardwarePrices();
     const onHand = useOffcuts();
-    const trim = useSheetTrim();
+    const sheetTrim = useTrim('sheetTrim');
+    const boardTrim = useTrim('boardTrim');
     const cutList = useMemo(
         // The exported plan is read elsewhere: it uses no one's stock on hand or trim.
         () =>
@@ -116,9 +117,10 @@ export function CutListPanel(props: CutListPanelProps) {
                 units,
                 hardwarePrices,
                 offcuts: readonly ? [] : onHand,
-                sheetTrim: readonly ? 0 : trim,
+                sheetTrim: readonly ? 0 : sheetTrim,
+                boardTrim: readonly ? 0 : boardTrim,
             }),
-        [spec, kerf, units, hardwarePrices, onHand, trim, readonly],
+        [spec, kerf, units, hardwarePrices, onHand, sheetTrim, boardTrim, readonly],
     );
     /** Showing a price box on each hardware line. */
     const [pricing, setPricing] = useState(false);
@@ -513,7 +515,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                     cutOrder={cutOrder}
                                     done={done}
                                 />
-                                {cutOrder && <CutSteps cuts={plan.sawCuts} sheet={n} />}
+                                {cutOrder && <CutSteps cuts={plan.sawCuts} sheet={n} trim={plan.trim} ends />}
                             </div>
                         ))}
                         {(plan.offcuts ?? []).map((o, i) => (
@@ -667,26 +669,20 @@ export function CutListPanel(props: CutListPanelProps) {
                     )}
                 </label>
                 {!readonly && (
-                    <label className="mb-2 flex items-center justify-between gap-2">
-                        <span
-                            className="text-muted"
+                    <>
+                        <TrimSelect
+                            setting="sheetTrim"
+                            value={sheetTrim}
+                            label="Trim sheet edges"
                             title="Cut off every edge of a bought sheet before the parts: factory edges are often dinged or out of square"
-                        >
-                            Trim sheet edges
-                        </span>
-                        <select
-                            value={trim}
-                            data-testid="sheet-trim-select"
-                            className="bg-surface-2 border-fg/10 h-7 rounded-lg border px-1.5 text-xs"
-                            onChange={(e) => void saveSheetTrim(Number(e.target.value))}
-                        >
-                            {TRIM_OPTIONS.map((t) => (
-                                <option key={t} value={t}>
-                                    {t === 0 ? 'None' : fmt(t)}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                        />
+                        <TrimSelect
+                            setting="boardTrim"
+                            value={boardTrim}
+                            label="Trim board ends"
+                            title="Cut off each end of a bought board before the parts: ends are often checked or sniped"
+                        />
+                    </>
                 )}
                 {spec.materials.map((material) => {
                     const uses = materialUse.get(material.id) ?? 0;
@@ -929,14 +925,50 @@ export function SheetDiagram({
  * One sheet's or board's saw cuts in order, each with where the fence or stop goes: the width or
  * length of the piece it takes off.
  */
+/** "Trim sheet edges" or "Trim board ends": one of the trim settings, saved as it changes. */
+function TrimSelect({
+    setting,
+    value,
+    label,
+    title,
+}: {
+    setting: TrimKey;
+    value: number;
+    label: string;
+    title: string;
+}) {
+    return (
+        <label className="mb-2 flex items-center justify-between gap-2">
+            <span className="text-muted" title={title}>
+                {label}
+            </span>
+            <select
+                value={value}
+                data-testid={setting === 'sheetTrim' ? 'sheet-trim-select' : 'board-trim-select'}
+                className="bg-surface-2 border-fg/10 h-7 rounded-lg border px-1.5 text-xs"
+                onChange={(e) => void saveTrim(setting, Number(e.target.value))}
+            >
+                {TRIM_OPTIONS[setting].map((t) => (
+                    <option key={t} value={t}>
+                        {t === 0 ? 'None' : fmt(t)}
+                    </option>
+                ))}
+            </select>
+        </label>
+    );
+}
+
 function CutSteps({
     cuts: all,
     sheet,
     trim = 0,
+    ends = false,
 }: {
     cuts: SawCut[] | undefined;
     sheet: number;
+    /** Trimmed off first: off each edge of a sheet, or each end of a board (`ends`). */
     trim?: number;
+    ends?: boolean;
 }) {
     const cuts = (all ?? []).filter((c) => c.sheet === sheet);
     if (cuts.length === 0) return null;
@@ -945,7 +977,11 @@ function CutSteps({
             className="text-muted mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs"
             data-testid="cutlist-cut-steps"
         >
-            {trim > 0 && <li>Trim {len(trim)} off each edge, then:</li>}
+            {trim > 0 && (
+                <li>
+                    Trim {len(trim)} off each {ends ? 'end' : 'edge'}, then:
+                </li>
+            )}
             {cuts.map((c) => (
                 <li key={c.n}>
                     <span className="font-semibold text-red-400">{c.n}</span> {c.rip ? 'Rip' : 'Crosscut'}{' '}
@@ -996,6 +1032,17 @@ export function BoardDiagram({
             }}
             data-testid="cutlist-board"
         >
+            {board < plan.stickCount &&
+                (plan.trim ?? 0) > 0 &&
+                [plan.trim ?? 0, length - (plan.trim ?? 0)].map((x) => (
+                    <div
+                        key={x}
+                        className="absolute inset-y-0 border-l border-dashed border-neutral-500"
+                        style={{ left: at(x, length) }}
+                        title={`Trimmed end: ${len(plan.trim ?? 0)} off`}
+                        data-testid="cutlist-board-trim"
+                    />
+                ))}
             {(plan.leftovers ?? [])
                 .filter((left) => left.sheet === board)
                 .map((left) => (

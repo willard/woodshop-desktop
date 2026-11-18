@@ -98,7 +98,7 @@ pub fn shopping_list(designs: &[&Spec], config: &CutListConfig) -> ShoppingList 
                 sheets.push(plan);
             }
             (MaterialType::Lumber | MaterialType::Round, _) => {
-                let plan = plan_lumber(material, &group, config.kerf, &config.offcuts);
+                let plan = plan_lumber(material, &group, config.kerf, config.board_trim, &config.offcuts);
                 allocated.push(stick_board_feet(material, &group, &plan));
                 lumber.push(plan);
             }

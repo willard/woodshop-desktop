@@ -52,6 +52,8 @@ pub struct PlanInput<'a> {
     pub offcuts: Vec<Offcut>,
     /// Trimmed off each edge of a bought sheet first (see `CutListConfig::sheet_trim`).
     pub sheet_trim: f64,
+    /// Trimmed off each end of a bought board first (see `CutListConfig::board_trim`).
+    pub board_trim: f64,
 }
 
 // --- The view model the template lays out --------------------------------------------------
@@ -162,6 +164,8 @@ struct StickView {
     saws: Vec<SawCut>,
     /// Every cut in order with its fence or stop setting: "1 Crosscut 30\" · 2 Rip 1 1/2\"".
     steps: String,
+    /// What is trimmed off each end first; 0 for a piece the reader has.
+    trim: f64,
 }
 
 #[derive(Serialize)]
@@ -409,7 +413,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                         l: p.sheet_size.l,
                         w: p.sheet_size.w,
                         caption: String::new(),
-                        steps: trim_step(p.trim, units) + &cut_steps(&p.cuts, n, units),
+                        steps: trim_step(p.trim, "edge", units) + &cut_steps(&p.cuts, n, units),
                         trim: p.trim,
                     })
                     .chain(p.offcuts.iter().enumerate().map(|(i, o)| {
@@ -615,7 +619,12 @@ fn stick_views(plan: &LumberPlan, parts: &[PartRow], units: Units) -> Vec<StickV
                         }
                     })
                     .collect(),
-                steps: cut_steps(&plan.saw_cuts, n, units),
+                steps: if n < plan.stick_count {
+                    trim_step(plan.trim, "end", units) + &cut_steps(&plan.saw_cuts, n, units)
+                } else {
+                    cut_steps(&plan.saw_cuts, n, units)
+                },
+                trim: if n < plan.stick_count { plan.trim } else { 0.0 },
             }
         })
         .collect()
@@ -630,6 +639,7 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
             hardware_prices: input.hardware_prices.clone(),
             offcuts: input.offcuts.clone(),
             sheet_trim: input.sheet_trim,
+            board_trim: input.board_trim,
         },
     );
     let view = plan_view(input, &cut_list);
@@ -670,10 +680,11 @@ pub(crate) fn typeset(template: &str, data: &impl Serialize, thumbnail: Option<&
 }
 
 /// One sheet's or board's saw cuts in order, each with where the fence or stop goes: "1 Rip 20\" · 2 Crosscut 30\"".
-/// The first step on a trimmed sheet, before its numbered cuts.
-fn trim_step(trim: f64, units: Units) -> String {
+/// The first step on a trimmed sheet or board, before its numbered cuts: what comes off each
+/// `edge` or `end`.
+fn trim_step(trim: f64, edge: &str, units: Units) -> String {
     if trim > 0.0 {
-        format!("Trim {} off each edge, then: ", format_length(trim, units))
+        format!("Trim {} off each {edge}, then: ", format_length(trim, units))
     } else {
         String::new()
     }
@@ -742,6 +753,7 @@ mod tests {
             hardware_prices: BTreeMap::from([("item|pull.bar-96mm".to_string(), 6.5)]),
             offcuts: Vec::new(),
             sheet_trim: 0.0,
+            board_trim: 0.0,
         })
         .unwrap();
         assert!(pdf.starts_with(b"%PDF-"));
@@ -768,6 +780,7 @@ mod tests {
             hardware_prices: BTreeMap::from([(pull.key.clone(), 4.0)]),
             offcuts: Vec::new(),
             sheet_trim: 0.0,
+            board_trim: 0.0,
         };
         let config = CutListConfig {
             hardware_prices: input.hardware_prices.clone(),
@@ -803,6 +816,7 @@ mod tests {
             hardware_prices: BTreeMap::new(),
             offcuts: Vec::new(),
             sheet_trim: 0.0,
+            board_trim: 0.0,
         };
         let cut_list = compute_cut_list(
             &spec,
@@ -839,6 +853,7 @@ mod tests {
             hardware_prices: BTreeMap::new(),
             offcuts: vec![],
             sheet_trim: 0.0,
+            board_trim: 0.0,
         };
         let cut_list = compute_cut_list(&spec, CutListConfig::default());
         let view = plan_view(&input, &cut_list);
@@ -870,11 +885,13 @@ mod tests {
             hardware_prices: BTreeMap::new(),
             offcuts: vec![],
             sheet_trim: 0.25,
+            board_trim: 0.0,
         };
         let cut_list = compute_cut_list(
             &spec,
             CutListConfig {
                 sheet_trim: 0.25,
+                board_trim: 0.0,
                 ..CutListConfig::default()
             },
         );
@@ -889,6 +906,44 @@ mod tests {
         let pdf = render_plan_pdf(&input).unwrap();
         if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
             std::fs::write(format!("{dir}/bookshelf-trimmed.pdf"), &pdf).unwrap();
+        }
+    }
+
+    #[test]
+    fn a_trimmed_board_says_so_before_its_cuts() {
+        let raw = include_str!("../../../resources/templates/kitchen-cart.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let input = PlanInput {
+            title: "Kitchen Cart",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 18, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Fraction,
+            hardware_prices: BTreeMap::new(),
+            offcuts: vec![],
+            sheet_trim: 0.0,
+            board_trim: 1.0,
+        };
+        let cut_list = compute_cut_list(
+            &spec,
+            CutListConfig {
+                board_trim: 1.0,
+                ..CutListConfig::default()
+            },
+        );
+        let view = plan_view(&input, &cut_list);
+        let board = &view.lumber[0].boards[0];
+        assert_eq!(board.trim, 1.0);
+        assert!(
+            board.steps.starts_with("Trim 1\" off each end, then: 1 Crosscut "),
+            "{}",
+            board.steps
+        );
+        let pdf = render_plan_pdf(&input).unwrap();
+        if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
+            std::fs::write(format!("{dir}/kitchen-cart-trimmed.pdf"), &pdf).unwrap();
         }
     }
 
@@ -913,6 +968,7 @@ mod tests {
                 w: None,
             }],
             sheet_trim: 0.0,
+            board_trim: 0.0,
         };
         let cut_list = compute_cut_list(
             &spec,
@@ -958,6 +1014,7 @@ mod tests {
             hardware_prices: BTreeMap::new(),
             offcuts: Vec::new(),
             sheet_trim: 0.0,
+            board_trim: 0.0,
         };
         let cut_list = compute_cut_list(&spec, CutListConfig::default());
         let view = plan_view(&input, &cut_list);

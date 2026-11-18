@@ -139,6 +139,8 @@ export interface LumberPlan {
     leftovers?: Leftover[];
     /** The saw cuts that free the pieces, board by board, in order: crosscuts first, then rips. */
     sawCuts?: SawCut[];
+    /** Trimmed off each end of a bought board first; its cuts sit between. */
+    trim?: number;
 }
 
 /** One line of the hardware list (spec 1.8, movables 1.12): the metal to buy. */
@@ -194,6 +196,8 @@ export interface CutListConfig {
     offcuts?: readonly Offcut[];
     /** Trimmed off each edge of a bought sheet first. Defaults to the setting. */
     sheetTrim?: number;
+    /** Trimmed off each end of a bought board first. Defaults to the setting. */
+    boardTrim?: number;
 }
 
 export const DEFAULT_CUTLIST_CONFIG: CutListConfig = {

@@ -368,7 +368,7 @@
             },
             {
                 "type": "p",
-                "text": "Cutting allows for a saw kerf (the width of material the blade removes) between pieces, so the plan reflects what you can really get out of a sheet or board. Under **Stock & kerf**, **Trim sheet edges** takes 1/8\" to 1/2\" off every edge of a bought sheet before the parts, for factory edges that are dinged or out of square: the layouts draw the trimmed edges dashed and measure each cut from them. A material with a part as big as the whole sheet keeps its factory edges."
+                "text": "Cutting allows for a saw kerf (the width of material the blade removes) between pieces, so the plan reflects what you can really get out of a sheet or board. Under **Stock & kerf**, **Trim sheet edges** takes 1/8\" to 1/2\" off every edge of a bought sheet before the parts, for factory edges that are dinged or out of square: the layouts draw the trimmed edges dashed and measure each cut from them. **Trim board ends** does the same for boards, 1/2\" to 2\" off each end, for ends that are checked or sniped. A material with a part as big as the whole sheet or as long as its longest board is left whole, and dowels are never trimmed."
             },
             {
                 "type": "h",

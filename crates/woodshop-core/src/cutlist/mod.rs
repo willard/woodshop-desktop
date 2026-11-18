@@ -86,7 +86,7 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
             }
             (MaterialType::Lumber | MaterialType::Round, _) => {
                 // Round stock comes in sticks and is cross-cut to length, exactly like lumber.
-                let plan = plan_lumber(material, &group, config.kerf, &config.offcuts);
+                let plan = plan_lumber(material, &group, config.kerf, config.board_trim, &config.offcuts);
                 lumber_stock.push(stick_board_feet(material, &group, &plan));
                 lumber.push(plan);
             }
@@ -266,7 +266,7 @@ fn trimmed_cuts(placements: &[Placement], n: usize, l: f64, w: f64, kerf: f64, t
     cuts
 }
 
-fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcut]) -> LumberPlan {
+fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, trim: f64, offcuts: &[Offcut]) -> LumberPlan {
     // The lengths on sale, longest first.
     let mut listed: Vec<f64> = match material.stock_lengths.as_deref() {
         Some(lengths) if !lengths.is_empty() => lengths.to_vec(),
@@ -291,7 +291,28 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
     let bins: Vec<f64> = mine.iter().map(|o| o.l).collect();
     // Round stock is never ripped.
     let stock_width = material.stock_width.filter(|_| material.kind != MaterialType::Round);
-    let (packed, lengths) = pack_lengths(&items, &bins, &listed, stock_width, kerf);
+    // Bought boards are cut between their trimmed ends, unless a part needs the whole board; round
+    // stock is never trimmed.
+    let longest_part = items.iter().map(|i| i.length).fold(0.0, f64::max);
+    let trim = if trim > 0.0 && material.kind != MaterialType::Round && longest_part <= listed[0] - 2.0 * trim + EPS {
+        trim
+    } else {
+        0.0
+    };
+    let usable: Vec<f64> = listed.iter().map(|l| l - 2.0 * trim).collect();
+    let (mut packed, usable_lengths) = pack_lengths(&items, &bins, &usable, stock_width, kerf);
+    let mut saw_cuts = board_saw_cuts(&packed, &items, &usable_lengths, &bins, stock_width, kerf);
+    let bought = packed.stick_count;
+    for c in packed.cuts.iter_mut().filter(|c| c.stick < bought) {
+        c.x += trim;
+    }
+    for l in packed.leftovers.iter_mut().filter(|l| l.sheet < bought) {
+        l.x += trim;
+    }
+    for c in saw_cuts.iter_mut().filter(|c| c.sheet < bought) {
+        c.x += trim;
+    }
+    let lengths: Vec<f64> = usable_lengths.iter().map(|l| l + 2.0 * trim).collect();
     // The longest board bought; with none bought, the longest on sale.
     let stock_length = if lengths.is_empty() {
         listed[0]
@@ -317,7 +338,6 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
         .map(|p| piece_bf(p, 1))
         .sum();
     let bought_bf = all_bf - offcut_bf;
-    let saw_cuts = board_saw_cuts(&packed, &items, &lengths, &bins, stock_width, kerf);
     LumberPlan {
         material_id: material.id.clone(),
         material_name: material.name.clone(),
@@ -340,6 +360,7 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
         leftovers: packed.leftovers,
         cuts: packed.cuts,
         saw_cuts,
+        trim,
     }
 }
 

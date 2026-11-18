@@ -8,10 +8,12 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
-- Trim sheet edges: under the cut list's Stock & kerf, choose 1/8" to 1/2" to take off every
-  edge of a bought sheet before cutting the parts, for factory edges that are dinged or out of
-  square. Layouts draw the trimmed edges, and each sheet's cut steps start with the trim and
-  measure from the trimmed edges. The PDF plan, labels and agents use the same setting.
+- Trim sheet edges and board ends: under the cut list's Stock & kerf, choose 1/8" to 1/2" to
+  take off every edge of a bought sheet, or 1/2" to 2" off each end of a bought board, before
+  cutting the parts: for factory edges that are dinged or out of square, and board ends that are
+  checked or sniped. Layouts mark what is trimmed, and each sheet's or board's cut steps start
+  with the trim and measure from the trimmed edge. The PDF plan, labels and agents use the same
+  settings.
 - Tick off parts as you cut them: each row of the cut list has a box to tick, the layouts fade
   what is cut, and a line says how many pieces are done. Ticks are remembered per design on this
   computer (and in the 3D plan, in its browser), and Clear starts again.

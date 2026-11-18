@@ -166,6 +166,12 @@
       let t = h / board.across
       if board.caption != "" { block(below: 3pt, text(size: 8.5pt, fill: muted, board.caption)) }
       box(width: board.l * s, height: h, fill: rgb("#f5f5f4"), stroke: 0.5pt + rgb("#a8a29e"), {
+        // The trimmed ends, dashed: everything is cut between them.
+        if board.trim > 0 {
+          for x in (board.trim, board.l - board.trim) {
+            place(dx: x * s, dy: 0pt, line(end: (0pt, h), stroke: (paint: rgb("#a8a29e"), thickness: 0.5pt, dash: "dashed")))
+          }
+        }
         for c in board.cuts {
           // Clipped: a short piece's name is cut off rather than spilling over its neighbour.
           place(dx: c.x * s, dy: h - (c.y + c.h) * t, box(

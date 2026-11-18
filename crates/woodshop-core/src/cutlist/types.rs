@@ -202,6 +202,10 @@ pub struct LumberPlan {
     /// to rough length first, then rips.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub saw_cuts: Vec<SawCut>,
+    /// What is trimmed off each end of a bought board before it is cut: its cuts sit between the
+    /// trimmed ends, and its saw cuts are measured from the trimmed end.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub trim: f64,
 }
 
 impl LumberPlan {
@@ -304,12 +308,17 @@ pub struct CutListConfig {
     /// or out of square). Not taken where a part needs the whole sheet.
     #[serde(default, rename = "sheetTrim", skip_serializing_if = "is_zero")]
     pub sheet_trim: f64,
+    /// Trimmed off each end of a bought board before cutting (checked or sniped ends). Not
+    /// taken where a part needs the whole board, nor from round stock.
+    #[serde(default, rename = "boardTrim", skip_serializing_if = "is_zero")]
+    pub board_trim: f64,
 }
 
 impl Default for CutListConfig {
     fn default() -> Self {
         Self {
             sheet_trim: 0.0,
+            board_trim: 0.0,
             kerf: 0.125,
             units: crate::units::Units::Fraction,
             hardware_prices: BTreeMap::new(),

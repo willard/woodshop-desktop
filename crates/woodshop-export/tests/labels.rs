@@ -73,6 +73,7 @@ fn every_template_prints_its_labels() {
                 skip: 0,
                 offcuts: Vec::new(),
                 sheet_trim: 0.0,
+                board_trim: 0.0,
             })
             .unwrap_or_else(|e| panic!("{}: {e}", t.id));
             assert!(pdf.starts_with(b"%PDF-"), "{}", t.id);
@@ -94,6 +95,7 @@ fn dump() {
             skip: 4,
             offcuts: Vec::new(),
             sheet_trim: 0.0,
+            board_trim: 0.0,
         })
         .unwrap();
         std::fs::write(format!("{dir}/labels-{name}.pdf"), pdf).unwrap();
@@ -111,6 +113,7 @@ fn printing_can_start_partway_down_a_used_sheet() {
         skip,
         offcuts: Vec::new(),
         sheet_trim: 0.0,
+        board_trim: 0.0,
     };
     let fresh = render_labels_pdf(&input(0)).unwrap();
     let used = render_labels_pdf(&input(7)).unwrap();
@@ -145,6 +148,7 @@ fn a_piece_cut_from_stock_on_hand_says_so() {
         skip: 0,
         offcuts: vec![top],
         sheet_trim: 0.0,
+        board_trim: 0.0,
     })
     .unwrap();
     assert!(pdf.starts_with(b"%PDF-"));

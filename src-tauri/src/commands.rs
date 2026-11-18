@@ -398,11 +398,12 @@ fn offcuts(store: &Store) -> woodshop_store::Result<Vec<woodshop_core::cutlist::
         .unwrap_or_default())
 }
 
-/// What is trimmed off each edge of a bought sheet before it is cut (the `sheetTrim` setting).
-fn sheet_trim(store: &Store) -> woodshop_store::Result<f64> {
+/// What is trimmed off each edge of a bought sheet (the `sheetTrim` setting) or each end of a
+/// bought board (`boardTrim`) before it is cut.
+fn trim(store: &Store, key: &str) -> woodshop_store::Result<f64> {
     Ok(store
         .settings()?
-        .get("sheetTrim")
+        .get(key)
         .and_then(serde_json::Value::as_f64)
         .filter(|t| t.is_finite() && *t >= 0.0)
         .unwrap_or(0.0))
@@ -418,18 +419,18 @@ pub async fn export_pdf(
     date: String,
     units: Option<woodshop_core::units::Units>,
 ) -> CmdResult<()> {
-    let (project, notes, thumbnail, hardware_prices, offcuts, trim) = lib.with(|s| {
+    let (project, notes, thumbnail, hardware_prices, offcuts, trims) = lib.with(|s| {
         let project = s.get_project(id)?;
         let notes = plan_notes(s, id)?;
         let hardware_prices = hardware_prices(s)?;
         let offcuts = offcuts(s)?;
-        let trim = sheet_trim(s)?;
+        let trims = (trim(s, "sheetTrim")?, trim(s, "boardTrim")?);
         let thumbnail = s
             .thumbnail_path(id)
             .filter(|p| p.exists())
             .map(std::fs::read)
             .transpose()?;
-        Ok((project, notes, thumbnail, hardware_prices, offcuts, trim))
+        Ok((project, notes, thumbnail, hardware_prices, offcuts, trims))
     })?;
     // Typesetting takes a moment; keep it off the thread that serves other commands.
     let pdf = tauri::async_runtime::spawn_blocking(move || {
@@ -443,7 +444,8 @@ pub async fn export_pdf(
             units: units.unwrap_or_default(),
             hardware_prices,
             offcuts,
-            sheet_trim: trim,
+            sheet_trim: trims.0,
+            board_trim: trims.1,
         })
     })
     .await
@@ -463,7 +465,13 @@ pub async fn export_labels(
     units: Option<woodshop_core::units::Units>,
     skip: Option<usize>,
 ) -> CmdResult<()> {
-    let (project, offcuts, trim) = lib.with(|s| Ok((s.get_project(id)?, offcuts(s)?, sheet_trim(s)?)))?;
+    let (project, offcuts, trims) = lib.with(|s| {
+        Ok((
+            s.get_project(id)?,
+            offcuts(s)?,
+            (trim(s, "sheetTrim")?, trim(s, "boardTrim")?),
+        ))
+    })?;
     let pdf = tauri::async_runtime::spawn_blocking(move || {
         woodshop_export::render_labels_pdf(&woodshop_export::LabelsInput {
             title: &project.name,
@@ -472,7 +480,8 @@ pub async fn export_labels(
             units: units.unwrap_or_default(),
             skip: skip.unwrap_or(0),
             offcuts,
-            sheet_trim: trim,
+            sheet_trim: trims.0,
+            board_trim: trims.1,
         })
     })
     .await

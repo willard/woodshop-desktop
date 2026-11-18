@@ -291,9 +291,17 @@ fn make_cuts(
 
 #[test]
 fn the_cut_order_frees_every_piece_on_every_template_board() {
-    for t in woodshop_core::templates::all() {
+    // With the boards' ends trimmed first, the cuts start from the trimmed board.
+    for (t, trim) in woodshop_core::templates::all()
+        .iter()
+        .flat_map(|t| [(t, 0.0), (t, 1.0)])
+    {
         let spec = woodshop_core::templates::find(t.id).unwrap();
-        let list = compute_cut_list(&spec, CutListConfig::default());
+        let config = CutListConfig {
+            board_trim: trim,
+            ..CutListConfig::default()
+        };
+        let list = compute_cut_list(&spec, config);
         for plan in &list.lumber {
             let width = |id: &str| spec.parts.iter().find(|p| p.id == id).unwrap().size.w;
             for board in 0..plan.stick_count {
@@ -302,7 +310,11 @@ fn the_cut_order_frees_every_piece_on_every_template_board() {
                     .stock_width
                     .unwrap_or_else(|| on_board.iter().map(|c| width(&c.part_id)).fold(0.0, f64::max));
                 let cuts: Vec<_> = plan.saw_cuts.iter().filter(|c| c.sheet == board).collect();
-                let pieces = make_cuts(t.id, &cuts, (0.0, 0.0, plan.board_length(board), across));
+                let pieces = make_cuts(
+                    t.id,
+                    &cuts,
+                    (plan.trim, 0.0, plan.board_length(board) - 2.0 * plan.trim, across),
+                );
                 for c in &on_board {
                     let w = width(&c.part_id).min(across - c.y);
                     let freed = pieces.iter().any(|&(x, y, l, pw)| {
@@ -392,4 +404,73 @@ fn a_part_as_big_as_the_sheet_keeps_the_factory_edges() {
             .iter()
             .any(|p| p.part_id == id && p.w * p.h == size.l * size.w)
     );
+}
+
+#[test]
+fn trimmed_boards_keep_every_cut_between_the_trimmed_ends() {
+    let mut trimmed = 0;
+    for t in woodshop_core::templates::all() {
+        let spec = woodshop_core::templates::find(t.id).unwrap();
+        let plain = compute_cut_list(&spec, CutListConfig::default());
+        let config = CutListConfig {
+            board_trim: 1.0,
+            ..CutListConfig::default()
+        };
+        let list = compute_cut_list(&spec, config);
+        for (plan, before) in list.lumber.iter().zip(&plain.lumber) {
+            assert_eq!(plan.cuts.len(), before.cuts.len(), "{}: every piece cut", t.id);
+            if plan.trim == 0.0 {
+                continue;
+            }
+            trimmed += 1;
+            for c in plan.cuts.iter().filter(|c| c.stick < plan.stick_count) {
+                assert!(
+                    c.x >= 1.0 - 1e-6 && c.x + c.length <= plan.board_length(c.stick) - 1.0 + 1e-6,
+                    "{}: {c:?} in a trimmed end",
+                    t.id
+                );
+            }
+            for l in plan.leftovers.iter().filter(|l| l.sheet < plan.stick_count) {
+                assert!(
+                    l.x >= 1.0 && l.x + l.l <= plan.board_length(l.sheet) - 1.0 + 1e-6,
+                    "{}: {l:?}",
+                    t.id
+                );
+            }
+        }
+    }
+    assert!(trimmed > 10, "most board plans take the trim ({trimmed})");
+}
+
+#[test]
+fn dowels_and_parts_as_long_as_the_board_keep_their_ends() {
+    let config = || CutListConfig {
+        board_trim: 1.0,
+        ..CutListConfig::default()
+    };
+    let tote = woodshop_core::templates::find("tool-tote").unwrap();
+    let list = compute_cut_list(&tote, config());
+    let dowel = list.lumber.iter().find(|p| p.material_name.contains("Dowel")).unwrap();
+    assert_eq!(dowel.trim, 0.0);
+    assert!(list.lumber.iter().any(|p| p.trim == 1.0));
+
+    // A part the length of the longest board on sale: trimming would leave it no room.
+    let mut spec = woodshop_core::templates::find("tool-tote").unwrap();
+    let board = list.lumber.iter().find(|p| p.trim == 1.0).unwrap();
+    let longest = spec
+        .materials
+        .iter()
+        .find(|m| m.id == board.material_id)
+        .and_then(|m| m.stock_lengths.clone())
+        .and_then(|l| l.into_iter().reduce(f64::max))
+        .unwrap_or(woodshop_core::cutlist::DEFAULT_STOCK_LENGTH);
+    let part = spec
+        .parts
+        .iter_mut()
+        .find(|p| p.material_id == board.material_id)
+        .unwrap();
+    part.size.l = longest;
+    let list = compute_cut_list(&spec, config());
+    let plan = list.lumber.iter().find(|p| p.material_id == board.material_id).unwrap();
+    assert_eq!(plan.trim, 0.0);
 }

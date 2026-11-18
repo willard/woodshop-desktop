@@ -556,12 +556,14 @@ have to look up, and the editor screenshot would make someone want to try it fro
   lines behind Show the cut order; the PDF always does. `tests/packing.rs` makes every
   template's cuts in order and checks each part ends up alone on a piece its size.
 
-- **Sheet edge trim** (the `sheetTrim` setting, `CutListConfig.sheet_trim`, `cutlist/trim.ts`):
-  bought sheets are packed and cut inside a border of that width, coordinates staying in sheet
-  terms; `SheetPlan.trim` is what a plan took (none where a part needs the whole sheet; pieces on
-  hand are never trimmed). The panel (Stock & kerf) and PDF draw the border dashed and lead each
-  sheet's cut steps with "Trim 1/4\" off each edge, then:". Read by the PDF, labels and
-  `get_cut_list`; the exported 3D plan uses none.
+- **Sheet edge and board end trim** (the `sheetTrim` setting, `CutListConfig.sheet_trim`,
+  `cutlist/trim.ts`): bought sheets are packed and cut inside a border of that width, coordinates
+  staying in sheet terms; `SheetPlan.trim` is what a plan took (none where a part needs the whole
+  sheet; pieces on hand are never trimmed). The panel (Stock & kerf) and PDF draw the border dashed
+  and lead each sheet's cut steps with "Trim 1/4\" off each edge, then:". Boards the same
+  (`boardTrim`, `CutListConfig.board_trim`, `LumberPlan.trim`): each listed length is packed less
+  both ends, the cuts shifted in; never for round stock, nor where a part needs the longest board.
+  Read by the PDF, labels and `get_cut_list`; the exported 3D plan uses neither.
 
 - **Cut progress** (`cutlist/progress.ts`, `useCutProgress`): each cut list row has a tick for
   "cut"; ticked parts are struck through, faded in the layouts, and counted ("3 of 8 pieces
