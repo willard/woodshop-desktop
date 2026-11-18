@@ -174,6 +174,8 @@ export interface CutListTotals {
     hardwareCost?: number;
     /** Overall offcut fraction across all material (0..1). */
     wastePercent: number;
+    /** About what the wood weighs once built, in pounds. */
+    weight: number;
 }
 
 export interface CutList {

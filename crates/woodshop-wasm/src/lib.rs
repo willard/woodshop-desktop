@@ -372,6 +372,11 @@ pub fn format_length(inches: f64, units: &str) -> String {
     units::format_length(inches, units_of(units))
 }
 
+#[wasm_bindgen(js_name = formatWeight)]
+pub fn format_weight(pounds: f64, units: &str) -> String {
+    units::format_weight(pounds, units_of(units))
+}
+
 #[wasm_bindgen(js_name = formatLengthValue)]
 pub fn format_length_value(inches: f64, units: &str) -> String {
     units::format_length_value(inches, units_of(units))

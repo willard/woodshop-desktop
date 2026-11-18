@@ -23,7 +23,7 @@ use woodshop_core::geometry::overall_size;
 use woodshop_core::joinery::{Joinery, joinery};
 use woodshop_core::movables::derived_borings;
 use woodshop_core::spec::{Edge, MaterialType, Movable, Spec};
-use woodshop_core::units::{Units, format_length, format_length_value};
+use woodshop_core::units::{Units, format_length, format_length_value, format_weight};
 
 use crate::ExportError;
 
@@ -380,6 +380,10 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             Total {
                 label: "Waste",
                 value: pct(cut_list.totals.waste_percent),
+            },
+            Total {
+                label: "Weight (wood)",
+                value: format!("≈ {}", format_weight(cut_list.totals.weight, units)),
             },
         ],
         notes,

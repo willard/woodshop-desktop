@@ -17,7 +17,7 @@ import {
     type StockSuggestion,
 } from '@/cutlist';
 import { overallSize, type Material, type Spec } from '@/spec';
-import { dims, len, lenValue, parseLen, size as sizeOf, useUnits } from '@/lib/display';
+import { dims, len, lenValue, parseLen, size as sizeOf, useUnits, weight } from '@/lib/display';
 import { plural } from '@/app/format';
 import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
 import { useOffcuts } from '@/cutlist/offcuts';
@@ -209,6 +209,15 @@ export function CutListPanel(props: CutListPanelProps) {
                         <div className="mt-0.5 text-lg font-semibold">
                             {dims(overall.width, overall.depth, overall.height)}
                         </div>
+                        {cutList.totals.weight > 0 && (
+                            <div
+                                className="text-muted mt-0.5 text-xs"
+                                title="The wood alone, at typical densities for its materials; hardware not included"
+                                data-testid="cutlist-weight"
+                            >
+                                About {weight(cutList.totals.weight)} of wood
+                            </div>
+                        )}
                     </div>
                 )}
                 <Stat label="Board feet" value={cutList.totals.boardFeet.toFixed(1)} />

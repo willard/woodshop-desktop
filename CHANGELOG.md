@@ -8,6 +8,10 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- About what a design weighs: the cut list's overall size says "About 87 lb of wood", and the PDF
+  summary shows it too, for hanging a wall cabinet, choosing casters or moving the piece. It is
+  the wood alone, at a typical density for each material, read from its name (MDF, Baltic birch,
+  cedar, oak…) or species; in kilograms when working in millimetres.
 - The PDF plan lists each part's joinery and shaping: dados, grooves, rabbets, holes, miters,
   notches, curves and eased edges, with sizes and positions, in the same words as the editor's
   Inspector. Parts cut alike are listed together, and a run of like holes (shelf pins, say) is

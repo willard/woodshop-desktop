@@ -25,7 +25,7 @@ function cutListOf(parts: PartRow[], over: Partial<CutList> = {}): CutList {
         sheets: [],
         lumber: [],
         hardware: [],
-        totals: { boardFeet: 0, sheetCount: 0, estimatedCost: null, wastePercent: 0 },
+        totals: { boardFeet: 0, sheetCount: 0, estimatedCost: null, wastePercent: 0, weight: 0 },
         ...over,
     };
 }

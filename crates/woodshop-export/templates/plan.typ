@@ -37,7 +37,7 @@
 
 == Summary
 #table(
-  columns: (1fr,) * 4,
+  columns: (1fr,) * data.totals.len(),
   stroke: none,
   fill: rgb("#f5f5f4"),
   inset: 7pt,

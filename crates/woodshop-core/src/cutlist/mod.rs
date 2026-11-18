@@ -9,6 +9,7 @@ pub mod sequence;
 pub mod shopping;
 pub mod stock_advice;
 pub mod types;
+pub mod weight;
 
 pub use grouping::{CutListSection, group_cut_list};
 pub use hardware::{compute_hardware, compute_hardware_in};
@@ -105,13 +106,14 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
             row.cost = Some(price * f64::from(row.qty));
         }
     }
-    let totals = totals_of(
+    let mut totals = totals_of(
         &parts,
         &sheets,
         &lumber,
         &[sheet_stock, lumber_stock].concat(),
         &hardware,
     );
+    totals.weight = weight::wood_weight(spec);
     CutList {
         parts,
         sheets,
@@ -501,5 +503,6 @@ fn totals_of(
         material_cost,
         hardware_cost,
         waste_percent: if allocated > 0.0 { offcut / allocated } else { 0.0 },
+        weight: 0.0,
     }
 }

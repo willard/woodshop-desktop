@@ -280,6 +280,9 @@ pub struct CutListTotals {
     pub hardware_cost: Option<f64>,
     /// Overall offcut fraction across all material (0..1).
     pub waste_percent: f64,
+    /// About what the wood weighs once built, in pounds (`cutlist::weight`).
+    #[serde(default)]
+    pub weight: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

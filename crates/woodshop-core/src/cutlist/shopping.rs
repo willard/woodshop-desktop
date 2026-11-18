@@ -123,7 +123,8 @@ pub fn shopping_list(designs: &[&Spec], config: &CutListConfig) -> ShoppingList 
     hardware.sort_by_key(|h| h.kind);
 
     let parts: Vec<PartRow> = alone.iter().flat_map(|c| c.parts.clone()).collect();
-    let totals = totals_of(&parts, &sheets, &lumber, &allocated, &hardware);
+    let mut totals = totals_of(&parts, &sheets, &lumber, &allocated, &hardware);
+    totals.weight = alone.iter().map(|c| c.totals.weight).sum();
     ShoppingList {
         separate_sheets: alone.iter().map(|c| c.totals.sheet_count).sum(),
         separate_boards: alone.iter().flat_map(|c| &c.lumber).map(|p| p.stick_count).sum(),

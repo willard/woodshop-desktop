@@ -59,6 +59,11 @@ export function len(inches: number, units: Units = current): string {
     return wasm.formatLength(inches, units);
 }
 
+/** A weight in pounds, to read as an estimate: `87 lb`, `6.5 lb`, `40 kg`. */
+export function weight(pounds: number, units: Units = current): string {
+    return wasm.formatWeight(pounds, units);
+}
+
 /** A length for an input field, with no unit mark: `3 1/2`, `3.5`, `89`. */
 export function lenValue(inches: number, units: Units = current): string {
     return wasm.formatLengthValue(inches, units);

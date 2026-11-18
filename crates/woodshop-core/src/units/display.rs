@@ -75,6 +75,20 @@ pub fn format_length(inches: f64, units: Units) -> String {
 }
 
 /// Two lengths as a size: `24" × 16"`, `610 × 406 mm`.
+/// A weight in pounds, to read: `87 lb`, `6.5 lb`, or in metric `40 kg`, `2.9 kg`. Rounded to
+/// what an estimate is worth: whole units from 10 up, a tenth below.
+pub fn format_weight(pounds: f64, units: Units) -> String {
+    let (value, unit) = match units {
+        Units::Metric => (pounds * 0.453_592_37, "kg"),
+        Units::Fraction | Units::Decimal => (pounds, "lb"),
+    };
+    if value >= 9.95 {
+        format!("{} {unit}", value.round())
+    } else {
+        format!("{:.1} {unit}", value)
+    }
+}
+
 pub fn format_size(a: f64, b: f64, units: Units) -> String {
     match units {
         Units::Metric => format!("{} × {} mm", mm(a), mm(b)),
@@ -196,5 +210,18 @@ mod tests {
                 assert_eq!(format_length_value(back, units), shown, "{units:?} {v}");
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod weight_tests {
+    use super::*;
+
+    #[test]
+    fn a_weight_is_rounded_to_what_an_estimate_is_worth() {
+        assert_eq!(format_weight(87.404, Units::Fraction), "87 lb");
+        assert_eq!(format_weight(6.54, Units::Decimal), "6.5 lb");
+        assert_eq!(format_weight(87.404, Units::Metric), "40 kg");
+        assert_eq!(format_weight(6.54, Units::Metric), "3.0 kg");
     }
 }

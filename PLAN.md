@@ -556,6 +556,12 @@ have to look up, and the editor screenshot would make someone want to try it fro
   lines behind Show the cut order; the PDF always does. `tests/packing.rs` makes every
   template's cuts in order and checks each part ends up alone on a piece its size.
 
+- **Weight** (`cutlist::weight`, `CutListTotals.weight` in pounds, `units::format_weight`, WASM
+  `formatWeight`): every part's blank volume at a density from the material's name (first match in
+  `BY_NAME`, sheet goods before the woods they are faced with), else its species, else 36 lb/ft³
+  for sheets and 30 for lumber. Shown on the panel's Overall tile and the PDF summary; agents read
+  `totals.weight`. Hardware is not weighed.
+
 - **Joinery in the PDF** (`spec::describe::op_summary`, WASM `opSummary`): the op vocabulary
   moved from `ui/src/spec/opLabel.ts` to the core, so the Inspector, the 3D plan and the PDF word
   ops the same way (the TS cases now test the Rust). The PDF's Joinery and shaping section lists

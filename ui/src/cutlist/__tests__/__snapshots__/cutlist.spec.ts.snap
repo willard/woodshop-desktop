@@ -398,6 +398,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
     "materialCost": 156,
     "sheetCount": 2,
     "wastePercent": 0.393,
+    "weight": 87.404,
   },
 }
 `;
@@ -729,6 +730,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
     "materialCost": 285,
     "sheetCount": 3,
     "wastePercent": 0.57,
+    "weight": 81.891,
   },
 }
 `;

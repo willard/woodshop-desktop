@@ -395,7 +395,8 @@
       "estimatedCost": 156,
       "sheetCount": 2,
       "wastePercent": 0.393,
-      "materialCost": 156
+      "materialCost": 156,
+      "weight": 87.404
     }
   },
   "record-stand": {
@@ -723,7 +724,8 @@
       "estimatedCost": 285,
       "sheetCount": 3,
       "wastePercent": 0.57,
-      "materialCost": 285
+      "materialCost": 285,
+      "weight": 81.891
     }
   }
 }

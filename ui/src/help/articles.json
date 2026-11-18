@@ -358,7 +358,7 @@
             {
                 "type": "ul",
                 "items": [
-                    "Totals: the overall size, board feet, sheets, an estimated cost once you add prices, and how much of the stock ends up as offcut.",
+                    "Totals: the overall size and about what the wood weighs, board feet, sheets, an estimated cost once you add prices, and how much of the stock ends up as offcut. The weight uses a typical density for each material (from its name or species) and leaves out the hardware, so treat it as an estimate.",
                     "Each material with its parts underneath, largest first. Identical parts are counted once with ×2, ×4 and so on.",
                     "Sheet goods (plywood, MDF): how many sheets and how the parts are laid out on them, grain-aware. Tick **Show the cut order** to number the saw cuts: rip each sheet into strips, then crosscut the strips; under each layout every cut is listed with its fence setting, the width of the piece it takes off. Boards are numbered too: crosscut to rough length first, then ripped, each cut with its stop or fence setting.",
                     "**Joinery** folds out the tool setups the design needs (each dado stack, bit and blade angle, with how many cuts are made at it) and then each part's dados, grooves, rabbets, holes and shaping in words, as the PDF plan prints them.",

@@ -183,7 +183,8 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
         smaller panel when a sheet is mostly offcut. `assemblyOrder` is the order to put the piece \
         together, as printed in the PDF plan: steps from the floor up, each line naming how a part \
         fastens to what is already standing (a line ending \"no joint recorded\" is a hint a joint is \
-        missing), the back panel last, then drawers, doors and hardware. `joinery` (when anything is \
+        missing), the back panel last, then drawers, doors and hardware. `totals.weight` is about what the \
+        wood weighs once built, in pounds (typical densities; hardware not included). `joinery` (when anything is \
         cut beyond the blanks) lists the tool `setups` to make, each with its cut count and parts, then \
         each part's dados, grooves, rabbets, holes, miters, notches, curves and eased edges in shop \
         words. Costs use the user's hardware \
