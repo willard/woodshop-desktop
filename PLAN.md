@@ -556,6 +556,12 @@ have to look up, and the editor screenshot would make someone want to try it fro
   lines behind Show the cut order; the PDF always does. `tests/packing.rs` makes every
   template's cuts in order and checks each part ends up alone on a piece its size.
 
+- **Joinery in the PDF** (`spec::describe::op_summary`, WASM `opSummary`): the op vocabulary
+  moved from `ui/src/spec/opLabel.ts` to the core, so the Inspector, the 3D plan and the PDF word
+  ops the same way (the TS cases now test the Rust). The PDF's Joinery and shaping section lists
+  each part's ops but fasteners (those are in the assembly order), parts with the same ops and
+  blank together, four or more like holes as one line pointing to the shop template.
+
 - **Sheet edge and board end trim** (the `sheetTrim` setting, `CutListConfig.sheet_trim`,
   `cutlist/trim.ts`): bought sheets are packed and cut inside a border of that width, coordinates
   staying in sheet terms; `SheetPlan.trim` is what a plan took (none where a part needs the whole

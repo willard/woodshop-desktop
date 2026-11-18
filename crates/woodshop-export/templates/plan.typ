@@ -97,6 +97,19 @@
   }
 ]
 
+#if data.joinery.len() > 0 [
+  == Joinery and shaping
+  #text(fill: muted)[Each part as drawn face-on: its length left to right, the bottom edge nearest you. Parts listed together are cut the same way.]
+  #v(2pt)
+  #for j in data.joinery [
+    #block(breakable: false, below: 8pt)[
+      *#j.parts*
+      #v(-4pt)
+      #list(marker: text(fill: muted, "–"), ..j.lines.map(line => text(size: 9pt, line)))
+    ]
+  ]
+]
+
 #if data.drilling.len() > 0 [
   == Drilling
   #list(..data.drilling.map(line => [#line]))

@@ -354,6 +354,13 @@ fn units_of(units: &str) -> units::Units {
     }
 }
 
+/// One part operation in shop words (`spec::describe`), with sizes in `units`.
+#[wasm_bindgen(js_name = opSummary)]
+pub fn op_summary(op: JsValue, units: &str) -> JsResult<String> {
+    let op: Op = from_js(op)?;
+    Ok(spec::op_summary(&op, units_of(units)))
+}
+
 #[wasm_bindgen(js_name = formatLength)]
 pub fn format_length(inches: f64, units: &str) -> String {
     units::format_length(inches, units_of(units))

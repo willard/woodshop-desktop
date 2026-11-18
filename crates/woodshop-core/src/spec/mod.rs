@@ -3,6 +3,7 @@
 
 #[cfg(feature = "validate")]
 pub mod catalog;
+pub mod describe;
 pub mod json;
 pub mod migrate;
 pub mod parse;
@@ -11,6 +12,7 @@ pub mod types;
 #[cfg(feature = "validate")]
 pub mod validate;
 
+pub use describe::op_summary;
 pub use json::{from_value, to_value};
 pub use migrate::{CURRENT_SPEC_VERSION, MigrateError, migrate_to_latest};
 pub use parse::{ParseError, fill_defaults, parse};

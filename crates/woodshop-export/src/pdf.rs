@@ -21,7 +21,7 @@ use woodshop_core::cutlist::{
 };
 use woodshop_core::geometry::overall_size;
 use woodshop_core::movables::derived_borings;
-use woodshop_core::spec::{Edge, MaterialType, Movable, Spec};
+use woodshop_core::spec::{Edge, Hole, MaterialType, Movable, Op, Spec, op_summary};
 use woodshop_core::units::{Units, format_length, format_length_value};
 
 use crate::ExportError;
@@ -74,6 +74,8 @@ struct PlanView {
     hardware_priced: bool,
     /// Holes the hardware needs that are on no part's op list: hinge cups.
     drilling: Vec<String>,
+    /// Each part's joinery and shaping, in shop words.
+    joinery: Vec<JoineryView>,
     sheets: Vec<SheetView>,
     lumber: Vec<LumberView>,
     /// The order to put it together: up from the floor, the back, then drawers, doors, hardware.
@@ -100,6 +102,14 @@ struct RowView {
     dims: String,
     notes: String,
     members: String,
+}
+
+/// The parts that are cut the same way, and the cuts that shape them.
+#[derive(Debug, Serialize)]
+struct JoineryView {
+    /// "Left Side · Right Side", with "×2" on a part cut more than once.
+    parts: String,
+    lines: Vec<String>,
 }
 
 #[derive(Serialize)]
@@ -297,6 +307,82 @@ fn section_view(section: &CutListSection, spec: &Spec, units: Units) -> SectionV
     }
 }
 
+/// Holes alike in all but position, at least this many, are summed up in one line.
+const MANY_HOLES: usize = 4;
+
+/// Each part's dados, grooves, rabbets, holes, miters, notches, curves and eased edges (fasteners
+/// are in the assembly order), parts cut exactly alike together.
+fn joinery(spec: &Spec, units: Units) -> Vec<JoineryView> {
+    /// A blank by its length, width (as bits, to compare exactly) and material.
+    type Blank = (u64, u64, String);
+    /// Each part's name and how many.
+    type Names = Vec<(String, u32)>;
+    let mut out: Vec<(Vec<String>, Names, Blank)> = Vec::new();
+    for part in &spec.parts {
+        let lines = part_joinery(part.ops.as_deref().unwrap_or_default(), units);
+        if lines.is_empty() {
+            continue;
+        }
+        let blank = (part.size.l.to_bits(), part.size.w.to_bits(), part.material_id.clone());
+        match out.iter_mut().find(|(l, _, b)| *l == lines && *b == blank) {
+            Some((_, names, _)) => match names.iter_mut().find(|(n, _)| *n == part.name) {
+                Some((_, qty)) => *qty += part.qty(),
+                None => names.push((part.name.clone(), part.qty())),
+            },
+            None => out.push((lines, vec![(part.name.clone(), part.qty())], blank)),
+        }
+    }
+    out.into_iter()
+        .map(|(lines, names, _)| JoineryView {
+            parts: names
+                .iter()
+                .map(|(n, q)| if *q > 1 { format!("{n} ×{q}") } else { n.clone() })
+                .collect::<Vec<_>>()
+                .join(" · "),
+            lines,
+        })
+        .collect()
+}
+
+/// One part's lines: every op but fasteners, a run of like holes as one line.
+fn part_joinery(ops: &[Op], units: Units) -> Vec<String> {
+    let alike = |a: &Hole, b: &Hole| {
+        a.face == b.face && a.diameter == b.diameter && a.depth == b.depth && a.purpose == b.purpose
+    };
+    let holes: Vec<&Hole> = ops
+        .iter()
+        .filter_map(|op| match op {
+            Op::Hole(h) => Some(h),
+            _ => None,
+        })
+        .collect();
+    let mut summed: Vec<&Hole> = Vec::new();
+    let mut lines = Vec::new();
+    for op in ops {
+        match op {
+            Op::PocketHoles(_) | Op::Screws(_) => {}
+            Op::Hole(h) => {
+                let count = holes.iter().filter(|o| alike(o, h)).count();
+                if count < MANY_HOLES {
+                    lines.push(op_summary(op, units));
+                } else if !summed.iter().any(|o| alike(o, h)) {
+                    summed.push(h);
+                    // "Shelf-pin hole ⌀ 1/4", 1/2" deep, in the front face, …" → "32 shelf-pin holes …".
+                    let one = op_summary(op, units);
+                    let (name, rest) = one.split_once(" ⌀ ").unwrap_or((&one, ""));
+                    let rest = rest.rsplitn(3, ", ").last().unwrap_or(rest);
+                    lines.push(format!(
+                        "{count} {}s ⌀ {rest}: positions on the shop template",
+                        name.to_lowercase()
+                    ));
+                }
+            }
+            _ => lines.push(op_summary(op, units)),
+        }
+    }
+    lines
+}
+
 /// One line per door hung on concealed hinges: how many cups, what size, and where.
 fn drilling_notes(spec: &Spec, units: Units) -> Vec<String> {
     let borings = derived_borings(spec);
@@ -395,6 +481,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             .collect(),
         hardware_priced: cut_list.hardware.iter().any(|h| h.cost.is_some()),
         drilling: drilling_notes(input.spec, units),
+        joinery: joinery(input.spec, units),
         assembly: assembly_order(input.spec),
         sheets: cut_list
             .sheets
@@ -868,6 +955,70 @@ mod tests {
         if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
             std::fs::write(format!("{dir}/bookshelf.pdf"), &pdf).unwrap();
         }
+    }
+
+    #[test]
+    fn joinery_is_listed_part_by_part_in_shop_words() {
+        let raw = include_str!("../../../resources/templates/record-stand-dado.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let joinery = joinery(&spec, Units::Fraction);
+        assert!(!joinery.is_empty());
+        // Fasteners are left to the assembly order.
+        let lines: Vec<&String> = joinery.iter().flat_map(|j| &j.lines).collect();
+        assert!(lines.iter().all(|l| !l.contains("screw")), "{lines:?}");
+        // Every part named once.
+        let names: Vec<&str> = joinery.iter().flat_map(|j| j.parts.split(" · ")).collect();
+        let mut unique = names.clone();
+        unique.dedup();
+        assert_eq!(names.len(), unique.len());
+        assert!(lines.iter().any(|l| l.starts_with("Dado 3/4\" wide")), "{lines:?}");
+        let input = PlanInput {
+            title: "Record Stand",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 18, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Fraction,
+            hardware_prices: BTreeMap::new(),
+            offcuts: vec![],
+            sheet_trim: 0.0,
+            board_trim: 0.0,
+        };
+        let pdf = render_plan_pdf(&input).unwrap();
+        if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
+            std::fs::write(format!("{dir}/record-stand-dado.pdf"), &pdf).unwrap();
+        }
+    }
+
+    #[test]
+    fn a_run_of_like_holes_is_one_line() {
+        let hole = |y: f64| {
+            Op::Hole(Hole {
+                face: spec::Face::Front,
+                x: 1.5,
+                y,
+                diameter: 0.25,
+                depth: Some(0.375),
+                purpose: Some(spec::HolePurpose::ShelfPin),
+            })
+        };
+        let mut ops: Vec<Op> = (0..8).map(|i| hole(4.0 + i as f64 * 2.0)).collect();
+        ops.push(Op::Hole(Hole {
+            face: spec::Face::Back,
+            x: 3.0,
+            y: 3.0,
+            diameter: 0.375,
+            depth: None,
+            purpose: None,
+        }));
+        assert_eq!(
+            part_joinery(&ops, Units::Fraction),
+            [
+                "8 shelf-pin holes ⌀ 1/4\", 3/8\" deep, in the front face: positions on the shop template",
+                "Hole ⌀ 3/8\", through, in the back face, 3\" from the left end, 3\" up",
+            ]
+        );
     }
 
     #[test]
