@@ -149,6 +149,9 @@
 
 #for plan in data.lumber [
   == #plan.title
+  #if plan.boards.any(b => b.steps != "") {
+    block(below: 6pt, text(size: 8.5pt, fill: muted)[Red numbers: the order of the saw cuts, crosscuts to rough length first, then rips. Under each board, each cut's stop or fence setting.])
+  }
   #for board in plan.boards {
     block(breakable: false, below: 6pt, layout(size => {
       // Boards are long and thin: along is to scale, across is a bar of fixed height.
@@ -170,7 +173,22 @@
             align(center + horizon, text(size: 6.5pt, c.name)),
           ))
         }
+        let r = 4pt
+        for c in board.saws {
+          let (x, y) = (c.x * s, h - c.y * t)
+          if c.rip {
+            place(dx: x, dy: y, line(end: (c.l * s, 0pt), stroke: 0.9pt + saw))
+            // A quarter of the way along, clear of the crosscut numbers at the piece's ends.
+            place(dx: x + c.l * s / 4 - r, dy: y - r, box(width: 2 * r, height: 2 * r, radius: r, fill: saw,
+              align(center + horizon, text(size: 5pt, weight: "bold", fill: white, str(c.n)))))
+          } else {
+            place(dx: x, dy: y, line(end: (0pt, -c.l * t), stroke: 0.9pt + saw))
+            place(dx: x - r, dy: y - c.l * t / 2 - r, box(width: 2 * r, height: 2 * r, radius: r, fill: saw,
+              align(center + horizon, text(size: 5pt, weight: "bold", fill: white, str(c.n)))))
+          }
+        }
       })
+      if board.steps != "" { block(above: 3pt, text(size: 8pt, fill: muted, board.steps)) }
     }))
   }
   #v(4pt)

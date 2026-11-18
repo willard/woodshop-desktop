@@ -261,6 +261,7 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
         .map(|p| piece_bf(p, 1))
         .sum();
     let bought_bf = all_bf - offcut_bf;
+    let saw_cuts = board_saw_cuts(&packed, &items, &lengths, &bins, stock_width, kerf);
     LumberPlan {
         material_id: material.id.clone(),
         material_name: material.name.clone(),
@@ -282,7 +283,46 @@ fn plan_lumber(material: &Material, parts: &[&Part], kerf: f64, offcuts: &[Offcu
         offcuts: used(&mine, &packed.offcuts_used, false),
         leftovers: packed.leftovers,
         cuts: packed.cuts,
+        saw_cuts,
     }
+}
+
+/// The saw cuts on every board, bought ones then pieces on hand, in the order to make them. A
+/// board is as wide as the material's stock width, or else its widest part; a part wider than
+/// the board (glued up from several) is taken as full width.
+fn board_saw_cuts(
+    packed: &PackedLumber,
+    items: &[LumberItem],
+    lengths: &[f64],
+    bins: &[f64],
+    stock_width: Option<f64>,
+    kerf: f64,
+) -> Vec<SawCut> {
+    let width = |id: &str| items.iter().find(|i| i.part_id == id).map_or(0.0, |i| i.width);
+    let boards = packed.stick_count + packed.offcuts_used.len();
+    (0..boards)
+        .flat_map(|n| {
+            let on_board = packed.cuts.iter().filter(|c| c.stick == n);
+            let across = stock_width.unwrap_or_else(|| on_board.clone().map(|c| width(&c.part_id)).fold(0.0, f64::max));
+            let pieces: Vec<Placement> = on_board
+                .map(|c| Placement {
+                    part_id: c.part_id.clone(),
+                    name: c.name.clone(),
+                    sheet: n,
+                    x: c.x,
+                    y: c.y,
+                    w: c.length,
+                    h: width(&c.part_id).min(across - c.y),
+                    rotated: false,
+                })
+                .collect();
+            let length = match n.checked_sub(packed.stick_count) {
+                Some(i) => bins[packed.offcuts_used[i]],
+                None => lengths[n],
+            };
+            sequence::board_cuts(&pieces, n, length, across, kerf)
+        })
+        .collect()
 }
 
 /// Packs the boards at each listed length (longest first) and cuts every board from the shortest

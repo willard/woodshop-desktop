@@ -17,7 +17,7 @@ use woodshop_core::assembly::{AssemblyStep, assembly_order};
 use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 
 use woodshop_core::cutlist::{
-    CutList, CutListConfig, CutListSection, LumberPlan, Offcut, PartRow, compute_cut_list, group_cut_list,
+    CutList, CutListConfig, CutListSection, LumberPlan, Offcut, PartRow, SawCut, compute_cut_list, group_cut_list,
 };
 use woodshop_core::geometry::overall_size;
 use woodshop_core::movables::derived_borings;
@@ -112,7 +112,7 @@ struct SheetView {
     boards: Vec<BoardView>,
     placements: Vec<PlacementView>,
     /// The saw cuts, numbered in the order to make them on each sheet.
-    cuts: Vec<woodshop_core::cutlist::SheetCut>,
+    cuts: Vec<SawCut>,
 }
 
 #[derive(Serialize)]
@@ -154,6 +154,10 @@ struct StickView {
     across: f64,
     ripped: bool,
     cuts: Vec<PlacementView>,
+    /// The saw cuts to draw: every crosscut, and the rips where the lanes are drawn to scale.
+    saws: Vec<SawCut>,
+    /// Every cut in order with its fence or stop setting: "1 Crosscut 30\" · 2 Rip 1 1/2\"".
+    steps: String,
 }
 
 #[derive(Serialize)]
@@ -587,6 +591,25 @@ fn stick_views(plan: &LumberPlan, parts: &[PartRow], units: Units) -> Vec<StickV
                         h: if ripped { width(&c.part_id).min(across) } else { across },
                     })
                     .collect(),
+                // Unripped, the bar is not drawn to scale across, so a crosscut spans it all and a
+                // rip that trims a piece to width is only listed.
+                saws: plan
+                    .saw_cuts
+                    .iter()
+                    .filter(|c| c.sheet == n && (ripped || !c.rip))
+                    .map(|c| {
+                        if ripped {
+                            c.clone()
+                        } else {
+                            SawCut {
+                                y: 0.0,
+                                l: across,
+                                ..c.clone()
+                            }
+                        }
+                    })
+                    .collect(),
+                steps: cut_steps(&plan.saw_cuts, n, units),
             }
         })
         .collect()
@@ -639,8 +662,8 @@ pub(crate) fn typeset(template: &str, data: &impl Serialize, thumbnail: Option<&
     })
 }
 
-/// One sheet's saw cuts in order, each with where the fence goes: "1 Rip 20\" · 2 Crosscut 30\"".
-fn cut_steps(cuts: &[woodshop_core::cutlist::SheetCut], sheet: usize, units: Units) -> String {
+/// One sheet's or board's saw cuts in order, each with where the fence or stop goes: "1 Rip 20\" · 2 Crosscut 30\"".
+fn cut_steps(cuts: &[SawCut], sheet: usize, units: Units) -> String {
     cuts.iter()
         .filter(|c| c.sheet == sheet)
         .map(|c| {
@@ -845,6 +868,10 @@ mod tests {
         assert_eq!(legs.boards.len(), 1);
         let board = &legs.boards[0];
         assert!(board.ripped && board.across == 3.5 && board.cuts.len() == 4);
+        // Crosscut to length first, then ripped; every cut is drawn on a ripped board.
+        assert!(board.steps.starts_with("1 Crosscut "), "{}", board.steps);
+        assert!(board.steps.contains(" Rip "), "{}", board.steps);
+        assert_eq!(board.saws.len(), board.steps.matches(" · ").count() + 1);
         assert!(board.cuts.iter().all(|c| c.h == 1.5 && c.x + c.w <= board.l));
         // The rails: bought boards, then the piece on hand, captioned and drawn full width.
         let rails = view.lumber.iter().find(|l| l.title.starts_with("Maple 1x4")).unwrap();

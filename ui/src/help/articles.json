@@ -360,7 +360,7 @@
                 "items": [
                     "Totals: the overall size, board feet, sheets, an estimated cost once you add prices, and how much of the stock ends up as offcut.",
                     "Each material with its parts underneath, largest first. Identical parts are counted once with ×2, ×4 and so on.",
-                    "Sheet goods (plywood, MDF): how many sheets and how the parts are laid out on them, grain-aware. Tick **Show the cut order** to number the saw cuts: rip each sheet into strips, then crosscut the strips; under each layout every cut is listed with its fence setting, the width of the piece it takes off.",
+                    "Sheet goods (plywood, MDF): how many sheets and how the parts are laid out on them, grain-aware. Tick **Show the cut order** to number the saw cuts: rip each sheet into strips, then crosscut the strips; under each layout every cut is listed with its fence setting, the width of the piece it takes off. Boards are numbered too: crosscut to rough length first, then ripped, each cut with its stop or fence setting.",
                     "Lumber: each board drawn with the parts cut from it. When the material gives a board width, narrow parts are ripped side by side if that buys fewer boards. When a material is sold in more than one length, each board is bought at the shortest length its cuts fit.",
                     "Fasteners and hardware: every screw, dowel, hinge, slide and pull the design uses, folded under Fasteners until you need it. Edge banding is listed here too, in whole feet or metres with a little spare."
                 ]

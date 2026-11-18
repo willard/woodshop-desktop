@@ -77,13 +77,13 @@ pub struct SheetPlan {
     pub leftovers: Vec<Leftover>,
     /// The saw cuts that free the parts, sheet by sheet, in the order to make them.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub cuts: Vec<SheetCut>,
+    pub cuts: Vec<SawCut>,
 }
 
-/// One straight saw cut across a sheet layout, edge to edge of the piece it is made on.
+/// One straight saw cut on a sheet or board layout, edge to edge of the piece it is made on.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct SheetCut {
-    /// The sheet it is made on, numbered as the plan's placements are.
+pub struct SawCut {
+    /// The sheet or board it is made on, numbered as the plan's placements or cuts are.
     pub sheet: usize,
     /// Its place in that sheet's order, from 1.
     pub n: u32,
@@ -91,7 +91,7 @@ pub struct SheetCut {
     pub x: f64,
     pub y: f64,
     pub l: f64,
-    /// True for a cut along the sheet's length (a rip, x from `x` to `x + l` at `y`); false for
+    /// True for a cut along the length (a rip, x from `x` to `x + l` at `y`); false for
     /// one across it (y from `y` to `y + l` at `x`).
     pub rip: bool,
     /// How far the cut is from the near edge of the piece it is made on (the bottom edge for a
@@ -194,6 +194,10 @@ pub struct LumberPlan {
     /// Board ends worth keeping once the parts are cut.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub leftovers: Vec<Leftover>,
+    /// The saw cuts that free the pieces, board by board, in the order to make them: crosscuts
+    /// to rough length first, then rips.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub saw_cuts: Vec<SawCut>,
 }
 
 impl LumberPlan {

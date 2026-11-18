@@ -56,12 +56,12 @@ export interface SheetPlan {
     /** Pieces worth keeping once the parts are cut out. */
     leftovers?: Leftover[];
     /** The saw cuts that free the parts, sheet by sheet, in the order to make them. */
-    cuts?: SheetCut[];
+    cuts?: SawCut[];
 }
 
-/** One straight saw cut, edge to edge of the piece of sheet it is made on. */
-export interface SheetCut {
-    /** The sheet, numbered as placements are. */
+/** One straight saw cut on a sheet or board, edge to edge of the piece it is made on. */
+export interface SawCut {
+    /** The sheet or board, numbered as placements or cuts are. */
     sheet: number;
     /** Its place in that sheet's order, from 1. */
     n: number;
@@ -135,6 +135,8 @@ export interface LumberPlan {
     offcuts?: UsedOffcut[];
     /** Board ends worth keeping once the parts are cut. */
     leftovers?: Leftover[];
+    /** The saw cuts that free the pieces, board by board, in order: crosscuts first, then rips. */
+    sawCuts?: SawCut[];
 }
 
 /** One line of the hardware list (spec 1.8, movables 1.12): the metal to buy. */

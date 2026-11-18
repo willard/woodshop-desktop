@@ -21,6 +21,7 @@ import { plural } from '@/app/format';
 import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
 import { useOffcuts } from '@/cutlist/offcuts';
 import { boardLength, boardSizes, boughtBoards } from '@/cutlist/boards';
+import type { SawCut } from '@/cutlist/types';
 import { OnHandSection } from './OnHandSection';
 
 export interface CutListPanelProps {
@@ -384,7 +385,8 @@ export function CutListPanel(props: CutListPanelProps) {
                 </div>
             ))}
 
-            {cutList.sheets.some((plan) => (plan.cuts ?? []).length > 0) && (
+            {(cutList.sheets.some((plan) => (plan.cuts ?? []).length > 0) ||
+                cutList.lumber.some((plan) => (plan.sawCuts ?? []).length > 0)) && (
                 <label className="text-fg/75 mb-3 flex cursor-pointer items-center gap-2 text-[13px]">
                     <input
                         checked={cutOrder}
@@ -393,8 +395,8 @@ export function CutListPanel(props: CutListPanelProps) {
                         className="accent-accent"
                         onChange={(e) => setCutOrder(e.target.checked)}
                     />
-                    Show the cut order: rip each sheet into strips, then crosscut the strips. Each cut's fence
-                    setting is the width it takes off, from the bottom edge or the left
+                    Show the cut order, with each cut's fence or stop setting: sheets are ripped into strips,
+                    then crosscut; boards are crosscut to rough length, then ripped
                 </label>
             )}
             {cutList.sheets.map((plan) => (
@@ -409,7 +411,7 @@ export function CutListPanel(props: CutListPanelProps) {
                         {Array.from({ length: plan.sheetCount }, (_, n) => (
                             <div key={n}>
                                 <SheetDiagram plan={plan} sheet={n} cutOrder={cutOrder} />
-                                {cutOrder && <CutSteps plan={plan} sheet={n} />}
+                                {cutOrder && <CutSteps cuts={plan.cuts} sheet={n} />}
                             </div>
                         ))}
                         {(plan.offcuts ?? []).map((o, i) => (
@@ -423,7 +425,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                     size={{ l: o.l, w: o.w ?? 0 }}
                                     cutOrder={cutOrder}
                                 />
-                                {cutOrder && <CutSteps plan={plan} sheet={plan.sheetCount + i} />}
+                                {cutOrder && <CutSteps cuts={plan.cuts} sheet={plan.sheetCount + i} />}
                             </div>
                         ))}
                     </div>
@@ -443,13 +445,16 @@ export function CutListPanel(props: CutListPanelProps) {
                     </SectionHeading>
                     <div className="space-y-1.5">
                         {Array.from({ length: plan.stickCount }, (_, n) => (
-                            <BoardDiagram
-                                key={n}
-                                plan={plan}
-                                board={n}
-                                parts={cutList.parts}
-                                length={boardLength(plan, n)}
-                            />
+                            <div key={n}>
+                                <BoardDiagram
+                                    plan={plan}
+                                    board={n}
+                                    parts={cutList.parts}
+                                    length={boardLength(plan, n)}
+                                    cutOrder={cutOrder}
+                                />
+                                {cutOrder && <CutSteps cuts={plan.sawCuts} sheet={n} />}
+                            </div>
                         ))}
                         {(plan.offcuts ?? []).map((o, i) => (
                             <div key={o.id} data-testid="cutlist-on-hand-board">
@@ -459,7 +464,9 @@ export function CutListPanel(props: CutListPanelProps) {
                                     board={plan.stickCount + i}
                                     parts={cutList.parts}
                                     length={o.l}
+                                    cutOrder={cutOrder}
                                 />
+                                {cutOrder && <CutSteps cuts={plan.sawCuts} sheet={plan.stickCount + i} />}
                             </div>
                         ))}
                     </div>
@@ -817,9 +824,12 @@ export function SheetDiagram({
     );
 }
 
-/** One sheet's saw cuts in order, each with where the fence goes: the width of the piece it takes off. */
-function CutSteps({ plan, sheet }: { plan: CutList['sheets'][number]; sheet: number }) {
-    const cuts = (plan.cuts ?? []).filter((c) => c.sheet === sheet);
+/**
+ * One sheet's or board's saw cuts in order, each with where the fence or stop goes: the width or
+ * length of the piece it takes off.
+ */
+function CutSteps({ cuts: all, sheet }: { cuts: SawCut[] | undefined; sheet: number }) {
+    const cuts = (all ?? []).filter((c) => c.sheet === sheet);
     if (cuts.length === 0) return null;
     return (
         <ol
@@ -846,12 +856,15 @@ export function BoardDiagram({
     board,
     parts,
     length = plan.stockLength,
+    cutOrder = false,
 }: {
     plan: CutList['lumber'][number];
     board: number;
     parts: CutList['parts'];
     /** A piece on hand's own length; a bought board is the plan's. */
     length?: number;
+    /** Draw the saw cuts, numbered in the order to make them. */
+    cutOrder?: boolean;
 }) {
     const width = (id: string) => parts.find((r) => r.partId === id)?.width ?? 0;
     const cuts = plan.cuts.filter((c) => c.stick === board);
@@ -904,6 +917,52 @@ export function BoardDiagram({
                     </div>
                 );
             })}
+            {cutOrder &&
+                (plan.sawCuts ?? [])
+                    // Unripped, the bar is not to scale across: crosscuts span it, rips are only listed.
+                    .filter((c) => c.sheet === board && (ripped || !c.rip))
+                    .map((c) => {
+                        const line = c.rip
+                            ? {
+                                  left: at(c.x, length),
+                                  width: at(c.l, length),
+                                  bottom: at(c.y, across),
+                                  height: 2,
+                              }
+                            : {
+                                  left: at(c.x, length),
+                                  width: 2,
+                                  bottom: ripped ? at(c.y, across) : 0,
+                                  height: ripped ? at(c.l, across) : '100%',
+                              };
+                        // A rip's number sits a quarter along it, a crosscut's halfway up.
+                        const badge = c.rip
+                            ? {
+                                  left: `calc(${at(c.x + c.l / 4, length)} - 7px)`,
+                                  bottom: `calc(${at(c.y, across)} - 6px)`,
+                              }
+                            : {
+                                  left: `calc(${at(c.x, length)} - 6px)`,
+                                  bottom: ripped
+                                      ? `calc(${at(c.y + c.l / 2, across)} - 7px)`
+                                      : 'calc(50% - 7px)',
+                              };
+                        return (
+                            <div
+                                key={`saw-${c.n}`}
+                                data-testid="cutlist-saw-cut"
+                                title={`Cut ${c.n}: ${c.rip ? 'rip' : 'crosscut'} ${len(c.off)} off, ${len(c.l)} long`}
+                            >
+                                <div className="absolute bg-red-500" style={line} />
+                                <div
+                                    className="absolute flex size-3.5 items-center justify-center rounded-full bg-red-500 text-[9px] leading-none font-semibold text-white"
+                                    style={badge}
+                                >
+                                    {c.n}
+                                </div>
+                            </div>
+                        );
+                    })}
         </div>
     );
 }

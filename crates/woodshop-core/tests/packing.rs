@@ -146,6 +146,16 @@ fn every_board_layout_can_be_cut() {
 }
 
 #[test]
+fn a_ripped_board_is_crosscut_to_length_then_ripped() {
+    let spec = woodshop_core::templates::find("kitchen-cart").unwrap();
+    let list = compute_cut_list(&spec, CutListConfig::default());
+    let legs = list.lumber.iter().find(|p| p.material_name.contains("8/4")).unwrap();
+    let cuts: Vec<(bool, f64)> = legs.saw_cuts.iter().map(|c| (c.rip, c.off)).collect();
+    assert!(!cuts[0].0, "{cuts:?}");
+    assert!(cuts.iter().any(|c| c.0), "{cuts:?}");
+}
+
+#[test]
 fn narrow_parts_are_ripped_side_by_side_when_it_saves_a_board() {
     // The kitchen cart's 1 1/2" maple legs fit two across a 3 1/2" board.
     let spec = woodshop_core::templates::find("kitchen-cart").unwrap();
@@ -217,35 +227,14 @@ fn a_board_is_not_bought_longer_than_its_cuts_need() {
 
 #[test]
 fn the_cut_order_frees_every_part_on_every_template_sheet() {
-    // Make each cut on the piece it crosses edge to edge; at the end every part must sit alone on
-    // a piece of exactly its size.
+    // At the end every part must sit alone on a piece of exactly its size.
     for t in woodshop_core::templates::all() {
         let spec = woodshop_core::templates::find(t.id).unwrap();
         let list = compute_cut_list(&spec, CutListConfig::default());
         for plan in &list.sheets {
             for sheet in 0..plan.sheet_count {
-                let mut pieces = vec![(0.0, 0.0, plan.sheet_size.l, plan.sheet_size.w)];
                 let cuts: Vec<_> = plan.cuts.iter().filter(|c| c.sheet == sheet).collect();
-                for (i, c) in cuts.iter().enumerate() {
-                    assert_eq!(c.n as usize, i + 1, "{}: cuts numbered in order", t.id);
-                    let at = pieces.iter().position(|&(x, y, l, w)| {
-                        if c.rip {
-                            (c.x - x).abs() < 1e-6 && (c.l - l).abs() < 1e-6 && c.y > y && c.y < y + w
-                        } else {
-                            (c.y - y).abs() < 1e-6 && (c.l - w).abs() < 1e-6 && c.x > x && c.x < x + l
-                        }
-                    });
-                    let (x, y, l, w) = pieces.remove(at.unwrap_or_else(|| panic!("{}: {c:?} crosses no piece", t.id)));
-                    let off = if c.rip { c.y - y } else { c.x - x };
-                    assert!((c.off - off).abs() < 1e-6, "{}: {c:?} fence setting", t.id);
-                    if c.rip {
-                        pieces.push((x, y, l, c.y - y));
-                        pieces.push((x, c.y + KERF, l, y + w - c.y - KERF));
-                    } else {
-                        pieces.push((x, y, c.x - x, w));
-                        pieces.push((c.x + KERF, y, x + l - c.x - KERF, w));
-                    }
-                }
+                let pieces = make_cuts(t.id, &cuts, plan.sheet_size.l, plan.sheet_size.w);
                 for p in plan.placements.iter().filter(|p| p.sheet == sheet) {
                     let freed = pieces.iter().any(|&(x, y, l, w)| {
                         (p.x - x).abs() < 1e-6
@@ -254,6 +243,62 @@ fn the_cut_order_frees_every_part_on_every_template_sheet() {
                             && (p.h - w).abs() < 1e-6
                     });
                     assert!(freed, "{}: {p:?} is not cut free", t.id);
+                }
+            }
+        }
+    }
+}
+
+/// Makes `cuts` in order on a piece `l` × `w`, each on the piece it crosses edge to edge, and
+/// returns the pieces left (x, y, length, width).
+fn make_cuts(id: &str, cuts: &[&woodshop_core::cutlist::SawCut], l: f64, w: f64) -> Vec<(f64, f64, f64, f64)> {
+    let mut pieces = vec![(0.0, 0.0, l, w)];
+    for (i, c) in cuts.iter().enumerate() {
+        assert_eq!(c.n as usize, i + 1, "{id}: cuts numbered in order");
+        let at = pieces.iter().position(|&(x, y, l, w)| {
+            if c.rip {
+                (c.x - x).abs() < 1e-6 && (c.l - l).abs() < 1e-6 && c.y > y && c.y < y + w
+            } else {
+                (c.y - y).abs() < 1e-6 && (c.l - w).abs() < 1e-6 && c.x > x && c.x < x + l
+            }
+        });
+        let (x, y, l, w) = pieces.remove(at.unwrap_or_else(|| panic!("{id}: {c:?} crosses no piece")));
+        let off = if c.rip { c.y - y } else { c.x - x };
+        assert!((c.off - off).abs() < 1e-6, "{id}: {c:?} fence setting");
+        if c.rip {
+            pieces.push((x, y, l, c.y - y));
+            pieces.push((x, c.y + KERF, l, y + w - c.y - KERF));
+        } else {
+            pieces.push((x, y, c.x - x, w));
+            pieces.push((c.x + KERF, y, x + l - c.x - KERF, w));
+        }
+    }
+    pieces
+}
+
+#[test]
+fn the_cut_order_frees_every_piece_on_every_template_board() {
+    for t in woodshop_core::templates::all() {
+        let spec = woodshop_core::templates::find(t.id).unwrap();
+        let list = compute_cut_list(&spec, CutListConfig::default());
+        for plan in &list.lumber {
+            let width = |id: &str| spec.parts.iter().find(|p| p.id == id).unwrap().size.w;
+            for board in 0..plan.stick_count {
+                let on_board: Vec<_> = plan.cuts.iter().filter(|c| c.stick == board).collect();
+                let across = plan
+                    .stock_width
+                    .unwrap_or_else(|| on_board.iter().map(|c| width(&c.part_id)).fold(0.0, f64::max));
+                let cuts: Vec<_> = plan.saw_cuts.iter().filter(|c| c.sheet == board).collect();
+                let pieces = make_cuts(t.id, &cuts, plan.board_length(board), across);
+                for c in &on_board {
+                    let w = width(&c.part_id).min(across - c.y);
+                    let freed = pieces.iter().any(|&(x, y, l, pw)| {
+                        (c.x - x).abs() < 1e-6
+                            && (c.y - y).abs() < 1e-6
+                            && (c.length - l).abs() < 1e-6
+                            && (w - pw).abs() < 1e-6
+                    });
+                    assert!(freed, "{}: {c:?} is not cut free", t.id);
                 }
             }
         }

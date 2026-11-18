@@ -341,6 +341,21 @@ test('the sheet layouts can show the order to make the saw cuts', async ({ page 
     expect(await sheet.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
 });
 
+test('boards show their cut order too: crosscut to length, then ripped', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Kitchen Cart', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-cut-order').check();
+    // The legs come from one 8/4 board: crosscut in two, then each length ripped.
+    const legs = page.getByTestId('cutlist-boards').filter({ hasText: '8/4' });
+    await expect(legs.getByTestId('cutlist-cut-steps')).toContainText(/^1 Crosscut .*Rip 1 1\/2"/);
+    expect(await legs.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
+});
+
 test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ page }) => {
     await page.goto('/#/templates');
     await page

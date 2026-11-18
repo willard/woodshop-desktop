@@ -1,15 +1,16 @@
-//! The order to make the saw cuts on a sheet layout.
+//! The order to make the saw cuts on a sheet or board layout.
 //!
 //! Layouts from the guillotine packer can always be cut apart with straight cuts that run from
-//! one edge of a piece of sheet to the other. This finds those cuts: on each piece of sheet it
-//! takes the first cut that runs its long way (a rip, on a full sheet) without crossing a part,
-//! else the first that runs across it, and carries on with what is left. A piece's cuts all come
-//! before those of the pieces cut from it, so a sheet is ripped into strips first and the strips
-//! are then crosscut.
+//! one edge of a piece to the other. This finds those cuts: on each piece it takes the first cut
+//! the preferred way that crosses no part, else the first the other way, and carries on with what
+//! is left. A piece's cuts all come before those of the pieces cut from it. A sheet is cut along
+//! its long way first, so it is ripped into strips and the strips are then crosscut; a board is
+//! crosscut to rough lengths first and the lengths are then ripped, which keeps a leftover end
+//! full width.
 
 use std::collections::VecDeque;
 
-use super::types::{Placement, SheetCut};
+use super::types::{Placement, SawCut};
 
 const EPS: f64 = 1e-6;
 
@@ -24,7 +25,17 @@ struct Region {
 /// The cuts that free every part placed on one sheet (or piece on hand) of size `l` × `w`, in
 /// the order to make them, numbered from 1. `placements` may hold other sheets' parts; only those
 /// on `sheet` count. Waste is cut off only where it frees a part.
-pub fn sheet_cuts(placements: &[Placement], sheet: usize, l: f64, w: f64, kerf: f64) -> Vec<SheetCut> {
+pub fn sheet_cuts(placements: &[Placement], sheet: usize, l: f64, w: f64, kerf: f64) -> Vec<SawCut> {
+    cuts_of(placements, sheet, l, w, kerf, false)
+}
+
+/// The cuts that free every piece on one board `l` long and `w` wide, crosscuts first. Pieces are
+/// given as placements (x along the board, y across it, `w` the length and `h` the width).
+pub fn board_cuts(pieces: &[Placement], board: usize, l: f64, w: f64, kerf: f64) -> Vec<SawCut> {
+    cuts_of(pieces, board, l, w, kerf, true)
+}
+
+fn cuts_of(placements: &[Placement], sheet: usize, l: f64, w: f64, kerf: f64, across_first: bool) -> Vec<SawCut> {
     let parts: Vec<&Placement> = placements.iter().filter(|p| p.sheet == sheet).collect();
     let mut cuts = Vec::new();
     let mut todo: VecDeque<(Region, Vec<&Placement>)> = VecDeque::new();
@@ -33,8 +44,10 @@ pub fn sheet_cuts(placements: &[Placement], sheet: usize, l: f64, w: f64, kerf: 
         if parts.is_empty() || (parts.len() == 1 && fills(parts[0], region)) {
             continue;
         }
-        // Cuts along the piece's long way come first; a sheet is ripped before it is crosscut.
-        let order = if region.l >= region.w {
+        // A sheet is cut along its long way first; a board across it.
+        let order = if across_first {
+            [false, true]
+        } else if region.l >= region.w {
             [true, false]
         } else {
             [false, true]
@@ -46,7 +59,7 @@ pub fn sheet_cuts(placements: &[Placement], sheet: usize, l: f64, w: f64, kerf: 
             // Not a guillotine layout: nothing more can be cut straight through here.
             continue;
         };
-        cuts.push(SheetCut {
+        cuts.push(SawCut {
             sheet,
             n: cuts.len() as u32 + 1,
             x: if rip { region.x } else { at },
@@ -171,6 +184,18 @@ mod tests {
             cuts.iter().map(|c| c.off).collect::<Vec<_>>(),
             vec![20.0, 10.0, 30.0, 30.0, 50.0]
         );
+    }
+
+    #[test]
+    fn a_board_is_crosscut_to_length_before_it_is_ripped() {
+        // Two 1 1/2" legs side by side, 30" long, on a 3 1/2" board 96" long: one crosscut frees
+        // the 30" length (the rest stays full width), then one rip parts the legs, then the waste
+        // edge comes off the second.
+        let kerf = 0.125;
+        let parts = [part(0.0, 0.0, 30.0, 1.5), part(0.0, 1.5 + kerf, 30.0, 1.5)];
+        let cuts = board_cuts(&parts, 0, 96.0, 3.5, kerf);
+        let kinds: Vec<(bool, f64)> = cuts.iter().map(|c| (c.rip, c.off)).collect();
+        assert_eq!(kinds, vec![(false, 30.0), (true, 1.5), (true, 1.5)]);
     }
 
     #[test]
