@@ -71,6 +71,8 @@ export interface SheetCut {
     l: number;
     /** Along the sheet's length (a rip, at `y`); otherwise across it (at `x`). */
     rip: boolean;
+    /** Distance from the near edge of the piece it is cut on (bottom for a rip, left for a crosscut): where the fence goes. */
+    off: number;
 }
 
 /** A piece left over once a plan's parts are cut: at least 12" × 6" of sheet, or 12" of board. */

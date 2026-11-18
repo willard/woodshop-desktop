@@ -236,6 +236,8 @@ fn the_cut_order_frees_every_part_on_every_template_sheet() {
                         }
                     });
                     let (x, y, l, w) = pieces.remove(at.unwrap_or_else(|| panic!("{}: {c:?} crosses no piece", t.id)));
+                    let off = if c.rip { c.y - y } else { c.x - x };
+                    assert!((c.off - off).abs() < 1e-6, "{}: {c:?} fence setting", t.id);
                     if c.rip {
                         pieces.push((x, y, l, c.y - y));
                         pieces.push((x, c.y + KERF, l, y + w - c.y - KERF));

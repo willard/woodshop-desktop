@@ -94,6 +94,10 @@ pub struct SheetCut {
     /// True for a cut along the sheet's length (a rip, x from `x` to `x + l` at `y`); false for
     /// one across it (y from `y` to `y + l` at `x`).
     pub rip: bool,
+    /// How far the cut is from the near edge of the piece it is made on (the bottom edge for a
+    /// rip, the left for a crosscut): the width of the piece it takes off, where the fence goes.
+    #[serde(default)]
+    pub off: f64,
 }
 
 /// A piece left over once a plan's parts are cut, big enough to keep: at least 12" by 6" of

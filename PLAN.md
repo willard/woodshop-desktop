@@ -548,7 +548,8 @@ have to look up, and the editor screenshot would make someone want to try it fro
   on hand) is split into edge-to-edge saw cuts: on each piece the nearest cut along its long way
   that crosses no part, else the nearest across it, waste cut off only where it frees a part; the
   rest of a piece is cut before the pieces cut off it, so sheets are ripped into strips, then the
-  strips crosscut. `SheetCut { sheet, n, x, y, l, rip }`. The panel draws them as numbered red
+  strips crosscut. `SheetCut { sheet, n, x, y, l, rip, off }`, `off` being the fence setting (the width taken off,
+  from the piece's bottom or left edge), listed under each layout in the panel and PDF. The panel draws them as numbered red
   lines behind Show the cut order; the PDF always does. `tests/packing.rs` makes every
   template's cuts in order and checks each part ends up alone on a piece its size.
 

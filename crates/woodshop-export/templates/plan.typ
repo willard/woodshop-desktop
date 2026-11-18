@@ -107,7 +107,7 @@
 #for plan in data.sheets [
   == #plan.title
   #if plan.cuts.len() > 0 {
-    block(below: 6pt, text(size: 8.5pt, fill: muted)[The red numbers are the order to make the saw cuts: rip each sheet into strips, then crosscut the strips.])
+    block(below: 6pt, text(size: 8.5pt, fill: muted)[The red numbers are the order to make the saw cuts: rip each sheet into strips, then crosscut the strips. Under each sheet, each cut's fence setting: the width of the piece it takes off, from the bottom edge for a rip and the left for a crosscut.])
   }
   #for board in plan.boards {
     let (n, sl, sw) = (board.sheet, board.l, board.w)
@@ -142,6 +142,7 @@
             align(center + horizon, text(size: 5.5pt, weight: "bold", fill: white, str(c.n)))))
         }
       })
+      if board.steps != "" { block(above: 4pt, text(size: 8pt, fill: muted, board.steps)) }
     }))
   }
 ]

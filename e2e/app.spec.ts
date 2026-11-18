@@ -334,8 +334,10 @@ test('the sheet layouts can show the order to make the saw cuts', async ({ page 
     // The first cut on a full sheet is a rip, and the cuts are numbered from 1.
     await expect(sheet.getByTestId('cutlist-saw-cut').first()).toContainText('1');
     await expect(sheet.getByTestId('cutlist-saw-cut').first().locator('title')).toHaveText(
-        /^Cut 1: rip 96"$/,
+        /^Cut 1: rip .+ off, 96" long$/,
     );
+    // Under the layout, each cut with its fence setting.
+    await expect(page.getByTestId('cutlist-cut-steps').first()).toContainText(/^1 Rip \S+/);
     expect(await sheet.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
 });
 

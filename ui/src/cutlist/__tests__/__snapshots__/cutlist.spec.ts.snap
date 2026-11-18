@@ -114,6 +114,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 96,
           "n": 1,
+          "off": 32,
           "rip": true,
           "sheet": 0,
           "x": 0,
@@ -122,6 +123,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 96,
           "n": 2,
+          "off": 11.25,
           "rip": true,
           "sheet": 0,
           "x": 0,
@@ -130,6 +132,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 32,
           "n": 3,
+          "off": 72,
           "rip": false,
           "sheet": 0,
           "x": 72,
@@ -138,6 +141,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 11.25,
           "n": 4,
+          "off": 72,
           "rip": false,
           "sheet": 0,
           "x": 72,
@@ -146,6 +150,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 96,
           "n": 1,
+          "off": 11.25,
           "rip": true,
           "sheet": 1,
           "x": 0,
@@ -154,6 +159,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 96,
           "n": 2,
+          "off": 11.25,
           "rip": true,
           "sheet": 1,
           "x": 0,
@@ -162,6 +168,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 96,
           "n": 3,
+          "off": 11.25,
           "rip": true,
           "sheet": 1,
           "x": 0,
@@ -170,6 +177,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 96,
           "n": 4,
+          "off": 10.75,
           "rip": true,
           "sheet": 1,
           "x": 0,
@@ -178,6 +186,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 11.25,
           "n": 5,
+          "off": 72,
           "rip": false,
           "sheet": 1,
           "x": 72,
@@ -186,6 +195,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 11.25,
           "n": 6,
+          "off": 30.5,
           "rip": false,
           "sheet": 1,
           "x": 30.5,
@@ -194,6 +204,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 65.375,
           "n": 7,
+          "off": 10.75,
           "rip": true,
           "sheet": 1,
           "x": 30.625,
@@ -202,6 +213,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 11.25,
           "n": 8,
+          "off": 30.5,
           "rip": false,
           "sheet": 1,
           "x": 30.5,
@@ -210,6 +222,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 65.375,
           "n": 9,
+          "off": 10.75,
           "rip": true,
           "sheet": 1,
           "x": 30.625,
@@ -218,6 +231,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 10.75,
           "n": 10,
+          "off": 30.5,
           "rip": false,
           "sheet": 1,
           "x": 30.5,
@@ -226,6 +240,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 10.75,
           "n": 11,
+          "off": 30.5,
           "rip": false,
           "sheet": 1,
           "x": 61.125,
@@ -234,6 +249,7 @@ exports[`computeCutList — bookshelf > matches the frozen golden snapshot 1`] =
         {
           "l": 10.75,
           "n": 12,
+          "off": 30.5,
           "rip": false,
           "sheet": 1,
           "x": 61.125,
@@ -478,6 +494,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 60,
           "n": 1,
+          "off": 38,
           "rip": true,
           "sheet": 0,
           "x": 0,
@@ -486,6 +503,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 60,
           "n": 2,
+          "off": 19,
           "rip": true,
           "sheet": 0,
           "x": 0,
@@ -494,6 +512,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 38,
           "n": 3,
+          "off": 34,
           "rip": false,
           "sheet": 0,
           "x": 34,
@@ -502,6 +521,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 19,
           "n": 4,
+          "off": 36.582,
           "rip": false,
           "sheet": 0,
           "x": 36.582,
@@ -510,6 +530,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 60,
           "n": 1,
+          "off": 19,
           "rip": true,
           "sheet": 1,
           "x": 0,
@@ -518,6 +539,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 60,
           "n": 2,
+          "off": 18,
           "rip": true,
           "sheet": 1,
           "x": 0,
@@ -526,6 +548,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 60,
           "n": 3,
+          "off": 19,
           "rip": true,
           "sheet": 1,
           "x": 0,
@@ -534,6 +557,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 19,
           "n": 4,
+          "off": 36.582,
           "rip": false,
           "sheet": 1,
           "x": 36.582,
@@ -542,6 +566,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 18,
           "n": 5,
+          "off": 37.082,
           "rip": false,
           "sheet": 1,
           "x": 37.082,
@@ -550,6 +575,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 19,
           "n": 6,
+          "off": 34,
           "rip": false,
           "sheet": 1,
           "x": 34,
@@ -558,6 +584,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 60,
           "n": 1,
+          "off": 19,
           "rip": true,
           "sheet": 2,
           "x": 0,
@@ -566,6 +593,7 @@ exports[`computeCutList — record stand > matches the frozen golden snapshot 1`
         {
           "l": 19,
           "n": 2,
+          "off": 34,
           "rip": false,
           "sheet": 2,
           "x": 34,

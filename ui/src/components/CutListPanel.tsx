@@ -393,7 +393,8 @@ export function CutListPanel(props: CutListPanelProps) {
                         className="accent-accent"
                         onChange={(e) => setCutOrder(e.target.checked)}
                     />
-                    Show the cut order: rip each sheet into strips, then crosscut the strips
+                    Show the cut order: rip each sheet into strips, then crosscut the strips. Each cut's fence
+                    setting is the width it takes off, from the bottom edge or the left
                 </label>
             )}
             {cutList.sheets.map((plan) => (
@@ -406,7 +407,10 @@ export function CutListPanel(props: CutListPanelProps) {
                     </SectionHeading>
                     <div className="space-y-3">
                         {Array.from({ length: plan.sheetCount }, (_, n) => (
-                            <SheetDiagram key={n} plan={plan} sheet={n} cutOrder={cutOrder} />
+                            <div key={n}>
+                                <SheetDiagram plan={plan} sheet={n} cutOrder={cutOrder} />
+                                {cutOrder && <CutSteps plan={plan} sheet={n} />}
+                            </div>
                         ))}
                         {(plan.offcuts ?? []).map((o, i) => (
                             <div key={o.id} data-testid="cutlist-on-hand-sheet">
@@ -419,6 +423,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                     size={{ l: o.l, w: o.w ?? 0 }}
                                     cutOrder={cutOrder}
                                 />
+                                {cutOrder && <CutSteps plan={plan} sheet={plan.sheetCount + i} />}
                             </div>
                         ))}
                     </div>
@@ -790,7 +795,7 @@ export function SheetDiagram({
                         return (
                             <g key={`cut-${c.n}`} data-testid="cutlist-saw-cut">
                                 <title>
-                                    Cut {c.n}: {c.rip ? 'rip' : 'crosscut'} {len(c.l)}
+                                    Cut {c.n}: {c.rip ? 'rip' : 'crosscut'} {len(c.off)} off, {len(c.l)} long
                                 </title>
                                 <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#ef4444" strokeWidth="0.4" />
                                 <circle cx={cx} cy={cy} r={r} fill="#ef4444" />
@@ -809,6 +814,25 @@ export function SheetDiagram({
                         );
                     })}
         </svg>
+    );
+}
+
+/** One sheet's saw cuts in order, each with where the fence goes: the width of the piece it takes off. */
+function CutSteps({ plan, sheet }: { plan: CutList['sheets'][number]; sheet: number }) {
+    const cuts = (plan.cuts ?? []).filter((c) => c.sheet === sheet);
+    if (cuts.length === 0) return null;
+    return (
+        <ol
+            className="text-muted mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs"
+            data-testid="cutlist-cut-steps"
+        >
+            {cuts.map((c) => (
+                <li key={c.n}>
+                    <span className="font-semibold text-red-400">{c.n}</span> {c.rip ? 'Rip' : 'Crosscut'}{' '}
+                    {len(c.off)}
+                </li>
+            ))}
+        </ol>
     );
 }
 

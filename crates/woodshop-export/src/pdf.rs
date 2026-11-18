@@ -122,6 +122,8 @@ struct BoardView {
     w: f64,
     /// Empty for a bought sheet; "On hand, 24\" × 18\"" for a piece the reader has.
     caption: String,
+    /// The saw cuts in order with the fence setting for each: "1 Rip 20\" · 2 Crosscut 30\"".
+    steps: String,
 }
 
 #[derive(Serialize)]
@@ -399,6 +401,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                         l: p.sheet_size.l,
                         w: p.sheet_size.w,
                         caption: String::new(),
+                        steps: cut_steps(&p.cuts, n, units),
                     })
                     .chain(p.offcuts.iter().enumerate().map(|(i, o)| {
                         let w = o.w.unwrap_or(0.0);
@@ -407,6 +410,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                             l: o.l,
                             w,
                             caption: format!("On hand, {} × {}", format_length(o.l, units), format_length(w, units)),
+                            steps: cut_steps(&p.cuts, p.sheet_count + i, units),
                         }
                     }))
                     .collect(),
@@ -635,6 +639,22 @@ pub(crate) fn typeset(template: &str, data: &impl Serialize, thumbnail: Option<&
     })
 }
 
+/// One sheet's saw cuts in order, each with where the fence goes: "1 Rip 20\" · 2 Crosscut 30\"".
+fn cut_steps(cuts: &[woodshop_core::cutlist::SheetCut], sheet: usize, units: Units) -> String {
+    cuts.iter()
+        .filter(|c| c.sheet == sheet)
+        .map(|c| {
+            format!(
+                "{} {} {}",
+                c.n,
+                if c.rip { "Rip" } else { "Crosscut" },
+                format_length(c.off, units)
+            )
+        })
+        .collect::<Vec<_>>()
+        .join(" · ")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -784,6 +804,8 @@ mod tests {
         assert!(!first.is_empty() && first.iter().enumerate().all(|(i, &n)| n as usize == i + 1));
         // A full sheet is ripped first.
         assert!(sheet.cuts[0].rip);
+        assert!(sheet.boards[0].steps.starts_with("1 Rip "), "{}", sheet.boards[0].steps);
+        assert!(sheet.boards[0].steps.contains(" · 2 "));
         let pdf = render_plan_pdf(&input).unwrap();
         if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
             std::fs::write(format!("{dir}/bookshelf.pdf"), &pdf).unwrap();

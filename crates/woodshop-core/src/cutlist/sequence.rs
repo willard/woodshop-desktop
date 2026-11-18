@@ -53,6 +53,7 @@ pub fn sheet_cuts(placements: &[Placement], sheet: usize, l: f64, w: f64, kerf: 
             y: if rip { at } else { region.y },
             l: if rip { region.l } else { region.w },
             rip,
+            off: if rip { at - region.y } else { at - region.x },
         });
         let (before, after): (Vec<&Placement>, Vec<&Placement>) = parts.into_iter().partition(|p| {
             if rip {
@@ -165,6 +166,11 @@ mod tests {
         );
         assert_eq!(cuts.iter().map(|c| c.n).collect::<Vec<_>>(), vec![1, 2, 3, 4, 5]);
         assert!(cuts[0].l == 96.0 && cuts[2].l == 20.0);
+        // The fence is set to the piece each cut takes off: the second strip is 10" wide.
+        assert_eq!(
+            cuts.iter().map(|c| c.off).collect::<Vec<_>>(),
+            vec![20.0, 10.0, 30.0, 30.0, 50.0]
+        );
     }
 
     #[test]
