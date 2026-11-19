@@ -621,6 +621,11 @@ have to look up, and the editor screenshot would make someone want to try it fro
   prices above the hardware), in the CSV (price and cost columns, hardware total), in the PDF (a
   cost column; the export reads the setting) and by `get_cut_list`. The 3D plan shows no costs.
 
+- **Lumber prices in the panel** (`BoardPrice`): lumber and round materials get a price box beside
+  the sheet one, per board foot or per board of the shortest stock length (`oneBoard`; lumber
+  needs a `stockWidth`), always stored as `costPerBoardFoot` to four places (`perBoardFoot`), so
+  the spec is unchanged. The material line names the stock (`stockLabel`).
+
 ## Phase 6: After launch
 
 - Branded hardware packs (Blum, Häfele, Accuride) with part numbers, once dimensional data and

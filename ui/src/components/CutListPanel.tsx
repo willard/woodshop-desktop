@@ -25,6 +25,7 @@ import { TRIM_OPTIONS, saveTrim, useTrim, type TrimKey } from '@/cutlist/trim';
 import { boardLength, boardSizes, boughtBoards } from '@/cutlist/boards';
 import type { SawCut } from '@/cutlist/types';
 import { OnHandSection } from './OnHandSection';
+import { BoardPrice, stockLabel } from './BoardPrice';
 import { useCutProgress } from '@/cutlist/progress';
 
 export interface CutListPanelProps {
@@ -144,7 +145,7 @@ export function CutListPanel(props: CutListPanelProps) {
     const fasteners = cutList.hardware.filter((row) => FASTENER_KINDS.has(row.kind));
     const fittings = cutList.hardware.filter((row) => !FASTENER_KINDS.has(row.kind));
 
-    /** "Add prices": take the reader to the first sheet price, ready to type. */
+    /** "Add prices": take the reader to the first material price, ready to type. */
     function focusFirstPrice(): void {
         const input = document.querySelector<HTMLInputElement>('[data-testid="material-price"]');
         input?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -802,6 +803,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                 </span>{' '}
                                 · {material.type} · {fmt(material.thickness)}
                                 {material.type === 'round' ? ' dia.' : ''}
+                                {material.type !== 'sheet' && ` · ${stockLabel(material)}`}
                             </div>
                             {material.type === 'sheet' && material.sheetSize !== undefined && (
                                 <div className="flex items-center gap-2">
@@ -856,6 +858,13 @@ export function CutListPanel(props: CutListPanelProps) {
                                         </>
                                     )}
                                 </div>
+                            )}
+                            {material.type !== 'sheet' && (
+                                <BoardPrice
+                                    material={material}
+                                    readonly={readonly}
+                                    onCommit={(v) => props.onMaterial?.(material.id, { costPerBoardFoot: v })}
+                                />
                             )}
                         </div>
                     );

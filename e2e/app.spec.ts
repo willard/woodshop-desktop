@@ -411,6 +411,33 @@ test('boards show their cut order too: crosscut to length, then ripped', async (
     expect(await legs.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
 });
 
+test('lumber is priced by the board foot or by the board', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Entry Bench', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('cutlist-toggle').click();
+    const oneByFour = page.getByTestId('material-row').filter({ has: page.getByLabel('Price Pine 1x4 by') });
+    await expect(oneByFour).toContainText('96" boards, 3 1/2" wide');
+
+    // Priced as the store does, $5.25 a board: 1.75 board feet, so $3 a board foot.
+    const price = oneByFour.getByTestId('material-price');
+    await oneByFour.getByLabel('Price Pine 1x4 by').selectOption({ label: '/96" board' });
+    await expect(price).toHaveAccessibleName('Price per 96" board of Pine 1x4');
+    await price.fill('5.25');
+    await price.blur();
+    await oneByFour.getByLabel('Price Pine 1x4 by').selectOption({ label: '/bd ft' });
+    await expect(price).toHaveValue('3');
+
+    // The 1x12 by the board foot, and the design has a cost.
+    const oneByTwelve = page.getByLabel('Price per board foot of Pine 1x12');
+    await oneByTwelve.fill('4');
+    await oneByTwelve.blur();
+    await expect(page.getByTestId('cutlist-totals')).toContainText('Est. cost$');
+});
+
 test('the cut list words the joinery, with each tool setup set once', async ({ page }) => {
     await page.goto('/#/templates');
     await page

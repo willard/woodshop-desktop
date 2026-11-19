@@ -8,6 +8,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Price boards and dowels in the cut list, by the board foot as a hardwood dealer does or by the
+  board as a home centre does ("$4.48 a 96\" board"); until now only sheets had a price box there.
+  Each material also says what it is sold as: "96\" boards, 3 1/2\" wide".
 - About what a design weighs: the cut list's overall size says "About 87 lb of wood", and the PDF
   summary shows it too, for hanging a wall cabinet, choosing casters or moving the piece. It is
   the wood alone, at a typical density for each material, read from its name (MDF, Baltic birch,
