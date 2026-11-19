@@ -24,6 +24,7 @@ Prerequisites: stable Rust, the `wasm32-unknown-unknown` target,
 rustup target add wasm32-unknown-unknown
 npm ci
 npm run wasm           # build the core to WASM for the UI (again after changing crates/woodshop-core)
+npm run wasm:viewer    # the same for the exported 3D plan's viewer (its typecheck needs it)
 npx tauri dev          # the app, with hot reload
 ```
 
@@ -51,7 +52,7 @@ Run the same checks as CI:
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
-npm run wasm && npm run typecheck && npm run lint && npm run format:check
+npm run wasm && npm run wasm:viewer && npm run typecheck && npm run lint && npm run format:check
 npm test
 npm run test:e2e        # E2E_BROWSER_CHANNEL=chrome uses an installed Chrome instead of downloading Chromium
 ```

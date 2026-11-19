@@ -52,7 +52,7 @@ sponsorship only. (This replaces the earlier free-tier + Pro-license plan.)
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
-npm run wasm && npm run typecheck && npm run lint && npm run format:check
+npm run wasm && npm run wasm:viewer && npm run typecheck && npm run lint && npm run format:check
 npm test
 E2E_BROWSER_CHANNEL=chrome npm run test:e2e
 ```

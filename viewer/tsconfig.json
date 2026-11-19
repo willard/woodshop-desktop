@@ -1,0 +1,12 @@
+{
+    "extends": "../ui/tsconfig.json",
+    "compilerOptions": {
+        "paths": {
+            "@/domain": ["./src/domain.ts"],
+            "@/*": ["../ui/src/*"],
+            "@fixtures/*": ["../ui/src/fixtures/*"]
+        }
+    },
+    "include": ["src/**/*.ts", "src/**/*.tsx", "../ui/src/**/*.d.ts"],
+    "exclude": ["src/wasm/**"]
+}

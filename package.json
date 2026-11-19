@@ -11,7 +11,7 @@
     "wasm": "wasm-pack build crates/woodshop-wasm --target web --release --out-dir ../../ui/src/domain/wasm --out-name woodshop",
     "wasm:viewer": "wasm-pack build crates/woodshop-wasm --target web --release --out-dir ../../viewer/src/wasm --out-name woodshop -- --no-default-features",
     "spec:generate": "node ui/src/spec/generate-zod.mjs",
-    "typecheck": "tsc --noEmit -p ui",
+    "typecheck": "tsc --noEmit -p ui && tsc --noEmit -p viewer",
     "lint": "eslint ui/src viewer/src e2e playwright.config.ts scripts/site site/download.js",
     "format:check": "prettier --check ui/src viewer/src e2e playwright.config.ts scripts/site site/style.css site/download.js",
     "format": "prettier --write ui/src viewer/src e2e playwright.config.ts scripts/site site/style.css site/download.js",

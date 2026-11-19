@@ -38,7 +38,7 @@ export default defineConfig({
     test: {
         root: '.',
         environment: 'jsdom',
-        include: ['ui/src/**/*.{test,spec}.{ts,tsx}'],
+        include: ['ui/src/**/*.{test,spec}.{ts,tsx}', 'viewer/src/**/*.{test,spec}.{ts,tsx}'],
         setupFiles: ['ui/src/test/setup.ts'],
     },
 });
