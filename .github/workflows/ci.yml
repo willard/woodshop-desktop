@@ -56,6 +56,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # tauri build refuses mismatched crate and npm versions; CI never runs it, so check here.
+      - run: node scripts/check-tauri-versions.mjs
       - run: npm run wasm
       # The viewer's own build of the core; its typecheck needs the bindings.
       - run: npm run wasm:viewer

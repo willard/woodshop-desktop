@@ -115,6 +115,9 @@ Some of the most useful contributions need no Rust:
 1. Bump `version` in `src-tauri/tauri.conf.json`, the workspace `Cargo.toml` and `package.json`
    (and `package-lock.json`, `Cargo.lock`), and move the "Unreleased" notes in `CHANGELOG.md`
    under the new version. CI checks they agree (`node scripts/release-notes.mjs <version>`).
+   CI also checks the Tauri crates and their npm packages are on the same minor versions
+   (`node scripts/check-tauri-versions.mjs`): `tauri build` refuses otherwise, so after a
+   `cargo update` or an npm update, move the other side to match.
 2. Push a tag like `v0.2.0`. `.github/workflows/release.yml` builds macOS (universal), Windows and
    Linux into a draft GitHub Release with signed updater artifacts and `latest.json`. Its notes
    are the install steps and that version's changelog section, from the same script.
