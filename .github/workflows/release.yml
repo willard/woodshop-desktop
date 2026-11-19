@@ -73,6 +73,17 @@ jobs:
           else
             echo "APPLE_SIGNING_IDENTITY=-" >> "$GITHUB_ENV"
           fi
+      # The release body: install steps, then this version's CHANGELOG.md section. Fails (and so
+      # stops the release) if the tag, the version files and the changelog disagree.
+      - name: Release notes
+        id: notes
+        shell: bash
+        run: |
+          {
+            echo 'body<<WOODSHOP_NOTES_EOF'
+            node scripts/release-notes.mjs "$GITHUB_REF_NAME"
+            echo 'WOODSHOP_NOTES_EOF'
+          } >> "$GITHUB_OUTPUT"
       # beforeBuildCommand (npm run build:release) writes the third-party notices, then builds the
       # WASM, the viewer and the UI.
       - uses: tauri-apps/tauri-action@v0
@@ -83,7 +94,7 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Woodshop ${{ github.ref_name }}
-          releaseBody: See the assets below to download and install this version.
+          releaseBody: ${{ steps.notes.outputs.body }}
           releaseDraft: true
           prerelease: false
           includeUpdaterJson: true

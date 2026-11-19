@@ -112,12 +112,14 @@ Some of the most useful contributions need no Rust:
 
 ## Releasing (maintainers)
 
-1. Bump `version` in `src-tauri/tauri.conf.json`, the workspace `Cargo.toml` and `package.json`,
-   and move the "Unreleased" notes in `CHANGELOG.md` under the new version.
+1. Bump `version` in `src-tauri/tauri.conf.json`, the workspace `Cargo.toml` and `package.json`
+   (and `package-lock.json`, `Cargo.lock`), and move the "Unreleased" notes in `CHANGELOG.md`
+   under the new version. CI checks they agree (`node scripts/release-notes.mjs <version>`).
 2. Push a tag like `v0.2.0`. `.github/workflows/release.yml` builds macOS (universal), Windows and
-   Linux into a draft GitHub Release with signed updater artifacts and `latest.json`.
-3. Check the draft, paste the changelog entry into it, and publish. Installed copies see the
-   update the next time someone checks.
+   Linux into a draft GitHub Release with signed updater artifacts and `latest.json`. Its notes
+   are the install steps and that version's changelog section, from the same script.
+3. Check the draft and publish it (tick "Set as a pre-release" while the app is still settling).
+   Installed copies see the update the next time someone checks.
 
 The workflow needs the repository secrets `TAURI_SIGNING_PRIVATE_KEY` and
 `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. macOS builds are ad-hoc signed until the `APPLE_*` secrets

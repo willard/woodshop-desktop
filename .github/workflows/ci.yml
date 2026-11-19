@@ -65,6 +65,9 @@ jobs:
       - run: npm test
       - run: npm run build:viewer
       - run: npm run site
+      # The version files agree and the changelog has a section for that version, so a tag
+      # of it would release.
+      - run: node scripts/release-notes.mjs "$(node -p "require('./package.json').version")" > /dev/null
       - name: End-to-end (browser, mocked backend)
         run: |
           npx playwright install --with-deps chromium

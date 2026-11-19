@@ -6,6 +6,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-11-19
+
 ### Added
 
 - The interactive 3D plan suits a tablet in the shop: Keep screen on stops it dimming and locking
@@ -17,7 +19,7 @@ All notable changes to Woodshop are listed here. The format follows
   and are told to ask you instead. A lock beside the part's name in the Inspector and in the parts
   list shows which parts are locked, and unlocks one or locks any other.
 - Price boards and dowels in the cut list, by the board foot as a hardwood dealer does or by the
-  board as a home centre does ("$4.48 a 96\" board"); until now only sheets had a price box there.
+  board as a home centre does ("$4.48 a 96" board"); until now only sheets had a price box there.
   The lengths a board or dowel is sold in ("96, 120") and a board's width are typed there too, as
   a sheet's size is: each board is bought at the shortest length its cuts fit.
 - About what a design weighs: the cut list's overall size says "About 87 lb of wood", and the PDF
@@ -148,5 +150,6 @@ The first release build, for macOS (universal), Windows and Linux.
 - A local MCP server (`woodshop --mcp`) so AI agents can read and edit designs.
 - Signed in-app updates from GitHub Releases.
 
-[Unreleased]: https://github.com/willard/woodshop-desktop/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/willard/woodshop-desktop/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/willard/woodshop-desktop/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/willard/woodshop-desktop/releases/tag/v0.1.0

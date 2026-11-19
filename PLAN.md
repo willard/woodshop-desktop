@@ -362,8 +362,12 @@ gating is built: there is nothing to unlock.
 - **4.5 Funding:** `.github/FUNDING.yml` and one "Support Woodshop" link in Settings ▸ About,
   once the owner picks the platform(s). Never nagging; nothing at export time.
 - **4.6 First public release:** publish a release built from `main` as a pre-release until
-  Phase 5 is done (the v0.1.0 draft predates the licence; cut v0.1.1 instead). Release notes
-  from `CHANGELOG.md`, with the macOS "Open Anyway" and Windows SmartScreen steps.
+  Phase 5 is done (the v0.1.0 draft predates the licence; cut v0.1.1 instead). **Prepared:** the
+  version is 0.1.1 everywhere and `CHANGELOG.md` has its section; `scripts/release-notes.mjs`
+  writes the release body (install table, macOS "Open Anyway" and Windows SmartScreen steps, the
+  changelog section) and fails if the tag, the version files and the changelog disagree; CI runs
+  it for the current version. **Owner:** delete the v0.1.0 draft, push the `v0.1.1` tag, check
+  the draft the workflow builds, publish it as a pre-release.
   Done when a stranger can install, open a template and export a PDF on each platform using
   only the README, and build from source using only `CONTRIBUTING.md`.
 
