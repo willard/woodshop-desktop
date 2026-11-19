@@ -8,6 +8,9 @@ use crate::pdf::PlanNote;
 
 const VIEWER_JS: &str = include_str!(concat!(env!("OUT_DIR"), "/viewer.js"));
 const VIEWER_CSS: &str = include_str!(concat!(env!("OUT_DIR"), "/viewer.css"));
+/// The page around the bundle. The browser test of the exported plan (`e2e/viewer.spec.ts`)
+/// fills the same file, so what it opens is what this writes.
+const VIEWER_HTML: &str = include_str!("../templates/viewer.html");
 
 /// Bumped when the payload shape changes, so an old viewer can refuse a newer file.
 pub const PAYLOAD_VERSION: u32 = 1;
@@ -74,16 +77,70 @@ pub fn render_viewer_html(input: &ViewerInput<'_>) -> String {
     // A bundle can never contain a literal closing tag that would end the inline script early.
     let js = VIEWER_JS.replace("</script", "<\\/script");
     let css = VIEWER_CSS.replace("</style", "<\\/style");
-    format!(
-        "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"{theme}\" class=\"h-full\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n<title>{title} — Woodshop plan</title>\n<style>{css}</style>\n</head>\n<body class=\"h-full\">\n<div id=\"viewer\" class=\"h-full\"></div>\n<script type=\"application/json\" id=\"woodshop-export\">{json}</script>\n<script>{js}</script>\n</body>\n</html>\n",
-        title = escape_html(input.title),
-        json = script_safe_json(&payload),
+    fill(
+        VIEWER_HTML,
+        &[
+            ("theme", theme),
+            ("title", &escape_html(input.title)),
+            ("css", &css),
+            ("payload", &script_safe_json(&payload)),
+            ("js", &js),
+        ],
     )
+}
+
+/// The template with each `{{key}}` replaced, in one pass over the template only, so a value
+/// that happens to contain `{{js}}` (a bundle, a part name) is never itself filled in.
+fn fill(template: &str, values: &[(&str, &str)]) -> String {
+    let mut out = String::with_capacity(template.len() + values.iter().map(|(_, v)| v.len()).sum::<usize>());
+    let mut rest = template;
+    while let Some(start) = rest.find("{{") {
+        out.push_str(&rest[..start]);
+        let after = &rest[start + 2..];
+        match after.find("}}").and_then(|end| {
+            let key = &after[..end];
+            values.iter().find(|(k, _)| *k == key).map(|(_, v)| (end, *v))
+        }) {
+            Some((end, value)) => {
+                out.push_str(value);
+                rest = &after[end + 2..];
+            }
+            None => {
+                out.push_str("{{");
+                rest = after;
+            }
+        }
+    }
+    out.push_str(rest);
+    out
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_template_is_filled_once() {
+        assert_eq!(
+            fill("<{{a}}|{{b}}|{{c}}>", &[("a", "{{b}}"), ("b", "2")]),
+            "<{{b}}|2|{{c}}>",
+            "a value is not filled again, and an unknown key is left as it is"
+        );
+        let html = render_viewer_html(&ViewerInput {
+            title: "Box",
+            spec: serde_json::json!({}),
+            kerf: 0.125,
+            theme: "light",
+            exported_at: "2026-01-01T00:00:00Z",
+            notes: vec![],
+            units: Default::default(),
+        });
+        assert!(html.starts_with("<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"light\""));
+        assert!(html.contains("<title>Box — Woodshop plan</title>"));
+        for key in ["theme", "title", "css", "payload", "js"] {
+            assert!(!html.contains(&format!("{{{{{key}}}}}")), "{key} filled");
+        }
+    }
 
     #[test]
     fn a_hostile_part_name_cannot_close_the_script() {

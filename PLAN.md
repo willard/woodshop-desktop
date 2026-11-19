@@ -681,6 +681,12 @@ have to look up, and the editor screenshot would make someone want to try it fro
   (`assembly::part_joints`, WASM `partJoints`). Checked at iPad Pro 11 sizes with touch. Not done:
   a native app; opening the file from the Files app may preview it without scripts, so it is best
   opened in Safari (AirDrop or a shared folder).
+- **The exported plan is tested as a file** (`e2e/viewer.spec.ts`): the page shell is one
+  template, `crates/woodshop-export/templates/viewer.html`, filled by `viewer::fill` (one pass,
+  so a value is never filled again); the test fills the same file with the built bundle and a
+  record stand, opens it from `file://`, and checks it loads with no errors or fetches, picks a
+  part from the cut list (joints in shop words), ticks a piece off across a reload, switches theme
+  and uses the 3D controls. A plan from a newer Woodshop shows its message, not a blank page.
 
 ---
 
