@@ -13,6 +13,9 @@ All notable changes to Woodshop are listed here. The format follows
   note says how many; one undo puts it all back. Parts stay centred where they were, so a small
   correction keeps the design buildable, and the design checks flag anything a large change
   leaves apart.
+- AI agents can set a material's real thickness too (`set_material_thickness`). Its dados, grooves
+  and rabbets follow, a change that would leave parts apart is refused, and parts you locked are
+  left alone.
 
 ### Changed
 

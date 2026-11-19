@@ -36,11 +36,11 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 36);
+    assert_eq!(tools::TOOLS.len(), 37);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
-    assert_eq!(names.len(), 36);
+    assert_eq!(names.len(), tools::TOOLS.len());
     for t in tools::TOOLS {
         let schema = (t.schema)();
         assert_eq!(schema["type"], "object", "{}", t.name);
@@ -985,4 +985,68 @@ fn parts_the_user_locked_are_left_exactly_as_they_are() {
     );
     assert_eq!(part(&w, id, "p_top")["name"], "Lid");
     assert_eq!(part(&w, id, "p_shelf_1"), before["parts"][4]);
+}
+
+#[test]
+fn a_material_takes_the_thickness_its_stock_measures_and_its_dados_follow() {
+    let w = woodshop();
+    let id = ok(&w, "start_from_template", json!({ "template": "record-stand" }))["projectId"]
+        .as_i64()
+        .unwrap();
+    let set = |thickness: f64| json!({ "project_id": id, "material_id": "mat_bb18", "thickness": thickness });
+
+    let done = ok(&w, "set_material_thickness", set(0.71875));
+    assert_eq!(
+        done["summary"],
+        "Set \"Baltic Birch 18mm\" to 0.71875\" thick, and resized 2 joint cuts to match."
+    );
+    let design = ok(&w, "get_design", json!({ "project_id": id }));
+    assert_eq!(design["spec"]["materials"][0]["thickness"], 0.71875);
+    for side in ["p_side_l", "p_side_r"] {
+        let dado = &part(&w, id, side)["ops"][0];
+        assert_eq!(
+            (dado["type"].as_str(), dado["width"].as_f64()),
+            (Some("dado"), Some(0.71875))
+        );
+    }
+
+    assert!(err(&w, "set_material_thickness", set(0.71875)).contains("is already 0.71875\" thick"));
+    assert!(
+        err(
+            &w,
+            "set_material_thickness",
+            json!({ "project_id": id, "material_id": "nope", "thickness": 0.5 })
+        )
+        .starts_with("No material \"nope\"")
+    );
+
+    // A side the user locked keeps its dado, so the change is refused whole.
+    lock(&w, id, &["p_side_l"]);
+    let refused = err(&w, "set_material_thickness", set(0.75));
+    assert!(refused.contains("which the user has locked"), "{refused}");
+    assert_eq!(
+        ok(&w, "get_design", json!({ "project_id": id }))["spec"]["materials"][0]["thickness"],
+        0.71875
+    );
+}
+
+#[test]
+fn a_thickness_that_would_leave_parts_apart_is_refused() {
+    let w = woodshop();
+    let id = ok(&w, "start_from_template", json!({ "template": "record-stand" }))["projectId"]
+        .as_i64()
+        .unwrap();
+    let refused = err(
+        &w,
+        "set_material_thickness",
+        json!({ "project_id": id, "material_id": "mat_bb18", "thickness": 0.25 }),
+    );
+    assert!(
+        refused.starts_with("That change would make the design unbuildable") && refused.contains("only overlaps it"),
+        "{refused}"
+    );
+    assert_eq!(
+        ok(&w, "get_design", json!({ "project_id": id }))["spec"]["materials"][0]["thickness"],
+        0.709
+    );
 }

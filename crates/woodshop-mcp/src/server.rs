@@ -78,7 +78,9 @@ Precise edits: edit_parts changes SEVERAL parts at once (moves, rotations, resiz
 only at the end, which is the only way to re-orient an existing design — the single-part tools reject \
 each intermediate state. move_part (new position and/or rotation), resize_part, rename_part, \
 set_part_material, set_part_species, and delete_part change one part by id; rename_material and \
-delete_material keep the material list clean (a material in use cannot be deleted); they keep the \
+delete_material keep the material list clean (a material in use cannot be deleted); \
+set_material_thickness sets what the stock really measures (23/32\" plywood) and resizes the dados, \
+grooves and rabbets its parts sit in; they keep the \
 design buildable and are rejected only if the edit itself would break it. When a run of authoring \
 calls is done, call check_design to confirm the piece actually holds together.
 

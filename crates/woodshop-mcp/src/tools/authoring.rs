@@ -148,6 +148,103 @@ pub const RENAME_MATERIAL: ToolDef = ToolDef {
     },
 };
 
+pub const SET_MATERIAL_THICKNESS: ToolDef = ToolDef {
+    name: "set_material_thickness",
+    description: "Set the thickness a material's stock really measures: 3/4\" plywood that is 23/32\" \
+        (0.71875), or 18 mm Baltic birch at 0.709. Every part of the material takes it, and each dado, \
+        groove or rabbet a part of it sits in (a dado or rabbet joint with op_ref) is resized to the new \
+        thickness so the joint still fits. Parts stay centred where they are, so a small correction keeps \
+        them touching; a change that would leave parts apart is refused, saying which. For round stock \
+        this is the diameter. Refused if it would resize a cut in a part the user has locked.",
+    read_only: false,
+    schema: || {
+        object(
+            json!({
+                "project_id": integer(PROJECT_ID),
+                "material_id": string("The id of the material (from get_design)."),
+                "thickness": number("The measured thickness in decimal inches, e.g. 0.71875 for 23/32\". For round stock, the diameter."),
+            }),
+            &["project_id", "material_id", "thickness"],
+        )
+    },
+    run: set_material_thickness,
+};
+
+/// Each (host part, op index) whose width is the thickness of a part of `material_id` seated in
+/// it: dado and groove ops named by a `dado` joint, rabbet ops named by a `rabbet` joint.
+fn cuts_sized_by(spec: &Value, material_id: &str) -> Vec<(String, usize)> {
+    let parts = spec["parts"].as_array().map(Vec::as_slice).unwrap_or_default();
+    let of_material = |id: &Value| parts.iter().any(|p| p["id"] == *id && p["materialId"] == material_id);
+    let mut cuts: Vec<(String, usize)> = Vec::new();
+    for joint in spec["joints"].as_array().into_iter().flatten() {
+        let (Some(host_id), Some(op_ref)) = (joint["hostPartId"].as_str(), joint["opRef"].as_u64()) else {
+            continue;
+        };
+        if !of_material(&joint["insertPartId"]) {
+            continue;
+        }
+        let Some(host) = parts.iter().find(|p| p["id"] == host_id) else {
+            continue;
+        };
+        let op_type = host["ops"][op_ref as usize]["type"].as_str().unwrap_or_default();
+        let fits = match joint["type"].as_str() {
+            Some("dado") => op_type == "dado" || op_type == "groove",
+            Some("rabbet") => op_type == "rabbet",
+            _ => false,
+        };
+        let cut = (host_id.to_owned(), op_ref as usize);
+        if fits && !cuts.contains(&cut) {
+            cuts.push(cut);
+        }
+    }
+    cuts
+}
+
+fn set_material_thickness(w: &Woodshop, args: &Args) -> Outcome {
+    let project_id = args.project_id(PROVIDE_PROJECT)?;
+    let material_id = args.str("material_id", "Provide the id of the material (see get_design).")?;
+    let thickness = args.num("thickness", 0.01, 240.0, "")?;
+    let design = w.load_editable(project_id)?;
+    let material = find(&design.draft, "materials", material_id).ok_or_else(|| no_material(material_id))?;
+    let name = text(material, "name").to_owned();
+    if material["thickness"].as_f64() == Some(thickness) {
+        return Err(format!(
+            "Material \"{name}\" is already {thickness}\" thick. Nothing was changed."
+        ));
+    }
+    let cuts: Vec<(String, usize)> = cuts_sized_by(&design.draft, material_id)
+        .into_iter()
+        .filter(|(host, op)| {
+            find(&design.draft, "parts", host).is_some_and(|p| p["ops"][*op]["width"].as_f64() != Some(thickness))
+        })
+        .collect();
+    let result = w.apply(&design, &format!("Set {name} thickness"), true, |spec| {
+        map_one(spec, "materials", material_id, |m| {
+            m.insert("thickness".into(), thickness.into());
+        });
+        for (host, op) in &cuts {
+            map_one(spec, "parts", host, |p| {
+                if let Some(op) = p
+                    .get_mut("ops")
+                    .and_then(|ops| ops.get_mut(*op))
+                    .and_then(Value::as_object_mut)
+                {
+                    op.insert("width".into(), thickness.into());
+                }
+            });
+        }
+    });
+    let resized = match cuts.len() {
+        0 => String::new(),
+        n => format!(", and resized {n} joint cut{} to match", plural(n)),
+    };
+    w.render(
+        result,
+        &design,
+        &format!("Set \"{name}\" to {thickness}\" thick{resized}."),
+    )
+}
+
 pub const DELETE_MATERIAL: ToolDef = ToolDef {
     name: "delete_material",
     description: "Remove a material from a design. Use it to clear one added by mistake. Refused while \
