@@ -624,7 +624,9 @@ have to look up, and the editor screenshot would make someone want to try it fro
 - **Lumber prices in the panel** (`BoardPrice`): lumber and round materials get a price box beside
   the sheet one, per board foot or per board of the shortest stock length (`oneBoard`; lumber
   needs a `stockWidth`), always stored as `costPerBoardFoot` to four places (`perBoardFoot`), so
-  the spec is unchanged. The material line names the stock (`stockLabel`).
+  the spec is unchanged. Above it, `BoardStock` edits `stockLengths` (comma-separated,
+  `parseStockLengths`: each once, shortest first, at most 8, up to 240") and a lumber
+  `stockWidth`; read-only views name the stock instead (`stockLabel`).
 
 ## Phase 6: After launch
 

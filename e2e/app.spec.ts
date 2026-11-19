@@ -411,7 +411,9 @@ test('boards show their cut order too: crosscut to length, then ripped', async (
     expect(await legs.getByTestId('cutlist-saw-cut').count()).toBeGreaterThan(2);
 });
 
-test('lumber is priced by the board foot or by the board', async ({ page }) => {
+test('lumber is sold in lengths and a width, and priced by the board foot or by the board', async ({
+    page,
+}) => {
     await page.goto('/#/templates');
     await page
         .getByTestId('template-card')
@@ -420,7 +422,8 @@ test('lumber is priced by the board foot or by the board', async ({ page }) => {
         .click();
     await page.getByTestId('cutlist-toggle').click();
     const oneByFour = page.getByTestId('material-row').filter({ has: page.getByLabel('Price Pine 1x4 by') });
-    await expect(oneByFour).toContainText('96" boards, 3 1/2" wide');
+    await expect(oneByFour.getByTestId('stock-lengths')).toHaveValue('96');
+    await expect(oneByFour.getByTestId('stock-width')).toHaveValue('3 1/2');
 
     // Priced as the store does, $5.25 a board: 1.75 board feet, so $3 a board foot.
     const price = oneByFour.getByTestId('material-price');
@@ -436,6 +439,28 @@ test('lumber is priced by the board foot or by the board', async ({ page }) => {
     await oneByTwelve.fill('4');
     await oneByTwelve.blur();
     await expect(page.getByTestId('cutlist-totals')).toContainText('Est. cost$');
+
+    // Sold in 8' and 10' boards, typed in any order: listed shortest first, and the per-board
+    // price is still for the shortest.
+    const lengths = oneByFour.getByTestId('stock-lengths');
+    await lengths.fill('120, 96');
+    await lengths.blur();
+    await expect(lengths).toHaveValue('96, 120');
+    await oneByFour.getByLabel('Price Pine 1x4 by').selectOption({ label: '/96" board' });
+    await expect(price).toHaveValue('5.25');
+    // A length that is not one is refused, and the box goes back.
+    await lengths.fill('96, lots');
+    await lengths.blur();
+    await expect(lengths).toHaveValue('96, 120');
+
+    // A 1x6 instead: the boards are wider, and the same price per board is less per board foot.
+    const width = oneByFour.getByTestId('stock-width');
+    await width.fill('5 1/2');
+    await width.blur();
+    await expect(width).toHaveValue('5 1/2');
+    await expect(price).toHaveValue('8.25');
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(width).toHaveValue('3 1/2');
 });
 
 test('the cut list words the joinery, with each tool setup set once', async ({ page }) => {

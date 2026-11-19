@@ -1,12 +1,14 @@
 /**
- * The price of a lumber or round material, per board foot or per board. A home centre prices a
+ * What a lumber or round material is sold as, and its price. The lengths on sale and a board's
+ * width are typed as a sheet's size is. The price of a lumber or round material, per board foot or per board. A home centre prices a
  * 2x4 by the board and a hardwood dealer by the board foot; either is typed here and kept as the
  * material's price per board foot, worked out from the shortest board it is sold in.
  */
 import { useState } from 'react';
 import type { Material } from '@/spec';
 import { DEFAULT_STOCK_LENGTH, oneBoard, perBoardFoot } from '@/cutlist/boardfeet';
-import { len } from '@/lib/display';
+import { len, lenValue, parseLen } from '@/lib/display';
+import { MAX_STOCK_LENGTH, parseStockLengths } from '@/cutlist/boards';
 
 type Per = 'boardFoot' | 'board';
 
@@ -90,6 +92,72 @@ export function BoardPrice({
                             </option>
                         </select>
                     )}
+                </>
+            )}
+        </div>
+    );
+}
+
+/** "96, 120": the lengths a material is sold in, as typed back into the box. */
+function lengthsValue(material: Material): string {
+    return [...(material.stockLengths?.length ? material.stockLengths : [DEFAULT_STOCK_LENGTH])]
+        .sort((a, b) => a - b)
+        .map((l) => lenValue(l))
+        .join(', ');
+}
+
+const box =
+    'bg-surface-1 focus:border-accent border-fg/10 h-7 rounded-lg border px-1 text-center text-xs focus:outline-none';
+
+export function BoardStock({
+    material,
+    onChange,
+}: {
+    material: Material;
+    onChange: (patch: Partial<Material>) => void;
+}) {
+    const lengths = lengthsValue(material);
+    const word = material.type === 'round' ? 'Dowel' : 'Board';
+    return (
+        <div className="mb-2 flex items-center gap-2">
+            <span className="text-muted text-xs">Lengths</span>
+            <input
+                key={lengths}
+                defaultValue={lengths}
+                aria-label={`${word} lengths on sale of ${material.name}`}
+                title="Every length the store sells it in, separated by commas: each board is bought at the shortest its cuts fit"
+                data-testid="stock-lengths"
+                className={`${box} w-24`}
+                onBlur={(e) => {
+                    const next = parseStockLengths(e.target.value, (s) => parseLen(s));
+                    if (next !== null && next.map((l) => lenValue(l)).join(', ') !== lengths) {
+                        onChange({ stockLengths: next });
+                    }
+                    e.target.value = lengths;
+                }}
+                onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+            />
+            {material.type === 'lumber' && (
+                <>
+                    <span className="text-muted ml-auto text-xs">Width</span>
+                    <input
+                        key={material.stockWidth ?? ''}
+                        defaultValue={material.stockWidth === undefined ? '' : lenValue(material.stockWidth)}
+                        placeholder="any"
+                        aria-label={`Board width of ${material.name}`}
+                        title="The width the boards are sold at. Left empty, each board is as wide as its widest part"
+                        data-testid="stock-width"
+                        className={`${box} w-16`}
+                        onBlur={(e) => {
+                            const v = parseLen(e.target.value);
+                            if (v !== null && v > 0 && v <= MAX_STOCK_LENGTH && v !== material.stockWidth) {
+                                onChange({ stockWidth: v });
+                            }
+                            e.target.value =
+                                material.stockWidth === undefined ? '' : lenValue(material.stockWidth);
+                        }}
+                        onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+                    />
                 </>
             )}
         </div>

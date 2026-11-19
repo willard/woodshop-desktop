@@ -25,7 +25,7 @@ import { TRIM_OPTIONS, saveTrim, useTrim, type TrimKey } from '@/cutlist/trim';
 import { boardLength, boardSizes, boughtBoards } from '@/cutlist/boards';
 import type { SawCut } from '@/cutlist/types';
 import { OnHandSection } from './OnHandSection';
-import { BoardPrice, stockLabel } from './BoardPrice';
+import { BoardPrice, BoardStock, stockLabel } from './BoardPrice';
 import { useCutProgress } from '@/cutlist/progress';
 
 export interface CutListPanelProps {
@@ -803,7 +803,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                 </span>{' '}
                                 · {material.type} · {fmt(material.thickness)}
                                 {material.type === 'round' ? ' dia.' : ''}
-                                {material.type !== 'sheet' && ` · ${stockLabel(material)}`}
+                                {material.type !== 'sheet' && readonly && ` · ${stockLabel(material)}`}
                             </div>
                             {material.type === 'sheet' && material.sheetSize !== undefined && (
                                 <div className="flex items-center gap-2">
@@ -858,6 +858,12 @@ export function CutListPanel(props: CutListPanelProps) {
                                         </>
                                     )}
                                 </div>
+                            )}
+                            {material.type !== 'sheet' && !readonly && (
+                                <BoardStock
+                                    material={material}
+                                    onChange={(patch) => props.onMaterial?.(material.id, patch)}
+                                />
                             )}
                             {material.type !== 'sheet' && (
                                 <BoardPrice
