@@ -40,9 +40,19 @@ function rust() {
 
 const LICENSE_FILE = /^(licen[cs]e|copying|notice)(\.(md|txt))?$/i;
 
+/**
+ * Runs npm. Under `npm run`, the npm that started this script is `npm_execpath`, run with this
+ * Node: that works on Windows too, where `npm` is `npm.cmd` and cannot be spawned without a shell
+ * (the release build failed on it with "spawnSync npm ENOENT").
+ */
+function runNpm(args, options) {
+    const cli = process.env.npm_execpath;
+    return cli ? execFileSync(process.execPath, [cli, ...args], options) : execFileSync('npm', args, options);
+}
+
 function npm() {
     const tree = JSON.parse(
-        execFileSync('npm', ['ls', '--omit=dev', '--all', '--json', '--long'], {
+        runNpm(['ls', '--omit=dev', '--all', '--json', '--long'], {
             cwd: root,
             encoding: 'utf8',
             maxBuffer: 64 * 1024 * 1024,
@@ -103,7 +113,9 @@ const rustGroups = rust();
 const npmGroups = npm();
 writeFileSync(
     out,
-    header + section('Rust crates (the app and its design engine)', rustGroups) + '\n' +
+    header +
+        section('Rust crates (the app and its design engine)', rustGroups) +
+        '\n' +
         section('JavaScript packages (the user interface)', npmGroups),
 );
 const count = (gs) => gs.reduce((n, g) => n + g.users.length, 0);
