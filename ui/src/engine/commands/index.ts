@@ -436,11 +436,25 @@ export class SetMaterial implements Command {
     }
 }
 
+type WidthOp = Extract<Op, { type: 'dado' | 'groove' | 'rabbet' }>;
+
+function hasWidth(op: Op): op is WidthOp {
+    return op.type === 'dado' || op.type === 'groove' || op.type === 'rabbet';
+}
+
+/** An op whose width is the thickness of the part seated in it: a dado or groove, or a rabbet. */
+function sizedByInsert(joint: string, op: Op): op is WidthOp {
+    if (joint === 'dado') return op.type === 'dado' || op.type === 'groove';
+    if (joint === 'rabbet') return op.type === 'rabbet';
+    return false;
+}
+
 /**
  * Sets a material's thickness, as the stock really measures ("3/4" plywood that is 23/32"), and
- * resizes every dado and groove that a part of it seats in, so each joint still fits. Parts stay
- * centred where they are, so a small correction keeps them touching their neighbours; a large
- * change shows up in the design checks. `resized` counts the channels changed by the last `do`.
+ * resizes every dado, groove and rabbet that a part of it seats in, so each joint still fits.
+ * Parts stay centred where they are, so a small correction keeps them touching their neighbours;
+ * a large change shows up in the design checks. `resized` counts the cuts changed by the last
+ * `do`.
  */
 export class SetMaterialThickness implements Command {
     readonly label = 'Change thickness';
@@ -465,11 +479,10 @@ export class SetMaterialThickness implements Command {
         // Each host op a part of this material seats in, once.
         const channels = new Map<string, Set<number>>();
         for (const joint of spec.joints ?? []) {
-            if (joint.type !== 'dado' || joint.opRef === undefined || !ofMaterial.has(joint.insertPartId))
-                continue;
+            if (joint.opRef === undefined || !ofMaterial.has(joint.insertPartId)) continue;
             const host = spec.parts.find((p) => p.id === joint.hostPartId);
             const op = host?.ops?.[joint.opRef];
-            if (op === undefined || (op.type !== 'dado' && op.type !== 'groove')) continue;
+            if (op === undefined || !sizedByInsert(joint.type, op)) continue;
             if (!channels.has(joint.hostPartId)) channels.set(joint.hostPartId, new Set());
             channels.get(joint.hostPartId)!.add(joint.opRef);
         }
@@ -479,11 +492,7 @@ export class SetMaterialThickness implements Command {
             next = mapPart(next, partId, (part) => ({
                 ...part,
                 ops: part.ops.map((op, i) => {
-                    if (
-                        !indices.has(i) ||
-                        (op.type !== 'dado' && op.type !== 'groove') ||
-                        op.width === this.thickness
-                    ) {
+                    if (!indices.has(i) || !hasWidth(op) || op.width === this.thickness) {
                         return op;
                     }
                     widths.push({ partId, opIndex: i, width: op.width });
@@ -503,9 +512,7 @@ export class SetMaterialThickness implements Command {
         for (const { partId, opIndex, width } of before.widths) {
             next = mapPart(next, partId, (part) => ({
                 ...part,
-                ops: part.ops.map((op, i) =>
-                    i === opIndex && (op.type === 'dado' || op.type === 'groove') ? { ...op, width } : op,
-                ),
+                ops: part.ops.map((op, i) => (i === opIndex && hasWidth(op) ? { ...op, width } : op)),
             }));
         }
         return next;

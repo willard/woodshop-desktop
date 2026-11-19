@@ -9,7 +9,7 @@ All notable changes to Woodshop are listed here. The format follows
 ### Added
 
 - Set a material's real thickness in the cut list: 3/4" plywood that measures 23/32", or 18 mm
-  Baltic birch at 0.71". Every dado and groove a part of it sits in is resized to match, and a
+  Baltic birch at 0.71". Every dado, groove and rabbet a part of it sits in is resized to match, and a
   note says how many; one undo puts it all back. Parts stay centred where they were, so a small
   correction keeps the design buildable, and the design checks flag anything a large change
   leaves apart.

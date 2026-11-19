@@ -206,6 +206,41 @@ describe('EditorDocument history', () => {
         expect(d.spec.parts.find((p) => p.id === 'p_side_l')!.ops[0]).toMatchObject({ width: 0.71875 });
     });
 
+    it('SetMaterialThickness widens a rabbet a part of it sits in, and leaves other joints alone', () => {
+        const base = doc().spec;
+        const insert = base.parts.find((p) => p.materialId === 'mat_bb18' && p.id !== 'p_side_l')!;
+        const spec = {
+            ...base,
+            parts: base.parts.map((p) =>
+                p.id === 'p_side_l'
+                    ? {
+                          ...p,
+                          ops: [
+                              ...p.ops,
+                              { type: 'rabbet' as const, edge: 'l1' as const, width: 0.709, depth: 0.375 },
+                          ],
+                      }
+                    : p,
+            ),
+            joints: [
+                ...(base.joints ?? []),
+                { type: 'rabbet' as const, hostPartId: 'p_side_l', insertPartId: insert.id, opRef: 1 },
+                { type: 'butt' as const, hostPartId: 'p_side_l', insertPartId: insert.id, opRef: 1 },
+            ],
+        };
+        const d = new EditorDocument(spec);
+        const change = new SetMaterialThickness('mat_bb18', 0.71875);
+        d.execute(change);
+        expect(change.resized).toBe(3);
+        expect(d.spec.parts.find((p) => p.id === 'p_side_l')!.ops[1]).toMatchObject({
+            type: 'rabbet',
+            width: 0.71875,
+            depth: 0.375,
+        });
+        d.undo();
+        expect(d.spec).toEqual(spec);
+    });
+
     it('SetMaterialThickness changes nothing for the same thickness or an unknown material', () => {
         const d = doc();
         const same = new SetMaterialThickness('mat_bb18', 0.709);

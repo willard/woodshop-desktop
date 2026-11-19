@@ -817,7 +817,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                 <div className="mb-2 flex items-center gap-2">
                                     <span
                                         className="text-muted text-xs"
-                                        title="What the stock really measures: 3/4 plywood is often 23/32. Dados its parts sit in are resized to match."
+                                        title="What the stock really measures: 3/4 plywood is often 23/32. Dados and rabbets its parts sit in are resized to match."
                                     >
                                         {material.type === 'round' ? 'Diameter' : 'Thickness'}
                                     </span>

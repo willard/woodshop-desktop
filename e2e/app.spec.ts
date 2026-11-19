@@ -474,7 +474,7 @@ test('a material takes the thickness the stock really measures, and its dados fo
     await thickness.fill('23/32');
     await thickness.blur();
     await expect(thickness).toHaveValue('23/32');
-    await expect(page.getByText('2 dados resized to 23/32" to fit the new thickness.')).toBeVisible();
+    await expect(page.getByText('2 joints resized to 23/32" to fit the new thickness.')).toBeVisible();
     await expect(page.getByTestId('lint-badge')).toContainText('Buildable');
 
     // Not a thickness: refused, and the box goes back.

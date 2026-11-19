@@ -2171,7 +2171,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     doc.execute(change);
                                     if (change.resized > 0) {
                                         toast.info(
-                                            `${plural(change.resized, 'dado')} resized to ${len(thickness)} to fit the new thickness.`,
+                                            `${plural(change.resized, 'joint')} resized to ${len(thickness)} to fit the new thickness.`,
                                         );
                                     }
                                 }}
