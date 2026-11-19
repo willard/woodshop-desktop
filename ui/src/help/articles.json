@@ -414,6 +414,7 @@
             {
                 "type": "ul",
                 "items": [
+                    "Interactive 3D plan (HTML): a view-only copy of the design that opens in any browser, with the cut list and each part's details. Send it to a tablet for the shop: tap a part to see its sizes and joinery, tick pieces off as you cut them, and choose Keep screen on so it does not lock between cuts.",
                     "Cut list (CSV): one row per blank, in your units, for a spreadsheet.",
                     "Part labels (PDF): one sticky label per piece, with its name, size, material and the sheet or board it comes from, in the order the pieces are cut, so you can stick each on as it comes off the saw. Prints on 30-up US Letter label sheets (Avery 5160 and the like), or 21-up A4 sheets (Avery L7160) if you work in millimetres. On a sheet you've started, click the first free label and printing starts there.",
                     "Shop templates (SVG): full-size printable patterns for shaped and drilled parts.",

@@ -79,6 +79,30 @@ fn describe(kind: JointType, part_is_host: bool, n: Option<u32>, other: &Part) -
     }
 }
 
+/// Each joint `part_id` takes part in, in the same shop words as the assembly steps, one per
+/// joint: "4 pocket screws into Drawer Box Left Side", "Into the dado in Left Side".
+pub fn part_joints(spec: &Spec, part_id: &str) -> Vec<String> {
+    spec.joints()
+        .iter()
+        .filter_map(|j| {
+            let host = j.host_part_id == part_id;
+            if !host && j.insert_part_id != part_id {
+                return None;
+            }
+            let other_id = if host { &j.insert_part_id } else { &j.host_part_id };
+            let other = spec.part(other_id)?;
+            let phrase = describe(j.kind, host, fastener_count(spec, j), other);
+            let mut chars = phrase.chars();
+            Some(
+                chars
+                    .next()
+                    .map(|c| c.to_uppercase().chain(chars).collect())
+                    .unwrap_or_default(),
+            )
+        })
+        .collect()
+}
+
 /// One line for a part going in: how it meets each part already in `placed`.
 fn line(spec: &Spec, node: &Node, placed: &[&Node]) -> String {
     let mut ways = Vec::new();
@@ -318,6 +342,19 @@ mod tests {
         ))
         .unwrap();
         serde_json::from_str(&raw).unwrap()
+    }
+
+    #[test]
+    fn a_parts_joints_in_shop_words() {
+        let spec = template("nightstand");
+        let front = spec.parts.iter().find(|p| p.name == "Drawer Front").unwrap();
+        let lines = part_joints(&spec, &front.id);
+        assert!(!lines.is_empty());
+        for line in &lines {
+            assert!(line.contains("pocket screw"), "{line}");
+            assert!(!line.contains("pocketScrew"), "{line}");
+        }
+        assert!(part_joints(&spec, "no_such_part").is_empty());
     }
 
     fn print(steps: &[AssemblyStep]) -> String {

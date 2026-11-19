@@ -1,6 +1,7 @@
 /** Read-only part detail for the exported plan; op rows use the editor's own vocabulary. */
 import { len } from '@/lib/display';
 import { opSummary } from '@/spec/opLabel';
+import { partJoints } from '@/cutlist';
 import type { Part, Spec } from '@/spec';
 
 const inch = (n: number): string => len(n);
@@ -8,17 +9,7 @@ const AXIS_LABEL = ['X (length)', 'Y (width)', 'Z (up)'] as const;
 
 export function PartDetail({ spec, part }: { spec: Spec; part: Part }) {
     const material = spec.materials.find((m) => m.id === part.materialId);
-    const joints = (spec.joints ?? [])
-        .filter((j) => j.hostPartId === part.id || j.insertPartId === part.id)
-        .map((j) => {
-            const otherId = j.hostPartId === part.id ? j.insertPartId : j.hostPartId;
-            return {
-                key: j.id ?? `${j.type}-${j.hostPartId}-${j.insertPartId}`,
-                type: j.type,
-                role: j.hostPartId === part.id ? 'hosts' : 'seats into',
-                other: spec.parts.find((p) => p.id === otherId)?.name ?? otherId,
-            };
-        });
+    const joints = partJoints(spec, part.id);
     const rotated = part.transform.rot.some((d) => d !== 0);
     const heading = 'text-muted mb-2 text-xs font-semibold tracking-wider uppercase';
 
@@ -83,13 +74,13 @@ export function PartDetail({ spec, part }: { spec: Spec; part: Part }) {
                 <section data-print="keep">
                     <h3 className={heading}>Joinery</h3>
                     <ul className="space-y-1">
-                        {joints.map((j) => (
+                        {joints.map((line, i) => (
                             <li
-                                key={j.key}
+                                key={i}
                                 className="bg-surface-2 rounded-lg px-2.5 py-1.5 text-xs"
                                 data-testid="part-joint"
                             >
-                                {j.type} · {j.role} {j.other}
+                                {line}
                             </li>
                         ))}
                     </ul>

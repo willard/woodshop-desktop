@@ -332,7 +332,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                             >
                                                 <input
                                                     type="checkbox"
-                                                    className="accent-accent"
+                                                    className="accent-accent pointer-coarse:size-5"
                                                     aria-label={`${group.label} cut`}
                                                     data-testid="cutlist-cut-tick"
                                                     checked={groupCut}

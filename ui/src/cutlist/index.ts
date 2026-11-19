@@ -78,6 +78,11 @@ export interface JoinerySetup {
     parts: string;
 }
 
+/** Each joint a part takes part in, in the assembly steps' words: "4 pocket screws into Left Side". */
+export function partJoints(spec: Spec, partId: string): string[] {
+    return wasm.partJoints(spec, partId) as string[];
+}
+
 /** The design's joinery in shop words, as the PDF plan prints it (`woodshop-core::joinery`). */
 export interface Joinery {
     setups: JoinerySetup[];

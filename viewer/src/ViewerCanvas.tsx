@@ -82,7 +82,7 @@ export const ViewerCanvas = forwardRef<
                 <img id="print-shot" src={printShot} alt="3D view of the finished piece" className="hidden" />
             )}
             <div
-                className="bg-surface-1/90 border-fg/10 absolute right-3 bottom-3 left-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border px-3 py-2 text-xs backdrop-blur sm:left-auto sm:w-72"
+                className="bg-surface-1/90 border-fg/10 absolute right-3 bottom-3 left-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border px-3 py-2 text-xs backdrop-blur sm:left-auto sm:w-72 pointer-coarse:text-sm sm:pointer-coarse:w-96"
                 data-print="hide"
                 data-testid="viewer-controls"
             >
@@ -94,7 +94,7 @@ export const ViewerCanvas = forwardRef<
                         max="1"
                         step="0.05"
                         value={explode}
-                        className="accent-accent min-w-0 flex-1"
+                        className="accent-accent min-w-0 flex-1 pointer-coarse:h-8"
                         data-testid="explode"
                         aria-label="Explode the assembly"
                         onChange={(ev) => {
@@ -114,7 +114,7 @@ export const ViewerCanvas = forwardRef<
                             max="1"
                             step="0.05"
                             value={open}
-                            className="accent-accent min-w-0 flex-1"
+                            className="accent-accent min-w-0 flex-1 pointer-coarse:h-8"
                             data-testid="open"
                             aria-label="Open the doors and drawers"
                             onChange={(ev) => {
@@ -127,7 +127,7 @@ export const ViewerCanvas = forwardRef<
                     </label>
                 )}
                 <button
-                    className="border-fg/10 text-fg/75 hover:bg-fg/5 h-7 rounded-lg border px-2.5"
+                    className="border-fg/10 text-fg/75 hover:bg-fg/5 h-7 rounded-lg border px-2.5 pointer-coarse:h-10 pointer-coarse:px-4"
                     data-testid="viewer-fit"
                     title="Re-centre the camera on the piece"
                     onClick={() => engine.current?.frame()}

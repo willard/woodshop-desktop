@@ -670,7 +670,13 @@ have to look up, and the editor screenshot would make someone want to try it fro
   Undo these changes on a reply restores the turn's `restorePoint`: the version holding the
   design as the turn found it (the newest version if the draft matched it, else the first
   version the turn's changes kept). The restore is itself kept, so it can be undone.
-- iPad companion viewer for the shop.
+- iPad companion viewer for the shop: the exported 3D plan is the companion. Done for a browser
+  on a tablet: a Keep screen on switch (Screen Wake Lock, `viewer/src/KeepAwake.tsx`, shown only
+  where the API exists, taken again when the page returns), larger targets under
+  `pointer-coarse`, stacked layout below `lg` (portrait tablets), and joints in shop words
+  (`assembly::part_joints`, WASM `partJoints`). Checked at iPad Pro 11 sizes with touch. Not done:
+  a native app; opening the file from the Files app may preview it without scripts, so it is best
+  opened in Safari (AirDrop or a shared folder).
 
 ---
 

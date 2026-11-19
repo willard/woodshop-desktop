@@ -1,5 +1,6 @@
 /** The exported plan: a project as one self-contained, view-only page. */
 import { useMemo, useRef, useState } from 'react';
+import { KeepAwake } from './KeepAwake';
 import { CutListPanel } from '@/components/CutListPanel';
 import type { ThemeName } from '@/engine/theme';
 import { ViewerCanvas, type ViewerCanvasHandle } from './ViewerCanvas';
@@ -35,7 +36,9 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
         });
     }
 
-    const btn = 'border-fg/10 text-fg/75 hover:bg-fg/5 h-8 rounded-lg border px-2.5 text-xs';
+    // Bigger on a touch screen: the plan is read on a tablet in the shop.
+    const btn =
+        'border-fg/10 text-fg/75 hover:bg-fg/5 h-8 rounded-lg border px-2.5 text-xs pointer-coarse:h-11 pointer-coarse:px-3.5 pointer-coarse:text-sm';
     return (
         <div className="bg-surface-0 text-fg-strong flex h-full flex-col" data-print="flow">
             <header
@@ -48,6 +51,7 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                         {exportedOn && <span>Exported {exportedOn} · </span>}Woodshop · view-only plan
                     </p>
                 </div>
+                <KeepAwake className={btn} />
                 <button
                     className={btn}
                     data-print="hide"
@@ -73,8 +77,8 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                     Print
                 </button>
             </header>
-            <div className="flex min-h-0 flex-1 flex-col md:flex-row" data-print="flow">
-                <div className="flex h-[50vh] min-h-0 md:h-auto md:flex-1">
+            <div className="flex min-h-0 flex-1 flex-col lg:flex-row" data-print="flow">
+                <div className="flex h-[50vh] min-h-0 flex-none lg:h-auto lg:flex-1">
                     <ViewerCanvas
                         ref={viewer}
                         spec={payload.spec}
@@ -85,14 +89,14 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                     />
                 </div>
                 <div
-                    className="border-fg/10 flex min-h-0 flex-none flex-col border-t md:w-[26rem] md:border-t-0 md:border-l"
+                    className="border-fg/10 flex min-h-0 flex-1 flex-col border-t lg:w-[26rem] lg:flex-none lg:border-t-0 lg:border-l"
                     data-print="flow"
                 >
                     <div className="border-fg/10 flex flex-none gap-1 border-b px-3 pt-2" data-print="hide">
                         {(['cutlist', 'part'] as const).map((option) => (
                             <button
                                 key={option}
-                                className={`-mb-px rounded-t-lg border border-b-0 px-3 py-1.5 text-xs ${
+                                className={`-mb-px rounded-t-lg border border-b-0 px-3 py-1.5 text-xs pointer-coarse:px-4 pointer-coarse:py-2.5 pointer-coarse:text-sm ${
                                     tab === option
                                         ? 'border-fg/10 bg-surface-1 text-fg-strong'
                                         : 'text-muted hover:text-fg-strong border-transparent'

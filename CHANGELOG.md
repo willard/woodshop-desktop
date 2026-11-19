@@ -8,6 +8,10 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- The interactive 3D plan suits a tablet in the shop: Keep screen on stops it dimming and locking
+  between cuts, controls and tick boxes are bigger on a touch screen, and a portrait tablet stacks
+  the cut list under the model instead of squeezing both side by side. A part's joinery reads in
+  shop words ("2 pocket screws from Drawer Box Left Side") instead of "pocketScrew · seats into".
 - Parts you adjust by hand are kept as they are: the design assistant and MCP agents can no longer
   move, resize, re-cut, rename or delete a locked part (one you resized, re-materialled or cut),
   and are told to ask you instead. A lock beside the part's name in the Inspector and in the parts
