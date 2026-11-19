@@ -463,6 +463,30 @@ test('lumber is sold in lengths and a width, and priced by the board foot or by 
     await expect(width).toHaveValue('3 1/2');
 });
 
+test('a material takes the thickness the stock really measures, and its dados follow', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('lint-badge')).toContainText('Buildable');
+    await page.getByTestId('cutlist-toggle').click();
+    const thickness = page.getByTestId('material-thickness');
+    const was = await thickness.inputValue();
+
+    // The "18 mm" Baltic birch is really 23/32": the shelf's two dados widen with it.
+    await thickness.fill('23/32');
+    await thickness.blur();
+    await expect(thickness).toHaveValue('23/32');
+    await expect(page.getByText('2 dados resized to 23/32" to fit the new thickness.')).toBeVisible();
+    await expect(page.getByTestId('lint-badge')).toContainText('Buildable');
+
+    // Not a thickness: refused, and the box goes back.
+    await thickness.fill('thick');
+    await thickness.blur();
+    await expect(thickness).toHaveValue('23/32');
+
+    // One undo puts the thickness and both dados back.
+    await page.getByTestId('undo').click();
+    await expect(thickness).toHaveValue(was);
+});
+
 test('the cut list words the joinery, with each tool setup set once', async ({ page }) => {
     await page.goto('/#/templates');
     await page

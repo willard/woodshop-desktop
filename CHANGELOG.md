@@ -6,6 +6,19 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Set a material's real thickness in the cut list: 3/4" plywood that measures 23/32", or 18 mm
+  Baltic birch at 0.71". Every dado and groove a part of it sits in is resized to match, and a
+  note says how many; one undo puts it all back. Parts stay centred where they were, so a small
+  correction keeps the design buildable, and the design checks flag anything a large change
+  leaves apart.
+
+### Changed
+
+- Fractions show 32nds and 64ths when a length is exactly one (23/32", 15/32", 1 7/64"), as sheet
+  goods are sold; everything else still reads to the nearest 16th.
+
 ## [0.1.1] — 2026-11-19
 
 ### Added

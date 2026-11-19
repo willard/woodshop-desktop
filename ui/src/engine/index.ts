@@ -132,6 +132,7 @@ export {
     RecenterAssembly,
     RenamePart,
     SetPartLocked,
+    SetMaterialThickness,
     RenameGroup,
     ApplyFocusEdits,
     makePart,

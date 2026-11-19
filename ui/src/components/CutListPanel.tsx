@@ -37,6 +37,8 @@ export interface CutListPanelProps {
     hiddenIds?: ReadonlySet<string>;
     readonly?: boolean;
     onMaterial?: (materialId: string, patch: Partial<Material>) => void;
+    /** Change a material's thickness (and the dados its parts seat in). */
+    onMaterialThickness?: (materialId: string, thickness: number) => void;
     onDeleteMaterial?: (materialId: string) => void;
     onSelect?: (partId: string, additive: boolean) => void;
     onToggleHidden?: (partId: string) => void;
@@ -801,10 +803,37 @@ export function CutListPanel(props: CutListPanelProps) {
                                 <span data-testid={`material-use-${material.id}`}>
                                     {uses === 0 ? 'Unused' : `Used by ${uses}`}
                                 </span>{' '}
-                                · {material.type} · {fmt(material.thickness)}
-                                {material.type === 'round' ? ' dia.' : ''}
+                                · {material.type}
+                                {readonly && (
+                                    <>
+                                        {' '}
+                                        · {fmt(material.thickness)}
+                                        {material.type === 'round' ? ' dia.' : ''}
+                                    </>
+                                )}
                                 {material.type !== 'sheet' && readonly && ` · ${stockLabel(material)}`}
                             </div>
+                            {!readonly && (
+                                <div className="mb-2 flex items-center gap-2">
+                                    <span
+                                        className="text-muted text-xs"
+                                        title="What the stock really measures: 3/4 plywood is often 23/32. Dados its parts sit in are resized to match."
+                                    >
+                                        {material.type === 'round' ? 'Diameter' : 'Thickness'}
+                                    </span>
+                                    <FractionCell
+                                        value={material.thickness}
+                                        testId="material-thickness"
+                                        label={`${material.type === 'round' ? 'Diameter' : 'Thickness'} of ${material.name}`}
+                                        onCommit={(raw) => {
+                                            const v = parseLen(raw);
+                                            if (v !== null && v > 0 && v <= 12 && v !== material.thickness) {
+                                                props.onMaterialThickness?.(material.id, v);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            )}
                             {material.type === 'sheet' && material.sheetSize !== undefined && (
                                 <div className="flex items-center gap-2">
                                     {readonly ? (

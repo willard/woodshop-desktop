@@ -626,6 +626,13 @@ have to look up, and the editor screenshot would make someone want to try it fro
   prices above the hardware), in the CSV (price and cost columns, hardware total), in the PDF (a
   cost column; the export reads the setting) and by `get_cut_list`. The 3D plan shows no costs.
 
+- **Real stock thickness** (`SetMaterialThickness`): the cut list's material rows edit the
+  thickness (diameter for round); the command also resizes each dado or groove a `dado` joint
+  says a part of that material seats in (by `opRef`), and undoes both. Parts are centred, so a
+  correction under `TOUCH_TOL` × 2 (0.04") keeps neighbours touching; larger ones show in the
+  design checks. Fractions now print exact 32nds and 64ths (`shop_denominator`), else 16ths. Not
+  done: rabbet widths, and an MCP tool for it.
+
 - **Locked parts are the user's** (`woodshop-mcp::ctx::locked_refusal`): every MCP write goes
   through `Woodshop::apply`, which refuses a change that alters or removes any part with
   `locked: true` (compared as JSON, so byte-identical), naming the parts and telling the agent to

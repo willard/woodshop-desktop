@@ -53,13 +53,29 @@ fn mm(inches: f64) -> String {
     }
 }
 
+/// Sixteenths, as a shop tape reads, unless the length is exactly a 32nd or a 64th: sheet goods
+/// are sold that way (23/32" plywood, 15/32" sheathing), and showing 23/32" as 3/4" would hide
+/// the very difference the user entered.
+fn shop_denominator(inches: f64) -> u32 {
+    let exact = |den: f64| ((inches * den) - (inches * den).round()).abs() < 1e-6;
+    if exact(DEFAULT_DENOMINATOR as f64) {
+        DEFAULT_DENOMINATOR
+    } else if exact(32.0) {
+        32
+    } else if exact(64.0) {
+        64
+    } else {
+        DEFAULT_DENOMINATOR
+    }
+}
+
 /// A length for an input field, without a unit mark: `3 1/2`, `3.5`, `89`.
 pub fn format_length_value(inches: f64, units: Units) -> String {
     if !inches.is_finite() {
         return "0".into();
     }
     match units {
-        Units::Fraction => format_fraction(inches, DEFAULT_DENOMINATOR),
+        Units::Fraction => format_fraction(inches, shop_denominator(inches)),
         Units::Decimal => trim(format!("{inches:.3}")),
         Units::Metric => mm(inches),
     }
@@ -185,6 +201,17 @@ fn parse_inches(s: &str) -> Option<f64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn exact_32nds_and_64ths_show_as_such() {
+        assert_eq!(format_length(23.0 / 32.0, Units::Fraction), "23/32\"");
+        assert_eq!(format_length(15.0 / 32.0, Units::Fraction), "15/32\"");
+        assert_eq!(format_length(1.0 + 7.0 / 64.0, Units::Fraction), "1 7/64\"");
+        // Anything else still reads to the nearest 16th.
+        assert_eq!(format_length(0.709, Units::Fraction), "11/16\"");
+        assert_eq!(format_length(0.75, Units::Fraction), "3/4\"");
+        assert_eq!(format_length(3.5, Units::Fraction), "3 1/2\"");
+    }
 
     #[test]
     fn formats_in_each_system() {

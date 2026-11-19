@@ -377,7 +377,7 @@
             },
             {
                 "type": "p",
-                "text": "Type a price next to each material: per sheet, and for boards and dowels per board foot or per board, whichever the store gives (a 2x4 at $4.48 a board is worked out per board foot from its shortest length on sale). Above the price, type the lengths a board or dowel is sold in, separated by commas, and a board's width. Choose **Add prices** above the hardware to price pulls, hinges, slides, screws and edge banding (each, or per foot or metre of banding). Hardware prices are one list for all your designs, so a price you enter once costs every design that uses the same thing. The estimated cost adds up both, and the PDF plan and CSV show what each line of hardware costs."
+                "text": "Under each material, set the thickness the stock really measures (3/4\" plywood is often 23/32\"): the dados its parts sit in are resized to match. Type a price next to each material: per sheet, and for boards and dowels per board foot or per board, whichever the store gives (a 2x4 at $4.48 a board is worked out per board foot from its shortest length on sale). Above the price, type the lengths a board or dowel is sold in, separated by commas, and a board's width. Choose **Add prices** above the hardware to price pulls, hinges, slides, screws and edge banding (each, or per foot or metre of banding). Hardware prices are one list for all your designs, so a price you enter once costs every design that uses the same thing. The estimated cost adds up both, and the PDF plan and CSV show what each line of hardware costs."
             },
             {
                 "type": "h",

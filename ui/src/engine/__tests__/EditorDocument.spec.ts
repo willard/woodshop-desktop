@@ -10,6 +10,7 @@ import {
     MoveParts,
     RenamePart,
     SetPartLocked,
+    SetMaterialThickness,
     SetMaterial,
     SetJoints,
     GroupParts,
@@ -19,6 +20,7 @@ import {
     ReplaceOp,
 } from '@/engine/commands';
 import { parseSpec } from '@/spec';
+import { lintSpec } from '@/spec/linter';
 import recordStand from '@fixtures/specs/record-stand.spec.json';
 
 function doc() {
@@ -178,6 +180,37 @@ describe('EditorDocument history', () => {
         expect(d.spec.parts.find((p) => p.id === 'p_top')!.locked).toBe(true);
         d.undo();
         expect(d.spec.parts.find((p) => p.id === 'p_top')).toEqual(before);
+    });
+
+    it('SetMaterialThickness resizes the dados its parts seat in, and undoes exactly', () => {
+        const d = doc();
+        const before = d.spec;
+        const errors = (spec: typeof before) => lintSpec(spec).filter((i) => i.severity === 'error');
+        expect(errors(before)).toEqual([]);
+
+        // The 18 mm Baltic birch measures 23/32" (0.71875) instead of 0.709".
+        const change = new SetMaterialThickness('mat_bb18', 0.71875);
+        d.execute(change);
+        expect(change.resized).toBe(2);
+        expect(d.spec.materials[0].thickness).toBe(0.71875);
+        for (const id of ['p_side_l', 'p_side_r']) {
+            const dado = d.spec.parts.find((p) => p.id === id)!.ops[0];
+            expect(dado).toMatchObject({ type: 'dado', width: 0.71875 });
+        }
+        // Still buildable: the shelf fits its dados, and the parts still meet.
+        expect(errors(d.spec)).toEqual([]);
+
+        d.undo();
+        expect(d.spec).toEqual(before);
+        d.redo();
+        expect(d.spec.parts.find((p) => p.id === 'p_side_l')!.ops[0]).toMatchObject({ width: 0.71875 });
+    });
+
+    it('SetMaterialThickness changes nothing for the same thickness or an unknown material', () => {
+        const d = doc();
+        const same = new SetMaterialThickness('mat_bb18', 0.709);
+        expect(same.do(d.spec)).toBe(d.spec);
+        expect(new SetMaterialThickness('nope', 0.5).do(d.spec)).toBe(d.spec);
     });
 
     it('RenamePart is a no-op for an unknown part or an unchanged/invalid name', () => {

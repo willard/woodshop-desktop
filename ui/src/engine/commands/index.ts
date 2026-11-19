@@ -437,6 +437,82 @@ export class SetMaterial implements Command {
 }
 
 /**
+ * Sets a material's thickness, as the stock really measures ("3/4" plywood that is 23/32"), and
+ * resizes every dado and groove that a part of it seats in, so each joint still fits. Parts stay
+ * centred where they are, so a small correction keeps them touching their neighbours; a large
+ * change shows up in the design checks. `resized` counts the channels changed by the last `do`.
+ */
+export class SetMaterialThickness implements Command {
+    readonly label = 'Change thickness';
+    resized = 0;
+    private before?: { thickness: number; widths: { partId: string; opIndex: number; width: number }[] };
+
+    constructor(
+        private readonly materialId: string,
+        private readonly thickness: number,
+    ) {}
+
+    do(spec: Spec): Spec {
+        const material = spec.materials.find((m) => m.id === this.materialId);
+        if (material === undefined || !(this.thickness > 0) || this.thickness === material.thickness) {
+            this.before = undefined;
+            this.resized = 0;
+            return spec;
+        }
+        const ofMaterial = new Set(
+            spec.parts.filter((p) => p.materialId === this.materialId).map((p) => p.id),
+        );
+        // Each host op a part of this material seats in, once.
+        const channels = new Map<string, Set<number>>();
+        for (const joint of spec.joints ?? []) {
+            if (joint.type !== 'dado' || joint.opRef === undefined || !ofMaterial.has(joint.insertPartId))
+                continue;
+            const host = spec.parts.find((p) => p.id === joint.hostPartId);
+            const op = host?.ops?.[joint.opRef];
+            if (op === undefined || (op.type !== 'dado' && op.type !== 'groove')) continue;
+            if (!channels.has(joint.hostPartId)) channels.set(joint.hostPartId, new Set());
+            channels.get(joint.hostPartId)!.add(joint.opRef);
+        }
+        const widths: { partId: string; opIndex: number; width: number }[] = [];
+        let next = mapMaterial(spec, this.materialId, (m) => ({ ...m, thickness: this.thickness }));
+        for (const [partId, indices] of channels) {
+            next = mapPart(next, partId, (part) => ({
+                ...part,
+                ops: part.ops.map((op, i) => {
+                    if (
+                        !indices.has(i) ||
+                        (op.type !== 'dado' && op.type !== 'groove') ||
+                        op.width === this.thickness
+                    ) {
+                        return op;
+                    }
+                    widths.push({ partId, opIndex: i, width: op.width });
+                    return { ...op, width: this.thickness };
+                }),
+            }));
+        }
+        this.before = { thickness: material.thickness, widths };
+        this.resized = widths.length;
+        return next;
+    }
+
+    undo(spec: Spec): Spec {
+        const before = this.before;
+        if (before === undefined) return spec;
+        let next = mapMaterial(spec, this.materialId, (m) => ({ ...m, thickness: before.thickness }));
+        for (const { partId, opIndex, width } of before.widths) {
+            next = mapPart(next, partId, (part) => ({
+                ...part,
+                ops: part.ops.map((op, i) =>
+                    i === opIndex && (op.type === 'dado' || op.type === 'groove') ? { ...op, width } : op,
+                ),
+            }));
+        }
+        return next;
+    }
+}
+
+/**
  * Removes a material nothing is using. Undo has to put it back where it was, not on the end: the
  * cut list sections follow material order, so a restored material appearing in a different place
  * would make undo visibly not-an-undo.

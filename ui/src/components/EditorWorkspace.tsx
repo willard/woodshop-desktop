@@ -54,6 +54,7 @@ import {
     RenameGroup,
     RenamePart,
     SetPartLocked,
+    SetMaterialThickness,
     ResizePart,
     RotatePart,
     RotateParts,
@@ -138,6 +139,7 @@ import { PartsOutline } from './PartsOutline';
 import { ToolsOverlay } from './tools/ToolsOverlay';
 import { useToast } from './Toast';
 import { getUnits, len, useUnits } from '@/lib/display';
+import { plural } from '@/app/format';
 
 export interface EditorWorkspaceHandle {
     snapshot(maxSize?: number, type?: 'image/png' | 'image/jpeg'): Promise<Blob | null>;
@@ -2164,6 +2166,15 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 selectedIds={selectedIds}
                                 hiddenIds={hiddenIds}
                                 onMaterial={(id, patch) => doc.execute(new SetMaterial(id, patch))}
+                                onMaterialThickness={(id, thickness) => {
+                                    const change = new SetMaterialThickness(id, thickness);
+                                    doc.execute(change);
+                                    if (change.resized > 0) {
+                                        toast.info(
+                                            `${plural(change.resized, 'dado')} resized to ${len(thickness)} to fit the new thickness.`,
+                                        );
+                                    }
+                                }}
                                 onDeleteMaterial={(id) => doc.execute(new DeleteMaterial(id))}
                                 onSelect={revealAndPick}
                                 onToggleHidden={toggleHidden}
