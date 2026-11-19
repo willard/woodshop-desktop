@@ -904,3 +904,85 @@ fn the_cut_list_cuts_from_the_users_stock_on_hand() {
         .unwrap();
     assert_eq!(drawer["offcuts"][0]["id"], "o1");
 }
+
+/// Lock parts as the editor does when the user adjusts them by hand.
+fn lock(w: &Woodshop, project: i64, ids: &[&str]) {
+    let store = w.store();
+    let mut draft = woodshop_core::spec::to_value(&store.get_project(project).unwrap().draft);
+    for part in draft["parts"].as_array_mut().unwrap() {
+        if ids.iter().any(|id| part["id"] == *id) {
+            part["locked"] = true.into();
+        }
+    }
+    let spec = woodshop_core::spec::parse(draft).unwrap();
+    store.save_draft(project, &spec, None).unwrap();
+}
+
+#[test]
+fn parts_the_user_locked_are_left_exactly_as_they_are() {
+    let w = woodshop();
+    let started = ok(&w, "start_from_template", json!({ "template": "bookshelf" }));
+    let id = started["projectId"].as_i64().unwrap();
+    lock(&w, id, &["p_shelf_1", "p_shelf_2"]);
+    let before = ok(&w, "get_design", json!({ "project_id": id }))["spec"].clone();
+    assert_eq!(part(&w, id, "p_shelf_1")["locked"], true, "agents can see the lock");
+
+    let refused = err(
+        &w,
+        "resize_part",
+        json!({ "project_id": id, "part_id": "p_shelf_1", "length": 30 }),
+    );
+    assert_eq!(
+        refused,
+        "That change would have changed \"Shelf 1\", which the user has locked: it was adjusted by \
+         hand in the editor, so agents leave it exactly as it is. Nothing was written. Make the \
+         change without touching it, or ask the user to unlock it (the lock beside the part's name \
+         in the Inspector)."
+    );
+    for (tool, args) in [
+        (
+            "rename_part",
+            json!({ "project_id": id, "part_id": "p_shelf_1", "name": "Top shelf" }),
+        ),
+        ("delete_part", json!({ "project_id": id, "part_id": "p_shelf_2" })),
+        (
+            "set_part_species",
+            json!({ "project_id": id, "part_id": "p_shelf_1", "species": "walnut" }),
+        ),
+    ] {
+        let refused = err(&w, tool, args);
+        assert!(refused.contains("which the user has locked"), "{tool}: {refused}");
+    }
+
+    // A batch that touches a locked part is refused whole, naming each one.
+    let refused = err(
+        &w,
+        "edit_parts",
+        json!({ "project_id": id, "edits": [
+            { "part_id": "p_top", "name": "Lid" },
+            { "part_id": "p_shelf_1", "name": "A" },
+            { "part_id": "p_shelf_2", "name": "B" },
+        ] }),
+    );
+    assert!(
+        refused.starts_with(
+            "That change would have changed \"Shelf 1\" and \"Shelf 2\", which the user has locked: \
+             they were adjusted by hand in the editor, so agents leave them exactly as they are."
+        ),
+        "{refused}"
+    );
+    assert_eq!(
+        ok(&w, "get_design", json!({ "project_id": id }))["spec"],
+        before,
+        "nothing was written"
+    );
+
+    // The parts around them are still the agent's to change.
+    ok(
+        &w,
+        "rename_part",
+        json!({ "project_id": id, "part_id": "p_top", "name": "Lid" }),
+    );
+    assert_eq!(part(&w, id, "p_top")["name"], "Lid");
+    assert_eq!(part(&w, id, "p_shelf_1"), before["parts"][4]);
+}

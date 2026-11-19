@@ -1,9 +1,9 @@
 /**
  * The design as a list: doors and drawers, then groups, then the parts that belong to neither.
  * A part hidden deep inside a cabinet can be selected, renamed or hidden from here without
- * hunting for it in the 3D view.
+ * hunting for it in the 3D view, or locked so AI agents leave it as it is.
  */
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Lock, LockOpen } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { Spec } from '@/spec';
 
@@ -15,6 +15,8 @@ interface Props {
     onSelect(partId: string, additive: boolean): void;
     onToggleHidden(partId: string): void;
     onRename(partId: string, name: string): void;
+    /** Lock a part against agents' edits, or unlock it. */
+    onToggleLocked(partId: string): void;
 }
 
 interface Section {
@@ -90,11 +92,14 @@ function Row({
     onSelect,
     onToggleHidden,
     onRename,
+    onToggleLocked,
+    spec,
 }: Props & { id: string; name: string; depth: number }) {
     const [editing, setEditing] = useState(false);
     const [draft, setDraft] = useState(name);
     const selected = selectedIds.includes(id);
     const hidden = hiddenIds.has(id);
+    const locked = spec.parts.find((p) => p.id === id)?.locked === true;
 
     function commit(): void {
         setEditing(false);
@@ -142,6 +147,20 @@ function Row({
                     {name}
                 </button>
             )}
+            <button
+                className={`hover:text-fg-strong flex h-6 w-6 flex-none items-center justify-center rounded ${locked ? 'text-accent' : 'text-faint opacity-0 group-hover:opacity-100 focus:opacity-100'}`}
+                aria-label={locked ? `Unlock ${name}` : `Lock ${name}`}
+                aria-pressed={locked}
+                title={
+                    locked
+                        ? 'Locked: AI agents leave it as it is. Click to unlock'
+                        : 'Lock, so AI agents leave it as it is'
+                }
+                onClick={() => onToggleLocked(id)}
+                data-testid="outline-lock"
+            >
+                {locked ? <Lock size={13} aria-hidden="true" /> : <LockOpen size={13} aria-hidden="true" />}
+            </button>
             <button
                 className={`text-faint hover:text-fg-strong flex h-6 w-6 flex-none items-center justify-center rounded ${hidden ? '' : 'opacity-0 group-hover:opacity-100 focus:opacity-100'}`}
                 aria-label={hidden ? `Show ${name}` : `Hide ${name}`}

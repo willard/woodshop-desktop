@@ -8,6 +8,10 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Parts you adjust by hand are kept as they are: the design assistant and MCP agents can no longer
+  move, resize, re-cut, rename or delete a locked part (one you resized, re-materialled or cut),
+  and are told to ask you instead. A lock beside the part's name in the Inspector and in the parts
+  list shows which parts are locked, and unlocks one or locks any other.
 - Price boards and dowels in the cut list, by the board foot as a hardwood dealer does or by the
   board as a home centre does ("$4.48 a 96\" board"); until now only sheets had a price box there.
   The lengths a board or dowel is sold in ("96, 120") and a board's width are typed there too, as

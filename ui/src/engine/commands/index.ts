@@ -279,6 +279,35 @@ export class DuplicatePart implements Command {
 }
 
 /**
+ * Locks or unlocks a part by hand. A locked part was adjusted by the user, and agents must leave
+ * it exactly as it is (the MCP tools refuse any change to it); unlocking hands it back to them.
+ */
+export class SetPartLocked implements Command {
+    readonly label: string;
+    private before?: boolean;
+
+    constructor(
+        private readonly partId: string,
+        private readonly locked: boolean,
+    ) {
+        this.label = locked ? 'Lock part' : 'Unlock part';
+    }
+
+    do(spec: Spec): Spec {
+        return mapPart(spec, this.partId, (part) => {
+            this.before = part.locked;
+            return { ...part, locked: this.locked };
+        });
+    }
+
+    undo(spec: Spec): Spec {
+        const before = this.before;
+        if (before === undefined) return spec;
+        return mapPart(spec, this.partId, (part) => ({ ...part, locked: before }));
+    }
+}
+
+/**
  * Renames a part. Deliberately does NOT set `locked`: a name is organisational metadata,
  * not a geometry hand-tune — locking here would freeze the part against AI restyling just
  * for tidying up "Leg copy copy" labels (hard rule 10 is about geometry intent).

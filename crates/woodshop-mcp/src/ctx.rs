@@ -103,6 +103,9 @@ impl Woodshop {
     ) -> Result<Applied, Rejected> {
         let mut next = loaded.draft.clone();
         mutate(&mut next);
+        if let Some(refusal) = locked_refusal(&loaded.draft, &next) {
+            return Err(Rejected::Message(refusal));
+        }
         let next = spec::parse(next).map_err(|e| Rejected::Invalid(e.messages()))?;
 
         let after = lint_errors(&next);
@@ -168,6 +171,56 @@ impl Woodshop {
             }
             Err(Rejected::Message(message)) => Err(message),
         }
+    }
+}
+
+/// Why a change may not be written because it touches a locked part, or None. A part the user
+/// adjusted by hand in the editor is `locked`, and the spec's contract is that an agent's edit
+/// returns it byte-identical: not moved, resized, re-cut, renamed or deleted. Its joints and the
+/// hardware mounted on it live outside the part, so those can still change.
+fn locked_refusal(before: &Value, after: &Value) -> Option<String> {
+    let mut changed = Vec::new();
+    let mut removed = Vec::new();
+    for part in before["parts"].as_array()?.iter().filter(|p| p["locked"] == true) {
+        let id = part["id"].as_str().unwrap_or_default();
+        let name = format!("\"{}\"", part["name"].as_str().unwrap_or(id));
+        match find(after, "parts", id) {
+            None => removed.push(name),
+            Some(now) if now != part => changed.push(name),
+            Some(_) => {}
+        }
+    }
+    if changed.is_empty() && removed.is_empty() {
+        return None;
+    }
+    let mut touched: Vec<String> = Vec::new();
+    if !changed.is_empty() {
+        touched.push(format!("changed {}", and_list(&changed)));
+    }
+    if !removed.is_empty() {
+        touched.push(format!("deleted {}", and_list(&removed)));
+    }
+    let one = changed.len() + removed.len() == 1;
+    Some(format!(
+        "That change would have {}, which the user has locked: {} adjusted by hand in the editor, so \
+         agents leave {} exactly as {} {}. Nothing was written. Make the change without touching \
+         {}, or ask the user to unlock {} (the lock beside the part's name in the Inspector).",
+        touched.join(" and "),
+        if one { "it was" } else { "they were" },
+        if one { "it" } else { "them" },
+        if one { "it" } else { "they" },
+        if one { "is" } else { "are" },
+        if one { "it" } else { "them" },
+        if one { "it" } else { "them" },
+    ))
+}
+
+/// "A", "A and B", "A, B and C".
+fn and_list(items: &[String]) -> String {
+    match items {
+        [] => String::new(),
+        [one] => one.clone(),
+        [init @ .., last] => format!("{} and {last}", init.join(", ")),
     }
 }
 

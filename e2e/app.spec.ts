@@ -624,7 +624,7 @@ test('settings say what licence Woodshop is under and list the open-source licen
     await expect(dialog).toHaveCount(0);
 });
 
-test('the parts list selects, hides and renames parts, and folds away', async ({ page }) => {
+test('the parts list selects, hides, locks and renames parts, and folds away', async ({ page }) => {
     await page.goto('/#/projects/1');
     const outline = page.getByTestId('outline');
     await expect(outline).toBeVisible();
@@ -643,6 +643,18 @@ test('the parts list selects, hides and renames parts, and folds away', async ({
     await expect(page.getByTestId('hidden-chip')).toBeVisible();
     await top.getByTestId('outline-eye').click();
     await expect(top).not.toHaveAttribute('data-hidden', 'true');
+
+    // Lock it, so agents leave it alone: the Inspector shows the lock, and it unlocks there.
+    const lock = top.getByTestId('outline-lock');
+    await expect(lock).toHaveAttribute('aria-pressed', 'false');
+    await lock.click();
+    await expect(lock).toHaveAttribute('aria-pressed', 'true');
+    await top.getByRole('button', { name: 'Top', exact: true }).click();
+    const inspectorLock = page.getByTestId('part-lock');
+    await expect(inspectorLock).toHaveText('locked');
+    await inspectorLock.click();
+    await expect(inspectorLock).toHaveAttribute('aria-pressed', 'false');
+    await expect(lock).toHaveAttribute('aria-pressed', 'false');
 
     // Rename by double-click: one undoable edit.
     await top.getByRole('button', { name: 'Top', exact: true }).dblclick();

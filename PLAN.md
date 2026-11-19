@@ -464,8 +464,9 @@ toolbar button has a tooltip, with its key where it has one (new bare keys: E ex
 measure, F fit, V edit/view, P parts list, ? shortcuts; `SHORTCUTS` in `lib/shortcuts.ts` lists them
 all). The faint hint became a "?" that opens the shortcut list. A parts list on the left
 (`PartsOutline`: doors and drawers, groups, then loose parts) selects, hides and renames (double-click)
-any part; it opens on wide windows and remembers being closed. Not done: locking a part from the
-list, since nothing in the editor enforces `locked` yet.
+any part; it opens on wide windows and remembers being closed, and locks or unlocks a part (as
+does the lock beside its name in the Inspector; `SetPartLocked`). `locked` keeps its spec meaning,
+hand-tuned: the editor does not freeze a locked part, but agents may not change it (below).
 
 **5b.6 Cut list panel.** Done: order is totals (overall size first), parts to cut with their sheet
 layouts, hardware, then stock and kerf; screws, pocket screws and dowels fold into one expandable
@@ -620,6 +621,12 @@ have to look up, and the editor screenshot would make someone want to try it fro
   (`materialCost`, `hardwareCost`, `estimatedCost` = both). Priced in the cut list panel (Add
   prices above the hardware), in the CSV (price and cost columns, hardware total), in the PDF (a
   cost column; the export reads the setting) and by `get_cut_list`. The 3D plan shows no costs.
+
+- **Locked parts are the user's** (`woodshop-mcp::ctx::locked_refusal`): every MCP write goes
+  through `Woodshop::apply`, which refuses a change that alters or removes any part with
+  `locked: true` (compared as JSON, so byte-identical), naming the parts and telling the agent to
+  ask the user to unlock them. Joints and mounted hardware live outside the part, so they still
+  change. The server instructions say so; the in-app assistant shares them.
 
 - **Lumber prices in the panel** (`BoardPrice`): lumber and round materials get a price box beside
   the sheet one, per board foot or per board of the shortest stock length (`oneBoard`; lumber

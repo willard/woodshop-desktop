@@ -53,6 +53,7 @@ import {
     RemoveParts,
     RenameGroup,
     RenamePart,
+    SetPartLocked,
     ResizePart,
     RotatePart,
     RotateParts,
@@ -1324,6 +1325,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         onMirror={mirror}
                         onRemove={remove}
                         onRename={(name) => doc.execute(new RenamePart(selected.id, name))}
+                        onSetLocked={(locked) => doc.execute(new SetPartLocked(selected.id, locked))}
                         onAddOp={(op) => executeAddOp(selected.id, op)}
                         onReplaceOp={(i, op) => executeReplaceOp(selected.id, i, op)}
                         onSpliceOps={(start, n, ops, label) =>
@@ -1787,6 +1789,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     onSelect={revealAndPick}
                                     onToggleHidden={toggleHidden}
                                     onRename={(id, name) => doc.execute(new RenamePart(id, name))}
+                                    onToggleLocked={(id) => {
+                                        const part = spec.parts.find((p) => p.id === id);
+                                        if (part) doc.execute(new SetPartLocked(id, !part.locked));
+                                    }}
                                 />
                             </aside>
                         )}

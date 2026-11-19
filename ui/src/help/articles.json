@@ -561,6 +561,14 @@
                 "text": "Open the project in Woodshop while the agent works and you see each change as it lands."
             },
             {
+                "type": "h",
+                "text": "Parts the agent leaves alone"
+            },
+            {
+                "type": "p",
+                "text": "A part you adjust by hand (resize it, change its material, add a cut to it) is **locked**: the assistant and any agent leave it exactly as it is, and a change that would move, resize, re-cut, rename or delete it is refused. Joints to it and hardware on it can still be added. The lock shows beside the part's name in the Inspector and in the parts list; click it to unlock the part and let the agent change it, or to lock any part you want kept as it is."
+            },
+            {
                 "type": "note",
                 "text": "Every agent edit is saved as a version first, so you can always restore what you had. The agent works on your library even while the app is closed."
             }

@@ -2,7 +2,7 @@
  * Selection-driven part editor (right dock "Inspector"). Purely presentational: every change is
  * reported through a callback and the workspace executes the Command.
  */
-import { X } from 'lucide-react';
+import { Lock, LockOpen, X } from 'lucide-react';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Op, Part, Species } from '@/spec';
 import type { HardwarePatch, PlacementRequest } from '@/engine';
@@ -70,6 +70,8 @@ export interface PartInspectorProps {
     onMirror(axis: 0 | 1 | 2): void;
     onRemove(): void;
     onRename(name: string): void;
+    /** Lock the part against agents' edits, or hand it back to them. */
+    onSetLocked(locked: boolean): void;
     onAddOp(op: Op): void;
     /** Swaps the cut at `index` for an edited one. */
     onReplaceOp(index: number, op: Op): void;
@@ -843,11 +845,31 @@ export function PartInspector(p: PartInspectorProps) {
                         {part.name}
                     </button>
                 )}
-                {part.locked && (
-                    <span className="bg-accent/15 text-accent flex-none rounded-full px-2 py-0.5 text-xs font-semibold">
-                        locked
-                    </span>
-                )}
+                <button
+                    className={`flex flex-none items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        part.locked
+                            ? 'bg-accent/15 text-accent'
+                            : 'text-faint hover:text-fg-strong hover:bg-fg/5'
+                    }`}
+                    aria-pressed={part.locked}
+                    aria-label={part.locked ? `Unlock ${part.name}` : `Lock ${part.name}`}
+                    title={
+                        part.locked
+                            ? 'Locked: adjusted by hand, so AI agents leave it exactly as it is. Click to let them change it.'
+                            : 'Lock it, so AI agents leave this part exactly as it is'
+                    }
+                    data-testid="part-lock"
+                    onClick={() => p.onSetLocked(!part.locked)}
+                >
+                    {part.locked ? (
+                        <>
+                            <Lock size={12} aria-hidden="true" />
+                            locked
+                        </>
+                    ) : (
+                        <LockOpen size={13} aria-hidden="true" />
+                    )}
+                </button>
             </div>
             <div className="text-muted mb-3 text-xs">{p.materialName}</div>
 

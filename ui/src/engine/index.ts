@@ -131,6 +131,7 @@ export {
     groupOf,
     RecenterAssembly,
     RenamePart,
+    SetPartLocked,
     RenameGroup,
     ApplyFocusEdits,
     makePart,

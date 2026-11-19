@@ -9,6 +9,7 @@ import {
     MovePart,
     MoveParts,
     RenamePart,
+    SetPartLocked,
     SetMaterial,
     SetJoints,
     GroupParts,
@@ -163,6 +164,20 @@ describe('EditorDocument history', () => {
 
         d.undo();
         expect(d.spec.parts.find((p) => p.id === 'p_top')!.name).toBe(before.name);
+    });
+
+    it('SetPartLocked locks and unlocks a part by hand, and undoes exactly', () => {
+        const d = doc();
+        const before = d.spec.parts.find((p) => p.id === 'p_top')!;
+        d.execute(new SetPartLocked('p_top', true));
+        const locked = d.spec.parts.find((p) => p.id === 'p_top')!;
+        expect(locked).toEqual({ ...before, locked: true });
+        d.execute(new SetPartLocked('p_top', false));
+        expect(d.spec.parts.find((p) => p.id === 'p_top')!.locked).toBe(false);
+        d.undo();
+        expect(d.spec.parts.find((p) => p.id === 'p_top')!.locked).toBe(true);
+        d.undo();
+        expect(d.spec.parts.find((p) => p.id === 'p_top')).toEqual(before);
     });
 
     it('RenamePart is a no-op for an unknown part or an unchanged/invalid name', () => {

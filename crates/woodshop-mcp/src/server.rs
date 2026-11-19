@@ -80,7 +80,12 @@ each intermediate state. move_part (new position and/or rotation), resize_part, 
 set_part_material, set_part_species, and delete_part change one part by id; rename_material and \
 delete_material keep the material list clean (a material in use cannot be deleted); they keep the \
 design buildable and are rejected only if the edit itself would break it. When a run of authoring \
-calls is done, call check_design to confirm the piece actually holds together.";
+calls is done, call check_design to confirm the piece actually holds together.
+
+Locked parts: a part with \"locked\": true in get_design was adjusted by hand in the editor. Leave it \
+exactly as it is — any change that would move, resize, re-cut, re-material, rename or delete it is \
+refused and nothing is written. Joints to it and hardware mounted on it can still be added. If the \
+request needs a locked part changed, say so and ask the user to unlock it in the Inspector.";
 
 #[derive(Clone)]
 pub struct WoodshopServer {
