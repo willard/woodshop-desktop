@@ -44,6 +44,9 @@ All notable changes to Woodshop are listed here. The format follows
   and the braces are cut to sit square against the bench supports and flat under the top
   instead of running into them. The sawhorse's legs splay 15° the same way, where they stood
   straight up.
+- The coffee table's and side table's tops sat only on the ends of their legs, with nothing to
+  stop the legs racking. Each now has a 1x3 apron frame between the legs, pocket-screwed to the
+  legs and up into the top.
 
 ## [0.1.1] — 2026-11-19
 

@@ -27,6 +27,19 @@
             "grain": true,
             "species": "pine",
             "costPerBoardFoot": 3.5
+        },
+        {
+            "id": "mat_pine1x3",
+            "type": "lumber",
+            "name": "Pine 1x3 (0.75 x 2.5 actual)",
+            "thickness": 0.75,
+            "stockWidth": 2.5,
+            "stockLengths": [
+                96
+            ],
+            "grain": true,
+            "species": "pine",
+            "costPerBoardFoot": 3
         }
     ],
     "parts": [
@@ -255,6 +268,222 @@
                     "length": 1.25
                 }
             ]
+        },
+        {
+            "id": "p_apron_front",
+            "name": "Front Apron",
+            "materialId": "mat_pine1x3",
+            "size": {
+                "l": 13.5,
+                "w": 2.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    22.0,
+                    7.875
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 1.25,
+                    "to": 1.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 1.25,
+                    "to": 1.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 2,
+                    "to": 11.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_apron_back",
+            "name": "Back Apron",
+            "materialId": "mat_pine1x3",
+            "size": {
+                "l": 13.5,
+                "w": 2.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0,
+                    22.0,
+                    -7.875
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 1.25,
+                    "to": 1.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 1.25,
+                    "to": 1.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 2,
+                    "to": 11.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_apron_left",
+            "name": "Left Apron",
+            "materialId": "mat_pine1x3",
+            "size": {
+                "l": 13.5,
+                "w": 2.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7.875,
+                    22.0,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 1.25,
+                    "to": 1.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 1.25,
+                    "to": 1.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 2,
+                    "to": 11.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_apron_right",
+            "name": "Right Apron",
+            "materialId": "mat_pine1x3",
+            "size": {
+                "l": 13.5,
+                "w": 2.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    7.875,
+                    22.0,
+                    0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 1.25,
+                    "to": 1.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 1.25,
+                    "to": 1.25,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "l1",
+                    "count": 2,
+                    "from": 2,
+                    "to": 11.5,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
         }
     ],
     "joints": [
@@ -313,11 +542,95 @@
             "hostPartId": "p_shelf",
             "insertPartId": "p_leg_br",
             "opRef": 3
+        },
+        {
+            "id": "j8",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_front",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j9",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_front",
+            "insertPartId": "p_leg_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j10",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_front",
+            "insertPartId": "p_top",
+            "opRef": 2
+        },
+        {
+            "id": "j11",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_back",
+            "insertPartId": "p_leg_bl",
+            "opRef": 0
+        },
+        {
+            "id": "j12",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_back",
+            "insertPartId": "p_leg_br",
+            "opRef": 1
+        },
+        {
+            "id": "j13",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_back",
+            "insertPartId": "p_top",
+            "opRef": 2
+        },
+        {
+            "id": "j14",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_left",
+            "insertPartId": "p_leg_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j15",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_left",
+            "insertPartId": "p_leg_bl",
+            "opRef": 1
+        },
+        {
+            "id": "j16",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_left",
+            "insertPartId": "p_top",
+            "opRef": 2
+        },
+        {
+            "id": "j17",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_right",
+            "insertPartId": "p_leg_fr",
+            "opRef": 0
+        },
+        {
+            "id": "j18",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_right",
+            "insertPartId": "p_leg_br",
+            "opRef": 1
+        },
+        {
+            "id": "j19",
+            "type": "pocketScrew",
+            "hostPartId": "p_apron_right",
+            "insertPartId": "p_top",
+            "opRef": 2
         }
     ],
     "meta": {
         "difficulty": "beginner",
-        "notes": "A simple side table with a plywood top and shelf on solid pine legs.",
+        "notes": "A simple side table with a plywood top on a 1x3 apron frame and a shelf, on solid pine legs.",
         "tags": [
             "table",
             "living-room"
