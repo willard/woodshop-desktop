@@ -766,6 +766,9 @@ the owner to check, as computer use of the app is declined.
 - **7.2 Build steps with pictures.**
   - Done already: `AssemblyStep.part_ids` (serialised `partIds`), filled by `assembly_order` and
     carried by WASM `assemblyOrder` and the MCP cut list. `CutListPanel` can use it.
+  - Done for the PDF: `renderStepPictures` (the video's `FilmStage`, a still with the step's
+    parts lit orange) sends a JPEG per step with `export_pdf` (`stepPictures`, base64), printed
+    beside each step; `meta.notes` prints as Build notes. Still to do: the editor and viewer.
   - Pictures: the editor and viewer show the parts up to step N
     (`setHidden(all − parts through N)`), with that step's new parts tinted. For the PDF, render
     one PNG per step offscreen with the video's `FilmStage` (`ui/src/video/assemblyFilm.ts`,

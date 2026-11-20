@@ -17,6 +17,8 @@ All notable changes to Woodshop are listed here. The format follows
   are drawn as cut, so an angled leg shows its angle, and a part in front hides what is behind
   it. The same drawings are under Drawing at the top right of the 3D view, in your units, and
   agents can draw them with `render_drawing`.
+- The PDF plan's assembly steps each have a picture of the piece once the step is done, with
+  the parts it adds in orange, and the design's build notes now print near the top.
 - STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
   a 3D printer's slicer, or as OBJ for modelling software.
 

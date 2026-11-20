@@ -341,6 +341,16 @@ export function installMockBackend(): void {
         'plugin:dialog|save': (a) =>
             `/mock/exports/${String((a.options as { defaultPath?: string } | undefined)?.defaultPath ?? 'file')}`,
         // The PDFs are typeset in Rust; the preview notes what was asked for instead.
+        export_pdf: (a) => {
+            const store = window as unknown as { __written?: Record<string, string> };
+            const pictures = (a.stepPictures as string[] | undefined) ?? [];
+            // A JPEG's base64 starts "/9j/" (its FF D8 FF marker).
+            const jpegs = pictures.filter((p) => p.startsWith('/9j/')).length;
+            store.__written = {
+                ...(store.__written ?? {}),
+                [String(a.path)]: `plan for ${row(a.id as number).project.name} with ${jpegs} step pictures`,
+            };
+        },
         export_labels: (a) => {
             const store = window as unknown as { __written?: Record<string, string> };
             const r = row(a.id as number);

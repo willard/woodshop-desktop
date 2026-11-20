@@ -13,7 +13,7 @@ use typst::text::{Font, FontBook};
 use typst::utils::LazyHash;
 use typst::{Library, LibraryExt, World};
 use typst_layout::PagedDocument;
-use woodshop_core::assembly::{AssemblyStep, assembly_order};
+use woodshop_core::assembly::assembly_order;
 use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 
 use woodshop_core::cutlist::{
@@ -56,6 +56,9 @@ pub struct PlanInput<'a> {
     pub sheet_trim: f64,
     /// Trimmed off each end of a bought board first (see `CutListConfig::board_trim`).
     pub board_trim: f64,
+    /// A picture (JPEG or PNG) per assembly step, in order: the piece once the step is done. The
+    /// app renders them; without them the steps print as text alone.
+    pub step_pictures: Vec<Vec<u8>>,
 }
 
 // --- The view model the template lays out --------------------------------------------------
@@ -85,7 +88,9 @@ struct PlanView {
     sheets: Vec<SheetView>,
     lumber: Vec<LumberView>,
     /// The order to put it together: up from the floor, the back, then drawers, doors, hardware.
-    assembly: Vec<AssemblyStep>,
+    assembly: Vec<StepView>,
+    /// The design's own build notes (`meta.notes`), as written.
+    build_notes: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -417,7 +422,21 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
         hardware_priced: cut_list.hardware.iter().any(|h| h.cost.is_some()),
         drilling: drilling_notes(input.spec, units),
         joinery: joinery(input.spec, units),
-        assembly: assembly_order(input.spec),
+        assembly: assembly_order(input.spec)
+            .into_iter()
+            .enumerate()
+            .map(|(i, step)| StepView {
+                picture: (i < input.step_pictures.len()).then(|| step_picture_path(i, &input.step_pictures[i])),
+                heading: step.heading,
+                lines: step.lines,
+            })
+            .collect(),
+        build_notes: input
+            .spec
+            .meta
+            .as_ref()
+            .and_then(|m| m.notes.clone())
+            .filter(|n| !n.trim().is_empty()),
         sheets: cut_list
             .sheets
             .iter()
@@ -511,6 +530,24 @@ static FONTS: LazyLock<Fonts> = LazyLock::new(|| {
         fonts,
     }
 });
+
+/// One assembly step as printed: what to do, and a picture of the piece once it is done.
+#[derive(Serialize)]
+struct StepView {
+    heading: String,
+    lines: Vec<String>,
+    picture: Option<String>,
+}
+
+/// Where step `index`'s picture is served: a JPEG or a PNG, by its first bytes.
+fn step_picture_path(index: usize, bytes: &[u8]) -> String {
+    let ext = if bytes.starts_with(&[0x89, b'P', b'N', b'G']) {
+        "png"
+    } else {
+        "jpg"
+    };
+    format!("/step-{}.{ext}", index + 1)
+}
 
 struct PlanWorld {
     library: LazyHash<Library>,
@@ -667,9 +704,12 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
         },
     );
     let view = plan_view(input, &cut_list);
-    let mut files: Vec<(&str, Vec<u8>)> = Vec::new();
+    let mut files: Vec<(String, Vec<u8>)> = Vec::new();
     if let Some(png) = &input.thumbnail {
-        files.push(("/thumb.png", png.clone()));
+        files.push(("/thumb.png".into(), png.clone()));
+    }
+    for (i, picture) in input.step_pictures.iter().enumerate() {
+        files.push((step_picture_path(i, picture), picture.clone()));
     }
     if !input.spec.parts.is_empty() {
         for (path, view) in [
@@ -677,7 +717,7 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
             ("/side.svg", View::Side),
             ("/top.svg", View::Top),
         ] {
-            files.push((path, elevation_svg(input.spec, view, input.units).into_bytes()));
+            files.push((path.into(), elevation_svg(input.spec, view, input.units).into_bytes()));
         }
     }
     typeset(TEMPLATE, &view, &files)
@@ -688,7 +728,7 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
 pub(crate) fn typeset(
     template: &str,
     data: &impl Serialize,
-    files: &[(&str, Vec<u8>)],
+    files: &[(String, Vec<u8>)],
 ) -> Result<Vec<u8>, ExportError> {
     let data = serde_json::to_string(data).map_err(|e| ExportError::Render(e.to_string()))?;
 
@@ -798,9 +838,51 @@ mod tests {
             offcuts: Vec::new(),
             sheet_trim: 0.0,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         })
         .unwrap();
         assert!(pdf.starts_with(b"%PDF-"));
+    }
+
+    /// The smallest valid PNG: one transparent pixel.
+    const PIXEL: [u8; 67] = [
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00,
+        0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00,
+        0x0A, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D,
+        0xB4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
+    ];
+
+    #[test]
+    fn each_assembly_step_carries_its_picture_and_the_design_its_build_notes() {
+        let raw = include_str!("../../../resources/templates/bookshelf.json");
+        let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        let steps = assembly_order(&spec).len();
+        let input = PlanInput {
+            title: "Bookshelf",
+            spec: &spec,
+            kerf: 0.125,
+            date: "Nov 20, 2026",
+            notes: vec![],
+            thumbnail: None,
+            units: Units::Fraction,
+            hardware_prices: BTreeMap::new(),
+            offcuts: Vec::new(),
+            sheet_trim: 0.0,
+            board_trim: 0.0,
+            // Fewer pictures than steps: the rest print as text.
+            step_pictures: vec![PIXEL.to_vec(); steps - 1],
+        };
+        let view = plan_view(&input, &compute_cut_list(&spec, CutListConfig::default()));
+        assert_eq!(view.assembly[0].picture.as_deref(), Some("/step-1.png"));
+        assert_eq!(view.assembly[steps - 1].picture, None);
+        assert_eq!(view.build_notes.as_deref(), Some("Five-bay open bookshelf."));
+        let pdf = render_plan_pdf(&input).unwrap();
+        let without = render_plan_pdf(&PlanInput {
+            step_pictures: Vec::new(),
+            ..input
+        })
+        .unwrap();
+        assert!(pdf.len() > without.len());
     }
 
     #[test]
@@ -825,6 +907,7 @@ mod tests {
             offcuts: Vec::new(),
             sheet_trim: 0.0,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         };
         let config = CutListConfig {
             hardware_prices: input.hardware_prices.clone(),
@@ -861,6 +944,7 @@ mod tests {
             offcuts: Vec::new(),
             sheet_trim: 0.0,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         };
         let cut_list = compute_cut_list(
             &spec,
@@ -898,6 +982,7 @@ mod tests {
             offcuts: vec![],
             sheet_trim: 0.0,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         };
         let cut_list = compute_cut_list(&spec, CutListConfig::default());
         let view = plan_view(&input, &cut_list);
@@ -931,6 +1016,7 @@ mod tests {
             offcuts: vec![],
             sheet_trim: 0.0,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         };
         let pdf = render_plan_pdf(&input).unwrap();
         if let Ok(dir) = std::env::var("WOODSHOP_PDF_OUT") {
@@ -954,6 +1040,7 @@ mod tests {
             offcuts: vec![],
             sheet_trim: 0.25,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         };
         let cut_list = compute_cut_list(
             &spec,
@@ -993,6 +1080,7 @@ mod tests {
             offcuts: vec![],
             sheet_trim: 0.0,
             board_trim: 1.0,
+            step_pictures: Vec::new(),
         };
         let cut_list = compute_cut_list(
             &spec,
@@ -1037,6 +1125,7 @@ mod tests {
             }],
             sheet_trim: 0.0,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         };
         let cut_list = compute_cut_list(
             &spec,
@@ -1083,6 +1172,7 @@ mod tests {
             offcuts: Vec::new(),
             sheet_trim: 0.0,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         };
         let cut_list = compute_cut_list(&spec, CutListConfig::default());
         let view = plan_view(&input, &cut_list);

@@ -19,6 +19,7 @@ fn every_template_renders_a_pdf() {
             offcuts: Vec::new(),
             sheet_trim: 0.0,
             board_trim: 0.0,
+            step_pictures: Vec::new(),
         })
         .unwrap_or_else(|e| panic!("{}: {e}", t.id));
         assert!(pdf.starts_with(b"%PDF-"), "{}", t.id);
@@ -51,6 +52,7 @@ fn a_plan_with_stock_on_hand_renders() {
         ],
         sheet_trim: 0.0,
         board_trim: 0.0,
+        step_pictures: Vec::new(),
     })
     .unwrap();
     assert!(pdf.starts_with(b"%PDF-"));

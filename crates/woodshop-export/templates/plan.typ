@@ -56,6 +56,11 @@
   )
 ]
 
+#if data.buildNotes != none [
+  == Build notes
+  #text(size: 9.5pt, data.buildNotes)
+]
+
 #if data.hasDrawings [
   == Drawings
   // One block, so the side and top never land on a page apart from the front.
@@ -260,14 +265,24 @@
   == Assembly order
   #text(fill: muted)[A suggested order: up from the floor, the back last, then drawers, doors and hardware. Dry-fit before you glue.]
   #v(2pt)
+  #let words(step) = [
+    *#step.heading*
+    #if step.lines.len() > 0 [
+      #v(-4pt)
+      #list(marker: text(fill: muted, "–"), ..step.lines.map(line => text(size: 9pt, line)))
+    ]
+  ]
   #enum(
     tight: false,
-    ..data.assembly.map(step => [
-      *#step.heading*
-      #if step.lines.len() > 0 [
-        #v(-4pt)
-        #list(marker: text(fill: muted, "–"), ..step.lines.map(line => text(size: 9pt, line)))
-      ]
-    ]),
+    ..data.assembly.map(step => if step.picture == none { words(step) } else {
+      // The picture shows the piece once the step is done, its new parts in orange; a step stays
+      // on one page with its picture.
+      block(breakable: false, grid(
+        columns: (1fr, 5.2cm),
+        column-gutter: 10pt,
+        words(step),
+        image(step.picture, width: 5.2cm),
+      ))
+    }),
   )
 ]

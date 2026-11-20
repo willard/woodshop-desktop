@@ -25,6 +25,7 @@ fn main() {
         offcuts: Vec::new(),
         sheet_trim: 0.0,
         board_trim: 0.0,
+        step_pictures: Vec::new(),
     })
     .expect("renders");
     std::fs::write(out, pdf).expect("writable");

@@ -60,6 +60,35 @@ export async function videoConfig(width: number, height: number): Promise<VideoE
     return null;
 }
 
+/**
+ * One picture per assembly step, for the PDF plan: the piece as it stands once the step is done,
+ * with the parts the step adds lit in the accent colour. JPEG, base64, in step order.
+ */
+export async function renderStepPictures(
+    spec: Spec,
+    options: { width: number; height: number; theme: ThemeName },
+): Promise<string[]> {
+    const steps = assemblyOrder(spec);
+    if (steps.length === 0) return [];
+    const stage = new FilmStage(spec, options.width, options.height, options.theme);
+    try {
+        const pictures: string[] = [];
+        const placed = new Set<string>();
+        for (const step of steps) {
+            for (const id of step.partIds) placed.add(id);
+            const arrival = new Map(spec.parts.map((p) => [p.id, placed.has(p.id) ? 1 : 0]));
+            stage.draw({ arrival, explode: 0, orbit: 0, framing: 0 }, { added: new Set(step.partIds) });
+            const url = stage.canvas.toDataURL('image/jpeg', 0.85);
+            pictures.push(url.slice(url.indexOf(',') + 1));
+            // Let the page breathe between pictures.
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+        return pictures;
+    } finally {
+        stage.dispose();
+    }
+}
+
 /** The finished MP4, as bytes. Throws `AbortError` when `signal` aborts. */
 export async function renderAssemblyFilm(spec: Spec, options: FilmOptions): Promise<Uint8Array> {
     const { width, height } = options;
@@ -130,10 +159,11 @@ interface Band {
 }
 
 /** The clear part of the frame: below the title card, or above the step caption. */
-function safeBand(width: number, height: number, clear: 'title' | 'caption'): Band {
+function safeBand(width: number, height: number, clear: 'title' | 'caption' | 'none'): Band {
     const tall = height > width;
     const unit = Math.min(width, height) / 1080;
     const edge = 0.06;
+    if (clear === 'none') return { x: 0.9, top: 1 - 2 * edge, bottom: -1 + 2 * edge };
     if (clear === 'title') {
         const title = (tall ? 0.14 : 0.12) + (110 * unit) / height;
         return { x: 0.88, top: 1 - 2 * title, bottom: -1 + 2 * edge };
@@ -264,7 +294,7 @@ class FilmStage {
         // then shift the picture so it sits in the middle of that band.
         this.camera = new THREE.PerspectiveCamera(35, width / height, 0.5, 8000);
         this.box = box;
-        this.fits = (['title', 'caption'] as const).map((clear) => {
+        this.fits = (['title', 'caption', 'none'] as const).map((clear) => {
             const band = safeBand(width, height, clear);
             const distance = this.fitDistance(radius, band);
             return { distance, shift: this.bandShift(distance, band) };
@@ -326,7 +356,15 @@ class FilmStage {
         return (band.top + band.bottom) / 2 - (e.yMin + e.yMax) / 2;
     }
 
-    draw(pose: { arrival: Map<string, number>; explode: number; orbit: number; framing: number }): void {
+    /**
+     * Draws a frame. `still` draws a picture instead (no captions, so the whole frame is the
+     * piece's), with the `added` parts lit in the accent colour: the parts a build step adds.
+     */
+    draw(
+        pose: { arrival: Map<string, number>; explode: number; orbit: number; framing: number },
+        still?: { added: ReadonlySet<string> },
+    ): void {
+        if (still !== undefined) this.tint(still.added);
         for (const child of this.parts.children) {
             const path = this.paths.get(child.name);
             if (path === undefined) continue;
@@ -338,14 +376,30 @@ class FilmStage {
                 child.position.lerpVectors(path.from, path.home, arrived);
             }
         }
-        const [title, caption] = this.fits;
-        const distance = THREE.MathUtils.lerp(title.distance, caption.distance, pose.framing);
-        const shift = THREE.MathUtils.lerp(title.shift, caption.shift, pose.framing);
+        const [title, caption, plain] = this.fits;
+        const distance =
+            still !== undefined
+                ? plain.distance
+                : THREE.MathUtils.lerp(title.distance, caption.distance, pose.framing);
+        const shift =
+            still !== undefined
+                ? plain.shift
+                : THREE.MathUtils.lerp(title.shift, caption.shift, pose.framing);
         this.aim(pose.orbit, distance);
         // The view window moves up by half the frame per unit of shift, so the picture moves down.
         const { width, height } = this.canvas;
         this.camera.setViewOffset(width, height, 0, (shift * height) / 2, width, height);
         this.renderer.render(this.scene, this.camera);
+    }
+
+    /** Lights the given parts' own wood (not their hardware) in the accent colour; clears the rest. */
+    private tint(added: ReadonlySet<string>): void {
+        for (const child of this.parts.children) {
+            const material = (child as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined;
+            if (material?.emissive === undefined) continue;
+            material.emissive.setHex(added.has(child.name) ? 0xea580c : 0x000000);
+            material.emissiveIntensity = added.has(child.name) ? 0.75 : 0;
+        }
     }
 
     dispose(): void {

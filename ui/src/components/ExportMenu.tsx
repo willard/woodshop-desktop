@@ -31,6 +31,19 @@ export interface ExportTarget {
     getMesh?: (name: string, format: 'stl' | 'obj') => Promise<Uint8Array | string>;
 }
 
+/**
+ * A picture per assembly step for the PDF plan, drawn offscreen (the editor's view is not
+ * touched). Where WebGL is missing the plan still prints, with the steps as text alone.
+ */
+async function stepPictures(spec: Spec): Promise<string[]> {
+    try {
+        const { renderStepPictures } = await import('@/video/assemblyFilm');
+        return await renderStepPictures(spec, { width: 640, height: 480, theme: 'light' });
+    } catch {
+        return [];
+    }
+}
+
 export function useProjectExports(target: ExportTarget) {
     const toast = useToast();
     const stem = fileStem(target.projectName);
@@ -57,7 +70,8 @@ export function useProjectExports(target: ExportTarget) {
             exportTo(
                 'pdf',
                 'PDF plan',
-                (path) => api.exportPdf(target.projectId, path, target.kerf),
+                async (path) =>
+                    api.exportPdf(target.projectId, path, target.kerf, await stepPictures(target.getSpec())),
                 'PDF plan saved.',
             ),
         /** `skip`: labels already used on the first sheet. */

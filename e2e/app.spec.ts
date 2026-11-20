@@ -833,6 +833,22 @@ test('the assembly video renders as an MP4 to post', async ({ page }) => {
     expect(file.size).toBeGreaterThan(100_000);
 });
 
+test('the PDF plan gets a picture of each assembly step', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-assembly-toggle').click();
+    await expect(page.getByTestId('assembly-step').first()).toBeVisible();
+    const steps = await page.getByTestId('assembly-step').count();
+    await page.getByTestId('cutlist-export-pdf').click();
+    await expect(page.getByText('PDF plan saved.')).toBeVisible();
+    const written = await page.evaluate(
+        () => (window as unknown as { __written: Record<string, string> }).__written,
+    );
+    const plan = Object.entries(written).find(([path]) => path.endsWith('.pdf'))![1];
+    expect(steps).toBeGreaterThan(0);
+    expect(plan).toMatch(new RegExp(`with ${steps} step pictures$`));
+});
+
 test('the Drawing view shows the piece with its sizes, from each side', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('view-drawing').click();

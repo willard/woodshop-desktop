@@ -258,7 +258,8 @@ export const api = {
     /** Copies one project out of a backup into the library as a new project. */
     restoreFromBackup: (file: string, projectId: number) =>
         invoke<Project>('restore_from_backup', { file, projectId }),
-    exportPdf: (id: number, path: string, kerf: number) =>
+    /** `stepPictures`: a JPEG per assembly step, base64, printed beside each step. */
+    exportPdf: (id: number, path: string, kerf: number, stepPictures: string[] = []) =>
         invoke<void>('export_pdf', {
             id,
             path,
@@ -270,6 +271,7 @@ export const api = {
                 day: 'numeric',
             }),
             units: getUnits(),
+            stepPictures,
         }),
     /** One label per piece to cut, on a sheet of sticky labels (Letter, or A4 in millimetres). */
     exportLabels: (id: number, path: string, kerf: number, skip = 0) =>

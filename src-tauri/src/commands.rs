@@ -346,6 +346,37 @@ pub fn write_binary_file(request: tauri::ipc::Request<'_>) -> CmdResult<()> {
     Ok(())
 }
 
+/// Standard base64 (with or without padding) to bytes; None if it is not base64.
+fn base64_decode(text: &str) -> Option<Vec<u8>> {
+    let value = |c: u8| match c {
+        b'A'..=b'Z' => Some(c - b'A'),
+        b'a'..=b'z' => Some(c - b'a' + 26),
+        b'0'..=b'9' => Some(c - b'0' + 52),
+        b'+' => Some(62),
+        b'/' => Some(63),
+        _ => None,
+    };
+    let digits: Vec<u8> = text.trim_end_matches('=').bytes().map(value).collect::<Option<_>>()?;
+    if digits.len() % 4 == 1 {
+        return None;
+    }
+    let mut out = Vec::with_capacity(digits.len() * 3 / 4);
+    for chunk in digits.chunks(4) {
+        let n = chunk
+            .iter()
+            .enumerate()
+            .fold(0u32, |n, (i, d)| n | (u32::from(*d) << (18 - 6 * i)));
+        out.push((n >> 16) as u8);
+        if chunk.len() > 2 {
+            out.push((n >> 8) as u8);
+        }
+        if chunk.len() > 3 {
+            out.push(n as u8);
+        }
+    }
+    Some(out)
+}
+
 /// `encodeURIComponent` undone: `%XX` escapes back to bytes, read as UTF-8.
 fn percent_decode(s: &str) -> Option<String> {
     let bytes = s.as_bytes();
@@ -456,7 +487,15 @@ pub async fn export_pdf(
     kerf: f64,
     date: String,
     units: Option<woodshop_core::units::Units>,
+    step_pictures: Option<Vec<String>>,
 ) -> CmdResult<()> {
+    // The app renders a picture per assembly step and sends them base64-encoded.
+    let step_pictures = step_pictures
+        .unwrap_or_default()
+        .iter()
+        .map(|p| base64_decode(p))
+        .collect::<Option<Vec<_>>>()
+        .ok_or_else(|| CommandError::invalid(vec!["A step picture is not valid base64.".into()]))?;
     let (project, notes, thumbnail, hardware_prices, offcuts, trims) = lib.with(|s| {
         let project = s.get_project(id)?;
         let notes = plan_notes(s, id)?;
@@ -484,6 +523,7 @@ pub async fn export_pdf(
             offcuts,
             sheet_trim: trims.0,
             board_trim: trims.1,
+            step_pictures,
         })
     })
     .await
@@ -556,7 +596,18 @@ pub fn export_viewer(
 
 #[cfg(test)]
 mod tests {
-    use super::percent_decode;
+    use super::{base64_decode, percent_decode};
+
+    #[test]
+    fn base64_comes_back_as_its_bytes() {
+        assert_eq!(base64_decode("TWFu").as_deref(), Some(&b"Man"[..]));
+        assert_eq!(base64_decode("TWE=").as_deref(), Some(&b"Ma"[..]));
+        assert_eq!(base64_decode("TQ==").as_deref(), Some(&b"M"[..]));
+        assert_eq!(base64_decode("/9j/").as_deref(), Some(&[0xFF, 0xD8, 0xFF][..]));
+        assert_eq!(base64_decode(""), Some(Vec::new()));
+        assert_eq!(base64_decode("T"), None);
+        assert_eq!(base64_decode("a b"), None);
+    }
 
     #[test]
     fn a_path_comes_back_from_its_header() {
