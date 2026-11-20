@@ -326,6 +326,44 @@ pub fn write_text_file(file: TextFile) -> CmdResult<()> {
     Ok(())
 }
 
+/// Write a binary file the webview produced (the assembly video) to a user-chosen path. The bytes
+/// are the raw request body; the path rides in the `x-path` header, percent-encoded because a
+/// header is ASCII and a path need not be.
+#[tauri::command]
+pub fn write_binary_file(request: tauri::ipc::Request<'_>) -> CmdResult<()> {
+    let path = request
+        .headers()
+        .get("x-path")
+        .and_then(|v| v.to_str().ok())
+        .and_then(percent_decode)
+        .ok_or_else(|| CommandError::invalid(vec!["Missing or malformed x-path header.".into()]))?;
+    let tauri::ipc::InvokeBody::Raw(bytes) = request.body() else {
+        return Err(CommandError::invalid(vec![
+            "The file must be sent as raw bytes.".into(),
+        ]));
+    };
+    std::fs::write(PathBuf::from(path), bytes)?;
+    Ok(())
+}
+
+/// `encodeURIComponent` undone: `%XX` escapes back to bytes, read as UTF-8.
+fn percent_decode(s: &str) -> Option<String> {
+    let bytes = s.as_bytes();
+    let mut out = Vec::with_capacity(bytes.len());
+    let mut i = 0;
+    while i < bytes.len() {
+        if bytes[i] == b'%' {
+            let hex = std::str::from_utf8(bytes.get(i + 1..i + 3)?).ok()?;
+            out.push(u8::from_str_radix(hex, 16).ok()?);
+            i += 3;
+        } else {
+            out.push(bytes[i]);
+            i += 1;
+        }
+    }
+    String::from_utf8(out).ok().filter(|p| !p.is_empty())
+}
+
 // ---------------------------------------------------------------------------------------------
 // MCP
 
@@ -514,4 +552,21 @@ pub fn export_viewer(
     });
     std::fs::write(&path, html)?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::percent_decode;
+
+    #[test]
+    fn a_path_comes_back_from_its_header() {
+        assert_eq!(
+            percent_decode("%2FUsers%2Fm%C3%A9lanie%2FBancs%20%26%20tables%2Fbanc.mp4").as_deref(),
+            Some("/Users/mélanie/Bancs & tables/banc.mp4")
+        );
+        assert_eq!(percent_decode("C%3A%5Cvideo.mp4").as_deref(), Some("C:\\video.mp4"));
+        assert_eq!(percent_decode("%ZZ"), None);
+        assert_eq!(percent_decode("%2"), None);
+        assert_eq!(percent_decode(""), None);
+    }
 }

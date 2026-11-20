@@ -233,6 +233,9 @@ export const api = {
         invoke<Project>('create_project_from_spec', { name, spec }),
     writeTextFile: (path: string, contents: string) =>
         invoke<void>('write_text_file', { file: { path, contents } }),
+    /** The bytes go as the raw request body; the path as a header, which must be ASCII. */
+    writeBinaryFile: (path: string, bytes: Uint8Array) =>
+        invoke<void>('write_binary_file', bytes, { headers: { 'x-path': encodeURIComponent(path) } }),
     mcpSetup: () => invoke<McpSetup>('mcp_setup'),
     /** Which providers have an API key in the keychain (the keys never come back). */
     assistantKeys: () => invoke<Record<AssistantProvider, boolean>>('assistant_keys'),

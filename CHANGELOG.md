@@ -8,6 +8,11 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Assembly videos to post: Video in the cut list (or Export assembly video in the ⋯ menu) renders
+  the piece being built step by step, in the order the plan gives, each step's parts flying into
+  place under a caption saying what goes where, opening on its name and size and closing with the
+  piece pulled apart and put back together. Tall for Reels, TikTok and Shorts, square, or wide;
+  about 15 s, 30 s or a minute; light or dark. It renders in seconds and saves as an H.264 MP4.
 - Set a material's real thickness in the cut list: 3/4" plywood that measures 23/32", or 18 mm
   Baltic birch at 0.71". Every dado, groove and rabbet a part of it sits in is resized to match, and a
   note says how many; one undo puts it all back. Parts stay centred where they were, so a small

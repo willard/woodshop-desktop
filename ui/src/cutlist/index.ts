@@ -63,6 +63,8 @@ export function stockAdvice(cutList: CutList, spec: Spec): StockSuggestion[] {
 export interface AssemblyStep {
     heading: string;
     lines: string[];
+    /** The parts this step puts in place; empty for the hardware step. */
+    partIds: string[];
 }
 
 /** The order to assemble the design, the same steps the PDF plan prints. */

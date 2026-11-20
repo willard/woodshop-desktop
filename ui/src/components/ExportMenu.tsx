@@ -14,6 +14,9 @@ import { getUnits } from '@/lib/display';
 import { derivedHoleOps } from '@/spec/movables';
 import { useToast } from './Toast';
 import { LabelsDialog } from './LabelsDialog';
+import { VideoDialog } from './VideoDialog';
+import { overallSize } from '@/spec/geometry';
+import { dims } from '@/lib/display';
 
 export interface ExportTarget {
     projectId: number;
@@ -152,6 +155,8 @@ export function ExportMenuItems(
         close(): void;
         /** Opens the labels dialog (where to start on the sheet); without it, labels print from the first. */
         onLabels?: () => void;
+        /** Opens the assembly video dialog. */
+        onVideo?: () => void;
     },
 ) {
     const exports = useProjectExports(props);
@@ -182,6 +187,16 @@ export function ExportMenuItems(
             >
                 Export 3D plan (HTML)…
             </button>
+            {props.onVideo && (
+                <button
+                    className={item}
+                    data-testid="export-video"
+                    title="The piece built step by step with captions, as an MP4 to post"
+                    onClick={run(async () => props.onVideo?.())}
+                >
+                    Export assembly video (MP4)…
+                </button>
+            )}
             <button
                 className={item}
                 data-testid="export-csv"
@@ -222,7 +237,7 @@ export function ExportMenuItems(
 }
 
 /** The cut list header's exports: the shop plan, the 3D viewer and the spreadsheet. */
-export function CutListExportButtons(props: ExportTarget & { cutList: CutList }) {
+export function CutListExportButtons(props: ExportTarget & { cutList: CutList; onVideo?: () => void }) {
     const exports = useProjectExports(props);
     const button =
         'border-fg/10 text-fg/75 hover:bg-fg/5 h-7 rounded-lg border px-2.5 text-xs whitespace-nowrap';
@@ -239,6 +254,16 @@ export function CutListExportButtons(props: ExportTarget & { cutList: CutList })
             >
                 3D
             </button>
+            {props.onVideo && (
+                <button
+                    className={button}
+                    data-testid="cutlist-export-video"
+                    title="The piece built step by step with captions, as an MP4 to post"
+                    onClick={props.onVideo}
+                >
+                    Video
+                </button>
+            )}
             <button
                 className={button}
                 data-testid="cutlist-export-csv"
@@ -262,6 +287,42 @@ export function LabelsExport(props: ExportTarget & { onClose(): void }) {
             onPrint={(skip) => {
                 props.onClose();
                 void exports.labels(skip);
+            }}
+        />
+    );
+}
+
+/** The assembly video dialog for the open project: choose shape and length, render, save. */
+export function VideoExport(props: ExportTarget & { onClose(): void }) {
+    const toast = useToast();
+    return (
+        <VideoDialog
+            onClose={props.onClose}
+            onMake={async (choice, onProgress, signal) => {
+                await props.flush();
+                const path = await chooseSavePath(`${fileStem(props.projectName)}.mp4`, {
+                    name: 'Video (MP4)',
+                    extensions: ['mp4'],
+                });
+                if (path === null) return;
+                const spec = props.getSpec();
+                const size = overallSize(spec);
+                try {
+                    const { renderAssemblyFilm } = await import('@/video/assemblyFilm');
+                    const bytes = await renderAssemblyFilm(spec, {
+                        ...choice,
+                        title: props.projectName,
+                        subtitle: size === null ? '' : dims(size.width, size.depth, size.height),
+                        onProgress,
+                        signal,
+                    });
+                    await api.writeBinaryFile(path, bytes);
+                    toast.success('Assembly video saved.');
+                    props.onClose();
+                } catch (e) {
+                    if (e instanceof DOMException && e.name === 'AbortError') return;
+                    toast.error(failure('make the video', e));
+                }
             }}
         />
     );

@@ -770,6 +770,49 @@ test('a rabbet is added from the cut menu and changed in place', async ({ page }
     await expect(rows.last()).toContainText('Rabbet 1/4" wide × 1/4" deep');
 });
 
+test('the assembly video renders as an MP4 to post', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-export-video').click();
+    const dialog = page.getByTestId('video-dialog');
+    await expect(dialog).toBeVisible();
+    await page.getByTestId('video-shape').selectOption('square');
+    await page.getByTestId('video-length').selectOption('short');
+    // A browser without an H.264 encoder says so instead of offering to save.
+    const make = page.getByTestId('video-make');
+    await expect(make.or(page.getByTestId('video-unsupported'))).toBeVisible();
+    await expect(async () => {
+        const unsupported = await page.getByTestId('video-unsupported').isVisible();
+        expect(unsupported || (await make.isEnabled())).toBe(true);
+    }).toPass();
+    if (await page.getByTestId('video-unsupported').isVisible()) {
+        await expect(make).toBeDisabled();
+        test.skip(true, 'This browser cannot encode H.264.');
+    }
+    await make.click();
+    await expect(dialog).toBeHidden({ timeout: 60_000 });
+    await expect(page.getByText('Assembly video saved.')).toBeVisible();
+    const file = await page.evaluate(
+        () => (window as unknown as { __binary: { size: number; head: number[] } }).__binary,
+    );
+    // An MP4 opens with its "ftyp" box.
+    expect(String.fromCharCode(...file.head.slice(4, 8))).toBe('ftyp');
+    expect(file.size).toBeGreaterThan(100_000);
+});
+
+test('without a video encoder, the video dialog says so', async ({ page }) => {
+    await page.addInitScript(() => {
+        delete (window as unknown as { VideoEncoder?: unknown }).VideoEncoder;
+    });
+    await page.goto('/#/projects/1');
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-export-video').click();
+    await expect(page.getByTestId('video-unsupported')).toBeVisible();
+    await expect(page.getByTestId('video-make')).toBeDisabled();
+    await page.getByTestId('video-cancel').click();
+    await expect(page.getByTestId('video-dialog')).toBeHidden();
+});
+
 test('an end is cut at an angle, and the form says the angle', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('outline').getByRole('button', { name: 'Top', exact: true }).click();

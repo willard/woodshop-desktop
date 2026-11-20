@@ -172,6 +172,7 @@ pub fn run() {
             commands::import_spec_json,
             commands::create_project_from_spec,
             commands::write_text_file,
+            commands::write_binary_file,
             commands::mcp_setup,
             commands::export_pdf,
             commands::export_labels,

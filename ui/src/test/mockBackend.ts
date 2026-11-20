@@ -355,6 +355,17 @@ export function installMockBackend(): void {
             const store = window as unknown as { __written?: Record<string, string> };
             store.__written = { ...(store.__written ?? {}), [file.path]: file.contents };
         },
+        // The raw body arrives without its headers here, so the preview keeps the last file only.
+        write_binary_file: (a) => {
+            const bytes = a as unknown as Uint8Array;
+            (
+                window as unknown as { __binary?: { size: number; head: number[]; bytes: Uint8Array } }
+            ).__binary = {
+                size: bytes.byteLength,
+                head: Array.from(bytes.subarray(0, 12)),
+                bytes,
+            };
+        },
         'plugin:event|listen': () => nextId++,
         'plugin:event|unlisten': () => undefined,
     };

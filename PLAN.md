@@ -626,6 +626,19 @@ have to look up, and the editor screenshot would make someone want to try it fro
   prices above the hardware), in the CSV (price and cost columns, hardware total), in the PDF (a
   cost column; the export reads the setting) and by `get_cut_list`. The 3D plan shows no costs.
 
+- **Assembly video** (`ui/src/video`): `timeline.ts` scripts the film (pure, tested): an
+  opening on the finished piece under its name and size, one beat per `assemblyOrder` step
+  (each step now carries `partIds`) whose parts fly in from above along the explode direction
+  under a "Step n of m" caption, and a closing pull-apart under "Made with Woodshop".
+  `assemblyFilm.ts` draws each frame in its own WebGL canvas, lit like the editor, frames the
+  piece by projecting its box over the camera's whole orbit into the band the title or the
+  caption leaves clear (easing between the two), composites the captions on a 2D canvas, and
+  encodes with WebCodecs (`avc1` High, then Main, then Baseline, level 4.0) into an MP4 with
+  `mp4-muxer` (MIT). Frame-exact, not recorded in real time: a 30 s 1080 × 1920 film renders in
+  about 4 s here. The file is saved through `write_binary_file` (raw body, percent-encoded
+  `x-path` header). Where no H.264 encoder exists (WebKitGTK today) the dialog says so. Not
+  done: music, the holes (the CSG pass is skipped), a voice-over, GIF.
+
 - **Tapers and angled ends** (spec 1.17): `curve` kind `taper` (`height`, `low`) is a ramp with a
   straight edge: `outline::build` moves the corner shared with `low` in by `height` and joins it
   with a line. On a w edge that is an angled crosscut (height = w × tan angle), on an l edge a

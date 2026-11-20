@@ -18,6 +18,10 @@ use crate::spec::{Joint, JointType, Movable, Op, Part, Spec};
 pub struct AssemblyStep {
     pub heading: String,
     pub lines: Vec<String>,
+    /// The parts this step puts in place (the assembly video brings them in together). Empty for
+    /// the hardware step, which fits items to parts already standing.
+    #[serde(rename = "partIds")]
+    pub part_ids: Vec<String>,
 }
 
 struct Node<'a> {
@@ -247,7 +251,12 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
             placed.push(n);
         }
         left.retain(|n| !batch.iter().any(|b| b.index == n.index));
-        steps.push(AssemblyStep { heading, lines });
+        let part_ids = batch.iter().map(|n| n.part.id.to_string()).collect();
+        steps.push(AssemblyStep {
+            heading,
+            lines,
+            part_ids,
+        });
     }
 
     if !backs.is_empty() {
@@ -260,6 +269,7 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
         steps.push(AssemblyStep {
             heading: format!("Close in the back with {}", and_list(&names)),
             lines,
+            part_ids: backs.iter().map(|n| n.part.id.to_string()).collect(),
         });
     }
 
@@ -285,6 +295,7 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
                 steps.push(AssemblyStep {
                     heading: format!("Build {}", name.unwrap_or_else(|| "the drawer".into())),
                     lines,
+                    part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
                 });
             }
             Movable::Door { .. } => {
@@ -296,6 +307,7 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
                 steps.push(AssemblyStep {
                     heading: format!("Hang {}", name.unwrap_or_else(|| "the door".into())),
                     lines,
+                    part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
                 });
             }
         }
@@ -315,6 +327,7 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
     }
     if !fitted.is_empty() {
         steps.push(AssemblyStep {
+            part_ids: Vec::new(),
             heading: "Fit the hardware".into(),
             lines: fitted
                 .into_iter()
@@ -406,6 +419,11 @@ mod tests {
             let text = print(&steps);
             for part in &spec.parts {
                 assert!(text.contains(&part.name), "{name}: {} missing\n{text}", part.name);
+                let placed = steps
+                    .iter()
+                    .filter(|s| s.part_ids.contains(&part.id.to_string()))
+                    .count();
+                assert_eq!(placed, 1, "{name}: {} is put in place {placed} times", part.name);
             }
         }
     }

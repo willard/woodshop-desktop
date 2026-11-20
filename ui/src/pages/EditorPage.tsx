@@ -16,7 +16,7 @@ import { EditorWorkspace, type EditorWorkspaceHandle } from '@/components/Editor
 import { NotesPanel } from '@/components/NotesPanel';
 import { AssistantPanel } from '@/components/AssistantPanel';
 import { VersionsPanel } from '@/components/VersionsPanel';
-import { CutListExportButtons, ExportMenuItems, LabelsExport } from '@/components/ExportMenu';
+import { CutListExportButtons, ExportMenuItems, LabelsExport, VideoExport } from '@/components/ExportMenu';
 import { useToast } from '@/components/Toast';
 import { useDefaultKerf } from '@/app/settings';
 import { closeProject, projectQuery } from '@/app/projectQuery';
@@ -225,6 +225,7 @@ function Editor({ project }: { project: Project }) {
     const assistantBusy = useRef(false);
     /** The part labels dialog is open. */
     const [labelsOpen, setLabelsOpen] = useState(false);
+    const [videoOpen, setVideoOpen] = useState(false);
     const [assistantChanged, setAssistantChanged] = useState(0);
 
     // An MCP agent, the assistant or another window edited this project: take it if we have
@@ -359,6 +360,7 @@ function Editor({ project }: { project: Project }) {
                         kerf={cutListKerf}
                         flush={flush}
                         cutList={cutList}
+                        onVideo={() => setVideoOpen(true)}
                     />
                 )}
                 overflowExtra={(close) => (
@@ -376,6 +378,7 @@ function Editor({ project }: { project: Project }) {
                             flush={flush}
                             close={close}
                             onLabels={() => setLabelsOpen(true)}
+                            onVideo={() => setVideoOpen(true)}
                         />
                         <button
                             className="enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
@@ -405,6 +408,17 @@ function Editor({ project }: { project: Project }) {
                         setShowVersions(false);
                     }}
                     onClose={() => setShowVersions(false)}
+                />
+            )}
+
+            {videoOpen && (
+                <VideoExport
+                    projectId={project.id}
+                    projectName={name}
+                    getSpec={() => docRef.current.spec}
+                    kerf={kerf ?? defaultKerf}
+                    flush={flush}
+                    onClose={() => setVideoOpen(false)}
                 />
             )}
 
