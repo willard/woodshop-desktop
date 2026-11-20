@@ -4,7 +4,7 @@ A working plan for a coding agent. Goal: ship this app as a free, open-source v1
 "Ground rules" and "Current state" first, then work the phases in order. Each task says where the
 code is and how to know it is done.
 
-Last updated: 2026-11-13.
+Last updated: 2026-11-20.
 
 ## What the product is
 
@@ -724,6 +724,148 @@ have to look up, and the editor screenshot would make someone want to try it fro
   part from the cut list (joints in shop words), ticks a piece off across a reload, switches theme
   and uses the 3D controls. A plan from a newer Woodshop shows its message, not a blank page.
 
+## Phase 7: Gaps against Moblo and the W&S Designer
+
+From a comparison on 2026-11-19 with Moblo 3D (moblo3d.app: phone and tablet, augmented reality,
+simple shapes for beginners) and the Woodgrain & Sawdust Designer
+(designer.woodgrainandsawdust.com: web app, board-based, cut list, build steps, paid Pro). Already
+covered, so not listed: nominal lumber sizes, screw length by board thickness, a generated
+assembly order (whose steps now carry `partIds`), chamfers, angled ends and tapers (spec 1.17),
+the assembly video (MP4), the measure tool, front/side/top camera views, glTF/DXF/SVG export,
+Report a problem. Start with the quick 7.5 and 7.11, then 7a (it closes the gap with the W&S
+Designer), then the rest of 7b; 7c waits on the owner (see "Owner decisions still open"). Spec
+changes follow ground rule 3, in the order given: 1.18, 1.19, 1.20 (1.17 is taken by tapers).
+
+Checks "by eye" are done in the browser preview (the mocked backend renders the same editor);
+anything that needs the real app window (native dialogs, the system video encoder) is listed for
+the owner to check, as computer use of the app is declined.
+
+### 7a. Plans a hobbyist can read
+
+- **7.1 Drawings with sizes (front, side, top).** Nothing projects the whole piece today.
+  - Core: new `crates/woodshop-core/src/geometry/elevation.rs`. For a view, project each part's
+    solid as cut (`frame::shape_points` / `face_hull`, so tapers and angled ends draw true; not
+    `frame::corners`, which is the uncut blank) to 2D, with `world_aabb` and `overall_size`.
+    Hidden edges: fill each part's silhouette with the background and stroke it, drawing parts
+    far to near, so a nearer part covers what is behind it (no hidden lines). Dimension chains,
+    in the display units: overall width, depth and height; and the clear openings between
+    parallel horizontal panels (shelves, top, bottom), measured inside the nearest vertical
+    parts, one chain per column of openings. Render to SVG as `outline_svg.rs` does (reuse `path_data`, `n`, `esc`). WASM
+    `elevationSvg(spec, view, units)`, and an MCP read tool.
+  - PDF: `PlanWorld` in `woodshop-export/src/pdf.rs` serves only `/thumb.png`; let it serve
+    `/front.svg`, `/side.svg` and `/top.svg`, and add a Drawings page to `templates/plan.typ`.
+  - Editor: an orthographic camera in `EditorEngine.ts` for `viewFrom('front'|'side'|'top')` (the
+    only camera today is perspective), and a Drawing switch that overlays the same dimension
+    chains as lines (`drawDimensionObjects`) with HTML labels (as `MeasureLabel`).
+  - Done when: the nightstand and bookcase PDFs show three sized views; the sizes match
+    `overall_size`; a Rust snapshot test per view; checked by eye in the real app window.
+- **7.2 Build steps with pictures.**
+  - Done already: `AssemblyStep.part_ids` (serialised `partIds`), filled by `assembly_order` and
+    carried by WASM `assemblyOrder` and the MCP cut list. `CutListPanel` can use it.
+  - Pictures: the editor and viewer show the parts up to step N
+    (`setHidden(all − parts through N)`), with that step's new parts tinted. For the PDF, render
+    one PNG per step offscreen with the video's `FilmStage` (`ui/src/video/assemblyFilm.ts`,
+    which already draws "parts through step N" in its own canvas), not the live editor, which
+    would flicker; `export_pdf` takes the list and `PlanWorld` serves `/step-N.png`.
+  - Viewer (`viewer/src/ViewerApp.tsx`): a Build mode with Previous and Next, sized for a tablet.
+  - Your own steps (spec 1.17): optional `meta.buildSteps: [{ heading, partIds, note }]`, which
+    replaces the generated order when present. The editor edits, reorders and adds notes, with
+    Reset to suggested. `RemovePart` (and its MCP twin) drops the part's id from the steps, and a
+    lint `meta.build-step-parts` warns when a part is in no step or in two. Also print `meta.notes` in the PDF; it is stored but never printed today.
+  - Done when: the nightstand PDF has a picture per step; the viewer steps through at iPad size;
+    custom steps survive saving and a `.woodshop` round trip; a migration test.
+- **7.3 Sizes on the model.** A Sizes switch in the editor and viewer labels each part with its
+  cut size (from the cut-list rows) and angled ends with the saw setting, drawn like the measure
+  labels (projected midpoints, HTML); each different size once, on the nearest part. Labels that
+  would overlap after the camera turns are hidden (nearest kept). Done when: no overlapping
+  labels on the templates at the default view and two turned views (Playwright check of the
+  label boxes, plus a screenshot).
+- **7.4 Quick build.** No builders exist: templates are fixed JSON and `start_design` seeds one
+  board.
+  - Core: `crates/woodshop-core/src/quickbuild.rs`, generators that each return a spec that lints
+    clean: open frame; shelf unit or bookcase (width, height, depth, shelf count, back or not);
+    box or carcase; table (width, depth, height, apron).
+  - UI: Quick build in the new-design flow, with a live preview; the result is an ordinary
+    design. MCP: a `quick_build` tool.
+  - Done when: a property test holds every generator to linting clean across a grid of sizes;
+    an e2e test makes one.
+
+### 7b. Small wins
+
+- **7.5 Warn on angles beyond the saw.** In `lint/ops.rs`, a `Warn` coded `op.miter-beyond-saw`
+  when a `Miter` angle is over 45°: "Most saws tilt to 45°. Cut this 52° bevel with a jig or a
+  hand plane." Likewise `op.taper-beyond-saw` when a `taper` on an end is steeper than a miter
+  saw turns (atan(height / width) over 50°), suggesting a jig or a bandsaw. A constant for now; a shop setting would need `lint_with(spec, units, opts)`
+  threaded through WASM and MCP, so leave it until asked. Done when: a case in
+  `ui/src/fixtures/lint-cases.json` and a Rust test.
+- **7.6 Dog ears (corner clips), spec 1.19.** `Curve` gains `kind: "clip"` with `corner` and
+  `size`: a straight 45° cut off one corner; dog-earing an end clips both corners. Not a
+  `taper`: a taper moves one corner along one edge (the cut runs to the opposite corner); a clip
+  takes the same `size` off both edges at a corner. Touches
+  `outline.rs` `build`, `op_extent.rs`, `outline_svg.rs`, `dxf.rs`, `describe.rs`, `joinery.rs`
+  `setup_of` ("Miter saw at 45°"), `lint/ops.rs`, `partGeometry.ts`, `opLabel.ts`, and
+  `PartInspector.tsx` (a Dog ears button that asks which end). Done when: the parity test passes,
+  the cut list says "Dog-ear one end, 3/4" in", and the shape is right in DXF and SVG.
+- **7.7 Outdoor lumber and templates.**
+  - `lumberSizes.ts`: fence picket (5/8 × 5 1/2, 72") and 5/4 decking (1 × 5 1/2).
+  - Spec `Species` gains `cedar` (fold into 1.19), with a tone in `SPECIES_TONES`
+    (`ui/src/engine/materials.ts`) and a density in `cutlist/weight.rs`.
+  - Templates (per `resources/DATA.md`): cedar picket planter, bench planter, birdhouse, using
+    the 7.6 dog ears.
+  - Done when: the templates lint clean, the parity test holds them, and they have pictures in
+    both themes.
+- **7.8 Feedback from the editor.** Report a problem exists (`problemReportUrl` in
+  `ui/src/app/diagnostics.ts`, under Settings ▸ Diagnostics). Add Feedback to the editor menu
+  with "Something's broken" or "Idea", opening the matching GitHub issue form
+  (`.github/ISSUE_TEMPLATE/bug.yml`, `feature.yml`); optionally copy a
+  picture of the design to the clipboard to paste in. Nothing is sent without the user, so
+  PRIVACY.md is unchanged. Done when: an e2e test checks the URLs.
+- **7.9 What's new.** Bundle `CHANGELOG.md` at build time (Vite raw import) and show the newest
+  version in a dialog after an update, keeping the last version seen in settings; also Help ▸
+  What's new. Done when: it shows once per version; a unit test of the parsing.
+- **7.10 Paint, stain and glass, spec 1.20.** A material gets an optional
+  `appearance: { kind: wood|paint|stain|glass|metal, color }`, rendered in `materials.ts` (paint
+  flat, stain tinting the grain, glass transmissive) and carried to the viewer, glTF and
+  the assembly video (its `FilmStage` uses the same material provider); the
+  shopping list names the paint colour. Done when: a picker in the material editor, a migration
+  test, screenshots in both themes.
+- **7.11 STL and OBJ export.** three's `STLExporter` and `OBJExporter` beside `getGltf` in
+  `EditorEngine.ts`, with two ExportMenu entries. Binary STL goes through the existing
+  `write_binary_file` command (`api.writeBinaryFile`, mocked in `ui/src/test/mockBackend.ts`).
+  Done when: the files open in a slicer; an e2e test covers the entries.
+- **7.16 Tapered legs in templates.** Use the `taper` cut (spec 1.17) on the dining table, side
+  table and nightstand legs (inside faces, from below the apron), re-render their pictures, and
+  keep `every_template_builds_without_parts_running_into_each_other` green.
+- **7.17 Snapping and joint detection follow the cut.** The design checks measure a part as cut
+  (`frame::face_hull`), but the editor's snapping and automatic joint detection
+  (`ui/src/engine/snapping.ts` `aabbFromPart`, `ui/src/engine/joints.ts`) still use the uncut
+  blank, so a dragged part can snap to a corner that was cut away. Give them the same hull (a
+  WASM `faceHull`). Done when: a unit test drags a part against a tapered leg.
+- **7.18 Release v0.1.2.** Designs saved now are spec 1.17, which v0.1.1 cannot open; ship the
+  template fixes, tapers, real thickness and the video together.
+
+### 7c. Bigger bets (owner decides first)
+
+- **7.12 Design gallery.** Share a design as its `.woodshop` file plus its 3D plan page. Start
+  without a server: a gallery repository or a GitHub Discussions category, and a Share to gallery
+  button that prepares the files and opens the submission page. Hosting and moderation are the
+  owner's call.
+- **7.13 See it in your room.** three's `USDZExporter`; the exported 3D plan gets a View in your
+  room link (`rel="ar"`, AR Quick Look) on iPad and iPhone, and Android's Scene Viewer takes the
+  glTF. A plan opened from the Files app runs without scripts (Phase 6), so this needs Safari.
+  AR Quick Look wants a real `.usdz` URL, which a blob made inside an offline HTML file likely
+  is not: export the `.usdz` beside the 3D plan and link to it. Try that on a real iPad first,
+  before building the rest. Done when: checked on a real iPad (by the owner).
+- **7.14 Plans from known makers.** A template `author` field credited on the PDF and in the
+  gallery, and a contribution path in `resources/DATA.md`. Which makers, and any licence, are the
+  owner's call.
+- **7.15 French.** There is no i18n today, and two halves need it separately:
+  - 7.15a The UI: bring in i18next (or similar) and move strings out area by area.
+  - 7.15b The core: lint messages, cut-list and assembly text, joinery and the PDF are built in
+    Rust (`woodshop-core`, `woodshop-export`), so they need their own catalogue and a locale
+    passed through WASM and MCP (agents may stay in English).
+  Then translate. Large, and touches nearly every file.
+
 ---
 
 ## Owner decisions still open
@@ -738,6 +880,9 @@ Ask before starting the phase that needs them. Do not guess.
 | Apple Developer account ($99/yr) and Windows signing certificate | Phase 3 |
 | Launch platforms: macOS first, or macOS and Windows together | Phase 3 |
 | Hosted crash reporting (Sentry) or GitHub issues only | Phase 3 |
+| Design gallery: where it is hosted and who moderates it | Phase 7.12 |
+| Plans from known makers: who, and under what licence | Phase 7.14 |
+| Translation: whether to take on French (touches nearly every file) | Phase 7.15 |
 
 Decided: repository `willard/woodshop-desktop`, public (2026-11-12); updater key
 password-protected, backed up by the owner (2026-11-12); fully free and open source, no paid
