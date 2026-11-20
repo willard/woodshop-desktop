@@ -143,6 +143,8 @@ struct Ramp {
     height: f64,
     low: Edge,
     straight: bool,
+    /// A taper's straight run from the full-size corner before it starts to slope.
+    from: Option<f64>,
 }
 
 /// Per-edge table indexed by walk slot.
@@ -211,12 +213,17 @@ pub fn build(l: f64, w: f64, curves: &[Curve], notches: &[Notch]) -> Outline {
                 });
             }
             Curve::Ramp { height, low, .. } | Curve::Taper { height, low, .. } => {
+                let from = match op {
+                    Curve::Taper { from, .. } => *from,
+                    _ => None,
+                };
                 // Invalid `low` (parallel edge) renders square; the linter errors it.
                 if shared_corner(edge, *low).is_some() {
                     ramps[slot] = Some(Ramp {
                         height: height.min(span * 0.98),
                         low: *low,
                         straight: matches!(op, Curve::Taper { .. }),
+                        from: from.map(|f| f.clamp(0.0, chord)),
                     });
                 }
             }
@@ -425,6 +432,18 @@ fn walk_edges(
         match (domes[slot], ramps[slot]) {
             (None, Some(ramp)) if ramp.straight => {
                 segments.push(Segment::line(a));
+                // Straight from the full-size corner for `from`, then down to the moved corner.
+                if let Some(run) = ramp.from.filter(|r| *r > 1e-9) {
+                    let low_idx = shared_corner(edge, ramp.low);
+                    let high_idx = if low_idx == Some(from) { to } else { from };
+                    let (high, low) = (corners[high_idx], corners[if high_idx == from { to } else { from }]);
+                    let along = ((low[0] - high[0]).hypot(low[1] - high[1])).max(1e-9);
+                    let t = run / along;
+                    segments.push(Segment::line([
+                        high[0] + (low[0] - high[0]) * t,
+                        high[1] + (low[1] - high[1]) * t,
+                    ]));
+                }
                 segments.push(Segment::line(b));
             }
             (None, Some(ramp)) => {

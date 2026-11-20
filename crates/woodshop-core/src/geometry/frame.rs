@@ -420,6 +420,7 @@ mod tests {
             edge: Edge::W1,
             height: 3.0,
             low: Edge::L1,
+            from: None,
         })]);
         let hull = face_hull(&board);
         assert_eq!(hull.len(), 4, "{hull:?}");
@@ -445,7 +446,7 @@ mod overall_with_hardware {
     fn casters_count_toward_the_height() {
         let spec = |hardware| {
             parse(json!({
-                "specVersion": "1.18", "units": "in", "name": "T",
+                "specVersion": "1.19", "units": "in", "name": "T",
                 "materials": [{ "id": "m_2x4", "type": "lumber", "name": "2x4", "thickness": 1.5, "stockWidth": 3.5 }],
                 // A leg standing on end, its w0 end at 4" off the floor.
                 "parts": [{ "id": "p_leg", "name": "Leg", "materialId": "m_2x4", "size": { "l": 30, "w": 3.5 },

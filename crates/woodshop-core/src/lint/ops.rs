@@ -211,6 +211,15 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                                 edge.as_str()
                             ));
                         }
+                        if let Curve::Taper { from: Some(run), .. } = curve
+                            && *run >= chord - EPS
+                        {
+                            fail(format!(
+                                "taper on \"{name}\" runs straight for {}, the whole {} edge, so nothing is left to taper.",
+                                len(*run),
+                                len(chord)
+                            ));
+                        }
                     }
                 }
             }
@@ -542,8 +551,10 @@ pub(super) fn overlapping_ops(part: &Part, issues: &mut Vec<LintIssue>) {
                 &part.id,
                 i,
             )),
-            Op::Curve(Curve::Taper { edge, height, .. }) if !edge.is_l_edge() => {
-                let (across, _) = chord_and_span(part, *edge);
+            Op::Curve(Curve::Taper { edge, height, from, .. }) if !edge.is_l_edge() => {
+                let (chord, _) = chord_and_span(part, *edge);
+                // Only the sloped stretch sets the saw.
+                let across = (chord - from.unwrap_or(0.0)).max(EPS);
                 let angle = (height / across).atan().to_degrees();
                 if angle > MAX_MITER + EPS {
                     issues.push(LintIssue::op(

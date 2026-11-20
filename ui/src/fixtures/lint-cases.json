@@ -7697,5 +7697,59 @@
                 }
             ]
         }
+    },
+    "taper-straight-run-too-long": {
+        "specVersion": "1.19",
+        "units": "in",
+        "name": "taper-straight-run-too-long",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 30,
+                    "w": 3.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "taper",
+                        "height": 1,
+                        "low": "w0",
+                        "from": 30
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
     }
 }

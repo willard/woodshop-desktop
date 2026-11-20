@@ -853,7 +853,10 @@ the owner to check, as computer use of the app is declined.
   `EditorEngine.ts`, with two ExportMenu entries. Binary STL goes through the existing
   `write_binary_file` command (`api.writeBinaryFile`, mocked in `ui/src/test/mockBackend.ts`).
   Done when: the files open in a slicer; an e2e test covers the entries.
-- **7.16 Tapered legs in templates.** Use the `taper` cut (spec 1.17) on the dining table, side
+- **7.16 Tapered legs in templates.** Done for the dining and side tables, with a new optional
+  `from` on `taper` (spec 1.19: straight for that far from the full-size end) so the leg stays
+  square at the apron. The coffee table is left square: its shelf meets the legs' inside faces
+  near the floor, where they would taper. The nightstand too: its back panel meets them there. Use the `taper` cut (spec 1.17) on the dining table, side
   table and nightstand legs (inside faces, from below the apron), re-render their pictures, and
   keep `every_template_builds_without_parts_running_into_each_other` green.
 - **7.17 Snapping and joint detection follow the cut.** Done: `aabbFromPart` takes a curved or notched part's box from the core

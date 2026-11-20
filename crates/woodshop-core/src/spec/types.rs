@@ -467,7 +467,15 @@ pub enum Curve {
     Ramp { edge: Edge, height: f64, low: Edge },
     /// A straight cut from the opposite corner to the corner shared with `low`, moved in by
     /// `height` (1.17): an angled end on a w edge, a tapered leg on an l edge.
-    Taper { edge: Edge, height: f64, low: Edge },
+    Taper {
+        edge: Edge,
+        height: f64,
+        low: Edge,
+        /// How far the edge runs straight from its full-size end before the taper starts (1.19):
+        /// a leg kept square where the apron meets it. `None` tapers the whole edge.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        from: Option<f64>,
+    },
 }
 
 impl Curve {

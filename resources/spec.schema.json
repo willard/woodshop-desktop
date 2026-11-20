@@ -13,7 +13,7 @@
     ],
     "properties": {
         "specVersion": {
-            "const": "1.18"
+            "const": "1.19"
         },
         "units": {
             "const": "in",
@@ -777,6 +777,10 @@
                         "low": {
                             "$ref": "#/$defs/edge",
                             "description": "The adjacent (perpendicular) edge whose corner moves in (added in 1.17)."
+                        },
+                        "from": {
+                            "$ref": "#/$defs/positiveDim",
+                            "description": "How far the edge runs straight from its full-size end before the taper starts, so a leg stays square where the apron meets it. Omit to taper the whole edge (added in 1.19)."
                         }
                     }
                 },

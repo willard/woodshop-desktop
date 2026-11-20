@@ -19,6 +19,7 @@
     "ramp-parallel-low-ignored": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l1", "kind": "ramp", "height": 4, "low": "l0" }] },
     "taper-l1-low-w0": { "l": 24, "w": 12, "ops": [{ "type": "curve", "edge": "l1", "kind": "taper", "height": 4, "low": "w0" }] },
     "taper-angled-end-w1": { "l": 30, "w": 5.5, "ops": [{ "type": "curve", "edge": "w1", "kind": "taper", "height": 3, "low": "l0" }] },
+    "taper-leg-straight-below-apron": { "l": 30, "w": 3, "ops": [{ "type": "curve", "edge": "l0", "kind": "taper", "height": 1, "low": "w0", "from": 6 }] },
     "taper-parallelogram-leg": { "l": 30, "w": 5.5, "ops": [{ "type": "curve", "edge": "w0", "kind": "taper", "height": 3, "low": "l1" }, { "type": "curve", "edge": "w1", "kind": "taper", "height": 3, "low": "l0" }] },
     "notch-interior": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "l0", "from": 6, "to": 12, "depth": 3 }] },
     "notch-low-corner": { "l": 24, "w": 12, "ops": [{ "type": "notch", "edge": "l0", "from": 0, "to": 6, "depth": 3 }] },

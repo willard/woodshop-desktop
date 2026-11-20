@@ -9,7 +9,7 @@ import type { Spec } from '../../spec/types';
  */
 function mixedStockSpec(): Spec {
     return {
-        specVersion: '1.18',
+        specVersion: '1.19',
         units: 'in',
         name: 'Mixed stock',
         materials: [

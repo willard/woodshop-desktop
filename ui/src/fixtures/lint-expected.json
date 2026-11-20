@@ -285,5 +285,8 @@
         "warn|meta.build-step-parts|p_a||",
         "warn|meta.build-step-parts|p_b||",
         "warn|meta.build-step-parts|p_ghost||"
+    ],
+    "case:taper-straight-run-too-long": [
+        "error|op.out-of-bounds|p_a|0|"
     ]
 }

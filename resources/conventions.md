@@ -61,7 +61,9 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
   straight line instead of a sweep. On an end (`w0`/`w1`) that is an angled crosscut:
   `height` = width × tan(angle off square), so a 2x6 leg splayed 30° takes `height` 3.175
   (5.5 × tan 30°) at each end, with `low` on opposite long edges at the two ends, and then
-  stands flat on the floor and meets the top flat. On a long edge it is a tapered leg.
+  stands flat on the floor and meets the top flat. On a long edge it is a tapered leg; add
+  `"from"` (1.19) to keep it straight that far from its full-size end, so a leg stays square
+  where the apron meets it and tapers below.
   `corner`/`low` must be perpendicular to `edge`. Cut through the full
   thickness; the part's `size` stays the full rectangular blank. A curve and a
   dado/groove/rabbet DO combine on the same part — a curved side with a shelf dado in it is

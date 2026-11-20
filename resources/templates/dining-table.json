@@ -82,7 +82,17 @@
           90
         ]
       },
-      "qty": 1
+      "qty": 1,
+      "ops": [
+        {
+          "type": "curve",
+          "edge": "l0",
+          "kind": "taper",
+          "height": 0.75,
+          "low": "w0",
+          "from": 3.75
+        }
+      ]
     },
     {
       "id": "p_leg_fr",
@@ -105,7 +115,17 @@
           90
         ]
       },
-      "qty": 1
+      "qty": 1,
+      "ops": [
+        {
+          "type": "curve",
+          "edge": "l0",
+          "kind": "taper",
+          "height": 0.75,
+          "low": "w0",
+          "from": 3.75
+        }
+      ]
     },
     {
       "id": "p_leg_bl",
@@ -128,7 +148,17 @@
           90
         ]
       },
-      "qty": 1
+      "qty": 1,
+      "ops": [
+        {
+          "type": "curve",
+          "edge": "l1",
+          "kind": "taper",
+          "height": 0.75,
+          "low": "w0",
+          "from": 3.75
+        }
+      ]
     },
     {
       "id": "p_leg_br",
@@ -151,7 +181,17 @@
           90
         ]
       },
-      "qty": 1
+      "qty": 1,
+      "ops": [
+        {
+          "type": "curve",
+          "edge": "l1",
+          "kind": "taper",
+          "height": 0.75,
+          "low": "w0",
+          "from": 3.75
+        }
+      ]
     },
     {
       "id": "p_apron_front",
@@ -462,7 +502,7 @@
   ],
   "meta": {
     "difficulty": "intermediate",
-    "notes": "A 72 × 36 dining table for six: an oak-plywood top on 2 1/2\" oak legs and 1x4 aprons, all pocket-screwed. Seats at a standard 30\".",
+    "notes": "A 72 × 36 dining table for six: an oak-plywood top on 2 1/2\" oak legs tapered on their inside faces below the apron and 1x4 aprons, all pocket-screwed. Seats at a standard 30\".",
     "tags": [
       "table",
       "dining",

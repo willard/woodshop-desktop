@@ -133,7 +133,17 @@
                     90
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "l0",
+                    "kind": "taper",
+                    "height": 0.5,
+                    "low": "w0",
+                    "from": 2.75
+                }
+            ]
         },
         {
             "id": "p_leg_fr",
@@ -156,7 +166,17 @@
                     90
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "l1",
+                    "kind": "taper",
+                    "height": 0.5,
+                    "low": "w0",
+                    "from": 2.75
+                }
+            ]
         },
         {
             "id": "p_leg_bl",
@@ -179,7 +199,17 @@
                     90
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "l0",
+                    "kind": "taper",
+                    "height": 0.5,
+                    "low": "w0",
+                    "from": 2.75
+                }
+            ]
         },
         {
             "id": "p_leg_br",
@@ -202,7 +232,17 @@
                     90
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "l1",
+                    "kind": "taper",
+                    "height": 0.5,
+                    "low": "w0",
+                    "from": 2.75
+                }
+            ]
         },
         {
             "id": "p_shelf",
@@ -630,7 +670,7 @@
     ],
     "meta": {
         "difficulty": "beginner",
-        "notes": "A simple side table with a plywood top on a 1x3 apron frame and a shelf, on solid pine legs.",
+        "notes": "A simple side table with a plywood top on a 1x3 apron frame and a shelf, on solid pine legs tapered on their inside faces below the apron.",
         "tags": [
             "table",
             "living-room"

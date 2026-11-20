@@ -6,7 +6,7 @@ import { hardwarePlacements } from '@/engine/movablePlacement';
 
 function doorSpec(hinge: string | undefined, hingeEdge: 'l0' | 'l1' | 'w0' | 'w1', l = 18, w = 30): Spec {
     return parseSpec({
-        specVersion: '1.18',
+        specVersion: '1.19',
         name: 'Cabinet',
         units: 'in',
         materials: [

@@ -392,7 +392,7 @@ export function PartInspector(p: PartInspectorProps) {
         depth: '',
         purpose: 'other',
     });
-    const [curve, setCurve] = useState({ edge: 'l1', kind: 'arc', size: '', end: 'both' });
+    const [curve, setCurve] = useState({ edge: 'l1', kind: 'arc', size: '', end: 'both', from: '' });
     const [notch, setNotch] = useState({ edge: 'l1', from: '0', to: '', depth: '' });
     const [clearance, setClearance] = useState(lenValue(0.0625));
     const [pocket, setPocket] = useState({ edge: 'w1', count: '2' });
@@ -508,10 +508,22 @@ export function PartInspector(p: PartInspectorProps) {
                 break;
             case 'curve':
                 if (op.kind === 'round')
-                    setCurve({ edge: op.edge, kind: 'round', size: v(op.radius), end: op.corner ?? 'both' });
+                    setCurve({
+                        edge: op.edge,
+                        kind: 'round',
+                        size: v(op.radius),
+                        end: op.corner ?? 'both',
+                        from: '',
+                    });
                 else if (op.kind === 'ramp' || op.kind === 'taper')
-                    setCurve({ edge: op.edge, kind: op.kind, size: v(op.height), end: op.low });
-                else setCurve({ edge: op.edge, kind: 'arc', size: v(op.height), end: 'both' });
+                    setCurve({
+                        edge: op.edge,
+                        kind: op.kind,
+                        size: v(op.height),
+                        end: op.low,
+                        from: op.kind === 'taper' && op.from !== undefined ? v(op.from) : '',
+                    });
+                else setCurve({ edge: op.edge, kind: 'arc', size: v(op.height), end: 'both', from: '' });
                 break;
             case 'notch':
                 setNotch({ edge: op.edge, from: v(op.from), to: v(op.to), depth: v(op.depth) });
@@ -639,7 +651,21 @@ export function PartInspector(p: PartInspectorProps) {
             add({ type: 'curve', edge, kind: 'arc', height: size });
         } else if (curve.kind === 'ramp' || curve.kind === 'taper') {
             const low = curve.end === 'both' ? endsOf(edge)[0].value : (curve.end as Edge);
-            add({ type: 'curve', edge, kind: curve.kind, height: size, low });
+            // A taper may run straight first (a leg square where the apron meets it).
+            let from: number | undefined;
+            if (curve.kind === 'taper' && curve.from.trim() !== '') {
+                const run = dim('Straight for', curve.from);
+                if (run === null) return;
+                from = run;
+            }
+            add({
+                type: 'curve',
+                edge,
+                kind: curve.kind,
+                height: size,
+                low,
+                ...(from === undefined ? {} : { from }),
+            });
         } else {
             add({
                 type: 'curve',
@@ -1827,9 +1853,26 @@ export function PartInspector(p: PartInspectorProps) {
                             />
                         </Field>
                         {curve.kind === 'taper' && (
+                            <Field
+                                className="mb-2"
+                                label={`Straight for (${unitSuffix()}) — optional, from the full-size end`}
+                            >
+                                <TextInput
+                                    value={curve.from}
+                                    inputMode="decimal"
+                                    placeholder="e.g. 4 for a leg below its apron"
+                                    data-testid="curve-from"
+                                    onChange={(e) => updateCurve({ from: e.target.value })}
+                                />
+                            </Field>
+                        )}
+                        {curve.kind === 'taper' && (
                             <TaperAngle
                                 height={parseLen(curve.size.trim())}
-                                along={curve.edge.startsWith('l') ? part.size.l : part.size.w}
+                                along={
+                                    (curve.edge.startsWith('l') ? part.size.l : part.size.w) -
+                                    (parseLen(curve.from.trim()) ?? 0)
+                                }
                             />
                         )}
                         <PrimaryButton className="w-full" data-testid="curve-submit" onClick={submitCurve}>

@@ -122,13 +122,19 @@ pub fn op_summary(op: &Op, units: Units) -> String {
             len(*height),
             edge_name(*low)
         ),
-        Op::Curve(Curve::Taper { edge, height, low }) if edge.is_l_edge() => format!(
-            "The {} tapers {} in toward the {}",
+        Op::Curve(Curve::Taper {
+            edge,
+            height,
+            low,
+            from,
+        }) if edge.is_l_edge() => format!(
+            "The {} tapers {} in toward the {}{}",
             edge_name(*edge),
             len(*height),
-            edge_name(*low)
+            edge_name(*low),
+            from.map_or(String::new(), |f| format!(", straight for the first {}", len(f)))
         ),
-        Op::Curve(Curve::Taper { edge, height, low }) => format!(
+        Op::Curve(Curve::Taper { edge, height, low, .. }) => format!(
             "The {} is cut at an angle, {} shorter along the {}",
             edge_name(*edge),
             len(*height),

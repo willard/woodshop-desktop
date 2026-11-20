@@ -37,6 +37,10 @@ All notable changes to Woodshop are listed here. The format follows
 - STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
   a 3D printer's slicer, or as OBJ for modelling software.
 
+- A taper can run straight first (format 1.19): Straight for in the taper form keeps a leg square
+  where the apron meets it and tapers it below. The dining table's and side table's legs now
+  taper on their inside faces below the apron.
+
 ### Fixed
 
 - Snapping and the joints the editor finds now measure a curved, tapered or angled part as cut,
