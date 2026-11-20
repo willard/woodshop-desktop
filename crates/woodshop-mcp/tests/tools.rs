@@ -36,7 +36,7 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 38);
+    assert_eq!(tools::TOOLS.len(), 39);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
@@ -1089,4 +1089,25 @@ fn deleting_a_part_takes_it_out_of_your_build_steps() {
     );
     let check = ok(&w, "check_design", json!({ "project_id": id }));
     assert!(!check.to_string().contains("build-step"), "{check}");
+}
+
+#[test]
+fn a_quick_build_starts_a_sound_design() {
+    let w = woodshop();
+    let built = ok(
+        &w,
+        "quick_build",
+        json!({ "kind": "shelfUnit", "width": 30, "height": 48, "depth": 12, "shelves": 3 }),
+    );
+    assert_eq!(built["name"], "Shelf unit");
+    let id = built["projectId"].as_i64().unwrap();
+    let check = ok(&w, "check_design", json!({ "project_id": id }));
+    assert_eq!(check["buildable"], true, "{check}");
+    assert_eq!(check["warnings"], json!([]), "{check}");
+    let refused = err(
+        &w,
+        "quick_build",
+        json!({ "kind": "box", "width": 96, "height": 60, "depth": 30 }),
+    );
+    assert!(refused.contains("bigger than a 96\" × 48\" sheet"), "{refused}");
 }

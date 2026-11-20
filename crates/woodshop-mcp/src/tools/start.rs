@@ -2,7 +2,7 @@
 
 use serde_json::{Map, Value, json};
 use woodshop_core::spec::{self, Spec, starter};
-use woodshop_core::templates;
+use woodshop_core::{quickbuild, templates};
 use woodshop_store::{Author, Project};
 
 use super::*;
@@ -132,3 +132,71 @@ fn start_from_template(w: &Woodshop, args: &Args) -> Outcome {
         ),
     }))
 }
+
+pub const QUICK_BUILD: ToolDef = ToolDef {
+    name: "quick_build",
+    description: "Create a NEW design from a few sizes: a shelf unit (plywood, evenly spaced shelves, \
+        with or without a back), a box (plywood, open top), a table (plywood top on 2x2 legs, with or \
+        without a 1x3 apron) or a frame (an open 2x4 stand). Every part is placed, joined and fastened \
+        so it passes check_design; change it from there with the edit tools. Sizes are the finished \
+        outside dimensions in inches, 8 to 96. A size that would need a panel bigger than a 96 x 48 \
+        sheet is refused with which panel and what to change. Returns the new design id.",
+    read_only: false,
+    schema: || {
+        object(
+            json!({
+                "kind": one_of(&["shelfUnit", "box", "table", "frame"], "What to build."),
+                "name": string("Optional name for the new design."),
+                "width": number("Outside width, inches."),
+                "height": number("Outside height, inches."),
+                "depth": number("Outside depth, inches."),
+                "shelves": integer("Shelf unit only: shelves between the top and bottom (0 to 12)."),
+                "back": boolean("Shelf unit only: a plywood back inside the case."),
+                "apron": boolean("Table only: a 1x3 apron frame under the top."),
+            }),
+            &["kind", "width", "height", "depth"],
+        )
+    },
+    run: |w, args| {
+        let kind = args.enumerated(
+            "kind",
+            &["shelfUnit", "box", "table", "frame"],
+            "kind must be shelfUnit, box, table or frame.",
+            "",
+        )?;
+        let (width, height, depth) = (
+            args.num("width", 0.01, 240.0, "")?,
+            args.num("height", 0.01, 240.0, "")?,
+            args.num("depth", 0.01, 240.0, "")?,
+        );
+        let mut input = json!({ "kind": kind, "width": width, "height": height, "depth": depth });
+        match kind {
+            "shelfUnit" => {
+                input["shelves"] = args.opt_int_in("shelves", 0, 12)?.unwrap_or(2).into();
+                input["back"] = args.opt_bool("back")?.unwrap_or(true).into();
+            }
+            "table" => input["apron"] = args.opt_bool("apron")?.unwrap_or(true).into(),
+            _ => {}
+        }
+        let build: quickbuild::QuickBuild = serde_json::from_value(input).map_err(|e| e.to_string())?;
+        let default_name = match kind {
+            "shelfUnit" => "Shelf unit",
+            "box" => "Box",
+            "table" => "Table",
+            _ => "Frame",
+        };
+        let name = args
+            .opt_str_max("name", 120)?
+            .map(str::trim)
+            .filter(|n| !n.is_empty())
+            .unwrap_or(default_name);
+        let spec = build.build(name)?;
+        let project = seed(w, name, &spec, "Quick build")?;
+        Ok(json!({
+            "projectId": project.id,
+            "name": name,
+            "partCount": spec.parts.len(),
+            "summary": format!("Built \"{name}\": {} parts, ready to change.", spec.parts.len()),
+        }))
+    },
+};

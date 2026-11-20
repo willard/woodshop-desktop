@@ -172,6 +172,15 @@ pub fn outline_svg(
     ))
 }
 
+/// A new design from a few sizes (`woodshop-core::quickbuild`): `{ kind, width, height, depth,
+/// shelves?, back?, apron? }`. Throws what is wrong with the sizes, in words.
+#[wasm_bindgen(js_name = quickBuild)]
+pub fn quick_build(input: JsValue, name: &str) -> JsResult<JsValue> {
+    let build: woodshop_core::quickbuild::QuickBuild = from_js(input)?;
+    let spec = build.build(name).map_err(|e| JsError::new(&e))?;
+    to_js(&spec)
+}
+
 /// The whole piece from the front, side or top as an SVG drawing with its sizes, in `units`.
 #[wasm_bindgen(js_name = elevationSvg)]
 pub fn elevation_svg(spec: JsValue, view: &str, units: Option<String>) -> JsResult<String> {

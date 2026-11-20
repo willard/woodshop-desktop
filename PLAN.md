@@ -795,7 +795,10 @@ the owner to check, as computer use of the app is declined.
   would overlap after the camera turns are hidden (nearest kept). Done when: no overlapping
   labels on the templates at the default view and two turned views (Playwright check of the
   label boxes, plus a screenshot).
-- **7.4 Quick build.** No builders exist: templates are fixed JSON and `start_design` seeds one
+- **7.4 Quick build.** Done (`woodshop-core::quickbuild`, WASM `quickBuild`, MCP `quick_build`,
+  left out of the in-app assistant; `QuickBuildDialog` with a front-drawing preview). The grid
+  test tries 216 sizes across the four kinds: each one built must lint with no issue at all and
+  no overlap, and the rest must be refused in words as a panel bigger than a 96 × 48 sheet. No builders exist: templates are fixed JSON and `start_design` seeds one
   board.
   - Core: `crates/woodshop-core/src/quickbuild.rs`, generators that each return a spec that lints
     clean: open frame; shelf unit or bookcase (width, height, depth, shelf count, back or not);

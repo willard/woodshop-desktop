@@ -36,6 +36,7 @@ pub static TOOLS: &[ToolDef] = &[
     read::RENDER_DRAWING,
     start::START_DESIGN,
     start::START_FROM_TEMPLATE,
+    start::QUICK_BUILD,
     edit::RESIZE_PART,
     edit::MOVE_PART,
     edit::EDIT_PARTS,

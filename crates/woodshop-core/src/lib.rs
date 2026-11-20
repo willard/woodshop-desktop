@@ -13,6 +13,7 @@ pub mod hardware;
 pub mod joinery;
 pub mod lint;
 pub mod movables;
+pub mod quickbuild;
 pub mod spec;
 #[cfg(feature = "validate")]
 pub mod templates;

@@ -1,5 +1,7 @@
 /** The project library: every design on this computer, newest first. */
 import { useState, type FormEvent } from 'react';
+import { QuickBuildDialog } from '@/components/QuickBuildDialog';
+import type { Spec } from '@/spec';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ask } from '@tauri-apps/plugin-dialog';
@@ -20,6 +22,7 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
     const navigate = useNavigate();
     const toast = useToast();
     const [name, setName] = useState('');
+    const [quickOpen, setQuickOpen] = useState(false);
 
     const projects = useQuery({ queryKey: ['projects', trashed], queryFn: () => api.listProjects(trashed) });
     const refresh = () => queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -33,6 +36,17 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
         },
         onError: (e) => toast.error(failure('create the project', e)),
     });
+
+    async function quickBuild(projectName: string, spec: Spec): Promise<void> {
+        try {
+            const project = await api.createProjectFromSpec(projectName, spec);
+            setQuickOpen(false);
+            refresh();
+            navigate({ to: '/projects/$id', params: { id: String(project.id) } });
+        } catch (e) {
+            toast.error(failure('create the project', e));
+        }
+    }
 
     async function importFile(): Promise<void> {
         try {
@@ -94,6 +108,15 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
                             >
                                 Shopping list
                             </Link>
+                            <button
+                                type="button"
+                                onClick={() => setQuickOpen(true)}
+                                className="border-fg/12 text-accent hover:bg-surface-2 rounded-md border px-3 py-1.5"
+                                title="A shelf unit, box, table or frame from a few sizes"
+                                data-testid="quick-build-open"
+                            >
+                                Quick build…
+                            </button>
                             <Link
                                 to="/templates"
                                 className="border-fg/12 text-accent hover:bg-surface-2 rounded-md border px-3 py-1.5"
@@ -192,6 +215,12 @@ export function ProjectsPage({ trashed = false }: { trashed?: boolean }) {
                         Trash
                     </Link>
                 </p>
+            )}
+            {quickOpen && (
+                <QuickBuildDialog
+                    onCreate={(n, spec) => void quickBuild(n, spec)}
+                    onClose={() => setQuickOpen(false)}
+                />
             )}
         </>
     );

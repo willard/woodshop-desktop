@@ -39,7 +39,7 @@ const MAX_ROUNDS: usize = 30;
 const MAX_TOKENS: u32 = 16_000;
 
 /// Tools left out of the chat: it works on the open design, so it neither lists nor starts others.
-const LEFT_OUT: &[&str] = &["list_projects", "start_design", "start_from_template"];
+const LEFT_OUT: &[&str] = &["list_projects", "start_design", "start_from_template", "quick_build"];
 
 #[derive(Debug, Clone)]
 pub struct Config {

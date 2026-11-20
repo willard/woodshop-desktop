@@ -30,6 +30,10 @@ All notable changes to Woodshop are listed here. The format follows
 - Sizes on the model: Sizes beside the view buttons (and in the exported 3D plan) labels each
   part with the size it is cut to, each size once on the nearest part, and an angled end with
   the angle to set the saw to. Labels never cover one another as the view turns.
+- Quick build: Quick build… on Your projects makes a shelf unit, a box, a table or an open 2x4
+  frame from a few sizes, previewed from the front as you type, with every part placed and
+  fastened so it passes the design checks. A size that cannot work is refused in words. Agents
+  can do the same with `quick_build`.
 - STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
   a 3D printer's slicer, or as OBJ for modelling software.
 

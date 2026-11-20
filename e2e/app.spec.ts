@@ -934,6 +934,31 @@ test('Sizes labels each part with its cut size, each size once, never overlappin
     await expect(labels).toHaveCount(0);
 });
 
+test('quick build makes a sound design from a few sizes', async ({ page }) => {
+    await page.goto('/#/');
+    await page.getByTestId('quick-build-open').click();
+    const dialog = page.getByTestId('quick-build');
+    await expect(page.getByTestId('quick-build-summary')).toHaveText('7 parts, from the front');
+    await page.getByTestId('quick-build-shelves').fill('3');
+    await expect(page.getByTestId('quick-build-summary')).toHaveText('8 parts, from the front');
+    // Too big for a sheet: it says which panel, and will not make it.
+    await page.getByTestId('quick-build-width').fill('96');
+    await page.getByTestId('quick-build-height').fill('72');
+    await expect(page.getByTestId('quick-build-problem')).toContainText('The back would be');
+    await expect(page.getByTestId('quick-build-create')).toBeDisabled();
+
+    await page.getByTestId('quick-build-kind').selectOption('table');
+    await page.getByTestId('quick-build-name').fill('Hall table');
+    await expect(page.getByTestId('quick-build-summary')).toHaveText('9 parts, from the front');
+    await dialog.screenshot({
+        path: '/private/tmp/claude-501/-Users-willardmacay-devlocal-woodshop-rust/8c9be911-f9e9-44ff-aebd-21bb86f32a8d/scratchpad/quickbuild.png',
+    });
+    await page.getByTestId('quick-build-create').click();
+    await expect(page).toHaveURL(/#\/projects\/\d+$/);
+    await expect(page.getByTestId('parts-count')).toHaveText('9 parts');
+    await expect(page.getByTestId('lint-badge')).toContainText('Buildable');
+});
+
 test('the Drawing view shows the piece with its sizes, from each side', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('view-drawing').click();
