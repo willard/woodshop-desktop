@@ -9,7 +9,7 @@ use woodshop_core::geometry::frame::{
     to_world, world_aabb,
 };
 use woodshop_core::geometry::op_extent::{datum_note, local_box};
-use woodshop_core::geometry::outline_svg;
+use woodshop_core::geometry::{elevation, outline_svg};
 use woodshop_core::hardware;
 use woodshop_core::joinery::joinery;
 use woodshop_core::lint::{self, LintIssue, Severity};
@@ -565,6 +565,37 @@ pub const RENDER_PREVIEW: ToolDef = ToolDef {
         )
     },
     run: render_preview,
+};
+
+pub const RENDER_DRAWING: ToolDef = ToolDef {
+    name: "render_drawing",
+    description: "Draw the whole piece from the front, side or top as an SVG, with its overall sizes \
+        and, from the front, the clear height of each opening between shelves (what the PDF plan's \
+        drawings page shows). Parts are drawn as cut and filled nearest last, so nothing hidden \
+        shows. Sizes are in fractional inches. Use it to check proportions and spacing you cannot \
+        see; elements carry data-part and data-dimension. Read-only.",
+    read_only: true,
+    schema: || {
+        object(
+            json!({
+                "project_id": integer(PROJECT_ID),
+                "view": one_of(&["front", "side", "top"], "front: width × height; side: depth × height (from the right); top: width × depth."),
+            }),
+            &["project_id", "view"],
+        )
+    },
+    run: |w, args| {
+        let design = w.load(args.project_id("Provide the id of the design to draw (see list_projects).")?)?;
+        let view = args.enumerated(
+            "view",
+            &["front", "side", "top"],
+            "view must be \"front\", \"side\" or \"top\".",
+            "",
+        )?;
+        let view = elevation::View::parse(view).expect("enumerated");
+        let svg = elevation::elevation_svg(design.spec(), view, Units::Fraction);
+        Ok(json!({ "projectId": design.id(), "name": design.name(), "view": view.as_str(), "svg": svg }))
+    },
 };
 
 /// A heavily-notched part runs a few KB; past this, the index is more useful than a drawing.

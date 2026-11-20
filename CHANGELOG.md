@@ -12,6 +12,10 @@ All notable changes to Woodshop are listed here. The format follows
   no further) and an angled end more than 50° off square (most miter saws turn no further), with
   what to use instead. The picnic table's braces are a degree steeper so both their cuts are
   within a miter saw's reach.
+- The PDF plan opens with drawings of the whole piece from the front, the side and the top, with
+  its overall sizes and, from the front, the clear height of each opening between shelves. Parts
+  are drawn as cut, so an angled leg shows its angle, and a part in front hides what is behind
+  it. Agents can draw the same views with `render_drawing`.
 - STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
   a 3D printer's slicer, or as OBJ for modelling software.
 

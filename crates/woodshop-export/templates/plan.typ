@@ -56,6 +56,23 @@
   )
 ]
 
+#if data.hasDrawings [
+  == Drawings
+  // One block, so the side and top never land on a page apart from the front.
+  #block(breakable: false)[
+    #text(fill: muted)[Overall sizes, and from the front the clear height of each opening.]
+    #v(4pt)
+    #align(center, image("/front.svg", height: 9cm, fit: "contain"))
+    #v(6pt)
+    #grid(
+      columns: (1fr, 1fr),
+      column-gutter: 14pt,
+      [#label("Side") #v(2pt) #image("/side.svg", width: 100%, height: 5.5cm, fit: "contain")],
+      [#label("Top") #v(2pt) #image("/top.svg", width: 100%, height: 5.5cm, fit: "contain")],
+    )
+  ]
+]
+
 #for section in data.sections [
   == #section.title
   #text(fill: muted, section.summary)

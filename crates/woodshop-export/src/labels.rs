@@ -140,5 +140,5 @@ pub fn render_labels_pdf(input: &LabelsInput<'_>) -> Result<Vec<u8>, ExportError
             },
         ),
     };
-    typeset(TEMPLATE, &view, None)
+    typeset(TEMPLATE, &view, &[])
 }

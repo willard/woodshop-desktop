@@ -3,6 +3,7 @@
 //! positions through here so they quote the same numbers.
 
 pub mod dxf;
+pub mod elevation;
 pub mod frame;
 pub mod op_extent;
 pub mod outline;

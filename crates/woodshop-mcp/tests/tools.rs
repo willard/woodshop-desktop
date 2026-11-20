@@ -36,7 +36,7 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 37);
+    assert_eq!(tools::TOOLS.len(), 38);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
@@ -1049,4 +1049,17 @@ fn a_thickness_that_would_leave_parts_apart_is_refused() {
         ok(&w, "get_design", json!({ "project_id": id }))["spec"]["materials"][0]["thickness"],
         0.709
     );
+}
+
+#[test]
+fn the_whole_piece_is_drawn_with_its_sizes() {
+    let w = woodshop();
+    let id = ok(&w, "start_from_template", json!({ "template": "bookshelf" }))["projectId"]
+        .as_i64()
+        .unwrap();
+    let front = ok(&w, "render_drawing", json!({ "project_id": id, "view": "front" }));
+    let svg = front["svg"].as_str().unwrap();
+    assert!(svg.starts_with("<svg") && svg.contains(">72\"</text>") && svg.contains(">17 1/4\"</text>"));
+    assert!(svg.contains("data-part=\"Shelf 2\""));
+    assert!(err(&w, "render_drawing", json!({ "project_id": id, "view": "back" })).contains("front"));
 }

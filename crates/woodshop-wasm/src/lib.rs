@@ -172,6 +172,16 @@ pub fn outline_svg(
     ))
 }
 
+/// The whole piece from the front, side or top as an SVG drawing with its sizes, in `units`.
+#[wasm_bindgen(js_name = elevationSvg)]
+pub fn elevation_svg(spec: JsValue, view: &str, units: Option<String>) -> JsResult<String> {
+    let spec = spec_from_js(spec)?;
+    let view = geometry::elevation::View::parse(view)
+        .ok_or_else(|| JsError::new(&format!("No \"{view}\" view: front, side or top.")))?;
+    let units = units_of(units.as_deref().unwrap_or("fraction"));
+    Ok(geometry::elevation::elevation_svg(&spec, view, units))
+}
+
 /// Every part laid flat as an R12 DXF for CNC: outlines, holes and channels on layers named by
 /// operation and depth. Millimetres for `metric`, inches otherwise.
 #[wasm_bindgen(js_name = specDxf)]

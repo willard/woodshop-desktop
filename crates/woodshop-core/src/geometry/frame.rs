@@ -136,7 +136,7 @@ pub fn face_hull(part: &Part) -> Vec<[f64; 2]> {
 }
 
 /// Andrew's monotone chain; counter-clockwise, no repeated or collinear points.
-fn convex_hull(mut points: Vec<[f64; 2]>) -> Vec<[f64; 2]> {
+pub(crate) fn convex_hull(mut points: Vec<[f64; 2]>) -> Vec<[f64; 2]> {
     points.retain(|p| p[0].is_finite() && p[1].is_finite());
     points.sort_by(|a, b| a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1])));
     points.dedup_by(|a, b| (a[0] - b[0]).abs() < 1e-9 && (a[1] - b[1]).abs() < 1e-9);

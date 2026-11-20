@@ -19,6 +19,7 @@ use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 use woodshop_core::cutlist::{
     CutList, CutListConfig, CutListSection, LumberPlan, Offcut, PartRow, SawCut, compute_cut_list, group_cut_list,
 };
+use woodshop_core::geometry::elevation::{View, elevation_svg};
 use woodshop_core::geometry::overall_size;
 use woodshop_core::joinery::{Joinery, joinery};
 use woodshop_core::movables::derived_borings;
@@ -67,6 +68,8 @@ struct PlanView {
     overall: Option<String>,
     part_count: usize,
     has_thumbnail: bool,
+    /// Front, side and top drawings with sizes are served as `/front.svg` and so on.
+    has_drawings: bool,
     totals: Vec<Total>,
     /// "Finish: 83 sq ft, about 0.8 qt a coat", or empty with nothing to finish.
     finish: String,
@@ -366,6 +369,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
         overall,
         part_count: input.spec.parts.len(),
         has_thumbnail: input.thumbnail.is_some(),
+        has_drawings: !input.spec.parts.is_empty(),
         finish: if cut_list.totals.finish_area > 0.0 {
             format!(
                 "Finish: {}, counting both faces and every edge of each part.",
@@ -511,7 +515,8 @@ static FONTS: LazyLock<Fonts> = LazyLock::new(|| {
 struct PlanWorld {
     library: LazyHash<Library>,
     main: Source,
-    thumbnail: Option<(FileId, Bytes)>,
+    /// What the template may read: the thumbnail and the drawings.
+    files: Vec<(FileId, Bytes)>,
 }
 
 fn file_id(path: &str) -> FileId {
@@ -544,10 +549,11 @@ impl World for PlanWorld {
     }
 
     fn file(&self, id: FileId) -> FileResult<Bytes> {
-        match &self.thumbnail {
-            Some((thumb, bytes)) if *thumb == id => Ok(bytes.clone()),
-            _ => Err(FileError::AccessDenied),
-        }
+        self.files
+            .iter()
+            .find(|(file, _)| *file == id)
+            .map(|(_, bytes)| bytes.clone())
+            .ok_or(FileError::AccessDenied)
     }
 
     fn font(&self, index: usize) -> Option<Font> {
@@ -661,12 +667,29 @@ pub fn render_plan_pdf(input: &PlanInput<'_>) -> Result<Vec<u8>, ExportError> {
         },
     );
     let view = plan_view(input, &cut_list);
-    typeset(TEMPLATE, &view, input.thumbnail.as_deref())
+    let mut files: Vec<(&str, Vec<u8>)> = Vec::new();
+    if let Some(png) = &input.thumbnail {
+        files.push(("/thumb.png", png.clone()));
+    }
+    if !input.spec.parts.is_empty() {
+        for (path, view) in [
+            ("/front.svg", View::Front),
+            ("/side.svg", View::Side),
+            ("/top.svg", View::Top),
+        ] {
+            files.push((path, elevation_svg(input.spec, view, input.units).into_bytes()));
+        }
+    }
+    typeset(TEMPLATE, &view, &files)
 }
 
-/// Typesets `template` with `data` as its `sys.inputs.data` (JSON), and an optional PNG served
-/// as `/thumb.png`.
-pub(crate) fn typeset(template: &str, data: &impl Serialize, thumbnail: Option<&[u8]>) -> Result<Vec<u8>, ExportError> {
+/// Typesets `template` with `data` as its `sys.inputs.data` (JSON), serving `files` (a PNG at
+/// `/thumb.png`, the drawings at `/front.svg` …) to its `image` calls.
+pub(crate) fn typeset(
+    template: &str,
+    data: &impl Serialize,
+    files: &[(&str, Vec<u8>)],
+) -> Result<Vec<u8>, ExportError> {
     let data = serde_json::to_string(data).map_err(|e| ExportError::Render(e.to_string()))?;
 
     let mut inputs = Dict::new();
@@ -674,7 +697,10 @@ pub(crate) fn typeset(template: &str, data: &impl Serialize, thumbnail: Option<&
     let world = PlanWorld {
         library: LazyHash::new(Library::builder().with_inputs(inputs).build()),
         main: Source::new(file_id("/main.typ"), template.to_owned()),
-        thumbnail: thumbnail.map(|png| (file_id("/thumb.png"), Bytes::new(png.to_vec()))),
+        files: files
+            .iter()
+            .map(|(path, bytes)| (file_id(path), Bytes::new(bytes.clone())))
+            .collect(),
     };
 
     let document: PagedDocument = typst::compile(&world).output.map_err(|errors| {

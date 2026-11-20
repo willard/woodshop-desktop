@@ -33,6 +33,7 @@ pub static TOOLS: &[ToolDef] = &[
     read::CHECK_DESIGN,
     read::EXPLAIN_PART,
     read::RENDER_PREVIEW,
+    read::RENDER_DRAWING,
     start::START_DESIGN,
     start::START_FROM_TEMPLATE,
     edit::RESIZE_PART,
