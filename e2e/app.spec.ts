@@ -771,6 +771,8 @@ test('a rabbet is added from the cut menu and changed in place', async ({ page }
 });
 
 test('the assembly video renders as an MP4 to post', async ({ page }) => {
+    // CI draws WebGL and encodes H.264 in software: a 15 s film takes about 25 s there.
+    test.setTimeout(150_000);
     await page.goto('/#/projects/1');
     await page.getByTestId('cutlist-toggle').click();
     await page.getByTestId('cutlist-export-video').click();
@@ -790,7 +792,7 @@ test('the assembly video renders as an MP4 to post', async ({ page }) => {
         test.skip(true, 'This browser cannot encode H.264.');
     }
     await make.click();
-    await expect(dialog).toBeHidden({ timeout: 60_000 });
+    await expect(dialog).toBeHidden({ timeout: 120_000 });
     await expect(page.getByText('Assembly video saved.')).toBeVisible();
     const file = await page.evaluate(
         () => (window as unknown as { __binary: { size: number; head: number[] } }).__binary,
