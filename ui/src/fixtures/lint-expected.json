@@ -62,6 +62,13 @@
     "case:ramp-parallel-low": [
         "error|op.out-of-bounds|p_a|0|"
     ],
+    "case:taper-valid": [],
+    "case:taper-too-tall": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:taper-parallel-low": [
+        "error|op.out-of-bounds|p_a|0|"
+    ],
     "case:round-single-corner-valid": [],
     "case:round-parallel-corner": [
         "error|op.out-of-bounds|p_a|0|"

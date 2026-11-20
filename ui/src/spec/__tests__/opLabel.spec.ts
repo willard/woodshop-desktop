@@ -81,6 +81,16 @@ const cases: ReadonlyArray<readonly [string, Op, string]> = [
         'The bottom edge sweeps 2" down toward the left end',
     ],
     [
+        'curve, taper on an end',
+        { type: 'curve', edge: 'w1', kind: 'taper', height: 3.1875, low: 'l0' },
+        'The right end is cut at an angle, 3 3/16" shorter along the bottom edge',
+    ],
+    [
+        'curve, taper on an edge',
+        { type: 'curve', edge: 'l0', kind: 'taper', height: 1, low: 'w0' },
+        'The bottom edge tapers 1" in toward the left end',
+    ],
+    [
         'curve, round (both corners)',
         { type: 'curve', edge: 'l1', kind: 'round', radius: 0.75 },
         'Corners of the top edge rounded, 3/4" radius',

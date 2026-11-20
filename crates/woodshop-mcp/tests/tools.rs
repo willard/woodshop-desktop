@@ -65,7 +65,7 @@ fn conventions_describe_the_op_union() {
 
     let curve = ok(&w, "get_conventions", json!({ "op": "curve" }));
     assert_eq!(curve["discriminator"], "kind");
-    assert_eq!(curve["variants"].as_array().unwrap().len(), 3);
+    assert_eq!(curve["variants"].as_array().unwrap().len(), 4);
     assert!(err(&w, "get_conventions", json!({ "op": "tenon" })).starts_with("There is no \"tenon\" op."));
 }
 

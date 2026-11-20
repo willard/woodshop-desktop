@@ -300,7 +300,7 @@ mod tests {
         assert_eq!(discriminator_for("ease").as_deref(), Some("profile"));
         assert_eq!(discriminator_for("notch"), None);
         let names: Vec<_> = for_type("curve").iter().filter_map(|v| v.variant.clone()).collect();
-        assert_eq!(names, ["arc", "round", "ramp"]);
+        assert_eq!(names, ["arc", "round", "ramp", "taper"]);
     }
 
     #[test]

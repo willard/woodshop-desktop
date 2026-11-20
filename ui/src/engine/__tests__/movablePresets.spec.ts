@@ -25,7 +25,7 @@ const T = 0.75;
  */
 function carcase(): Spec {
     return parseSpec({
-        specVersion: '1.16',
+        specVersion: '1.17',
         units: 'in',
         name: 'Carcase',
         materials: [{ id: 'mat', type: 'sheet', name: 'Ply', thickness: T, sheetSize: { l: 96, w: 48 } }],

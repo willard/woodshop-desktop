@@ -16,8 +16,16 @@ All notable changes to Woodshop are listed here. The format follows
 - AI agents can set a material's real thickness too (`set_material_thickness`). Its dados, grooves
   and rabbets follow, a change that would leave parts apart is refused, and parts you locked are
   left alone.
+- Straight tapers and angled ends (spec 1.17): Curve or angle in the Add a cut menu cuts an edge
+  straight from one corner to a point you choose, so a splayed leg can stand flat on the floor
+  and meet the top flat, and a leg can taper. Type how far the corner moves in and the form shows
+  the angle it makes. Agents add one as a `taper` curve.
 
 ### Changed
+
+- The design checks, the overall size and the agent tools measure a curved, tapered or angled
+  part by what is left once it is cut, not by its uncut board, so a corner cut away no longer
+  counts as running into the part beside it.
 
 - Fractions show 32nds and 64ths when a length is exactly one (23/32", 15/32", 1 7/64"), as sheet
   goods are sold; everything else still reads to the nearest 16th.
@@ -31,6 +39,11 @@ All notable changes to Woodshop are listed here. The format follows
   to it, so it could not open), and the nightstand's legs ran through its top and its aprons
   through its side and back panels. Each now fits together as built; the nightstand has panels in
   place of side and back aprons and a front rail above the drawer.
+- The picnic table's legs were turned on edge and square-ended, so each foot stood on a corner.
+  They now form a proper A with their wide faces outward, cut at 30° top and bottom to stand flat,
+  and the braces are cut to sit square against the bench supports and flat under the top
+  instead of running into them. The sawhorse's legs splay 15° the same way, where they stood
+  straight up.
 
 ## [0.1.1] — 2026-11-19
 

@@ -110,4 +110,36 @@ mod tests {
         }
         assert_eq!(super::all().len(), super::TEMPLATES.len());
     }
+
+    /// Every template could be built as drawn: the design checks find nothing, and no two parts
+    /// fill the same space, except where one is let into the other (a dado, a rabbet, or a dowel
+    /// in its hole). The checks allow some overlap a saw cannot make; this does not.
+    #[test]
+    fn every_template_builds_without_parts_running_into_each_other() {
+        use crate::geometry::obb_penetration;
+        use crate::spec::JointType;
+
+        for (id, _) in super::TEMPLATES {
+            let spec = super::find(id).unwrap();
+            let issues: Vec<String> = crate::lint::lint(&spec).into_iter().map(|i| i.message).collect();
+            assert!(issues.is_empty(), "{id}: {issues:#?}");
+            let joints = spec.joints.as_deref().unwrap_or_default();
+            for (i, a) in spec.parts.iter().enumerate() {
+                for b in &spec.parts[i + 1..] {
+                    let let_in = joints.iter().any(|j| {
+                        matches!(j.kind, JointType::Dado | JointType::Rabbet | JointType::Dowel)
+                            && ((j.host_part_id == a.id && j.insert_part_id == b.id)
+                                || (j.host_part_id == b.id && j.insert_part_id == a.id))
+                    });
+                    let depth = obb_penetration(a, spec.thickness_of(a).unwrap(), b, spec.thickness_of(b).unwrap());
+                    assert!(
+                        let_in || depth <= 0.03,
+                        "{id}: \"{}\" and \"{}\" overlap by {depth:.3}\"",
+                        a.name,
+                        b.name
+                    );
+                }
+            }
+        }
+    }
 }

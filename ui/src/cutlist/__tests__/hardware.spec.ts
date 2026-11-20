@@ -11,7 +11,7 @@ const withoutKeys = (rows: HardwareRow[]) => rows.map(({ key: _key, ...rest }) =
 /** Two 3/4" boards, screwed and pocket-screwed, plus a dowelled pair — one of each hardware kind. */
 function fastenedSpec(ops: unknown[], joints: unknown[] = [], qty = 1): Spec {
     return parseSpec({
-        specVersion: '1.16',
+        specVersion: '1.17',
         units: 'in',
         name: 'Hardware',
         materials: [
@@ -187,7 +187,7 @@ describe('computeHardware — movables (spec 1.12)', () => {
     /** A cabinet with one door and one drawer annotated as movables. */
     function movableSpec(overrides: Record<string, unknown>[] = []): Spec {
         return parseSpec({
-            specVersion: '1.16',
+            specVersion: '1.17',
             units: 'in',
             name: 'Cabinet',
             materials: [

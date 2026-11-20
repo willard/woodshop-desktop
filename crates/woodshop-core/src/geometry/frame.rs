@@ -4,7 +4,9 @@
 
 use serde::Serialize;
 
-use crate::spec::{Part, Spec, Vec3};
+use crate::geometry::outline::{self, Segment};
+use crate::geometry::outline_svg::swept_angle;
+use crate::spec::{Op, Part, Spec, Vec3};
 
 /// Parts closer than this (inches) count as touching.
 pub const TOUCH_TOL: f64 = 0.02;
@@ -96,9 +98,85 @@ pub fn corners(part: &Part, thickness: f64) -> [Vec3; 8] {
     out
 }
 
+/// Whether a curve or notch reshapes the part's face, so its solid is less than its blank.
+fn is_shaped(part: &Part) -> bool {
+    part.ops().iter().any(|op| matches!(op, Op::Curve(_) | Op::Notch(_)))
+}
+
+/// The convex hull of the part's face in its local XY frame, counter-clockwise: the blank's four
+/// corners, or for a shaped part the outline's corners and points along its arcs. A notch is
+/// concave, so the hull still covers it; a taper or a curve is cut away.
+pub fn face_hull(part: &Part) -> Vec<[f64; 2]> {
+    let (l, w) = (part.size.l / 2.0, part.size.w / 2.0);
+    if !is_shaped(part) {
+        return vec![[-l, -w], [l, -w], [l, w], [-l, w]];
+    }
+    let mut points: Vec<[f64; 2]> = Vec::new();
+    for segment in outline::for_part(part).segments {
+        match segment {
+            Segment::Line { x, y, .. } => points.push([x, y]),
+            Segment::Arc {
+                cx,
+                cy,
+                r,
+                a0,
+                a1,
+                clockwise,
+                ..
+            } => {
+                let sweep = swept_angle(a0, a1, clockwise);
+                for i in 0..=16 {
+                    let a = a0 + sweep * f64::from(i) / 16.0;
+                    points.push([cx + r * a.cos(), cy + r * a.sin()]);
+                }
+            }
+        }
+    }
+    convex_hull(points)
+}
+
+/// Andrew's monotone chain; counter-clockwise, no repeated or collinear points.
+fn convex_hull(mut points: Vec<[f64; 2]>) -> Vec<[f64; 2]> {
+    points.retain(|p| p[0].is_finite() && p[1].is_finite());
+    points.sort_by(|a, b| a[0].total_cmp(&b[0]).then(a[1].total_cmp(&b[1])));
+    points.dedup_by(|a, b| (a[0] - b[0]).abs() < 1e-9 && (a[1] - b[1]).abs() < 1e-9);
+    if points.len() < 3 {
+        return points;
+    }
+    let turn = |o: [f64; 2], a: [f64; 2], b: [f64; 2]| (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    let mut hull: Vec<[f64; 2]> = Vec::with_capacity(points.len() * 2);
+    for pass in [false, true] {
+        let start = hull.len();
+        let ordered: Box<dyn Iterator<Item = &[f64; 2]>> = if pass {
+            Box::new(points.iter().rev())
+        } else {
+            Box::new(points.iter())
+        };
+        for &p in ordered {
+            while hull.len() >= start + 2 && turn(hull[hull.len() - 2], hull[hull.len() - 1], p) <= 1e-12 {
+                hull.pop();
+            }
+            hull.push(p);
+        }
+        hull.pop();
+    }
+    hull
+}
+
+/// The part's solid as world points: its face hull on both faces.
+pub fn shape_points(part: &Part, thickness: f64) -> Vec<Vec3> {
+    let m = rotation_rows(part.transform.rot());
+    let h = thickness / 2.0;
+    face_hull(part)
+        .into_iter()
+        .flat_map(|[x, y]| [to_world(part, &m, [x, y, -h]), to_world(part, &m, [x, y, h])])
+        .collect()
+}
+
+/// The world box around what is left of the part once its curves are cut.
 pub fn world_aabb(part: &Part, thickness: f64) -> Aabb {
     let mut b = Aabb::EMPTY;
-    for c in corners(part, thickness) {
+    for c in shape_points(part, thickness) {
         b.include(c);
     }
     b
@@ -128,24 +206,46 @@ fn cross(u: Vec3, v: Vec3) -> Vec3 {
     ]
 }
 
-/// Minimum penetration depth between two parts' oriented boxes (separating-axis theorem, 15
-/// axes). ≤ 0 = separated or touching face-to-face; > 0 = interpenetration by that depth.
+/// Minimum penetration depth between two parts' solids (separating-axis theorem): each is its
+/// face hull extruded through its thickness, so a plain part is its oriented box and a tapered or
+/// curved one is what is left once it is cut. ≤ 0 = separated or touching face-to-face; > 0 =
+/// interpenetration by that depth.
 pub fn obb_penetration(a: &Part, ta: f64, b: &Part, tb: f64) -> f64 {
-    let axes_a = local_axes_world(a);
-    let axes_b = local_axes_world(b);
-    let ha = [a.size.l / 2.0, a.size.w / 2.0, ta / 2.0];
-    let hb = [b.size.l / 2.0, b.size.w / 2.0, tb / 2.0];
-    let (pa, pb) = (a.transform.pos, b.transform.pos);
-    let d = [pb[0] - pa[0], pb[1] - pa[1], pb[2] - pa[2]];
+    let solid = |part: &Part, t: f64| {
+        let m = rotation_rows(part.transform.rot());
+        let hull = face_hull(part);
+        let normal = to_world_dir(&m, [0.0, 0.0, 1.0]);
+        // Each hull edge's direction; its in-plane normal is a face of the prism.
+        let edges: Vec<Vec3> = (0..hull.len())
+            .map(|i| {
+                let (p, q) = (hull[i], hull[(i + 1) % hull.len()]);
+                to_world_dir(&m, [q[0] - p[0], q[1] - p[1], 0.0])
+            })
+            .collect();
+        let faces: Vec<Vec3> = edges.iter().map(|e| cross(*e, normal)).chain([normal]).collect();
+        let directions: Vec<Vec3> = edges.into_iter().chain([normal]).collect();
+        let h = t / 2.0;
+        let points: Vec<Vec3> = hull
+            .iter()
+            .flat_map(|&[x, y]| [to_world(part, &m, [x, y, -h]), to_world(part, &m, [x, y, h])])
+            .collect();
+        (faces, directions, points)
+    };
+    let (faces_a, dirs_a, points_a) = solid(a, ta);
+    let (faces_b, dirs_b, points_b) = solid(b, tb);
 
-    let mut candidates: Vec<Vec3> = Vec::with_capacity(15);
-    candidates.extend(axes_a);
-    candidates.extend(axes_b);
-    for u in axes_a {
-        for v in axes_b {
-            candidates.push(cross(u, v));
+    let mut candidates: Vec<Vec3> = faces_a.iter().chain(&faces_b).copied().collect();
+    for u in &dirs_a {
+        for v in &dirs_b {
+            candidates.push(cross(*u, *v));
         }
     }
+    let project = |points: &[Vec3], axis: Vec3| {
+        points.iter().fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), p| {
+            let d = dot(*p, axis);
+            (lo.min(d), hi.max(d))
+        })
+    };
 
     let mut min_overlap = f64::INFINITY;
     for axis in candidates {
@@ -153,16 +253,25 @@ pub fn obb_penetration(a: &Part, ta: f64, b: &Part, tb: f64) -> f64 {
         if len < 1e-6 {
             continue; // parallel edges: degenerate cross product
         }
-        let l = [axis[0] / len, axis[1] / len, axis[2] / len];
-        let ra: f64 = (0..3).map(|i| ha[i] * dot(axes_a[i], l).abs()).sum();
-        let rb: f64 = (0..3).map(|i| hb[i] * dot(axes_b[i], l).abs()).sum();
-        let overlap = ra + rb - dot(d, l).abs();
+        let axis = [axis[0] / len, axis[1] / len, axis[2] / len];
+        let (a_lo, a_hi) = project(&points_a, axis);
+        let (b_lo, b_hi) = project(&points_b, axis);
+        let overlap = (a_hi - b_lo).min(b_hi - a_lo);
         if overlap <= 0.0 {
             return overlap;
         }
         min_overlap = min_overlap.min(overlap);
     }
     min_overlap
+}
+
+/// A local direction turned into the world (no translation).
+fn to_world_dir(m: &Mat3, v: Vec3) -> Vec3 {
+    [
+        m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2],
+        m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2],
+        m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2],
+    ]
 }
 
 /// The finished piece's overall size in world inches (x = width, z = depth, y = height).
@@ -301,6 +410,30 @@ mod tests {
         let c = part(10.0, 10.0, [0.0, 0.0, 0.5], [0.0; 3]);
         assert!((obb_penetration(&a, 1.0, &c, 1.0) - 0.5).abs() < 1e-9);
     }
+
+    #[test]
+    fn a_tapered_part_is_what_is_left_after_the_cut() {
+        use crate::spec::{Curve, Edge, Op};
+        // A 10 × 4 board with its right end cut at an angle: the top-right corner moves in 3".
+        let mut board = part(10.0, 4.0, [0.0; 3], [0.0; 3]);
+        board.ops = Some(vec![Op::Curve(Curve::Taper {
+            edge: Edge::W1,
+            height: 3.0,
+            low: Edge::L1,
+        })]);
+        let hull = face_hull(&board);
+        assert_eq!(hull.len(), 4, "{hull:?}");
+        assert!(hull.contains(&[2.0, 2.0]) && hull.contains(&[5.0, -2.0]), "{hull:?}");
+        // The box no longer reaches the corner that was cut off…
+        let b = world_aabb(&board, 1.0);
+        assert_eq!((b.min[0], b.max[0], b.max[1]), (-5.0, 5.0, 2.0));
+        // …so a block sitting in the cut-away corner does not run into it, though it would
+        // into the uncut blank.
+        let block = part(1.0, 1.0, [4.4, 1.4, 0.0], [0.0; 3]);
+        assert!(obb_penetration(&board, 1.0, &block, 1.0) <= 0.0);
+        board.ops = None;
+        assert!(obb_penetration(&board, 1.0, &block, 1.0) > 0.5);
+    }
 }
 
 #[cfg(test)]
@@ -312,7 +445,7 @@ mod overall_with_hardware {
     fn casters_count_toward_the_height() {
         let spec = |hardware| {
             parse(json!({
-                "specVersion": "1.16", "units": "in", "name": "T",
+                "specVersion": "1.17", "units": "in", "name": "T",
                 "materials": [{ "id": "m_2x4", "type": "lumber", "name": "2x4", "thickness": 1.5, "stockWidth": 3.5 }],
                 // A leg standing on end, its w0 end at 4" off the floor.
                 "parts": [{ "id": "p_leg", "name": "Leg", "materialId": "m_2x4", "size": { "l": 30, "w": 3.5 },

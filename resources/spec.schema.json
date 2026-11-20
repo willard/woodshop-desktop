@@ -13,7 +13,7 @@
     ],
     "properties": {
         "specVersion": {
-            "const": "1.16"
+            "const": "1.17"
         },
         "units": {
             "const": "in",
@@ -712,6 +712,36 @@
                         "low": {
                             "$ref": "#/$defs/edge",
                             "description": "The adjacent (perpendicular) edge the sweep drops toward (added in 1.5)."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "type",
+                        "edge",
+                        "kind",
+                        "height",
+                        "low"
+                    ],
+                    "properties": {
+                        "type": {
+                            "const": "curve"
+                        },
+                        "edge": {
+                            "$ref": "#/$defs/edge"
+                        },
+                        "kind": {
+                            "const": "taper"
+                        },
+                        "height": {
+                            "$ref": "#/$defs/positiveDim",
+                            "description": "Straight taper: the corner shared with `low` moves inward by this amount and the edge becomes a straight line from the opposite corner. On an end (w0/w1) it is an angled crosscut, height = width × tan(angle off square), so a splayed leg stands flat and meets the top flat; on a long edge (l0/l1) it is a tapered leg. Cut through the full thickness (added in 1.17)."
+                        },
+                        "low": {
+                            "$ref": "#/$defs/edge",
+                            "description": "The adjacent (perpendicular) edge whose corner moves in (added in 1.17)."
                         }
                     }
                 },

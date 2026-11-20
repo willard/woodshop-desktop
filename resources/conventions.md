@@ -57,7 +57,12 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
   "round"` with `radius` rounds the edge's corners; add `"corner": "w1"` (an adjacent edge) to
   round only that corner. `kind: "ramp"` with `height` and `"low": "w1"` sweeps the edge down
   one-sidedly: full size at the far corner, dropping `height` toward the `low` edge (an
-  asymmetric headboard). `corner`/`low` must be perpendicular to `edge`. Cut through the full
+  asymmetric headboard). `kind: "taper"` (1.17) takes the same `height` and `low` but cuts a
+  straight line instead of a sweep. On an end (`w0`/`w1`) that is an angled crosscut:
+  `height` = width × tan(angle off square), so a 2x6 leg splayed 30° takes `height` 3.175
+  (5.5 × tan 30°) at each end, with `low` on opposite long edges at the two ends, and then
+  stands flat on the floor and meets the top flat. On a long edge it is a tapered leg.
+  `corner`/`low` must be perpendicular to `edge`. Cut through the full
   thickness; the part's `size` stays the full rectangular blank. A curve and a
   dado/groove/rabbet DO combine on the same part — a curved side with a shelf dado in it is
   fine — but never miter a curved edge.
@@ -66,8 +71,8 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
   `{ "type": "curve", "edge": "l0", "kind": "arc", "from": 6, "to": 20, "height": 2 }`. The
   edge runs straight outside the span and dips `height` deep at the middle of it; the edge's
   corners do NOT move. Omit both for the whole-edge dome, where the corners drop instead.
-  `height` may be at most half the span (to - from). `from`/`to` are not accepted on `round`
-  or `ramp`. Two domes on opposite edges may not together consume the span between them.
+  `height` may be at most half the span (to - from). `from`/`to` are not accepted on `round`,
+  `ramp` or `taper`. Two domes on opposite edges may not together consume the span between them.
 - A scallop and a notch SHARE an edge happily as long as their runs do not overlap — that is
   how you get a swooping bottom edge with a cradle notch cut into it. Where they do overlap,
   the curve wins and the notch is not cut, which is an ERROR, not a warning: anything that

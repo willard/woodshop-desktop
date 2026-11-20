@@ -170,6 +170,22 @@ function endsOf(edge: string): { value: Edge; label: string }[] {
 }
 
 type OpForm = 'dado' | 'rabbet' | 'hole' | 'pins' | 'curve' | 'notch' | 'pocket' | 'miter' | 'ease';
+
+/**
+ * What a taper's height comes to as an angle off square, so an angled end can be cut to the
+ * degree the plan gives: a corner moved in `height` across an edge `along` long.
+ */
+function TaperAngle({ height, along }: { height: number | null; along: number }) {
+    const degrees =
+        height !== null && height > 0 && height < along ? (Math.atan(height / along) * 180) / Math.PI : null;
+    return (
+        <p className="text-muted mb-2 text-xs" data-testid="taper-angle">
+            {degrees === null
+                ? 'For an angled end, the height is the board width times the tangent of the angle: about 3 3/16 for 30° on a 5 1/2 board.'
+                : `Cuts ${Math.round(degrees * 10) / 10}° off square.`}
+        </p>
+    );
+}
 const OP_BUTTONS: { form: OpForm; label: string; does: string; icon: string }[] = [
     { form: 'dado', label: 'Dado or groove', does: 'A channel another part sits in', icon: 'dado' },
     { form: 'rabbet', label: 'Rabbet', does: 'A step along an edge, for a back or a lid', icon: 'rabbet' },
@@ -181,7 +197,12 @@ const OP_BUTTONS: { form: OpForm; label: string; does: string; icon: string }[] 
         icon: 'shelfPins',
     },
     { form: 'pocket', label: 'Pocket screws', does: 'Angled screws through an edge', icon: 'pocketHoles' },
-    { form: 'curve', label: 'Curve', does: 'An arched edge or rounded corners', icon: 'curve' },
+    {
+        form: 'curve',
+        label: 'Curve or angle',
+        does: 'An arched edge, rounded corners or an angled end',
+        icon: 'curve',
+    },
     { form: 'notch', label: 'Notch', does: 'A cut-out from an edge', icon: 'notch' },
     { form: 'miter', label: 'Miter', does: 'An angled edge for a corner joint', icon: 'miter' },
     { form: 'ease', label: 'Soft edge', does: 'Roundover, chamfer or bullnose', icon: 'ease' },
@@ -400,12 +421,13 @@ export function PartInspector(p: PartInspectorProps) {
     });
     const [easeRun, setEaseRun] = useState({ from: '', to: '' });
 
-    // Keep the curve's end picker valid when the edge or kind changes (a ramp needs a real end).
+    // Keep the curve's end picker valid when the edge or kind changes (a ramp or taper needs a
+    // real end).
     function updateCurve(patch: Partial<typeof curve>): void {
         setCurve((prev) => {
             const next = { ...prev, ...patch };
             const valid = endsOf(next.edge).some((e) => e.value === next.end);
-            if (next.kind === 'ramp' && (next.end === 'both' || !valid))
+            if ((next.kind === 'ramp' || next.kind === 'taper') && (next.end === 'both' || !valid))
                 next.end = endsOf(next.edge)[0].value;
             else if (next.end !== 'both' && !valid) next.end = 'both';
             return next;
@@ -487,8 +509,8 @@ export function PartInspector(p: PartInspectorProps) {
             case 'curve':
                 if (op.kind === 'round')
                     setCurve({ edge: op.edge, kind: 'round', size: v(op.radius), end: op.corner ?? 'both' });
-                else if (op.kind === 'ramp')
-                    setCurve({ edge: op.edge, kind: 'ramp', size: v(op.height), end: op.low });
+                else if (op.kind === 'ramp' || op.kind === 'taper')
+                    setCurve({ edge: op.edge, kind: op.kind, size: v(op.height), end: op.low });
                 else setCurve({ edge: op.edge, kind: 'arc', size: v(op.height), end: 'both' });
                 break;
             case 'notch':
@@ -615,9 +637,9 @@ export function PartInspector(p: PartInspectorProps) {
         const edge = curve.edge as Edge;
         if (curve.kind === 'arc') {
             add({ type: 'curve', edge, kind: 'arc', height: size });
-        } else if (curve.kind === 'ramp') {
+        } else if (curve.kind === 'ramp' || curve.kind === 'taper') {
             const low = curve.end === 'both' ? endsOf(edge)[0].value : (curve.end as Edge);
-            add({ type: 'curve', edge, kind: 'ramp', height: size, low });
+            add({ type: 'curve', edge, kind: curve.kind, height: size, low });
         } else {
             add({
                 type: 'curve',
@@ -1755,13 +1777,20 @@ export function PartInspector(p: PartInspectorProps) {
                                     <option value="arc">arc / dome</option>
                                     <option value="round">rounded corners</option>
                                     <option value="ramp">one-sided sweep</option>
+                                    <option value="taper">straight taper / angled end</option>
                                 </Select>
                             </Field>
                         </div>
                         {curve.kind !== 'arc' && (
                             <Field
                                 className="mb-2"
-                                label={curve.kind === 'ramp' ? 'Sweeps down toward' : 'Which corner'}
+                                label={
+                                    curve.kind === 'ramp'
+                                        ? 'Sweeps down toward'
+                                        : curve.kind === 'taper'
+                                          ? 'Corner that moves in'
+                                          : 'Which corner'
+                                }
                             >
                                 <Select
                                     value={curve.end}
@@ -1784,7 +1813,9 @@ export function PartInspector(p: PartInspectorProps) {
                                     ? `Height (${unitSuffix()}) — how far the corners drop`
                                     : curve.kind === 'ramp'
                                       ? `Height (${unitSuffix()}) — how far the low end drops`
-                                      : `Corner radius (${unitSuffix()})`
+                                      : curve.kind === 'taper'
+                                        ? `Height (${unitSuffix()}) — how far that corner moves in`
+                                        : `Corner radius (${unitSuffix()})`
                             }
                         >
                             <TextInput
@@ -1795,6 +1826,12 @@ export function PartInspector(p: PartInspectorProps) {
                                 onChange={(e) => updateCurve({ size: e.target.value })}
                             />
                         </Field>
+                        {curve.kind === 'taper' && (
+                            <TaperAngle
+                                height={parseLen(curve.size.trim())}
+                                along={curve.edge.startsWith('l') ? part.size.l : part.size.w}
+                            />
+                        )}
                         <PrimaryButton className="w-full" data-testid="curve-submit" onClick={submitCurve}>
                             {editing === null ? 'Add curve' : 'Save changes'}
                         </PrimaryButton>

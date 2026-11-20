@@ -48,7 +48,7 @@ pub const ADD_OP: ToolDef = ToolDef {
         pocketHoles {\"type\":\"pocketHoles\",\"edge\":\"w0\",\"count\":2} — edge w0/w1 for ends, l0/l1 for edges; face is drill face (default \"back\")\n  \
         screws      {\"type\":\"screws\",\"face\":\"back\",\"axis\":\"l\",\"offset\":3,\"count\":4} — face is where heads sit, pointing away from mate\n  \
         miter       {\"type\":\"miter\",\"edge\":\"w1\",\"angle\":45}\n  \
-        curve       {\"type\":\"curve\",\"edge\":\"l1\",\"kind\":\"arc\",\"height\":3} | kind \"round\" + radius (optional corner) | kind \"ramp\" + height + low\n  \
+        curve       {\"type\":\"curve\",\"edge\":\"l1\",\"kind\":\"arc\",\"height\":3} | kind \"round\" + radius (optional corner) | kind \"ramp\" + height + low | kind \"taper\" + height + low (straight: an angled end or a tapered leg)\n  \
         notch       {\"type\":\"notch\",\"edge\":\"l0\",\"from\":1.25,\"to\":4.25,\"depth\":3}\n  \
         ease        {\"type\":\"ease\",\"edge\":\"l1\",\"profile\":\"roundover\",\"radius\":0.25} | profile \"chamfer\" + width | profile \"bullnose\" — optional face, from, to\n\
         Offsets and from/to measure from the low perpendicular edge (w0 for l-edges, l0 for w-edges); \

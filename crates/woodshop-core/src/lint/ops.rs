@@ -180,17 +180,18 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                             ));
                         }
                     }
-                    Curve::Ramp { height, low, .. } => {
+                    Curve::Ramp { height, low, .. } | Curve::Taper { height, low, .. } => {
+                        let kind = curve.kind_name();
                         if *height >= span - EPS {
                             fail(format!(
-                                "ramp on \"{name}\" height {} consumes the whole {} span.",
+                                "{kind} on \"{name}\" height {} consumes the whole {} span.",
                                 len(*height),
                                 len(span)
                             ));
                         }
                         if !perpendicular(*low) {
                             fail(format!(
-                                "ramp on \"{name}\" sweeps toward \"{}\", which is parallel to edge {} — use one of its adjacent edges.",
+                                "{kind} on \"{name}\" drops toward \"{}\", which is parallel to edge {} — use one of its adjacent edges.",
                                 low.as_str(),
                                 edge.as_str()
                             ));

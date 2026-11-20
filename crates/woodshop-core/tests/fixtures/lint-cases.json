@@ -1260,6 +1260,165 @@
         ],
         "joints": []
     },
+    "taper-valid": {
+        "specVersion": "1.17",
+        "units": "in",
+        "name": "taper-valid",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "w1",
+                        "kind": "taper",
+                        "height": 3,
+                        "low": "l0"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "taper-too-tall": {
+        "specVersion": "1.17",
+        "units": "in",
+        "name": "taper-too-tall",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "w1",
+                        "kind": "taper",
+                        "height": 30,
+                        "low": "l0"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "taper-parallel-low": {
+        "specVersion": "1.17",
+        "units": "in",
+        "name": "taper-parallel-low",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "w1",
+                        "kind": "taper",
+                        "height": 3,
+                        "low": "w0"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
     "round-single-corner-valid": {
         "specVersion": "1.5",
         "units": "in",

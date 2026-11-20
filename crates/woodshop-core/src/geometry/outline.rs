@@ -1,5 +1,5 @@
 //! A part's face outline: the blank rectangle reshaped by `curve` ops (whole-edge dome, partial
-//! span scallop, corner round, one-sided ramp) and `notch` cutouts. The renderer extrudes it, the
+//! span scallop, corner round, one-sided ramp, straight taper) and `notch` cutouts. The renderer extrudes it, the
 //! SVG shop template draws it — one implementation, so a printed full-size pattern always matches
 //! the part on screen.
 //!
@@ -136,10 +136,13 @@ pub struct SpanFeature {
     pub depth: f64,
 }
 
+/// A ramp or a taper: both pull the corner shared with `low` in by `height`. A ramp joins it
+/// with a tangent arc, a taper with a straight line.
 #[derive(Clone, Copy)]
 struct Ramp {
     height: f64,
     low: Edge,
+    straight: bool,
 }
 
 /// Per-edge table indexed by walk slot.
@@ -207,12 +210,13 @@ pub fn build(l: f64, w: f64, curves: &[Curve], notches: &[Notch]) -> Outline {
                     depth,
                 });
             }
-            Curve::Ramp { height, low, .. } => {
+            Curve::Ramp { height, low, .. } | Curve::Taper { height, low, .. } => {
                 // Invalid `low` (parallel edge) renders square; the linter errors it.
                 if shared_corner(edge, *low).is_some() {
                     ramps[slot] = Some(Ramp {
                         height: height.min(span * 0.98),
                         low: *low,
+                        straight: matches!(op, Curve::Taper { .. }),
                     });
                 }
             }
@@ -419,6 +423,10 @@ fn walk_edges(
         let b = effective[to];
 
         match (domes[slot], ramps[slot]) {
+            (None, Some(ramp)) if ramp.straight => {
+                segments.push(Segment::line(a));
+                segments.push(Segment::line(b));
+            }
             (None, Some(ramp)) => {
                 // One-sided sweep, tangent to the original edge line at the high corner.
                 let [nx, ny] = edge_inward(edge);

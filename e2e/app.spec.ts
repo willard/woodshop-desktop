@@ -770,6 +770,25 @@ test('a rabbet is added from the cut menu and changed in place', async ({ page }
     await expect(rows.last()).toContainText('Rabbet 1/4" wide × 1/4" deep');
 });
 
+test('an end is cut at an angle, and the form says the angle', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('outline').getByRole('button', { name: 'Top', exact: true }).click();
+    const rows = page.getByTestId('section-cuts').getByTestId('ops-row');
+    const before = await rows.count();
+
+    await page.getByTestId('ops-add-menu').click();
+    await page.getByTestId('ops-add-curve').click();
+    await page.getByTestId('curve-kind').selectOption('taper');
+    await page.getByTestId('curve-edge').selectOption('w1');
+    await expect(page.getByTestId('taper-angle')).toContainText('the tangent of the angle');
+    // The top is 19" deep: a corner moved in 5 1/2" across it is a cut 16.1° off square.
+    await page.getByTestId('curve-size').fill('5 1/2');
+    await expect(page.getByTestId('taper-angle')).toHaveText('Cuts 16.1° off square.');
+    await page.getByTestId('curve-submit').click();
+    await expect(rows).toHaveCount(before + 1);
+    await expect(rows.last()).toContainText('The right end is cut at an angle, 5 1/2" shorter along the');
+});
+
 test('shelf-pin holes are added as one run, changed and removed', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('outline').getByRole('button', { name: 'Left Side', exact: true }).click();

@@ -122,6 +122,18 @@ pub fn op_summary(op: &Op, units: Units) -> String {
             len(*height),
             edge_name(*low)
         ),
+        Op::Curve(Curve::Taper { edge, height, low }) if edge.is_l_edge() => format!(
+            "The {} tapers {} in toward the {}",
+            edge_name(*edge),
+            len(*height),
+            edge_name(*low)
+        ),
+        Op::Curve(Curve::Taper { edge, height, low }) => format!(
+            "The {} is cut at an angle, {} shorter along the {}",
+            edge_name(*edge),
+            len(*height),
+            edge_name(*low)
+        ),
         Op::Curve(Curve::Round { edge, radius, corner }) => match corner {
             None => format!("Corners of the {} rounded, {} radius", edge_name(*edge), len(*radius)),
             Some(c) => format!(

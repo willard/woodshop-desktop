@@ -452,12 +452,18 @@ pub enum Curve {
     },
     /// One-sided tangent-arc sweep dropping toward `low`.
     Ramp { edge: Edge, height: f64, low: Edge },
+    /// A straight cut from the opposite corner to the corner shared with `low`, moved in by
+    /// `height` (1.17): an angled end on a w edge, a tapered leg on an l edge.
+    Taper { edge: Edge, height: f64, low: Edge },
 }
 
 impl Curve {
     pub fn edge(&self) -> Edge {
         match self {
-            Curve::Arc { edge, .. } | Curve::Round { edge, .. } | Curve::Ramp { edge, .. } => *edge,
+            Curve::Arc { edge, .. }
+            | Curve::Round { edge, .. }
+            | Curve::Ramp { edge, .. }
+            | Curve::Taper { edge, .. } => *edge,
         }
     }
 
@@ -466,6 +472,7 @@ impl Curve {
             Curve::Arc { .. } => "arc",
             Curve::Round { .. } => "round",
             Curve::Ramp { .. } => "ramp",
+            Curve::Taper { .. } => "taper",
         }
     }
 }

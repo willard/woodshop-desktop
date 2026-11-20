@@ -626,6 +626,19 @@ have to look up, and the editor screenshot would make someone want to try it fro
   prices above the hardware), in the CSV (price and cost columns, hardware total), in the PDF (a
   cost column; the export reads the setting) and by `get_cut_list`. The 3D plan shows no costs.
 
+- **Tapers and angled ends** (spec 1.17): `curve` kind `taper` (`height`, `low`) is a ramp with a
+  straight edge: `outline::build` moves the corner shared with `low` in by `height` and joins it
+  with a line. On a w edge that is an angled crosscut (height = w × tan angle), on an l edge a
+  tapered leg. The Inspector's curve form offers it and shows the angle (`TaperAngle`).
+  Geometry now follows the cut: `frame::face_hull` (convex hull of the outline) feeds
+  `world_aabb`, `shape_points` and `obb_penetration` (SAT over the extruded hulls), so the
+  lint, the overall size and the agent tools stop counting a cut-away corner. A notch is
+  concave, so its hull still covers it, as the blank did. The picnic table's legs were rebuilt
+  as a real A (wide faces out, 30° ends) with angled braces, and the sawhorse's legs splay 15°.
+  `templates::every_template_builds_without_parts_running_into_each_other` checks every
+  template for lint issues and for any overlap deeper than 0.03" that is not a dado, rabbet or
+  dowel; it found ten templates with collisions, now fixed.
+
 - **Real stock thickness** (`SetMaterialThickness`): the cut list's material rows edit the
   thickness (diameter for round); the command also resizes each dado or groove a `dado` joint,
   and each rabbet a `rabbet` joint, says a part of that material seats in (by `opRef`), and

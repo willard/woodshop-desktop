@@ -58,10 +58,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 2.75,
-                    "count": 2,
-                    "from": 10.25,
-                    "to": 13.75,
+                    "offset": 3.9,
+                    "count": 1,
+                    "from": 13.75,
+                    "to": 14.25,
                     "gauge": "#8",
                     "length": 2.5
                 },
@@ -69,10 +69,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 2.75,
-                    "count": 2,
-                    "from": 58.25,
-                    "to": 61.75,
+                    "offset": 3.9,
+                    "count": 1,
+                    "from": 57.75,
+                    "to": 58.25,
                     "gauge": "#8",
                     "length": 2.5
                 }
@@ -105,10 +105,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 0.078125,
-                    "count": 2,
-                    "from": 10.25,
-                    "to": 13.75,
+                    "offset": 1.45,
+                    "count": 1,
+                    "from": 13.75,
+                    "to": 14.25,
                     "gauge": "#8",
                     "length": 2.5
                 },
@@ -116,10 +116,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 0.078125,
-                    "count": 2,
-                    "from": 58.25,
-                    "to": 61.75,
+                    "offset": 1.45,
+                    "count": 1,
+                    "from": 57.75,
+                    "to": 58.25,
                     "gauge": "#8",
                     "length": 2.5
                 }
@@ -175,10 +175,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 5.421875,
-                    "count": 2,
-                    "from": 10.25,
-                    "to": 13.75,
+                    "offset": 4.05,
+                    "count": 1,
+                    "from": 13.75,
+                    "to": 14.25,
                     "gauge": "#8",
                     "length": 2.5
                 },
@@ -186,10 +186,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 5.421875,
-                    "count": 2,
-                    "from": 58.25,
-                    "to": 61.75,
+                    "offset": 4.05,
+                    "count": 1,
+                    "from": 57.75,
+                    "to": 58.25,
                     "gauge": "#8",
                     "length": 2.5
                 }
@@ -222,10 +222,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 2.75,
-                    "count": 2,
-                    "from": 10.25,
-                    "to": 13.75,
+                    "offset": 1.6,
+                    "count": 1,
+                    "from": 13.75,
+                    "to": 14.25,
                     "gauge": "#8",
                     "length": 2.5
                 },
@@ -233,10 +233,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 2.75,
-                    "count": 2,
-                    "from": 58.25,
-                    "to": 61.75,
+                    "offset": 1.6,
+                    "count": 1,
+                    "from": 57.75,
+                    "to": 58.25,
                     "gauge": "#8",
                     "length": 2.5
                 }
@@ -325,6 +325,17 @@
                     "to": 25,
                     "gauge": "#8",
                     "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.672,
+                    "gauge": "#8",
+                    "length": 2.5
                 }
             ]
         },
@@ -411,6 +422,17 @@
                     "to": 25,
                     "gauge": "#8",
                     "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 2,
+                    "from": 1,
+                    "to": 3.672,
+                    "gauge": "#8",
+                    "length": 2.5
                 }
             ]
         },
@@ -419,33 +441,37 @@
             "name": "Leg (left end, front)",
             "materialId": "m_2x6",
             "size": {
-                "l": 30.9,
+                "l": 34.9297,
                 "w": 5.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
-                    -24,
-                    13.74,
+                    -22,
+                    13.75,
                     16.71
                 ],
                 "rot": [
                     -30,
-                    0,
+                    90,
                     90
                 ]
             },
             "qty": 1,
             "ops": [
                 {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "l0",
-                    "count": 2,
-                    "from": 27.1875,
-                    "to": 29.90625,
-                    "thread": "coarse",
-                    "length": 2.5
+                    "type": "curve",
+                    "edge": "w0",
+                    "kind": "taper",
+                    "height": 3.1754,
+                    "low": "l0"
+                },
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "taper",
+                    "height": 3.1754,
+                    "low": "l1"
                 }
             ]
         },
@@ -454,56 +480,76 @@
             "name": "Leg (left end, back)",
             "materialId": "m_2x6",
             "size": {
-                "l": 30.9,
+                "l": 34.9297,
                 "w": 5.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
-                    -24,
-                    13.74,
+                    -22,
+                    13.75,
                     -16.71
                 ],
                 "rot": [
                     30,
-                    0,
-                    90
-                ]
-            },
-            "qty": 1
-        },
-        {
-            "id": "p_leg_rf",
-            "name": "Leg (right end, front)",
-            "materialId": "m_2x6",
-            "size": {
-                "l": 30.9,
-                "w": 5.5
-            },
-            "grainAxis": "l",
-            "transform": {
-                "pos": [
-                    24,
-                    13.74,
-                    16.71
-                ],
-                "rot": [
-                    -30,
-                    0,
+                    90,
                     90
                 ]
             },
             "qty": 1,
             "ops": [
                 {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "l1",
-                    "count": 2,
-                    "from": 27.1875,
-                    "to": 29.90625,
-                    "thread": "coarse",
-                    "length": 2.5
+                    "type": "curve",
+                    "edge": "w0",
+                    "kind": "taper",
+                    "height": 3.1754,
+                    "low": "l1"
+                },
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "taper",
+                    "height": 3.1754,
+                    "low": "l0"
+                }
+            ]
+        },
+        {
+            "id": "p_leg_rf",
+            "name": "Leg (right end, front)",
+            "materialId": "m_2x6",
+            "size": {
+                "l": 34.9297,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    22,
+                    13.75,
+                    16.71
+                ],
+                "rot": [
+                    -30,
+                    90,
+                    90
+                ]
+            },
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w0",
+                    "kind": "taper",
+                    "height": 3.1754,
+                    "low": "l0"
+                },
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "taper",
+                    "height": 3.1754,
+                    "low": "l1"
                 }
             ]
         },
@@ -512,23 +558,39 @@
             "name": "Leg (right end, back)",
             "materialId": "m_2x6",
             "size": {
-                "l": 30.9,
+                "l": 34.9297,
                 "w": 5.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
-                    24,
-                    13.74,
+                    22,
+                    13.75,
                     -16.71
                 ],
                 "rot": [
                     30,
-                    0,
+                    90,
                     90
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w0",
+                    "kind": "taper",
+                    "height": 3.1754,
+                    "low": "l1"
+                },
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "taper",
+                    "height": 3.1754,
+                    "low": "l0"
+                }
+            ]
         },
         {
             "id": "p_arm_l",
@@ -558,9 +620,9 @@
                     "face": "front",
                     "axis": "l",
                     "offset": 1.75,
-                    "count": 3,
-                    "from": 5.921875,
-                    "to": 20.671875,
+                    "count": 2,
+                    "from": 11,
+                    "to": 15.5,
                     "gauge": "#8",
                     "length": 2.5
                 },
@@ -569,9 +631,9 @@
                     "face": "front",
                     "axis": "l",
                     "offset": 1.75,
-                    "count": 3,
-                    "from": 39.328125,
-                    "to": 54.078125,
+                    "count": 2,
+                    "from": 44.5,
+                    "to": 49,
                     "gauge": "#8",
                     "length": 2.5
                 },
@@ -614,6 +676,17 @@
                     "to": 59,
                     "thread": "coarse",
                     "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 1,
+                    "from": 28.25,
+                    "to": 28.75,
+                    "gauge": "#8",
+                    "length": 3
                 }
             ]
         },
@@ -645,9 +718,9 @@
                     "face": "back",
                     "axis": "l",
                     "offset": 1.75,
-                    "count": 3,
-                    "from": 5.921875,
-                    "to": 20.671875,
+                    "count": 2,
+                    "from": 11,
+                    "to": 15.5,
                     "gauge": "#8",
                     "length": 2.5
                 },
@@ -656,9 +729,9 @@
                     "face": "back",
                     "axis": "l",
                     "offset": 1.75,
-                    "count": 3,
-                    "from": 39.328125,
-                    "to": 54.078125,
+                    "count": 2,
+                    "from": 44.5,
+                    "to": 49,
                     "gauge": "#8",
                     "length": 2.5
                 },
@@ -701,6 +774,17 @@
                     "to": 59,
                     "thread": "coarse",
                     "length": 2.5
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 1,
+                    "from": 31.25,
+                    "to": 31.75,
+                    "gauge": "#8",
+                    "length": 3
                 }
             ]
         },
@@ -848,26 +932,6 @@
                     "to": 2.625,
                     "thread": "coarse",
                     "length": 2.5
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "l0",
-                    "count": 3,
-                    "from": 1,
-                    "to": 14.390625,
-                    "thread": "coarse",
-                    "length": 2.5
-                },
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "l0",
-                    "count": 3,
-                    "from": 25.109375,
-                    "to": 38.5,
-                    "thread": "coarse",
-                    "length": 2.5
                 }
             ]
         },
@@ -876,46 +940,100 @@
             "name": "Diagonal Brace (left arm to stringer)",
             "materialId": "m_2x4",
             "size": {
-                "l": 18,
+                "l": 25.2392,
                 "w": 3.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
-                    -13,
-                    19.9,
-                    0
+                    -11.1063,
+                    20.8456,
+                    1.5
                 ],
                 "rot": [
                     0,
                     0,
-                    30.5
+                    39.3824
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w0",
+                    "kind": "taper",
+                    "height": 2.8731,
+                    "low": "l1"
+                },
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "taper",
+                    "height": 4.2636,
+                    "low": "l1"
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 2,
+                    "from": 18.773,
+                    "to": 21.925,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
         },
         {
             "id": "p_brace_r",
             "name": "Diagonal Brace (right arm to stringer)",
             "materialId": "m_2x4",
             "size": {
-                "l": 18,
+                "l": 25.2392,
                 "w": 3.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
-                    13,
-                    19.9,
-                    0
+                    11.1063,
+                    20.8456,
+                    -1.5
                 ],
                 "rot": [
                     0,
                     0,
-                    -30.5
+                    140.6176
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w0",
+                    "kind": "taper",
+                    "height": 2.8731,
+                    "low": "l0"
+                },
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "taper",
+                    "height": 4.2636,
+                    "low": "l0"
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 1.75,
+                    "count": 2,
+                    "from": 18.773,
+                    "to": 21.925,
+                    "gauge": "#8",
+                    "length": 2.5
+                }
+            ]
         }
     ],
     "joints": [
@@ -1054,10 +1172,10 @@
         },
         {
             "id": "j19",
-            "type": "pocketScrew",
-            "hostPartId": "p_leg_lf",
-            "insertPartId": "p_cleat_l",
-            "opRef": 0
+            "type": "screw",
+            "hostPartId": "p_cleat_l",
+            "insertPartId": "p_leg_lf",
+            "opRef": 6
         },
         {
             "id": "j20",
@@ -1075,10 +1193,10 @@
         },
         {
             "id": "j22",
-            "type": "pocketScrew",
-            "hostPartId": "p_leg_rf",
-            "insertPartId": "p_cleat_r",
-            "opRef": 0
+            "type": "screw",
+            "hostPartId": "p_cleat_r",
+            "insertPartId": "p_leg_rf",
+            "opRef": 6
         },
         {
             "id": "j23",
@@ -1180,22 +1298,36 @@
         },
         {
             "id": "j37",
-            "type": "pocketScrew",
-            "hostPartId": "p_stringer",
-            "insertPartId": "p_brace_l",
-            "opRef": 3
+            "type": "screw",
+            "hostPartId": "p_brace_l",
+            "insertPartId": "p_stringer",
+            "opRef": 2
         },
         {
             "id": "j38",
-            "type": "pocketScrew",
-            "hostPartId": "p_stringer",
+            "type": "screw",
+            "hostPartId": "p_brace_r",
+            "insertPartId": "p_stringer",
+            "opRef": 2
+        },
+        {
+            "id": "j39",
+            "type": "screw",
+            "hostPartId": "p_arm_l",
+            "insertPartId": "p_brace_l",
+            "opRef": 6
+        },
+        {
+            "id": "j40",
+            "type": "screw",
+            "hostPartId": "p_arm_r",
             "insertPartId": "p_brace_r",
-            "opRef": 4
+            "opRef": 6
         }
     ],
     "meta": {
         "difficulty": "intermediate",
-        "notes": "Classic 6ft A-frame picnic table: 72x28.5 top at 29\", benches at 17\" spanning 62\" overall. All connections are face-to-face as bolted in the real build: cleats and bench arms bolt to the leg faces, slats rest on cleats/arms, legs pass through the clear zone between the tabletop edge and the bench inner edge (never through a board). Legs are cut at 30 degrees, braces at 30.5 degrees; ends are drawn square in the model.",
+        "notes": "Classic 6ft A-frame picnic table: 72x28.5 top at 29\", benches at 17\" spanning 62\" overall. Each end is an A of two 2x6 legs splayed 30°, their wide faces outward, with both ends cut at 30° so the feet sit flat and the tops meet the tabletop flat. The cleats and bench supports bolt to the legs' faces, the slats rest on them, and two 2x4 braces run from the bench supports up beside the centre stringer, cut to sit square against the support and flat under the top.",
         "tags": [
             "outdoor",
             "picnic-table",
