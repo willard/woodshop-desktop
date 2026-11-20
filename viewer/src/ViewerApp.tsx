@@ -2,6 +2,8 @@
 import { useMemo, useRef, useState } from 'react';
 import { KeepAwake } from './KeepAwake';
 import { CutListPanel } from '@/components/CutListPanel';
+import { BuildStepBar, hiddenAtStep } from '@/components/BuildStepBar';
+import { assemblyOrder } from '@/cutlist';
 import type { ThemeName } from '@/engine/theme';
 import { ViewerCanvas, type ViewerCanvasHandle } from './ViewerCanvas';
 import { PartDetail } from './PartDetail';
@@ -13,7 +15,25 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [hiddenIds, setHiddenIds] = useState<ReadonlySet<string>>(new Set());
     const viewer = useRef<ViewerCanvasHandle>(null);
-    const selectedIds = useMemo(() => (selectedId === null ? [] : [selectedId]), [selectedId]);
+    /** Stepping through the build on a tablet: the step shown, or null for the whole piece. */
+    const [buildStep, setBuildStep] = useState<number | null>(null);
+    const steps = useMemo(() => assemblyOrder(payload.spec), [payload.spec]);
+    // While building, the parts not yet built hide and the step's new parts are outlined.
+    const shownHidden = useMemo(
+        () =>
+            buildStep === null
+                ? hiddenIds
+                : hiddenAtStep(
+                      payload.spec.parts.map((p) => p.id),
+                      steps,
+                      buildStep,
+                  ),
+        [buildStep, hiddenIds, payload.spec, steps],
+    );
+    const selectedIds = useMemo(
+        () => (buildStep !== null ? steps[buildStep].partIds : selectedId === null ? [] : [selectedId]),
+        [buildStep, steps, selectedId],
+    );
     const selectedPart =
         selectedId === null ? null : (payload.spec.parts.find((p) => p.id === selectedId) ?? null);
     const notes = orderNotes(payload.notes);
@@ -51,6 +71,17 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                         {exportedOn && <span>Exported {exportedOn} · </span>}Woodshop · view-only plan
                     </p>
                 </div>
+                {steps.length > 0 && (
+                    <button
+                        className={btn}
+                        data-print="hide"
+                        data-testid="viewer-build"
+                        title="Step through the build, one step at a time"
+                        onClick={() => setBuildStep(buildStep === null ? 0 : null)}
+                    >
+                        {buildStep === null ? 'Build' : 'Show all'}
+                    </button>
+                )}
                 <KeepAwake className={btn} />
                 <button
                     className={btn}
@@ -78,15 +109,18 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                 </button>
             </header>
             <div className="flex min-h-0 flex-1 flex-col lg:flex-row" data-print="flow">
-                <div className="flex h-[50vh] min-h-0 flex-none lg:h-auto lg:flex-1">
+                <div className="relative flex h-[50vh] min-h-0 flex-none lg:h-auto lg:flex-1">
                     <ViewerCanvas
                         ref={viewer}
                         spec={payload.spec}
                         theme={theme}
                         selectedIds={selectedIds}
-                        hiddenIds={hiddenIds}
+                        hiddenIds={shownHidden}
                         onPick={select}
                     />
+                    {buildStep !== null && (
+                        <BuildStepBar steps={steps} index={buildStep} onStep={setBuildStep} />
+                    )}
                 </div>
                 <div
                     className="border-fg/10 flex min-h-0 flex-1 flex-col border-t lg:w-[26rem] lg:flex-none lg:border-t-0 lg:border-l"
@@ -123,6 +157,7 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                                 hiddenIds={hiddenIds}
                                 onSelect={select}
                                 onToggleHidden={toggleHidden}
+                                onBuildStep={setBuildStep}
                             />
                         </div>
                         <div className={tab === 'part' ? 'block' : 'hidden'} data-print="always">

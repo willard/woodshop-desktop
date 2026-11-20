@@ -101,6 +101,16 @@ test('an exported plan opens from a file and works offline', async ({ page }, in
     await page.getByTestId('explode').fill('1');
     await page.getByTestId('viewer-fit').click();
 
+    // Step through the build, as on a tablet in the shop.
+    await page.getByTestId('viewer-build').click();
+    const bar = page.getByTestId('build-step-bar');
+    await expect(bar.getByTestId('build-step-count')).toHaveText(/^Step 1 of \d+$/);
+    await expect(page.getByTestId('build-step-prev')).toBeDisabled();
+    await page.getByTestId('build-step-next').click();
+    await expect(bar.getByTestId('build-step-count')).toHaveText(/^Step 2 of /);
+    await page.getByTestId('build-step-done').click();
+    await expect(bar).toHaveCount(0);
+
     expect(problems).toEqual([]);
 });
 

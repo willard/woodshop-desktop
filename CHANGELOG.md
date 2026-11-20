@@ -19,6 +19,9 @@ All notable changes to Woodshop are listed here. The format follows
   agents can draw them with `render_drawing`.
 - The PDF plan's assembly steps each have a picture of the piece once the step is done, with
   the parts it adds in orange, and the design's build notes now print near the top.
+- Step through the build in 3D: Show beside a step in the cut list's Assembly order shows the
+  piece as it stands after that step, its new parts outlined, with Previous and Next. The exported
+  3D plan has the same under Build, with buttons sized for a tablet.
 - STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
   a 3D printer's slicer, or as OBJ for modelling software.
 

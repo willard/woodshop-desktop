@@ -141,6 +141,8 @@ import { useToast } from './Toast';
 import { getUnits, len, useUnits } from '@/lib/display';
 import { plural } from '@/app/format';
 import { DrawingOverlay, type DrawingView } from './DrawingOverlay';
+import { BuildStepBar, hiddenAtStep } from './BuildStepBar';
+import { assemblyOrder } from '@/cutlist';
 
 export interface EditorWorkspaceHandle {
     snapshot(maxSize?: number, type?: 'image/png' | 'image/jpeg'): Promise<Blob | null>;
@@ -219,6 +221,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const [faceSnap, setFaceSnap] = useState(true);
         /** The Drawing view over the 3D one, and which side it shows; null is the 3D view. */
         const [drawing, setDrawing] = useState<DrawingView | null>(null);
+        /** Stepping through the build: the step shown, or null for the whole piece. */
+        const [buildStep, setBuildStep] = useState<number | null>(null);
         const [snapGap, setSnapGap] = useState(0);
         const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
         const [hardwareDrag, setHardwareDrag] = useState<HardwareDragInfo | null>(null);
@@ -423,7 +427,41 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         // --- Visibility (a viewing aid: hidden parts are still cut and still built) ---
         const syncHidden = () => setHiddenIds(engineRef.current?.getHidden() ?? new Set());
 
+        // --- Stepping through the build: the engine hides what is not built yet. The user's own
+        // hidden parts stay in `hiddenIds` and come back when the build view ends. ---
+        const buildSteps = useMemo(() => assemblyOrder(spec), [spec]);
+        const shownStep = buildStep === null ? null : Math.min(buildStep, buildSteps.length - 1);
+        const buildActive = shownStep !== null && shownStep >= 0;
+        const userHidden = useRef(hiddenIds);
+        userHidden.current = hiddenIds;
+        useEffect(() => {
+            const engine = engineRef.current;
+            if (engine === null || !buildActive) return;
+            engine.setHidden(
+                hiddenAtStep(
+                    spec.parts.map((p) => p.id),
+                    buildSteps,
+                    shownStep,
+                ),
+            );
+            engine.setHighlight(buildSteps[shownStep].partIds);
+            return () => {
+                engine.setHidden(userHidden.current);
+                engine.setHighlight([]);
+            };
+        }, [buildActive, shownStep, buildSteps, spec]);
+
+        /** Ends the build view first, so hiding and revealing work on the user's own set. */
+        function leaveBuild(): void {
+            const engine = engineRef.current;
+            if (buildStep === null || engine === null) return;
+            setBuildStep(null);
+            engine.setHidden(hiddenIds);
+            engine.setHighlight([]);
+        }
+
         function hideSelection(): void {
+            leaveBuild();
             const ids = cohortsOf(doc.spec, doc.selectedIds);
             if (ids.length === 0) return;
             engineRef.current?.hide(ids);
@@ -432,6 +470,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         }
 
         function isolateSelection(): void {
+            leaveBuild();
             const ids = cohortsOf(doc.spec, doc.selectedIds);
             if (ids.length === 0) return;
             engineRef.current?.isolate(ids);
@@ -439,12 +478,14 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         }
 
         function showAllParts(): void {
+            leaveBuild();
             engineRef.current?.showAll();
             syncHidden();
         }
 
         /** Bring a hidden part (and its cohort) back before selecting it by id. */
         function reveal(partId: string): void {
+            leaveBuild();
             const engine = engineRef.current;
             if (engine === null || !engine.getHidden().has(partId)) return;
             const next = engine.getHidden();
@@ -464,6 +505,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         }
 
         function toggleHidden(partId: string): void {
+            leaveBuild();
             const engine = engineRef.current;
             if (engine === null) return;
             const cohort = cohortOf(doc.spec, partId);
@@ -1972,6 +2014,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 )}
                             </div>
 
+                            {buildActive && (
+                                <BuildStepBar steps={buildSteps} index={shownStep} onStep={setBuildStep} />
+                            )}
+
                             {drawing !== null && spec.parts.length > 0 && (
                                 <DrawingOverlay
                                     spec={spec}
@@ -2203,6 +2249,10 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 onDeleteMaterial={(id) => doc.execute(new DeleteMaterial(id))}
                                 onSelect={revealAndPick}
                                 onToggleHidden={toggleHidden}
+                                onBuildStep={(i) => {
+                                    setDrawing(null);
+                                    setBuildStep(i);
+                                }}
                                 actions={
                                     props.cutListActions
                                         ? (cl) => props.cutListActions!(cl, props.kerf)

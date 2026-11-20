@@ -42,6 +42,8 @@ export interface CutListPanelProps {
     onDeleteMaterial?: (materialId: string) => void;
     onSelect?: (partId: string, additive: boolean) => void;
     onToggleHidden?: (partId: string) => void;
+    /** Show the piece as it stands after a step (the 3D view steps through the build). */
+    onBuildStep?: (index: number) => void;
     /** Header actions (Export PDF / Export 3D …), supplied by the editor. */
     actions?: (cutList: CutList) => React.ReactNode;
     /** Where the parts ticked off as cut are remembered (the project id); no ticks without it. */
@@ -654,8 +656,20 @@ export function CutListPanel(props: CutListPanelProps) {
                         <ol className="bg-surface-2 space-y-2 rounded-lg px-3 py-2">
                             {steps.map((step, i) => (
                                 <li key={i} data-testid="assembly-step">
-                                    <div className="font-medium">
-                                        {i + 1}. {step.heading}
+                                    <div className="flex items-start gap-2 font-medium">
+                                        <span className="flex-1">
+                                            {i + 1}. {step.heading}
+                                        </span>
+                                        {props.onBuildStep && (
+                                            <button
+                                                className="text-accent hover:bg-fg/[0.07] -my-0.5 flex-none rounded-md px-1.5 py-0.5 text-xs font-medium"
+                                                data-testid="assembly-step-show"
+                                                title="Show the piece as it stands after this step"
+                                                onClick={() => props.onBuildStep?.(i)}
+                                            >
+                                                Show
+                                            </button>
+                                        )}
                                     </div>
                                     {step.lines.map((line, j) => (
                                         <div key={j} className="text-fg/70 pl-4">

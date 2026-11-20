@@ -833,6 +833,26 @@ test('the assembly video renders as an MP4 to post', async ({ page }) => {
     expect(file.size).toBeGreaterThan(100_000);
 });
 
+test('the 3D view steps through the build, one step at a time', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-assembly-toggle').click();
+    const steps = page.getByTestId('assembly-step');
+    const second = (await steps.nth(1).innerText())
+        .split('\n')[0]
+        .replace(/^2\. /, '')
+        .replace(/Show$/, '')
+        .trim();
+    await steps.nth(1).getByTestId('assembly-step-show').click();
+    const bar = page.getByTestId('build-step-bar');
+    await expect(bar.getByTestId('build-step-count')).toHaveText(`Step 2 of ${await steps.count()}`);
+    await expect(bar.getByTestId('build-step-heading')).toHaveText(second);
+    await page.getByTestId('build-step-prev').click();
+    await expect(bar.getByTestId('build-step-count')).toHaveText(/^Step 1 of /);
+    await page.getByTestId('build-step-done').click();
+    await expect(bar).toHaveCount(0);
+});
+
 test('the PDF plan gets a picture of each assembly step', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('cutlist-toggle').click();
