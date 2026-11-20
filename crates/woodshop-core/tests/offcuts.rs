@@ -86,11 +86,17 @@ fn a_board_offcut_saves_the_wood_cut_from_it() {
     let (b, a) = (&before.lumber[0], &after.lumber[0]);
     assert_eq!(a.offcuts.len(), 1);
     let from_offcut: Vec<_> = a.cuts.iter().filter(|c| c.stick >= a.stick_count).collect();
-    assert_eq!(from_offcut.len(), 1, "one 26\" leg fits a 27\" offcut");
-    assert!((from_offcut[0].length - 26.0).abs() < 1e-9);
-    // The leg's board feet (26 × 1.5 × 1.5 / 144) at $8 come off the cost.
-    let leg = 26.0 * 1.5 * 1.5 / 144.0 * 8.0;
-    assert!((b.cost.unwrap() - a.cost.unwrap() - leg).abs() < 1e-9);
+    // Two 25 1/4" legs, side by side across the board's width, fit a 27" offcut.
+    let lengths: Vec<f64> = from_offcut.iter().map(|c| c.length).collect();
+    assert_eq!(lengths, [25.25, 25.25]);
+    // Their board feet (2 × 25.25 × 1.5 × 1.5 / 144) at $8 come off the cost.
+    let saved = 2.0 * 25.25 * 1.5 * 1.5 / 144.0 * 8.0;
+    assert!(
+        (b.cost.unwrap() - a.cost.unwrap() - saved).abs() < 1e-9,
+        "{} {}",
+        b.cost.unwrap(),
+        a.cost.unwrap()
+    );
 }
 
 #[test]

@@ -22,7 +22,7 @@ test('a first run offers the sample and walks through the tour', async ({ page }
     await welcome.getByTestId('open-sample').click();
 
     await expect(page).toHaveURL(/#\/projects\/\d+$/);
-    await expect(page.getByTestId('parts-count')).toHaveText('20 parts');
+    await expect(page.getByTestId('parts-count')).toHaveText('17 parts');
     const tour = page.getByTestId('tour');
     await expect(page.getByTestId('tour-progress')).toHaveText('Step 1 of 5');
     for (const title of ['Select a part', 'Move it', 'The cut list']) {
@@ -51,7 +51,7 @@ test('a first run offers the sample and walks through the tour', async ({ page }
 
     // Opening a project normally never starts the tour.
     await page.getByTestId('project-row').getByTestId('open-project').click();
-    await expect(page.getByTestId('parts-count')).toHaveText('20 parts');
+    await expect(page.getByTestId('parts-count')).toHaveText('17 parts');
     await expect(page.getByTestId('tour')).toHaveCount(0);
 });
 

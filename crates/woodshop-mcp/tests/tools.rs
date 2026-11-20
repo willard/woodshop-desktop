@@ -730,7 +730,7 @@ fn a_mirrored_left_side_stands_where_the_right_side_was() {
     let mirrored = ok(
         &w,
         "mirror_parts",
-        json!({ "project_id": id, "part_ids": ["p_side_l"], "direction": "left_right" }),
+        json!({ "project_id": id, "part_ids": ["p_side_l"], "direction": "left_right", "plane": 0 }),
     );
     let summary = mirrored["summary"].as_str().unwrap();
     assert!(

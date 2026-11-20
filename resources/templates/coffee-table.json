@@ -196,7 +196,7 @@
             "name": "Lower Shelf",
             "materialId": "mat_sheet",
             "size": {
-                "l": 40,
+                "l": 38.5,
                 "w": 18
             },
             "grainAxis": "l",

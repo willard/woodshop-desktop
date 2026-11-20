@@ -119,19 +119,7 @@
                     90
                 ]
             },
-            "qty": 1,
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "l0",
-                    "count": 2,
-                    "from": 29.125,
-                    "to": 30.875,
-                    "thread": "coarse",
-                    "length": 2.5
-                }
-            ]
+            "qty": 1
         },
         {
             "id": "p_leg_fr",
@@ -154,19 +142,7 @@
                     90
                 ]
             },
-            "qty": 1,
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "back",
-                    "edge": "l1",
-                    "count": 2,
-                    "from": 29.125,
-                    "to": 30.875,
-                    "thread": "coarse",
-                    "length": 2.5
-                }
-            ]
+            "qty": 1
         },
         {
             "id": "p_leg_bl",
@@ -189,19 +165,7 @@
                     90
                 ]
             },
-            "qty": 1,
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "front",
-                    "edge": "l0",
-                    "count": 2,
-                    "from": 29.125,
-                    "to": 30.875,
-                    "thread": "coarse",
-                    "length": 2.5
-                }
-            ]
+            "qty": 1
         },
         {
             "id": "p_leg_br",
@@ -224,26 +188,14 @@
                     90
                 ]
             },
-            "qty": 1,
-            "ops": [
-                {
-                    "type": "pocketHoles",
-                    "face": "front",
-                    "edge": "l1",
-                    "count": 2,
-                    "from": 29.125,
-                    "to": 30.875,
-                    "thread": "coarse",
-                    "length": 2.5
-                }
-            ]
+            "qty": 1
         },
         {
             "id": "p_apron_front",
             "name": "Front Apron",
             "materialId": "mat_2x4",
             "size": {
-                "l": 54,
+                "l": 50.5,
                 "w": 3.5
             },
             "grainAxis": "l",
@@ -259,14 +211,36 @@
                     0
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
         },
         {
             "id": "p_apron_back",
             "name": "Back Apron",
             "materialId": "mat_2x4",
             "size": {
-                "l": 54,
+                "l": 50.5,
                 "w": 3.5
             },
             "grainAxis": "l",
@@ -282,7 +256,29 @@
                     0
                 ]
             },
-            "qty": 1
+            "qty": 1,
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 2,
+                    "from": 0.875,
+                    "to": 2.625,
+                    "thread": "coarse",
+                    "length": 2.5
+                }
+            ]
         },
         {
             "id": "p_stretcher_l",
@@ -407,8 +403,8 @@
         {
             "id": "j4",
             "type": "pocketScrew",
-            "hostPartId": "p_leg_fl",
-            "insertPartId": "p_apron_front",
+            "hostPartId": "p_apron_front",
+            "insertPartId": "p_leg_fl",
             "opRef": 0
         },
         {
@@ -421,9 +417,9 @@
         {
             "id": "j6",
             "type": "pocketScrew",
-            "hostPartId": "p_leg_fr",
-            "insertPartId": "p_apron_front",
-            "opRef": 0
+            "hostPartId": "p_apron_front",
+            "insertPartId": "p_leg_fr",
+            "opRef": 1
         },
         {
             "id": "j7",
@@ -435,8 +431,8 @@
         {
             "id": "j8",
             "type": "pocketScrew",
-            "hostPartId": "p_leg_bl",
-            "insertPartId": "p_apron_back",
+            "hostPartId": "p_apron_back",
+            "insertPartId": "p_leg_bl",
             "opRef": 0
         },
         {
@@ -449,9 +445,9 @@
         {
             "id": "j10",
             "type": "pocketScrew",
-            "hostPartId": "p_leg_br",
-            "insertPartId": "p_apron_back",
-            "opRef": 0
+            "hostPartId": "p_apron_back",
+            "insertPartId": "p_leg_br",
+            "opRef": 1
         },
         {
             "id": "j11",

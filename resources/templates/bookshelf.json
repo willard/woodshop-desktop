@@ -187,6 +187,17 @@
                     "to": 10.25,
                     "thread": "coarse",
                     "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 0.375,
+                    "count": 5,
+                    "from": 1,
+                    "to": 29.5,
+                    "gauge": "#8",
+                    "length": 1.25
                 }
             ]
         },
@@ -196,14 +207,14 @@
             "materialId": "mat_ply34",
             "size": {
                 "l": 30.5,
-                "w": 10.75
+                "w": 10.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
                     0,
                     18,
-                    0.25
+                    0.375
                 ],
                 "rot": [
                     90,
@@ -219,7 +230,7 @@
                     "edge": "w0",
                     "count": 2,
                     "from": 1,
-                    "to": 9.75,
+                    "to": 9.5,
                     "thread": "coarse",
                     "length": 1.25
                 },
@@ -229,7 +240,7 @@
                     "edge": "w1",
                     "count": 2,
                     "from": 1,
-                    "to": 9.75,
+                    "to": 9.5,
                     "thread": "coarse",
                     "length": 1.25
                 }
@@ -241,14 +252,14 @@
             "materialId": "mat_ply34",
             "size": {
                 "l": 30.5,
-                "w": 10.75
+                "w": 10.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
                     0,
                     36,
-                    0.25
+                    0.375
                 ],
                 "rot": [
                     90,
@@ -264,7 +275,7 @@
                     "edge": "w0",
                     "count": 2,
                     "from": 1,
-                    "to": 9.75,
+                    "to": 9.5,
                     "thread": "coarse",
                     "length": 1.25
                 },
@@ -274,7 +285,7 @@
                     "edge": "w1",
                     "count": 2,
                     "from": 1,
-                    "to": 9.75,
+                    "to": 9.5,
                     "thread": "coarse",
                     "length": 1.25
                 }
@@ -286,14 +297,14 @@
             "materialId": "mat_ply34",
             "size": {
                 "l": 30.5,
-                "w": 10.75
+                "w": 10.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
                     0,
                     54,
-                    0.25
+                    0.375
                 ],
                 "rot": [
                     90,
@@ -309,7 +320,7 @@
                     "edge": "w0",
                     "count": 2,
                     "from": 1,
-                    "to": 9.75,
+                    "to": 9.5,
                     "thread": "coarse",
                     "length": 1.25
                 },
@@ -319,7 +330,7 @@
                     "edge": "w1",
                     "count": 2,
                     "from": 1,
-                    "to": 9.75,
+                    "to": 9.5,
                     "thread": "coarse",
                     "length": 1.25
                 }
@@ -330,8 +341,8 @@
             "name": "Back Panel",
             "materialId": "mat_ply34",
             "size": {
-                "l": 32,
-                "w": 72
+                "l": 30.5,
+                "w": 70.5
             },
             "grainAxis": "w",
             "transform": {
@@ -352,10 +363,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 0.375,
+                    "offset": 17.25,
                     "count": 5,
-                    "from": 1.75,
-                    "to": 30.25,
+                    "from": 1,
+                    "to": 29.5,
                     "gauge": "#8",
                     "length": 1.25
                 },
@@ -363,10 +374,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 18,
+                    "offset": 35.25,
                     "count": 5,
-                    "from": 1.75,
-                    "to": 30.25,
+                    "from": 1,
+                    "to": 29.5,
                     "gauge": "#8",
                     "length": 1.25
                 },
@@ -374,21 +385,10 @@
                     "type": "screws",
                     "face": "back",
                     "axis": "l",
-                    "offset": 36,
+                    "offset": 53.25,
                     "count": 5,
-                    "from": 1.75,
-                    "to": 30.25,
-                    "gauge": "#8",
-                    "length": 1.25
-                },
-                {
-                    "type": "screws",
-                    "face": "back",
-                    "axis": "l",
-                    "offset": 54,
-                    "count": 5,
-                    "from": 1.75,
-                    "to": 30.25,
+                    "from": 1,
+                    "to": 29.5,
                     "gauge": "#8",
                     "length": 1.25
                 }
@@ -490,30 +490,30 @@
         {
             "id": "j13",
             "type": "screw",
-            "hostPartId": "p_back",
-            "insertPartId": "p_bottom",
-            "opRef": 0
+            "hostPartId": "p_bottom",
+            "insertPartId": "p_back",
+            "opRef": 2
         },
         {
             "id": "j14",
             "type": "screw",
             "hostPartId": "p_back",
             "insertPartId": "p_shelf_1",
-            "opRef": 1
+            "opRef": 0
         },
         {
             "id": "j15",
             "type": "screw",
             "hostPartId": "p_back",
             "insertPartId": "p_shelf_2",
-            "opRef": 2
+            "opRef": 1
         },
         {
             "id": "j16",
             "type": "screw",
             "hostPartId": "p_back",
             "insertPartId": "p_shelf_3",
-            "opRef": 3
+            "opRef": 2
         }
     ],
     "meta": {

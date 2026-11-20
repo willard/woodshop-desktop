@@ -22,6 +22,16 @@ All notable changes to Woodshop are listed here. The format follows
 - Fractions show 32nds and 64ths when a length is exactly one (23/32", 15/32", 1 7/64"), as sheet
   goods are sold; everything else still reads to the nearest 16th.
 
+### Fixed
+
+- Several templates had parts running into each other, which no saw can make: the bookshelf's
+  and record stand's backs overlapped the case, aprons and rails ran through the legs of the
+  workbench and mobile workbench, lower shelves ran through the coffee and side table legs, the
+  tool tote's sides ran into its ends, a drawer box hit the workbench's back rail (and was screwed
+  to it, so it could not open), and the nightstand's legs ran through its top and its aprons
+  through its side and back panels. Each now fits together as built; the nightstand has panels in
+  place of side and back aprons and a front rail above the drawer.
+
 ## [0.1.1] — 2026-11-19
 
 ### Added

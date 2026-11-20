@@ -42,13 +42,13 @@
       "id": "p_leg_fl",
       "name": "Front Left Leg",
       "size": {
-        "l": 26,
+        "l": 25.25,
         "w": 1.5
       },
       "transform": {
         "pos": [
           -11.25,
-          13,
+          12.625,
           7.25
         ],
         "rot": [
@@ -63,13 +63,13 @@
       "id": "p_leg_fr",
       "name": "Front Right Leg",
       "size": {
-        "l": 26,
+        "l": 25.25,
         "w": 1.5
       },
       "transform": {
         "pos": [
           11.25,
-          13,
+          12.625,
           7.25
         ],
         "rot": [
@@ -84,13 +84,13 @@
       "id": "p_leg_bl",
       "name": "Back Left Leg",
       "size": {
-        "l": 26,
+        "l": 25.25,
         "w": 1.5
       },
       "transform": {
         "pos": [
           -11.25,
-          13,
+          12.625,
           -7.25
         ],
         "rot": [
@@ -105,13 +105,13 @@
       "id": "p_leg_br",
       "name": "Back Right Leg",
       "size": {
-        "l": 26,
+        "l": 25.25,
         "w": 1.5
       },
       "transform": {
         "pos": [
           11.25,
-          13,
+          12.625,
           -7.25
         ],
         "rot": [
@@ -124,83 +124,20 @@
     },
     {
       "id": "p_apron_front",
-      "name": "Front Apron",
+      "name": "Front Rail",
       "size": {
-        "l": 20.5,
-        "w": 3.5
+        "l": 21,
+        "w": 1.5
       },
       "transform": {
         "pos": [
           0,
-          22.25,
-          7.375
+          24.5,
+          7.25
         ],
         "rot": [
           0,
           0,
-          0
-        ]
-      },
-      "materialId": "lumber_birch"
-    },
-    {
-      "id": "p_apron_back",
-      "name": "Back Apron",
-      "size": {
-        "l": 20.5,
-        "w": 3.5
-      },
-      "transform": {
-        "pos": [
-          0,
-          22.25,
-          -7.375
-        ],
-        "rot": [
-          0,
-          0,
-          0
-        ]
-      },
-      "materialId": "lumber_birch"
-    },
-    {
-      "id": "p_apron_left",
-      "name": "Left Apron",
-      "size": {
-        "l": 12.5,
-        "w": 3.5
-      },
-      "transform": {
-        "pos": [
-          -11.25,
-          22.25,
-          0
-        ],
-        "rot": [
-          0,
-          90,
-          0
-        ]
-      },
-      "materialId": "lumber_birch"
-    },
-    {
-      "id": "p_apron_right",
-      "name": "Right Apron",
-      "size": {
-        "l": 12.5,
-        "w": 3.5
-      },
-      "transform": {
-        "pos": [
-          11.25,
-          22.25,
-          0
-        ],
-        "rot": [
-          0,
-          90,
           0
         ]
       },
@@ -284,7 +221,7 @@
       "transform": {
         "pos": [
           0,
-          25.375,
+          25.625,
           0
         ],
         "rot": [
@@ -401,12 +338,12 @@
       "name": "Left Side Panel",
       "size": {
         "l": 13,
-        "w": 20.75
+        "w": 22.25
       },
       "transform": {
         "pos": [
           -11.25,
-          13.375,
+          14.125,
           0
         ],
         "rot": [
@@ -423,7 +360,7 @@
           "edge": "w0",
           "count": 4,
           "from": 1,
-          "to": 19.75,
+          "to": 21.25,
           "thread": "fine",
           "length": 1.25
         },
@@ -433,7 +370,7 @@
           "edge": "w1",
           "count": 4,
           "from": 1,
-          "to": 19.75,
+          "to": 21.25,
           "thread": "fine",
           "length": 1.25
         }
@@ -444,12 +381,12 @@
       "name": "Right Side Panel",
       "size": {
         "l": 13,
-        "w": 20.75
+        "w": 22.25
       },
       "transform": {
         "pos": [
           11.25,
-          13.375,
+          14.125,
           0
         ],
         "rot": [
@@ -466,7 +403,7 @@
           "edge": "w0",
           "count": 4,
           "from": 1,
-          "to": 19.75,
+          "to": 21.25,
           "thread": "fine",
           "length": 1.25
         },
@@ -476,7 +413,7 @@
           "edge": "w1",
           "count": 4,
           "from": 1,
-          "to": 19.75,
+          "to": 21.25,
           "thread": "fine",
           "length": 1.25
         }
@@ -487,12 +424,12 @@
       "name": "Back Panel",
       "size": {
         "l": 21,
-        "w": 20.75
+        "w": 22.25
       },
       "transform": {
         "pos": [
           0,
-          13.375,
+          14.125,
           -7.625
         ],
         "rot": [
@@ -509,7 +446,7 @@
           "edge": "w0",
           "count": 4,
           "from": 1,
-          "to": 19.75,
+          "to": 21.25,
           "thread": "fine",
           "length": 1.25
         },
@@ -519,7 +456,7 @@
           "edge": "w1",
           "count": 4,
           "from": 1,
-          "to": 19.75,
+          "to": 21.25,
           "thread": "fine",
           "length": 1.25
         }
@@ -529,14 +466,14 @@
       "id": "p_drawer_front",
       "name": "Drawer Front",
       "size": {
-        "l": 21.5,
+        "l": 20.875,
         "w": 6.5
       },
       "transform": {
         "pos": [
           0,
-          19.75,
-          7.375
+          20.4375,
+          7.25
         ],
         "rot": [
           0,
@@ -556,8 +493,8 @@
       "transform": {
         "pos": [
           0,
-          16.75,
-          1
+          17.4375,
+          0.875
         ],
         "rot": [
           90,
@@ -577,8 +514,8 @@
       "transform": {
         "pos": [
           -9.75,
-          20,
-          1
+          20.6875,
+          0.875
         ],
         "rot": [
           0,
@@ -621,8 +558,8 @@
       "transform": {
         "pos": [
           9.75,
-          20,
-          1
+          20.6875,
+          0.875
         ],
         "rot": [
           0,
@@ -665,8 +602,8 @@
       "transform": {
         "pos": [
           0,
-          20,
-          -5
+          20.6875,
+          -5.125
         ],
         "rot": [
           0,
@@ -721,42 +658,6 @@
       "type": "pocketScrew",
       "hostPartId": "p_apron_front",
       "insertPartId": "p_leg_fr"
-    },
-    {
-      "id": "j2",
-      "type": "pocketScrew",
-      "hostPartId": "p_apron_back",
-      "insertPartId": "p_leg_bl"
-    },
-    {
-      "id": "j3",
-      "type": "pocketScrew",
-      "hostPartId": "p_apron_back",
-      "insertPartId": "p_leg_br"
-    },
-    {
-      "id": "j4",
-      "type": "pocketScrew",
-      "hostPartId": "p_apron_left",
-      "insertPartId": "p_leg_fl"
-    },
-    {
-      "id": "j5",
-      "type": "pocketScrew",
-      "hostPartId": "p_apron_left",
-      "insertPartId": "p_leg_bl"
-    },
-    {
-      "id": "j6",
-      "type": "pocketScrew",
-      "hostPartId": "p_apron_right",
-      "insertPartId": "p_leg_fr"
-    },
-    {
-      "id": "j7",
-      "type": "pocketScrew",
-      "hostPartId": "p_apron_right",
-      "insertPartId": "p_leg_br"
     },
     {
       "id": "j8",

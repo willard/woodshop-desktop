@@ -968,7 +968,7 @@
       "name": "Lower Drawer Side L",
       "materialId": "ply_birch_half",
       "size": {
-        "l": 22,
+        "l": 21.5,
         "w": 3.5
       },
       "grainAxis": "l",
@@ -976,7 +976,7 @@
         "pos": [
           -10.5,
           25,
-          0.25
+          0.5
         ],
         "rot": [
           0,
@@ -999,7 +999,7 @@
       "name": "Lower Drawer Side R",
       "materialId": "ply_birch_half",
       "size": {
-        "l": 22,
+        "l": 21.5,
         "w": 3.5
       },
       "grainAxis": "l",
@@ -1007,7 +1007,7 @@
         "pos": [
           10.5,
           25,
-          0.25
+          0.5
         ],
         "rot": [
           0,
@@ -1038,7 +1038,7 @@
         "pos": [
           0,
           25,
-          -10.5
+          -10.0
         ],
         "rot": [
           0,
@@ -1068,14 +1068,14 @@
       "materialId": "ply_birch_half",
       "size": {
         "l": 21.5,
-        "w": 22
+        "w": 21.5
       },
       "grainAxis": "l",
       "transform": {
         "pos": [
           0,
           23,
-          0.25
+          0.5
         ],
         "rot": [
           90,
@@ -1129,7 +1129,7 @@
       "name": "Upper Drawer Side L",
       "materialId": "ply_birch_half",
       "size": {
-        "l": 22,
+        "l": 21.5,
         "w": 3.5
       },
       "grainAxis": "l",
@@ -1137,7 +1137,7 @@
         "pos": [
           -10.5,
           30.25,
-          0.25
+          0.5
         ],
         "rot": [
           0,
@@ -1160,7 +1160,7 @@
       "name": "Upper Drawer Side R",
       "materialId": "ply_birch_half",
       "size": {
-        "l": 22,
+        "l": 21.5,
         "w": 3.5
       },
       "grainAxis": "l",
@@ -1168,7 +1168,7 @@
         "pos": [
           10.5,
           30.25,
-          0.25
+          0.5
         ],
         "rot": [
           0,
@@ -1199,7 +1199,7 @@
         "pos": [
           0,
           30.25,
-          -10.5
+          -10.0
         ],
         "rot": [
           0,
@@ -1229,14 +1229,14 @@
       "materialId": "ply_birch_half",
       "size": {
         "l": 21.5,
-        "w": 22
+        "w": 21.5
       },
       "grainAxis": "l",
       "transform": {
         "pos": [
           0,
           28.25,
-          0.25
+          0.5
         ],
         "rot": [
           90,
@@ -1627,20 +1627,6 @@
       "insertPartId": "p_case_r",
       "opRef": 1,
       "id": "j51"
-    },
-    {
-      "type": "pocketScrew",
-      "hostPartId": "p_upper_drawer_back",
-      "insertPartId": "p_rail_back",
-      "opRef": 0,
-      "id": "j52"
-    },
-    {
-      "type": "pocketScrew",
-      "hostPartId": "p_upper_drawer_back",
-      "insertPartId": "p_rail_back",
-      "opRef": 1,
-      "id": "j53"
     }
   ],
   "movables": [
