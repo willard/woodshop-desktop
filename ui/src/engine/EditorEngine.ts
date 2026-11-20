@@ -12,6 +12,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { Spec, Part, Material, Op, HardwareMount } from '../spec/types';
 import { derivedHoleOps } from '../spec/movables';
 import { buildSpecGroup } from './buildScene';
+import { place, type PlacedSize, type SizeCandidate, type SizeGroup } from './sizeLabels';
 import { woodMaterialProvider, createGrainTexture, shadeGrain, type MaterialProvider } from './materials';
 import { computeSnap, clampAnchorToWorkspace, aabbFromPart, type AABB, type Vec3 } from './snapping';
 import { DEFAULT_SNAP_CONFIG, WORKSPACE_POS_BOUND, type SnapConfig } from './config';
@@ -259,6 +260,9 @@ export class EditorEngine {
     private liveDimensions: { dim: Dimension; prefix: string; kind: MeasureLabel['kind'] }[] = [];
     /** Emits ruler label placements (canvas px) whenever the drawn dimensions or camera change. */
     measureUpdateHandler: ((labels: MeasureLabel[]) => void) | null = null;
+    /** Sizes on the model: where each size label goes on screen, after every render. */
+    sizeLabelHandler: ((labels: PlacedSize[]) => void) | null = null;
+    private sizeGroupList: SizeGroup[] | null = null;
 
     // Interaction mode (build-plan §4.3). View: orbit/tap-select, no dragging. Edit: one
     // finger drags a part, two fingers orbit. Default edit so desktop mouse drag is unchanged.
@@ -1292,6 +1296,35 @@ export class EditorEngine {
     }
 
     /** Projects each live dimension's midpoint to canvas pixels and emits the label set. */
+    /** Shows each part's cut size on the model (`null` hides them). See `sizeLabels.ts`. */
+    setSizeLabels(groups: SizeGroup[] | null): void {
+        this.sizeGroupList = groups;
+        if (groups === null) this.sizeLabelHandler?.([]);
+        this.requestRender();
+    }
+
+    private emitSizeLabels(): void {
+        const groups = this.sizeGroupList;
+        if (groups === null || this.sizeLabelHandler === null || this.partsGroup === null) return;
+        const candidates: SizeCandidate[] = [];
+        const world = new THREE.Vector3();
+        for (const group of groups) {
+            let best: SizeCandidate | null = null;
+            for (const anchor of group.anchors) {
+                const mesh = this.partsGroup.getObjectByName(anchor.partId);
+                // A hidden part has no label; an exploded or opened one is labelled where it is.
+                if (mesh === undefined || !mesh.visible) continue;
+                mesh.getWorldPosition(world);
+                const screen = this.worldToScreen([world.x, world.y, world.z]);
+                if (screen === null) continue;
+                const depth = world.distanceTo(this.camera.position);
+                if (best === null || depth < best.depth) best = { text: group.text, ...screen, depth };
+            }
+            if (best !== null) candidates.push(best);
+        }
+        this.sizeLabelHandler(place(candidates));
+    }
+
     private emitMeasureLabels(): void {
         if (this.measureUpdateHandler === null) {
             return;
@@ -2198,6 +2231,7 @@ export class EditorEngine {
             if (this.liveDimensions.length > 0) {
                 this.emitMeasureLabels();
             }
+            if (this.sizeGroupList !== null) this.emitSizeLabels();
         });
     };
 

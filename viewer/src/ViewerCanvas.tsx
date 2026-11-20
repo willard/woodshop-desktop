@@ -5,6 +5,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { EditorEngine } from '@/engine/EditorEngine';
 import { scenePalette, type ThemeName } from '@/engine/theme';
+import { sizeGroups, type PlacedSize } from '@/engine/sizeLabels';
+import { SizeLabels } from '@/components/SizeLabels';
 import type { Spec } from '@/spec';
 import InlineCsgWorker from '@/engine/workers/csg.worker?worker&inline';
 
@@ -29,6 +31,8 @@ export const ViewerCanvas = forwardRef<
     const [explode, setExplode] = useState(0);
     const [open, setOpen] = useState(0);
     const [printShot, setPrintShot] = useState<string | null>(null);
+    const [sizesOn, setSizesOn] = useState(false);
+    const [sizeLabels, setSizeLabels] = useState<PlacedSize[]>([]);
     const hasMovables = (spec.movables?.length ?? 0) > 0;
 
     /**
@@ -74,10 +78,17 @@ export const ViewerCanvas = forwardRef<
     useEffect(() => engine.current?.setScenePalette(scenePalette(theme)), [theme]);
     useEffect(() => engine.current?.setSelected(selectedIds), [selectedIds]);
     useEffect(() => engine.current?.setHidden(hiddenIds), [hiddenIds]);
+    useEffect(() => {
+        const e = engine.current;
+        if (e === null) return;
+        e.sizeLabelHandler = setSizeLabels;
+        e.setSizeLabels(sizesOn ? sizeGroups(spec) : null);
+    }, [sizesOn, spec]);
 
     return (
         <div className="relative min-h-0 flex-1" data-print="keep">
             <canvas ref={canvas} className="block h-full w-full touch-none" data-testid="viewer-canvas" />
+            {sizesOn && <SizeLabels labels={sizeLabels} />}
             {printShot && (
                 <img id="print-shot" src={printShot} alt="3D view of the finished piece" className="hidden" />
             )}
@@ -126,6 +137,15 @@ export const ViewerCanvas = forwardRef<
                         />
                     </label>
                 )}
+                <button
+                    className={`border-fg/10 h-7 rounded-lg border px-2.5 pointer-coarse:h-10 pointer-coarse:px-4 ${sizesOn ? 'bg-fg/[0.09] text-fg-strong' : 'text-fg/75 hover:bg-fg/5'}`}
+                    data-testid="viewer-sizes"
+                    title="Label each part with the size it is cut to"
+                    aria-pressed={sizesOn}
+                    onClick={() => setSizesOn(!sizesOn)}
+                >
+                    Sizes
+                </button>
                 <button
                     className="border-fg/10 text-fg/75 hover:bg-fg/5 h-7 rounded-lg border px-2.5 pointer-coarse:h-10 pointer-coarse:px-4"
                     data-testid="viewer-fit"

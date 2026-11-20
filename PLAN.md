@@ -787,7 +787,9 @@ the owner to check, as computer use of the app is declined.
     lint `meta.build-step-parts` warns when a part is in no step or in two. Also print `meta.notes` in the PDF; it is stored but never printed today.
   - Done when: the nightstand PDF has a picture per step; the viewer steps through at iPad size;
     custom steps survive saving and a `.woodshop` round trip; a migration test.
-- **7.3 Sizes on the model.** A Sizes switch in the editor and viewer labels each part with its
+- **7.3 Sizes on the model.** Done (`engine/sizeLabels.ts`: `sizeGroups`, `place`;
+  `EditorEngine.setSizeLabels`, projected after each render; `SizeLabels`; Sizes in the editor
+  and the plan; the e2e test turns the view four ways and checks no label boxes overlap). A Sizes switch in the editor and viewer labels each part with its
   cut size (from the cut-list rows) and angled ends with the saw setting, drawn like the measure
   labels (projected midpoints, HTML); each different size once, on the nearest part. Labels that
   would overlap after the camera turns are hidden (nearest kept). Done when: no overlapping

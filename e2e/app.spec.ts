@@ -898,6 +898,42 @@ test('the PDF plan gets a picture of each assembly step', async ({ page }) => {
     expect(plan).toMatch(new RegExp(`with ${steps} step pictures$`));
 });
 
+test('Sizes labels each part with its cut size, each size once, never overlapping', async ({ page }) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Bookshelf', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await expect(page.getByTestId('parts-count')).toHaveText('8 parts');
+    await page.getByTestId('view-sizes').click();
+    const labels = page.getByTestId('size-label');
+    await expect(labels.first()).toBeVisible();
+    const texts = await labels.allInnerTexts();
+    // The three shelves share one size, so it is said once.
+    expect(texts.filter((t) => t === '30 1/2" × 10 1/2"')).toHaveLength(1);
+    expect(new Set(texts).size).toBe(texts.length);
+    await page.screenshot({
+        path: '/private/tmp/claude-501/-Users-willardmacay-devlocal-woodshop-rust/8c9be911-f9e9-44ff-aebd-21bb86f32a8d/scratchpad/sizes.png',
+    });
+
+    // Turn the view a few ways: the labels never cover one another.
+    for (const view of ['front', 'side', 'top', 'three-quarter']) {
+        await page.getByTestId(`view-${view}`).click();
+        await page.waitForTimeout(600);
+        const boxes = await labels.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()));
+        for (let i = 0; i < boxes.length; i++) {
+            for (let j = i + 1; j < boxes.length; j++) {
+                const [a, b] = [boxes[i], boxes[j]];
+                const overlap = a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+                expect(overlap, `${view}: labels ${i} and ${j} overlap`).toBe(false);
+            }
+        }
+    }
+    await page.getByTestId('view-sizes').click();
+    await expect(labels).toHaveCount(0);
+});
+
 test('the Drawing view shows the piece with its sizes, from each side', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('view-drawing').click();

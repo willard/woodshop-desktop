@@ -101,6 +101,12 @@ test('an exported plan opens from a file and works offline', async ({ page }, in
     await page.getByTestId('explode').fill('1');
     await page.getByTestId('viewer-fit').click();
 
+    // Sizes on the model.
+    await page.getByTestId('viewer-sizes').click();
+    await expect(page.getByTestId('size-label').first()).toBeVisible();
+    await page.getByTestId('viewer-sizes').click();
+    await expect(page.getByTestId('size-label')).toHaveCount(0);
+
     // Step through the build, as on a tablet in the shop.
     await page.getByTestId('viewer-build').click();
     const bar = page.getByTestId('build-step-bar');

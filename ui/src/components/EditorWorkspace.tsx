@@ -143,6 +143,8 @@ import { getUnits, len, useUnits } from '@/lib/display';
 import { plural } from '@/app/format';
 import { DrawingOverlay, type DrawingView } from './DrawingOverlay';
 import { BuildStepBar, hiddenAtStep } from './BuildStepBar';
+import { SizeLabels } from './SizeLabels';
+import { sizeGroups, type PlacedSize } from '@/engine/sizeLabels';
 import { assemblyOrder } from '@/cutlist';
 
 export interface EditorWorkspaceHandle {
@@ -222,6 +224,9 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const [faceSnap, setFaceSnap] = useState(true);
         /** The Drawing view over the 3D one, and which side it shows; null is the 3D view. */
         const [drawing, setDrawing] = useState<DrawingView | null>(null);
+        /** Sizes on the model, and where the engine put them. */
+        const [sizesOn, setSizesOn] = useState(false);
+        const [sizeLabels, setSizeLabels] = useState<PlacedSize[]>([]);
         /** Stepping through the build: the step shown, or null for the whole piece. */
         const [buildStep, setBuildStep] = useState<number | null>(null);
         const [snapGap, setSnapGap] = useState(0);
@@ -451,6 +456,13 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 engine.setHighlight([]);
             };
         }, [buildActive, shownStep, buildSteps, spec]);
+
+        useEffect(() => {
+            const engine = engineRef.current;
+            if (engine === null) return;
+            engine.sizeLabelHandler = setSizeLabels;
+            engine.setSizeLabels(sizesOn ? sizeGroups(spec, (v) => len(v, units)) : null);
+        }, [sizesOn, spec, units]);
 
         /** Ends the build view first, so hiding and revealing work on the user's own set. */
         function leaveBuild(): void {
@@ -1996,7 +2008,16 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     </button>
                                 ))}
                                 <button
-                                    className="text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong border-fg/[0.08] ml-0.5 h-7 rounded-md border-l px-2 text-[12px] font-medium"
+                                    className={`border-fg/[0.08] ml-0.5 h-7 rounded-md border-l px-2 text-[12px] font-medium ${sizesOn ? 'bg-fg/[0.09] text-fg-strong' : 'text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong'}`}
+                                    title="Label each part with the size it is cut to"
+                                    aria-pressed={sizesOn}
+                                    data-testid="view-sizes"
+                                    onClick={() => setSizesOn(!sizesOn)}
+                                >
+                                    Sizes
+                                </button>
+                                <button
+                                    className="text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong h-7 rounded-md px-2 text-[12px] font-medium"
                                     title="Drawings of the piece with its sizes, as the PDF plan prints them"
                                     data-testid="view-drawing"
                                     onClick={() => setDrawing('front')}
@@ -2106,6 +2127,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     </button>
                                 </Chip>
                             )}
+
+                            {sizesOn && <SizeLabels labels={sizeLabels} />}
 
                             {measureLabels.map((label, i) => (
                                 <div

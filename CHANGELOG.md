@@ -27,6 +27,9 @@ All notable changes to Woodshop are listed here. The format follows
   Reset to suggested. Your order is used in the PDF, the 3D plan, the build view and the video;
   each part's fastening is still worked out for you. The design checks warn about a part in no
   step or in two.
+- Sizes on the model: Sizes beside the view buttons (and in the exported 3D plan) labels each
+  part with the size it is cut to, each size once on the nearest part, and an angled end with
+  the angle to set the saw to. Labels never cover one another as the view turns.
 - STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
   a 3D printer's slicer, or as OBJ for modelling software.
 
