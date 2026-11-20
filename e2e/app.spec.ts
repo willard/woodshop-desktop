@@ -934,7 +934,7 @@ test('Sizes labels each part with its cut size, each size once, never overlappin
 test('quick build makes a sound design from a few sizes', async ({ page }) => {
     await page.goto('/#/');
     await page.getByTestId('quick-build-open').click();
-    const dialog = page.getByTestId('quick-build');
+    await expect(page.getByTestId('quick-build')).toBeVisible();
     await expect(page.getByTestId('quick-build-summary')).toHaveText('7 parts, from the front');
     await page.getByTestId('quick-build-shelves').fill('3');
     await expect(page.getByTestId('quick-build-summary')).toHaveText('8 parts, from the front');

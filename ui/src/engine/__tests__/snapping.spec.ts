@@ -139,3 +139,18 @@ describe('aabbFromPart', () => {
         expect(half[1]).toBeCloseTo(34 / 2); // Y (height) unchanged
     });
 });
+
+describe('aabbFromPart follows the cut', () => {
+    it('measures an angled leg as cut, not as its uncut board', async () => {
+        const picnic = (await import('../../../../resources/templates/picnic-table.json')).default;
+        const spec = parseSpec(picnic);
+        const leg = spec.parts.find((p) => p.id === 'p_leg_lf')!;
+        const box = aabbFromPart(leg, 1.5);
+        // Cut at 30° top and bottom, it stands on the floor and stops under the 27 1/2" tabletop.
+        expect(box.min[1]).toBeCloseTo(0, 3);
+        expect(box.max[1]).toBeCloseTo(27.5, 3);
+        // The uncut board would reach below the floor.
+        const blank = aabbFromPart({ ...leg, ops: [] }, 1.5);
+        expect(blank.min[1]).toBeLessThan(-1);
+    });
+});

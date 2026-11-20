@@ -8,6 +8,7 @@
  */
 import * as THREE from 'three';
 import type { Part } from '../spec/types';
+import { wasm } from '@/domain';
 import type { SnapConfig } from './config';
 
 export type Vec3 = [number, number, number];
@@ -36,6 +37,10 @@ const DEG2RAD = Math.PI / 180;
 
 /** World-space AABB of a part (box l×w×thickness, transformed by pos + rot). */
 export function aabbFromPart(part: Part, thickness: number): AABB {
+    // A curve or a notch can cut a corner away: measure what is left, as the design checks do.
+    if ((part.ops ?? []).some((op) => op.type === 'curve' || op.type === 'notch')) {
+        return shapedAabb(part, thickness);
+    }
     const box = new THREE.Box3(
         new THREE.Vector3(-part.size.l / 2, -part.size.w / 2, -thickness / 2),
         new THREE.Vector3(part.size.l / 2, part.size.w / 2, thickness / 2),
@@ -52,6 +57,24 @@ export function aabbFromPart(part: Part, thickness: number): AABB {
     );
     box.applyMatrix4(matrix);
     return { min: [box.min.x, box.min.y, box.min.z], max: [box.max.x, box.max.y, box.max.z] };
+}
+
+/** Shaped parts' boxes, by part object (a spec's parts never change in place) and thickness. */
+const shapedBoxes = new WeakMap<Part, Map<number, AABB>>();
+
+function shapedAabb(part: Part, thickness: number): AABB {
+    let byThickness = shapedBoxes.get(part);
+    if (byThickness === undefined) {
+        byThickness = new Map();
+        shapedBoxes.set(part, byThickness);
+    }
+    let box = byThickness.get(thickness);
+    if (box === undefined) {
+        const b = wasm.worldAabb(part, thickness);
+        box = { min: [b[0], b[1], b[2]], max: [b[3], b[4], b[5]] };
+        byThickness.set(thickness, box);
+    }
+    return box;
 }
 
 /** Half-extents (per axis) of an AABB. */

@@ -172,6 +172,15 @@ pub fn outline_svg(
     ))
 }
 
+/// A part's world box as cut (`geometry::world_aabb`): a tapered, curved or notched part's box
+/// is what is left once it is cut, as the design checks measure it. `[min, max]`.
+#[wasm_bindgen(js_name = worldAabb)]
+pub fn world_aabb(part: JsValue, thickness: f64) -> JsResult<Vec<f64>> {
+    let part: Part = from_js(part)?;
+    let b = geometry::world_aabb(&part, thickness);
+    Ok(vec![b.min[0], b.min[1], b.min[2], b.max[0], b.max[1], b.max[2]])
+}
+
 /// A new design from a few sizes (`woodshop-core::quickbuild`): `{ kind, width, height, depth,
 /// shelves?, back?, apron? }`. Throws what is wrong with the sizes, in words.
 #[wasm_bindgen(js_name = quickBuild)]

@@ -37,6 +37,12 @@ All notable changes to Woodshop are listed here. The format follows
 - STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
   a 3D printer's slicer, or as OBJ for modelling software.
 
+### Fixed
+
+- Snapping and the joints the editor finds now measure a curved, tapered or angled part as cut,
+  like the design checks: a part no longer snaps to, or seems joined at, a corner that was cut
+  away.
+
 ## [0.1.2] — 2026-11-20
 
 ### Added

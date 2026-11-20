@@ -856,7 +856,8 @@ the owner to check, as computer use of the app is declined.
 - **7.16 Tapered legs in templates.** Use the `taper` cut (spec 1.17) on the dining table, side
   table and nightstand legs (inside faces, from below the apron), re-render their pictures, and
   keep `every_template_builds_without_parts_running_into_each_other` green.
-- **7.17 Snapping and joint detection follow the cut.** The design checks measure a part as cut
+- **7.17 Snapping and joint detection follow the cut.** Done: `aabbFromPart` takes a curved or notched part's box from the core
+  (WASM `worldAabb`, cached per part object), so every caller follows the cut. The design checks measure a part as cut
   (`frame::face_hull`), but the editor's snapping and automatic joint detection
   (`ui/src/engine/snapping.ts` `aabbFromPart`, `ui/src/engine/joints.ts`) still use the uncut
   blank, so a dragged part can snap to a corner that was cut away. Give them the same hull (a
