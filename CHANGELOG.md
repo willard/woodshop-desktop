@@ -6,6 +6,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.2] — 2026-11-20
+
 ### Added
 
 - Assembly videos to post: Video in the cut list (or Export assembly video in the ⋯ menu) renders
@@ -28,6 +30,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Changed
 
+- Designs are saved in format 1.17 (for tapers and angled ends). Woodshop 0.1.2 opens every
+  older design, but a design saved in 0.1.2 needs 0.1.2 or later to open: update on every
+  computer you share designs between.
 - The design checks, the overall size and the agent tools measure a curved, tapered or angled
   part by what is left once it is cut, not by its uncut board, so a corner cut away no longer
   counts as running into the part beside it.
@@ -197,6 +202,7 @@ The first release build, for macOS (universal), Windows and Linux.
 - A local MCP server (`woodshop --mcp`) so AI agents can read and edit designs.
 - Signed in-app updates from GitHub Releases.
 
-[Unreleased]: https://github.com/willard/woodshop-desktop/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/willard/woodshop-desktop/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/willard/woodshop-desktop/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/willard/woodshop-desktop/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/willard/woodshop-desktop/releases/tag/v0.1.0
