@@ -833,6 +833,22 @@ test('the assembly video renders as an MP4 to post', async ({ page }) => {
     expect(file.size).toBeGreaterThan(100_000);
 });
 
+test('the Drawing view shows the piece with its sizes, from each side', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('view-drawing').click();
+    const svg = page.getByTestId('drawing-svg').locator('svg');
+    await expect(svg).toHaveAttribute('data-view', 'front');
+    // The overall height, and the openings above and below the middle shelf.
+    await expect(svg.locator('text', { hasText: '34"' })).toHaveCount(1);
+    await expect(svg.locator('[data-dimension="vertical"]')).toHaveCount(3);
+    await page.getByTestId('drawing-side').click();
+    await expect(svg).toHaveAttribute('data-view', 'side');
+    await page.getByTestId('drawing-top').click();
+    await expect(svg).toHaveAttribute('data-view', 'top');
+    await page.getByTestId('drawing-close').click();
+    await expect(page.getByTestId('drawing-overlay')).toHaveCount(0);
+});
+
 test('without a video encoder, the video dialog says so', async ({ page }) => {
     await page.addInitScript(() => {
         delete (window as unknown as { VideoEncoder?: unknown }).VideoEncoder;

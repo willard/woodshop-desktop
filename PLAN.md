@@ -742,9 +742,11 @@ the owner to check, as computer use of the app is declined.
 
 ### 7a. Plans a hobbyist can read
 
-- **7.1 Drawings with sizes (front, side, top).** Core, PDF, WASM and MCP done
-  (`geometry/elevation.rs`, `elevationSvg`, `render_drawing`, the PDF's Drawings section);
-  the editor's Drawing switch is next.
+- **7.1 Drawings with sizes (front, side, top).** Done: `geometry/elevation.rs` (WASM
+  `elevationSvg`, MCP `render_drawing`), the PDF's Drawings section, and the editor's Drawing
+  button (`DrawingOverlay`), which shows the core's SVG over the 3D view rather than an
+  orthographic camera with drawn lines, so the screen and the PDF cannot disagree. The original
+  notes follow for reference.
   - Core: new `crates/woodshop-core/src/geometry/elevation.rs`. For a view, project each part's
     solid as cut (`frame::shape_points` / `face_hull`, so tapers and angled ends draw true; not
     `frame::corners`, which is the uncut blank) to 2D, with `world_aabb` and `overall_size`.

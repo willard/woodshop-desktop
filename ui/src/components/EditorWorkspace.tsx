@@ -140,6 +140,7 @@ import { ToolsOverlay } from './tools/ToolsOverlay';
 import { useToast } from './Toast';
 import { getUnits, len, useUnits } from '@/lib/display';
 import { plural } from '@/app/format';
+import { DrawingOverlay, type DrawingView } from './DrawingOverlay';
 
 export interface EditorWorkspaceHandle {
     snapshot(maxSize?: number, type?: 'image/png' | 'image/jpeg'): Promise<Blob | null>;
@@ -216,6 +217,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             getUnits() === 'metric' ? METRIC_GRID_SIZES[0] : 0.125,
         );
         const [faceSnap, setFaceSnap] = useState(true);
+        /** The Drawing view over the 3D one, and which side it shows; null is the 3D view. */
+        const [drawing, setDrawing] = useState<DrawingView | null>(null);
         const [snapGap, setSnapGap] = useState(0);
         const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
         const [hardwareDrag, setHardwareDrag] = useState<HardwareDragInfo | null>(null);
@@ -1949,6 +1952,14 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         {label}
                                     </button>
                                 ))}
+                                <button
+                                    className="text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong border-fg/[0.08] ml-0.5 h-7 rounded-md border-l px-2 text-[12px] font-medium"
+                                    title="Drawings of the piece with its sizes, as the PDF plan prints them"
+                                    data-testid="view-drawing"
+                                    onClick={() => setDrawing('front')}
+                                >
+                                    Drawing
+                                </button>
                                 {selectedIds.length > 0 && (
                                     <button
                                         className="text-fg/75 hover:bg-fg/[0.07] hover:text-fg-strong h-7 rounded-md px-2 text-[12px] font-medium"
@@ -1960,6 +1971,15 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     </button>
                                 )}
                             </div>
+
+                            {drawing !== null && spec.parts.length > 0 && (
+                                <DrawingOverlay
+                                    spec={spec}
+                                    view={drawing}
+                                    onView={setDrawing}
+                                    onClose={() => setDrawing(null)}
+                                />
+                            )}
 
                             {dragBlocked !== null ? (
                                 // A press on a part orbits instead of dragging in these states; say so,
