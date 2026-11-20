@@ -940,20 +940,20 @@
             "name": "Diagonal Brace (left arm to stringer)",
             "materialId": "m_2x4",
             "size": {
-                "l": 25.2392,
+                "l": 24.4929,
                 "w": 3.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
-                    -11.1063,
-                    20.8456,
+                    -11.6556,
+                    20.7864,
                     1.5
                 ],
                 "rot": [
                     0,
                     0,
-                    39.3824
+                    41.0
                 ]
             },
             "qty": 1,
@@ -962,14 +962,14 @@
                     "type": "curve",
                     "edge": "w0",
                     "kind": "taper",
-                    "height": 2.8731,
+                    "height": 3.0425,
                     "low": "l1"
                 },
                 {
                     "type": "curve",
                     "edge": "w1",
                     "kind": "taper",
-                    "height": 4.2636,
+                    "height": 4.0263,
                     "low": "l1"
                 },
                 {
@@ -978,8 +978,8 @@
                     "axis": "l",
                     "offset": 1.75,
                     "count": 2,
-                    "from": 18.773,
-                    "to": 21.925,
+                    "from": 18.288,
+                    "to": 21.337,
                     "gauge": "#8",
                     "length": 2.5
                 }
@@ -990,20 +990,20 @@
             "name": "Diagonal Brace (right arm to stringer)",
             "materialId": "m_2x4",
             "size": {
-                "l": 25.2392,
+                "l": 24.4929,
                 "w": 3.5
             },
             "grainAxis": "l",
             "transform": {
                 "pos": [
-                    11.1063,
-                    20.8456,
+                    11.6556,
+                    20.7864,
                     -1.5
                 ],
                 "rot": [
                     0,
                     0,
-                    140.6176
+                    139.0
                 ]
             },
             "qty": 1,
@@ -1012,14 +1012,14 @@
                     "type": "curve",
                     "edge": "w0",
                     "kind": "taper",
-                    "height": 2.8731,
+                    "height": 3.0425,
                     "low": "l0"
                 },
                 {
                     "type": "curve",
                     "edge": "w1",
                     "kind": "taper",
-                    "height": 4.2636,
+                    "height": 4.0263,
                     "low": "l0"
                 },
                 {
@@ -1028,8 +1028,8 @@
                     "axis": "l",
                     "offset": 1.75,
                     "count": 2,
-                    "from": 18.773,
-                    "to": 21.925,
+                    "from": 18.288,
+                    "to": 21.337,
                     "gauge": "#8",
                     "length": 2.5
                 }

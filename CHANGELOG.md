@@ -6,6 +6,13 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- The design checks warn about angles a saw does not reach: a bevel past 45° (most blades tilt
+  no further) and an angled end more than 50° off square (most miter saws turn no further), with
+  what to use instead. The picnic table's braces are a degree steeper so both their cuts are
+  within a miter saw's reach.
+
 ## [0.1.2] — 2026-11-20
 
 ### Added

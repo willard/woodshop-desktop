@@ -269,5 +269,14 @@
     "template:record-stand-dado": [],
     "template:record-stand": [],
     "template:side-table": [],
-    "template:workbench": []
+    "template:workbench": [],
+    "case:miter-at-45": [],
+    "case:miter-beyond-saw": [
+        "warn|op.miter-beyond-saw|p_a|0|"
+    ],
+    "case:taper-within-saw": [],
+    "case:taper-beyond-saw": [
+        "warn|op.taper-beyond-saw|p_a|0|"
+    ],
+    "case:taper-long-edge-not-a-saw-angle": []
 }

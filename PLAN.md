@@ -792,7 +792,8 @@ the owner to check, as computer use of the app is declined.
 
 ### 7b. Small wins
 
-- **7.5 Warn on angles beyond the saw.** In `lint/ops.rs`, a `Warn` coded `op.miter-beyond-saw`
+- **7.5 Warn on angles beyond the saw.** Done (`lint/ops.rs`, `MAX_BEVEL` 45°, `MAX_MITER`
+  50°; lint cases `miter-*` and `taper-*-saw`). The picnic braces moved to 41° to stay inside. In `lint/ops.rs`, a `Warn` coded `op.miter-beyond-saw`
   when a `Miter` angle is over 45°: "Most saws tilt to 45°. Cut this 52° bevel with a jig or a
   hand plane." Likewise `op.taper-beyond-saw` when a `taper` on an end is steeper than a miter
   saw turns (atan(height / width) over 50°), suggesting a jig or a bandsaw. A constant for now; a shop setting would need `lint_with(spec, units, opts)`

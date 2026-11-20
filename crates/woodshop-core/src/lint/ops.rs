@@ -13,6 +13,21 @@ fn chord_and_span(part: &Part, edge: Edge) -> (f64, f64) {
     }
 }
 
+/// How far most table and miter saw blades tilt for a bevel.
+const MAX_BEVEL: f64 = 45.0;
+/// How far most miter saws turn for an angled crosscut.
+const MAX_MITER: f64 = 50.0;
+
+/// An angle as a person reads it: whole degrees, or one decimal when it has one.
+fn degrees(angle: f64) -> String {
+    let tenth = (angle * 10.0).round() / 10.0;
+    if tenth.fract() == 0.0 {
+        format!("{tenth:.0}")
+    } else {
+        format!("{tenth:.1}")
+    }
+}
+
 /// Every op lies within its part and its material's thickness.
 pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<LintIssue>) {
     let name = &part.name;
@@ -508,6 +523,44 @@ pub(super) fn overlapping_ops(part: &Part, issues: &mut Vec<LintIssue>) {
                     *b_idx,
                 ));
             }
+        }
+    }
+
+    // Angles a saw does not reach. Buildable all the same (a jig, a bandsaw, a hand plane), so
+    // these warn rather than block.
+    for (i, op) in ops.iter().enumerate() {
+        match op {
+            Op::Miter(m) if m.angle > MAX_BEVEL + EPS => issues.push(LintIssue::op(
+                Severity::Warn,
+                "op.miter-beyond-saw",
+                format!(
+                    "\"{name}\" has a {}° bevel on edge {}: most saws tilt only to {}°. Cut it with a jig or a hand plane, or change the angle.",
+                    degrees(m.angle),
+                    m.edge.as_str(),
+                    degrees(MAX_BEVEL)
+                ),
+                &part.id,
+                i,
+            )),
+            Op::Curve(Curve::Taper { edge, height, .. }) if !edge.is_l_edge() => {
+                let (across, _) = chord_and_span(part, *edge);
+                let angle = (height / across).atan().to_degrees();
+                if angle > MAX_MITER + EPS {
+                    issues.push(LintIssue::op(
+                        Severity::Warn,
+                        "op.taper-beyond-saw",
+                        format!(
+                            "\"{name}\" has its {} cut {}° off square: most miter saws turn only to {}°. Cut it on a bandsaw or with a taper jig.",
+                            if *edge == Edge::W0 { "left end" } else { "right end" },
+                            degrees(angle),
+                            degrees(MAX_MITER)
+                        ),
+                        &part.id,
+                        i,
+                    ));
+                }
+            }
+            _ => {}
         }
     }
 

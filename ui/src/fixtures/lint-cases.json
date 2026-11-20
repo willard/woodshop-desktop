@@ -7350,5 +7350,266 @@
                 "opRef": 0
             }
         ]
+    },
+    "miter-at-45": {
+        "specVersion": "1.17",
+        "units": "in",
+        "name": "miter-at-45",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "miter",
+                        "edge": "w1",
+                        "angle": 45
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "miter-beyond-saw": {
+        "specVersion": "1.17",
+        "units": "in",
+        "name": "miter-beyond-saw",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "miter",
+                        "edge": "w1",
+                        "angle": 52
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "taper-within-saw": {
+        "specVersion": "1.17",
+        "units": "in",
+        "name": "taper-within-saw",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 30,
+                    "w": 3.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "w1",
+                        "kind": "taper",
+                        "height": 2,
+                        "low": "l0"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "taper-beyond-saw": {
+        "specVersion": "1.17",
+        "units": "in",
+        "name": "taper-beyond-saw",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 30,
+                    "w": 3.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "w1",
+                        "kind": "taper",
+                        "height": 5,
+                        "low": "l0"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "taper-long-edge-not-a-saw-angle": {
+        "specVersion": "1.17",
+        "units": "in",
+        "name": "taper-long-edge-not-a-saw-angle",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 30,
+                    "w": 3.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "l0",
+                        "kind": "taper",
+                        "height": 1,
+                        "low": "w0"
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
     }
 }
