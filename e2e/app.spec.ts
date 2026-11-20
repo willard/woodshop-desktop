@@ -913,9 +913,6 @@ test('Sizes labels each part with its cut size, each size once, never overlappin
     // The three shelves share one size, so it is said once.
     expect(texts.filter((t) => t === '30 1/2" × 10 1/2"')).toHaveLength(1);
     expect(new Set(texts).size).toBe(texts.length);
-    await page.screenshot({
-        path: '/private/tmp/claude-501/-Users-willardmacay-devlocal-woodshop-rust/8c9be911-f9e9-44ff-aebd-21bb86f32a8d/scratchpad/sizes.png',
-    });
 
     // Turn the view a few ways: the labels never cover one another.
     for (const view of ['front', 'side', 'top', 'three-quarter']) {
@@ -950,9 +947,6 @@ test('quick build makes a sound design from a few sizes', async ({ page }) => {
     await page.getByTestId('quick-build-kind').selectOption('table');
     await page.getByTestId('quick-build-name').fill('Hall table');
     await expect(page.getByTestId('quick-build-summary')).toHaveText('9 parts, from the front');
-    await dialog.screenshot({
-        path: '/private/tmp/claude-501/-Users-willardmacay-devlocal-woodshop-rust/8c9be911-f9e9-44ff-aebd-21bb86f32a8d/scratchpad/quickbuild.png',
-    });
     await page.getByTestId('quick-build-create').click();
     await expect(page).toHaveURL(/#\/projects\/\d+$/);
     await expect(page.getByTestId('parts-count')).toHaveText('9 parts');
