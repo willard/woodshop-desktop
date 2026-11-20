@@ -27,6 +27,8 @@ export interface ExportTarget {
     flush(): Promise<void>;
     /** The assembly as glTF, from the 3D view (absent where there is no view). */
     getGltf?: (name: string) => Promise<string>;
+    /** The assembly as STL bytes or OBJ text, in millimetres, from the 3D view. */
+    getMesh?: (name: string, format: 'stl' | 'obj') => Promise<Uint8Array | string>;
 }
 
 export function useProjectExports(target: ExportTarget) {
@@ -110,6 +112,32 @@ export function useProjectExports(target: ExportTarget) {
                     await api.writeTextFile(path, await target.getGltf(target.projectName));
                 },
                 '3D model saved.',
+            ),
+        /** The assembled model for a 3D printer's slicer: binary STL in millimetres, Z up. */
+        stl: () =>
+            exportTo(
+                'stl',
+                '3D print model (STL)',
+                async (path) => {
+                    if (target.getMesh === undefined) throw new Error('The 3D view is not ready.');
+                    const bytes = await target.getMesh(target.projectName, 'stl');
+                    if (typeof bytes === 'string') throw new Error('The STL came out as text.');
+                    await api.writeBinaryFile(path, bytes);
+                },
+                'STL model saved.',
+            ),
+        /** The assembled model as OBJ, in millimetres, for modelling software. */
+        obj: () =>
+            exportTo(
+                'obj',
+                '3D model (OBJ)',
+                async (path) => {
+                    if (target.getMesh === undefined) throw new Error('The 3D view is not ready.');
+                    const text = await target.getMesh(target.projectName, 'obj');
+                    if (typeof text !== 'string') throw new Error('The OBJ came out as bytes.');
+                    await api.writeTextFile(path, text);
+                },
+                'OBJ model saved.',
             ),
         /** Every shaped or drilled part as a 1:1 printable SVG template, in one file per part. */
         templates: () =>
@@ -228,6 +256,22 @@ export function ExportMenuItems(
                 onClick={run(exports.gltf)}
             >
                 Export 3D model (glTF)…
+            </button>
+            <button
+                className={item}
+                data-testid="export-stl"
+                title="The assembled model for a 3D printer's slicer, in millimetres: print it to scale"
+                onClick={run(exports.stl)}
+            >
+                Export 3D print model (STL)…
+            </button>
+            <button
+                className={item}
+                data-testid="export-obj"
+                title="The assembled model as OBJ, in millimetres, for modelling software"
+                onClick={run(exports.obj)}
+            >
+                Export 3D model (OBJ)…
             </button>
             <button className={item} onClick={run(exports.spec)}>
                 Export design data (JSON)…

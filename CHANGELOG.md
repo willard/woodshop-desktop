@@ -12,6 +12,8 @@ All notable changes to Woodshop are listed here. The format follows
   no further) and an angled end more than 50° off square (most miter saws turn no further), with
   what to use instead. The picnic table's braces are a degree steeper so both their cuts are
   within a miter saw's reach.
+- STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
+  a 3D printer's slicer, or as OBJ for modelling software.
 
 ## [0.1.2] — 2026-11-20
 

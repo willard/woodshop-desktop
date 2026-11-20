@@ -374,6 +374,10 @@ function Editor({ project }: { project: Project }) {
                                 workspace.current?.gltf(n) ??
                                 Promise.reject(new Error('The 3D view is not ready.'))
                             }
+                            getMesh={(n, format) =>
+                                workspace.current?.mesh(n, format) ??
+                                Promise.reject(new Error('The 3D view is not ready.'))
+                            }
                             kerf={kerf ?? defaultKerf}
                             flush={flush}
                             close={close}

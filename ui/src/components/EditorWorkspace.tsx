@@ -145,6 +145,8 @@ export interface EditorWorkspaceHandle {
     snapshot(maxSize?: number, type?: 'image/png' | 'image/jpeg'): Promise<Blob | null>;
     /** The assembly as glTF JSON (see `EditorEngine.exportGltf`). */
     gltf(name: string): Promise<string>;
+    /** The assembly as STL bytes or OBJ text, in millimetres (see `EditorEngine.exportMesh`). */
+    mesh(name: string, format: 'stl' | 'obj'): Promise<Uint8Array | string>;
     highlight(ids: string[]): void;
 }
 
@@ -409,6 +411,9 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             snapshot: (maxSize, type) => engineRef.current?.snapshot(maxSize, type) ?? Promise.resolve(null),
             gltf: (name) =>
                 engineRef.current?.exportGltf(name) ?? Promise.reject(new Error('The 3D view is not ready.')),
+            mesh: (name, format) =>
+                engineRef.current?.exportMesh(name, format) ??
+                Promise.reject(new Error('The 3D view is not ready.')),
             highlight: (ids) => engineRef.current?.setHighlight(ids),
         }));
 

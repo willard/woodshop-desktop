@@ -1874,13 +1874,39 @@ export class EditorEngine {
      * parts included. glTF counts in metres with +Y up, so the inch scene is scaled to suit.
      */
     async exportGltf(name: string): Promise<string> {
+        const { GLTFExporter } = await import('three/addons/exporters/GLTFExporter.js');
+        const root = this.exportRoot(name);
+        root.scale.setScalar(0.0254);
+        const gltf = await new GLTFExporter().parseAsync(root, { binary: false, onlyVisible: true });
+        return JSON.stringify(gltf);
+    }
+
+    /**
+     * The assembly as a mesh file, in millimetres. STL (binary) is for a slicer, which wants +Z
+     * up, so the model is turned upright for it; OBJ keeps +Y up, as Blender and most modelling
+     * software read it. Built from the same parts as glTF.
+     */
+    async exportMesh(name: string, format: 'stl' | 'obj'): Promise<Uint8Array | string> {
+        const root = this.exportRoot(name);
+        root.scale.setScalar(25.4);
+        if (format === 'stl') root.rotation.x = Math.PI / 2;
+        root.updateMatrixWorld(true);
+        if (format === 'stl') {
+            const { STLExporter } = await import('three/addons/exporters/STLExporter.js');
+            const view = new STLExporter().parse(root, { binary: true }) as DataView;
+            return new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+        }
+        const { OBJExporter } = await import('three/addons/exporters/OBJExporter.js');
+        return new OBJExporter().parse(root);
+    }
+
+    /** Every part as built, in its assembled pose, without the editor's line work and marks. */
+    private exportRoot(name: string): THREE.Group {
         if (this.partsGroup === null) {
             throw new Error('Nothing to export yet.');
         }
-        const { GLTFExporter } = await import('three/addons/exporters/GLTFExporter.js');
         const root = new THREE.Group();
         root.name = name;
-        root.scale.setScalar(0.0254);
         for (const child of this.partsGroup.children) {
             const copy = child.clone(true);
             const pos = child.userData.basePos as Vec3 | undefined;
@@ -1916,8 +1942,7 @@ export class EditorEngine {
             copy.userData = { partId: child.name };
             root.add(copy);
         }
-        const gltf = await new GLTFExporter().parseAsync(root, { binary: false, onlyVisible: true });
-        return JSON.stringify(gltf);
+        return root;
     }
 
     /** Captures the current 3D view as a downscaled PNG for the project thumbnail (§7.2). */

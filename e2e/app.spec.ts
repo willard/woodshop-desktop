@@ -583,6 +583,37 @@ test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ 
     expect([root.matrix![0], root.matrix![5], root.matrix![10]]).toEqual([0.0254, 0.0254, 0.0254]);
     expect(names.filter((n) => n === undefined)).toEqual([]);
     expect(gltf.meshes.length).toBeGreaterThan(8); // the parts and their hardware
+
+    // STL for a slicer: binary, in millimetres, standing on +Z.
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('export-stl').click();
+    await expect(page.getByText('STL model saved.')).toBeVisible();
+    const stl = await page.evaluate(() => {
+        const bytes = (window as unknown as { __binary: { bytes: Uint8Array } }).__binary.bytes;
+        const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+        const triangles = view.getUint32(80, true);
+        let low = Infinity;
+        let high = -Infinity;
+        for (let t = 0; t < triangles; t++) {
+            for (let v = 0; v < 3; v++) {
+                const z = view.getFloat32(84 + t * 50 + 12 + v * 12 + 8, true);
+                low = Math.min(low, z);
+                high = Math.max(high, z);
+            }
+        }
+        return { size: bytes.byteLength, triangles, height: high - low };
+    });
+    expect(stl.size).toBe(84 + 50 * stl.triangles);
+    expect(stl.triangles).toBeGreaterThan(100);
+    // The cabinet is 30" tall: 762 mm up the Z axis.
+    expect(stl.height).toBeCloseTo(762, 0);
+
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('export-obj').click();
+    await expect(page.getByText('OBJ model saved.')).toBeVisible();
+    const obj = (await written())['/mock/exports/Wall Cabinet.obj'];
+    expect(obj).toContain('o Left Side');
+    expect(obj.split('\n').filter((l) => l.startsWith('v ')).length).toBeGreaterThan(100);
 });
 
 test('notes are kept with the project', async ({ page }) => {

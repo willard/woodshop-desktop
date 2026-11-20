@@ -830,7 +830,8 @@ the owner to check, as computer use of the app is declined.
   the assembly video (its `FilmStage` uses the same material provider); the
   shopping list names the paint colour. Done when: a picker in the material editor, a migration
   test, screenshots in both themes.
-- **7.11 STL and OBJ export.** three's `STLExporter` and `OBJExporter` beside `getGltf` in
+- **7.11 STL and OBJ export.** Done (`EditorEngine.exportMesh`, sharing `exportRoot` with glTF;
+  STL turned +Z up for slicers; checked in the export e2e test: 762 mm tall for the cabinet). three's `STLExporter` and `OBJExporter` beside `getGltf` in
   `EditorEngine.ts`, with two ExportMenu entries. Binary STL goes through the existing
   `write_binary_file` command (`api.writeBinaryFile`, mocked in `ui/src/test/mockBackend.ts`).
   Done when: the files open in a slicer; an e2e test covers the entries.
