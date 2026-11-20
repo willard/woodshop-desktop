@@ -55,6 +55,7 @@ import {
     RenamePart,
     SetPartLocked,
     SetMaterialThickness,
+    SetBuildSteps,
     ResizePart,
     RotatePart,
     RotateParts,
@@ -2253,6 +2254,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                     setDrawing(null);
                                     setBuildStep(i);
                                 }}
+                                onBuildSteps={(steps) => doc.execute(new SetBuildSteps(steps))}
                                 actions={
                                     props.cutListActions
                                         ? (cl) => props.cutListActions!(cl, props.kerf)

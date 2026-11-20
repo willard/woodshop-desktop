@@ -26,7 +26,7 @@ const pull = (id: string, partId: string): HardwareMount => ({
 
 function spec(hardware: HardwareMount[] = []): Spec {
     return parseSpec({
-        specVersion: '1.17',
+        specVersion: '1.18',
         units: 'in',
         name: 'T',
         materials: [

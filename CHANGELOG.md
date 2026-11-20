@@ -22,6 +22,11 @@ All notable changes to Woodshop are listed here. The format follows
 - Step through the build in 3D: Show beside a step in the cut list's Assembly order shows the
   piece as it stands after that step, its new parts outlined, with Previous and Next. The exported
   3D plan has the same under Build, with buttons sized for a tablet.
+- Your own build steps (format 1.18): Edit steps in the cut list's Assembly order lets you
+  rename and reorder steps, add notes, move parts between steps, and add or remove steps, with
+  Reset to suggested. Your order is used in the PDF, the 3D plan, the build view and the video;
+  each part's fastening is still worked out for you. The design checks warn about a part in no
+  step or in two.
 - STL and OBJ export: the assembled design in millimetres, as a binary STL standing upright for
   a 3D printer's slicer, or as OBJ for modelling software.
 

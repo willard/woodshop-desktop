@@ -1063,3 +1063,30 @@ fn the_whole_piece_is_drawn_with_its_sizes() {
     assert!(svg.contains("data-part=\"Shelf 2\""));
     assert!(err(&w, "render_drawing", json!({ "project_id": id, "view": "back" })).contains("front"));
 }
+
+#[test]
+fn deleting_a_part_takes_it_out_of_your_build_steps() {
+    let w = woodshop();
+    let id = ok(&w, "start_from_template", json!({ "template": "bookshelf" }))["projectId"]
+        .as_i64()
+        .unwrap();
+    {
+        let store = w.store();
+        let mut draft = woodshop_core::spec::to_value(&store.get_project(id).unwrap().draft);
+        draft["meta"]["buildSteps"] = json!([
+            { "heading": "Box", "partIds": ["p_bottom", "p_side_l", "p_side_r", "p_top", "p_back"] },
+            { "heading": "Shelves", "partIds": ["p_shelf_1", "p_shelf_2", "p_shelf_3"] }
+        ]);
+        store
+            .save_draft(id, &woodshop_core::spec::parse(draft).unwrap(), None)
+            .unwrap();
+    }
+    ok(&w, "delete_part", json!({ "project_id": id, "part_id": "p_shelf_2" }));
+    let design = ok(&w, "get_design", json!({ "project_id": id }));
+    assert_eq!(
+        design["spec"]["meta"]["buildSteps"][1]["partIds"],
+        json!(["p_shelf_1", "p_shelf_3"])
+    );
+    let check = ok(&w, "check_design", json!({ "project_id": id }));
+    assert!(!check.to_string().contains("build-step"), "{check}");
+}

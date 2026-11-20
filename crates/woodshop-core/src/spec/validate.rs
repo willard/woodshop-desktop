@@ -329,7 +329,7 @@ mod tests {
 
     fn base() -> Value {
         json!({
-            "specVersion": "1.17", "units": "in", "name": "T",
+            "specVersion": "1.18", "units": "in", "name": "T",
             "materials": [{"id": "mat_a", "type": "sheet", "name": "Ply", "thickness": 0.75, "sheetSize": {"l": 96, "w": 48}}],
             "parts": [{"id": "p_a", "name": "A", "materialId": "mat_a", "size": {"l": 10, "w": 5}, "transform": {"pos": [0, 0, 0]}}]
         })

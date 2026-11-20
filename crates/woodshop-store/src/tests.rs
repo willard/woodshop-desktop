@@ -118,7 +118,15 @@ fn settings_round_trip() {
 fn archives_round_trip_through_a_file() {
     let dir = tempfile::tempdir().unwrap();
     let store = Store::open(dir.path()).unwrap();
-    let p = store.create_project("Planter", &spec("Planter")).unwrap();
+    // Your own build steps (1.18) travel with the design.
+    let mut planter = spec("Planter");
+    let first = planter.parts[0].id.clone();
+    planter.meta.as_mut().unwrap().build_steps = Some(vec![woodshop_core::spec::BuildStep {
+        heading: "Glue it up".into(),
+        part_ids: vec![first],
+        note: Some("Clamp overnight.".into()),
+    }]);
+    let p = store.create_project("Planter", &planter).unwrap();
     store.create_version(p.id, &p.draft, Some("v1"), Author::User).unwrap();
     store.create_note(p.id, "cedar only").unwrap();
     let png = b"\x89PNG\r\n\x1a\nfake".to_vec();
@@ -136,6 +144,9 @@ fn archives_round_trip_through_a_file() {
     assert_eq!(store.list_versions(imported.id).unwrap().len(), 1);
     assert_eq!(store.list_notes(imported.id).unwrap()[0].body, "cedar only");
     assert_eq!(std::fs::read(store.thumbnail_path(imported.id).unwrap()).unwrap(), png);
+    let steps = imported.draft.meta.unwrap().build_steps.unwrap();
+    assert_eq!(steps[0].heading, "Glue it up");
+    assert_eq!(steps[0].note.as_deref(), Some("Clamp overnight."));
 }
 
 #[test]

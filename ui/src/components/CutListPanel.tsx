@@ -4,6 +4,7 @@
  * viewer: the same panel with nothing to change.
  */
 import { ChevronDown, ChevronRight, Eye, EyeOff, X } from 'lucide-react';
+import { BuildStepsEditor, stepsFrom, type BuildStep } from './BuildStepsEditor';
 import { useMemo, useState, type MouseEvent } from 'react';
 import {
     assemblyOrder,
@@ -44,6 +45,8 @@ export interface CutListPanelProps {
     onToggleHidden?: (partId: string) => void;
     /** Show the piece as it stands after a step (the 3D view steps through the build). */
     onBuildStep?: (index: number) => void;
+    /** Save your own build steps; null goes back to the suggested order. */
+    onBuildSteps?: (steps: BuildStep[] | null) => void;
     /** Header actions (Export PDF / Export 3D …), supplied by the editor. */
     actions?: (cutList: CutList) => React.ReactNode;
     /** Where the parts ticked off as cut are remembered (the project id); no ticks without it. */
@@ -134,6 +137,7 @@ export function CutListPanel(props: CutListPanelProps) {
     const advice = useMemo(() => stockAdvice(cutList, spec), [cutList, spec]);
     const steps = useMemo(() => assemblyOrder(spec), [spec]);
     const [assemblyOpen, setAssemblyOpen] = useState(false);
+    const [editingSteps, setEditingSteps] = useState(false);
     const work = useMemo(() => joinery(spec, units), [spec, units]);
     const [joineryOpen, setJoineryOpen] = useState(false);
     const overall = useMemo(() => overallSize(spec), [spec]);
@@ -652,7 +656,35 @@ export function CutListPanel(props: CutListPanelProps) {
                         </span>
                         <span className="text-faint ml-1 text-xs">({plural(steps.length, 'step')})</span>
                     </button>
-                    {assemblyOpen && (
+                    {assemblyOpen && editingSteps && props.onBuildSteps && (
+                        <BuildStepsEditor
+                            spec={spec}
+                            steps={stepsFrom(steps, spec)}
+                            onChange={(next) => props.onBuildSteps?.(next)}
+                            onReset={() => {
+                                props.onBuildSteps?.(null);
+                                setEditingSteps(false);
+                            }}
+                            onDone={() => setEditingSteps(false)}
+                        />
+                    )}
+                    {assemblyOpen && !editingSteps && !readonly && props.onBuildSteps && (
+                        <div className="mb-2 flex items-center gap-2 text-xs">
+                            <span className="text-muted flex-1">
+                                {(spec.meta?.buildSteps?.length ?? 0) > 0
+                                    ? 'Your own order.'
+                                    : 'The order Woodshop suggests.'}
+                            </span>
+                            <button
+                                className="border-fg/15 text-fg/80 hover:bg-fg/5 h-7 rounded-lg border px-2.5"
+                                data-testid="build-steps-edit"
+                                onClick={() => setEditingSteps(true)}
+                            >
+                                Edit steps
+                            </button>
+                        </div>
+                    )}
+                    {assemblyOpen && !editingSteps && (
                         <ol className="bg-surface-2 space-y-2 rounded-lg px-3 py-2">
                             {steps.map((step, i) => (
                                 <li key={i} data-testid="assembly-step">

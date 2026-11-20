@@ -771,7 +771,10 @@ the owner to check, as computer use of the app is declined.
     beside each step; `meta.notes` prints as Build notes. Done for the editor and viewer too:
     `BuildStepBar` (`hiddenAtStep`), Show per step in the cut list, Build in the plan's header;
     the editor drives the engine's hidden set directly and restores the user's own on leaving.
-    Still to do: your own steps (below).
+    Your own steps done too (spec 1.18): `meta.buildSteps`, `assembly::your_steps`,
+    `SetBuildSteps`, `BuildStepsEditor`, the `meta.build-step-parts` warning, pruning in
+    `RemovePart` and the MCP `delete_part`; tested through a `.woodshop` round trip and the
+    1.17 → 1.18 migration.
   - Pictures: the editor and viewer show the parts up to step N
     (`setHidden(all − parts through N)`), with that step's new parts tinted. For the PDF, render
     one PNG per step offscreen with the video's `FilmStage` (`ui/src/video/assemblyFilm.ts`,

@@ -11,6 +11,7 @@ import {
     RenamePart,
     SetPartLocked,
     SetMaterialThickness,
+    SetBuildSteps,
     SetMaterial,
     SetJoints,
     GroupParts,
@@ -239,6 +240,31 @@ describe('EditorDocument history', () => {
         });
         d.undo();
         expect(d.spec).toEqual(spec);
+    });
+
+    it('SetBuildSteps sets your own steps, resets them, and each is one undo', () => {
+        const d = doc();
+        const original = d.spec;
+        const ids = d.spec.parts.map((p) => p.id);
+        d.execute(new SetBuildSteps([{ heading: 'All at once', partIds: ids, note: 'Dry-fit first.' }]));
+        expect(d.spec.meta?.buildSteps?.[0].heading).toBe('All at once');
+        d.execute(new SetBuildSteps(null));
+        expect(d.spec.meta?.buildSteps).toBeUndefined();
+        d.undo();
+        expect(d.spec.meta?.buildSteps?.[0].note).toBe('Dry-fit first.');
+        d.undo();
+        expect(d.spec).toEqual(original);
+    });
+
+    it('RemovePart takes the part out of your build steps, and undo puts it back', () => {
+        const d = doc();
+        const ids = d.spec.parts.map((p) => p.id);
+        d.execute(new SetBuildSteps([{ heading: 'One', partIds: ids }]));
+        const withSteps = d.spec;
+        d.execute(new RemovePart(ids[0]));
+        expect(d.spec.meta?.buildSteps?.[0].partIds).toEqual(ids.slice(1));
+        d.undo();
+        expect(d.spec).toEqual(withSteps);
     });
 
     it('SetMaterialThickness changes nothing for the same thickness or an unknown material', () => {

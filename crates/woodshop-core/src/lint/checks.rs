@@ -295,6 +295,59 @@ pub(super) fn eased_joint_edges(spec: &Spec, issues: &mut Vec<LintIssue>) {
 }
 
 /// Groups: every membership names a real part, and a part belongs to at most one group.
+/// Your own build steps (1.18) name each part exactly once, and only parts that exist. Warnings:
+/// the plan still prints, but a part in no step is never shown going in.
+pub(super) fn build_steps(spec: &Spec, issues: &mut Vec<LintIssue>) {
+    let Some(steps) = spec.meta.as_ref().and_then(|m| m.build_steps.as_deref()) else {
+        return;
+    };
+    if steps.is_empty() {
+        return;
+    }
+    let mut step_of: HashMap<&str, usize> = HashMap::new();
+    for (i, step) in steps.iter().enumerate() {
+        for id in &step.part_ids {
+            if spec.part(id).is_none() {
+                issues.push(LintIssue::part(
+                    Severity::Warn,
+                    "meta.build-step-parts",
+                    format!(
+                        "Build step {} (\"{}\") names part \"{id}\", which isn't in the design. Remove it from the step.",
+                        i + 1,
+                        step.heading
+                    ),
+                    id,
+                ));
+            } else if let Some(first) = step_of.insert(id.as_str(), i) {
+                issues.push(LintIssue::part(
+                    Severity::Warn,
+                    "meta.build-step-parts",
+                    format!(
+                        "\"{}\" is in build steps {} and {}. Keep it in the step where it goes in.",
+                        spec.part(id).map_or(id.as_str(), |p| p.name.as_str()),
+                        first + 1,
+                        i + 1
+                    ),
+                    id,
+                ));
+            }
+        }
+    }
+    for part in &spec.parts {
+        if !step_of.contains_key(part.id.as_str()) {
+            issues.push(LintIssue::part(
+                Severity::Warn,
+                "meta.build-step-parts",
+                format!(
+                    "\"{}\" is in none of your build steps, so the plan never shows it going in. Add it to a step.",
+                    part.name
+                ),
+                &part.id,
+            ));
+        }
+    }
+}
+
 pub(super) fn groups(spec: &Spec, issues: &mut Vec<LintIssue>) {
     let mut member_of: HashMap<&str, &str> = HashMap::new();
     for group in spec.groups() {

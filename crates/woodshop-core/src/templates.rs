@@ -51,6 +51,7 @@ pub fn all() -> Vec<TemplateSummary> {
                 difficulty: None,
                 notes: None,
                 tags: None,
+                build_steps: None,
             });
             let totals = compute_cut_list(&spec, CutListConfig::default()).totals;
             Some(TemplateSummary {

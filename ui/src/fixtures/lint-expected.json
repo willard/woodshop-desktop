@@ -278,5 +278,12 @@
     "case:taper-beyond-saw": [
         "warn|op.taper-beyond-saw|p_a|0|"
     ],
-    "case:taper-long-edge-not-a-saw-angle": []
+    "case:taper-long-edge-not-a-saw-angle": [],
+    "case:build-steps-miss-and-repeat": [
+        "error|part.floating|p_a||",
+        "error|part.floating|p_b||",
+        "warn|meta.build-step-parts|p_a||",
+        "warn|meta.build-step-parts|p_b||",
+        "warn|meta.build-step-parts|p_ghost||"
+    ]
 }

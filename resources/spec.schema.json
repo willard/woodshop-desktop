@@ -13,7 +13,7 @@
     ],
     "properties": {
         "specVersion": {
-            "const": "1.17"
+            "const": "1.18"
         },
         "units": {
             "const": "in",
@@ -87,6 +87,41 @@
                     "items": {
                         "type": "string",
                         "maxLength": 30
+                    }
+                },
+                "buildSteps": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "description": "Your own assembly order (added in 1.18). When present it replaces the generated one in the cut list, the PDF plan, the build view and the video; each part belongs in exactly one step.",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                            "heading",
+                            "partIds"
+                        ],
+                        "properties": {
+                            "heading": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 120,
+                                "description": "What the step does, e.g. \"Glue the sides to the bottom\"."
+                            },
+                            "partIds": {
+                                "type": "array",
+                                "maxItems": 200,
+                                "uniqueItems": true,
+                                "items": {
+                                    "$ref": "#/$defs/id"
+                                },
+                                "description": "The parts this step puts in place; may be empty (a step for glue-up or finishing)."
+                            },
+                            "note": {
+                                "type": "string",
+                                "maxLength": 1000,
+                                "description": "Anything to say about the step, printed first under it."
+                            }
+                        }
                     }
                 }
             }

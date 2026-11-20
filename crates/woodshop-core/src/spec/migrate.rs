@@ -7,7 +7,7 @@
 use serde_json::{Map, Value};
 use thiserror::Error;
 
-pub const CURRENT_SPEC_VERSION: &str = "1.17";
+pub const CURRENT_SPEC_VERSION: &str = "1.18";
 
 #[derive(Debug, Error, PartialEq)]
 pub enum MigrateError {
@@ -43,6 +43,7 @@ const STEPS: &[(&str, &str, Step)] = &[
     ("1.14", "1.15", |s| stamp(s, "1.15")), // catalog hardware
     ("1.15", "1.16", |s| stamp(s, "1.16")), // edge banding
     ("1.16", "1.17", |s| stamp(s, "1.17")), // taper cuts
+    ("1.17", "1.18", |s| stamp(s, "1.18")), // your own build steps
 ];
 
 fn stamp(mut spec: Map<String, Value>, to: &str) -> Map<String, Value> {
@@ -147,8 +148,18 @@ mod tests {
     }
 
     #[test]
+    fn a_1_17_design_reads_as_1_18_with_nothing_else_changed() {
+        let v = json!({"specVersion": "1.17", "meta": {"notes": "n"}, "joints": []});
+        let out = migrate_to_latest(v).unwrap();
+        assert_eq!(
+            out,
+            json!({"specVersion": "1.18", "meta": {"notes": "n"}, "joints": []})
+        );
+    }
+
+    #[test]
     fn current_is_untouched() {
-        let v = json!({"specVersion": "1.17", "joints": [{"type": "butt"}]});
+        let v = json!({"specVersion": "1.18", "joints": [{"type": "butt"}]});
         assert_eq!(migrate_to_latest(v.clone()).unwrap(), v);
     }
 }

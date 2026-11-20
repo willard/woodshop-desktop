@@ -71,6 +71,19 @@ pub struct Meta {
     pub notes: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
+    /// Your own assembly order (1.18); replaces the generated one when present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub build_steps: Option<Vec<BuildStep>>,
+}
+
+/// One step of your own assembly order.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct BuildStep {
+    pub heading: String,
+    pub part_ids: Vec<Id>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

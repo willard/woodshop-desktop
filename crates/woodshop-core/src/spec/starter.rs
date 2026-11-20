@@ -162,6 +162,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
             difficulty: Some(Difficulty::Beginner),
             notes: None,
             tags: None,
+            build_steps: None,
         }),
     }
 }

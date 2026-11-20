@@ -154,6 +154,8 @@ export class RemovePart implements Command {
         shrunk: { groupId: string; partIds: string[] }[];
         movables: MovableCascade;
         hardware: DetachedHardware;
+        /** Your own build steps before the part left them, when it was in one. */
+        buildSteps?: NonNullable<Spec['meta']>['buildSteps'];
     };
 
     constructor(private readonly partId: string) {}
@@ -195,8 +197,22 @@ export class RemovePart implements Command {
             shrunk,
             movables,
         };
+        // A step must not go on naming a part that is gone.
+        const steps = spec.meta?.buildSteps;
+        let meta = spec.meta;
+        if (steps?.some((step) => step.partIds.includes(this.partId))) {
+            this.removed.buildSteps = steps;
+            meta = {
+                ...spec.meta,
+                buildSteps: steps.map((step) => ({
+                    ...step,
+                    partIds: step.partIds.filter((id) => id !== this.partId),
+                })),
+            };
+        }
         return {
             ...spec,
+            meta,
             parts: spec.parts.filter((p) => p.id !== this.partId),
             joints: joints.filter((j) => j.hostPartId !== this.partId && j.insertPartId !== this.partId),
             groups,
@@ -230,8 +246,38 @@ export class RemovePart implements Command {
             groups,
             movables: restoreMovables(spec, removed.movables),
             hardware: reattachHardware(spec, removed.hardware),
+            ...(removed.buildSteps === undefined
+                ? {}
+                : { meta: { ...spec.meta, buildSteps: removed.buildSteps } }),
         };
     }
+}
+
+/**
+ * Sets your own build steps (spec 1.18), or with `null` goes back to the generated order. The
+ * steps given replace the whole list, so an edit, a reorder and a reset are each one undo.
+ */
+export class SetBuildSteps implements Command {
+    readonly label = 'Change build steps';
+    private before?: NonNullable<Spec['meta']>['buildSteps'];
+
+    constructor(private readonly steps: NonNullable<NonNullable<Spec['meta']>['buildSteps']> | null) {}
+
+    do(spec: Spec): Spec {
+        this.before = spec.meta?.buildSteps;
+        return withBuildSteps(spec, this.steps ?? undefined);
+    }
+
+    undo(spec: Spec): Spec {
+        return withBuildSteps(spec, this.before);
+    }
+}
+
+function withBuildSteps(spec: Spec, steps: NonNullable<Spec['meta']>['buildSteps']): Spec {
+    const meta = { ...spec.meta };
+    if (steps === undefined) delete meta.buildSteps;
+    else meta.buildSteps = steps;
+    return { ...spec, meta };
 }
 
 /** Clones a part with a fresh id, offset so it's visible. */

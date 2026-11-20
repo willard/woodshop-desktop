@@ -552,6 +552,19 @@ fn remove_part(spec: &mut Value, part_id: &str) {
     if let Some(hardware) = spec["hardware"].as_array_mut() {
         hardware.retain(|h| h["partId"] != part_id);
     }
+    // Your own build steps stop naming it. (`get_mut`, not indexing: indexing a missing key
+    // writes a null into the design.)
+    if let Some(steps) = spec
+        .get_mut("meta")
+        .and_then(|m| m.get_mut("buildSteps"))
+        .and_then(Value::as_array_mut)
+    {
+        for step in steps {
+            if has(&step["partIds"]) {
+                step["partIds"] = without(&step["partIds"]).into();
+            }
+        }
+    }
     if let Some(groups) = spec["groups"].as_array_mut() {
         groups.retain_mut(|g| {
             if !has(&g["partIds"]) {

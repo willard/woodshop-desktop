@@ -7611,5 +7611,91 @@
             }
         ],
         "joints": []
+    },
+    "build-steps-miss-and-repeat": {
+        "specVersion": "1.18",
+        "units": "in",
+        "name": "build-steps-miss-and-repeat",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [],
+                "qty": 1
+            },
+            {
+                "id": "p_b",
+                "name": "B",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 19,
+                    "w": 30
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        5
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [],
+                "qty": 1
+            }
+        ],
+        "joints": [],
+        "meta": {
+            "buildSteps": [
+                {
+                    "heading": "One",
+                    "partIds": [
+                        "p_a"
+                    ]
+                },
+                {
+                    "heading": "Two",
+                    "partIds": [
+                        "p_a",
+                        "p_ghost"
+                    ]
+                }
+            ]
+        }
     }
 }

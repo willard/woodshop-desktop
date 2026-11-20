@@ -133,6 +133,7 @@ export {
     RenamePart,
     SetPartLocked,
     SetMaterialThickness,
+    SetBuildSteps,
     RenameGroup,
     ApplyFocusEdits,
     makePart,

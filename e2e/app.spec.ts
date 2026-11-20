@@ -853,6 +853,35 @@ test('the 3D view steps through the build, one step at a time', async ({ page })
     await expect(bar).toHaveCount(0);
 });
 
+test('your own build steps replace the suggested order, and reset back', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-assembly-toggle').click();
+    const steps = page.getByTestId('assembly-step');
+    const suggested = await steps.count();
+    await page.getByTestId('build-steps-edit').click();
+
+    const editor = page.getByTestId('build-step-edit');
+    await editor.first().getByTestId('build-step-heading-input').fill('Glue the base');
+    await editor.first().getByTestId('build-step-heading-input').press('Enter');
+    await editor.first().getByTestId('build-step-note-input').fill('Check it for square.');
+    await editor.first().getByTestId('build-step-note-input').press('Enter');
+    // The second step's parts join the first.
+    await editor.nth(1).getByTestId('build-step-remove').click();
+    await expect(editor).toHaveCount(suggested - 1);
+    await page.getByTestId('build-steps-done').click();
+
+    await expect(steps).toHaveCount(suggested - 1);
+    await expect(steps.first()).toContainText('1. Glue the base');
+    await expect(steps.first()).toContainText('Check it for square.');
+    await expect(page.getByText('Your own order.')).toBeVisible();
+
+    await page.getByTestId('build-steps-edit').click();
+    await page.getByTestId('build-steps-reset').click();
+    await expect(steps).toHaveCount(suggested);
+    await expect(page.getByText('The order Woodshop suggests.')).toBeVisible();
+});
+
 test('the PDF plan gets a picture of each assembly step', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('cutlist-toggle').click();

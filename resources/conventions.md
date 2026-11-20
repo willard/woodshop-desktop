@@ -281,3 +281,15 @@ their stock, and a fully connected assembly with no floating parts.
   leave edges that sit in a dado or against another part bare.
 - Banding changes no size: the cut list totals it per material as a hardware row ("Feet of 3/4"
   edge banding"), with a tenth spare.
+
+## Build steps (spec 1.18)
+
+- The assembly order `get_cut_list` returns is worked out from the design: up from the floor,
+  the back last, then drawers, doors and hardware. Each step lists the parts it puts in place
+  (`partIds`).
+- A design may carry its own order in `meta.buildSteps`: `[{ "heading", "partIds", "note"? }]`.
+  When present it replaces the worked-out order everywhere (cut list, PDF, build view, video);
+  each part's fastening line is still worked out, and hardware still comes last. Each part
+  belongs in exactly one step; the checks warn (`meta.build-step-parts`) about a part in none or
+  two, or a step naming a part that is gone. `delete_part` takes a deleted part out of the steps.
+  These are the user's: leave them as they are unless asked.

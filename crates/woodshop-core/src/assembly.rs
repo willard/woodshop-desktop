@@ -190,6 +190,16 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
             index,
         })
         .collect();
+    if let Some(custom) = spec
+        .meta
+        .as_ref()
+        .and_then(|m| m.build_steps.as_deref())
+        .filter(|s| !s.is_empty())
+    {
+        let mut steps = your_steps(spec, &nodes, custom);
+        steps.extend(hardware_step(spec));
+        return steps;
+    }
     let structure: Vec<&Node> = nodes.iter().filter(|n| !moving.contains(n.part.id.as_str())).collect();
     let mut all = Aabb::EMPTY;
     for n in &structure {
@@ -313,7 +323,12 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
         }
     }
 
-    // Hardware last, one line per item on a part.
+    steps.extend(hardware_step(spec));
+    steps
+}
+
+/// Hardware last, one line per item on a part.
+fn hardware_step(spec: &Spec) -> Option<AssemblyStep> {
     let mut fitted: Vec<(String, String, u32)> = Vec::new();
     for mount in spec.hardware() {
         let item = crate::hardware::find(&mount.item).map_or(mount.item.as_str(), |i| i.name.as_str());
@@ -325,23 +340,51 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
             None => fitted.push((item.to_owned(), part.to_owned(), 1)),
         }
     }
-    if !fitted.is_empty() {
-        steps.push(AssemblyStep {
-            part_ids: Vec::new(),
-            heading: "Fit the hardware".into(),
-            lines: fitted
-                .into_iter()
-                .map(|(item, part, n)| {
-                    if n > 1 {
-                        format!("{n} × {item} on {part}.")
-                    } else {
-                        format!("{item} on {part}.")
+    (!fitted.is_empty()).then(|| AssemblyStep {
+        part_ids: Vec::new(),
+        heading: "Fit the hardware".into(),
+        lines: fitted
+            .into_iter()
+            .map(|(item, part, n)| {
+                if n > 1 {
+                    format!("{n} × {item} on {part}.")
+                } else {
+                    format!("{item} on {part}.")
+                }
+            })
+            .collect(),
+    })
+}
+
+/// Your own steps (`meta.buildSteps`): your heading and note, and for each part how it fastens to
+/// what earlier steps put in place, worked out as for the generated order.
+fn your_steps(spec: &Spec, nodes: &[Node], custom: &[crate::spec::BuildStep]) -> Vec<AssemblyStep> {
+    let mut placed: Vec<&Node> = Vec::new();
+    custom
+        .iter()
+        .map(|step| {
+            let mut lines: Vec<String> = step.note.iter().filter(|n| !n.trim().is_empty()).cloned().collect();
+            let members: Vec<&Node> = step
+                .part_ids
+                .iter()
+                .filter_map(|id| nodes.iter().find(|n| &n.part.id == id))
+                .collect();
+            for n in &members {
+                if !placed.is_empty() {
+                    let l = line(spec, n, &placed);
+                    if l != n.part.name {
+                        lines.push(l);
                     }
-                })
-                .collect(),
-        });
-    }
-    steps
+                }
+                placed.push(n);
+            }
+            AssemblyStep {
+                heading: step.heading.clone(),
+                lines,
+                part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
+            }
+        })
+        .collect()
 }
 
 #[cfg(test)]
@@ -406,6 +449,44 @@ mod tests {
         assert_eq!(steps[1].lines[0], "Left Side: 2 pocket screws from Bottom.");
         // Every row of screws into one part counts once: the back's line is short.
         assert_eq!(steps[6].lines.len(), 1);
+    }
+
+    #[test]
+    fn your_own_steps_replace_the_generated_order() {
+        let mut spec = template("bookshelf");
+        spec.meta
+            .get_or_insert(crate::spec::Meta {
+                difficulty: None,
+                notes: None,
+                tags: None,
+                build_steps: None,
+            })
+            .build_steps = Some(vec![
+            crate::spec::BuildStep {
+                heading: "Glue up the box".into(),
+                part_ids: vec!["p_bottom".into(), "p_side_l".into(), "p_side_r".into(), "p_top".into()],
+                note: Some("Check it for square across the diagonals.".into()),
+            },
+            crate::spec::BuildStep {
+                heading: "Fit the shelves and back".into(),
+                part_ids: vec![
+                    "p_shelf_1".into(),
+                    "p_shelf_2".into(),
+                    "p_shelf_3".into(),
+                    "p_back".into(),
+                    "p_gone".into(),
+                ],
+                note: None,
+            },
+        ]);
+        let steps = assembly_order(&spec);
+        let headings: Vec<&str> = steps.iter().map(|s| s.heading.as_str()).collect();
+        assert_eq!(headings, ["Glue up the box", "Fit the shelves and back"]);
+        assert_eq!(steps[0].lines[0], "Check it for square across the diagonals.");
+        // Fastenings are still worked out, against what earlier steps put in place.
+        assert_eq!(steps[0].lines[1], "Left Side: 2 pocket screws from Bottom.");
+        // A part that no longer exists is dropped.
+        assert_eq!(steps[1].part_ids.len(), 4);
     }
 
     #[test]
