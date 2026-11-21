@@ -826,7 +826,9 @@ the owner to check, as computer use of the app is declined.
   `setup_of` ("Miter saw at 45°"), `lint/ops.rs`, `partGeometry.ts`, `opLabel.ts`, and
   `PartInspector.tsx` (a Dog ears button that asks which end). Done when: the parity test passes,
   the cut list says "Dog-ear one end, 3/4" in", and the shape is right in DXF and SVG.
-- **7.7 Outdoor lumber and templates.**
+- **7.7 Outdoor lumber and templates.** Done: `cedar` (spec 1.19), Fence picket and 5/4x6
+  decking (with their own `lengths`), and picket-planter, bench-planter and birdhouse (made by a
+  script from their measurements; they pass the template test with no issues and no overlap).
   - `lumberSizes.ts`: fence picket (5/8 × 5 1/2, 72") and 5/4 decking (1 × 5 1/2).
   - Spec `Species` gains `cedar` (fold into 1.19), with a tone in `SPECIES_TONES`
     (`ui/src/engine/materials.ts`) and a density in `cutlist/weight.rs`.

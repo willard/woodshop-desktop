@@ -110,6 +110,8 @@ pub enum Species {
     Maple,
     Walnut,
     Cherry,
+    /// Western red cedar (1.19): light, soft and weather-resistant, for outdoor work.
+    Cedar,
 }
 
 impl Species {
@@ -120,6 +122,7 @@ impl Species {
             Self::Maple => "maple",
             Self::Walnut => "walnut",
             Self::Cherry => "cherry",
+            Self::Cedar => "cedar",
         }
     }
 }

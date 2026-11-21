@@ -476,7 +476,7 @@ fn set_part_species(w: &Woodshop, args: &Args) -> Outcome {
             .map(|m| text(m, "id").to_owned());
         let target = existing.unwrap_or_else(|| {
             let current_name = text(&current, "name");
-            let base_name = ["Pine", "Oak", "Maple", "Walnut", "Cherry"]
+            let base_name = ["Pine", "Oak", "Maple", "Walnut", "Cherry", "Cedar"]
                 .iter()
                 .find_map(|s| current_name.strip_prefix(&format!("{s} — ")))
                 .unwrap_or(current_name);

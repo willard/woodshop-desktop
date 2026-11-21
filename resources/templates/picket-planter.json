@@ -1,0 +1,1375 @@
+{
+    "specVersion": "1.19",
+    "units": "in",
+    "name": "Cedar Picket Planter",
+    "materials": [
+        {
+            "id": "mat_picket",
+            "type": "lumber",
+            "name": "Cedar fence picket (5/8 x 5 1/2)",
+            "thickness": 0.625,
+            "stockWidth": 5.5,
+            "stockLengths": [
+                72
+            ],
+            "species": "cedar"
+        },
+        {
+            "id": "mat_2x2",
+            "type": "lumber",
+            "name": "Cedar 2x2",
+            "thickness": 1.5,
+            "stockWidth": 1.5,
+            "stockLengths": [
+                96
+            ],
+            "species": "cedar"
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_front_1",
+            "name": "Front Picket 1",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -5.5,
+                    9.0,
+                    5.8125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_front_2",
+            "name": "Front Picket 2",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    9.0,
+                    5.8125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_front_3",
+            "name": "Front Picket 3",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    5.5,
+                    9.0,
+                    5.8125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_back_1",
+            "name": "Back Picket 1",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -5.5,
+                    9.0,
+                    -5.8125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_back_2",
+            "name": "Back Picket 2",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    9.0,
+                    -5.8125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_back_3",
+            "name": "Back Picket 3",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    5.5,
+                    9.0,
+                    -5.8125
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_left_1",
+            "name": "Left Picket 1",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7.9375,
+                    9.0,
+                    -2.75
+                ],
+                "rot": [
+                    0,
+                    90,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_left_2",
+            "name": "Left Picket 2",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -7.9375,
+                    9.0,
+                    2.75
+                ],
+                "rot": [
+                    0,
+                    90,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_right_1",
+            "name": "Right Picket 1",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    7.9375,
+                    9.0,
+                    -2.75
+                ],
+                "rot": [
+                    0,
+                    90,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_right_2",
+            "name": "Right Picket 2",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 18.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    7.9375,
+                    9.0,
+                    2.75
+                ],
+                "rot": [
+                    0,
+                    90,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 0.75
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 2.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 14.25,
+                    "count": 2,
+                    "from": 2.0,
+                    "to": 3.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_post_fl",
+            "name": "Corner Post FL",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 16.0,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -6.875,
+                    8.0,
+                    4.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            }
+        },
+        {
+            "id": "p_post_fr",
+            "name": "Corner Post FR",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 16.0,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    6.875,
+                    8.0,
+                    4.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            }
+        },
+        {
+            "id": "p_post_bl",
+            "name": "Corner Post BL",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 16.0,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -6.875,
+                    8.0,
+                    -4.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            }
+        },
+        {
+            "id": "p_post_br",
+            "name": "Corner Post BR",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 16.0,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    6.875,
+                    8.0,
+                    -4.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            }
+        },
+        {
+            "id": "p_low_front",
+            "name": "Lower Front Rail",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 12.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    2.25,
+                    4.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_low_back",
+            "name": "Lower Back Rail",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 12.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    2.25,
+                    -4.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_low_left",
+            "name": "Lower Left Rail",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 8.0,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -6.875,
+                    2.25,
+                    0.0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_low_right",
+            "name": "Lower Right Rail",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 8.0,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    6.875,
+                    2.25,
+                    0.0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_top_front",
+            "name": "Upper Front Rail",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 12.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    14.25,
+                    4.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_top_back",
+            "name": "Upper Back Rail",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 12.25,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    14.25,
+                    -4.75
+                ],
+                "rot": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_top_left",
+            "name": "Upper Left Rail",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 8.0,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -6.875,
+                    14.25,
+                    0.0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "front",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_top_right",
+            "name": "Upper Right Rail",
+            "materialId": "mat_2x2",
+            "size": {
+                "l": 8.0,
+                "w": 1.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    6.875,
+                    14.25,
+                    0.0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w0",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                },
+                {
+                    "type": "pocketHoles",
+                    "face": "back",
+                    "edge": "w1",
+                    "count": 1,
+                    "from": 0.75,
+                    "to": 0.75,
+                    "thread": "coarse",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_floor_1",
+            "name": "Floor Slat 1",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 11.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -2.75,
+                    3.3125,
+                    0.0
+                ],
+                "rot": [
+                    -90,
+                    0,
+                    -90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 0.75,
+                    "count": 2,
+                    "from": 1.5,
+                    "to": 4.0,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 10.25,
+                    "count": 2,
+                    "from": 1.5,
+                    "to": 4.0,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_floor_2",
+            "name": "Floor Slat 2",
+            "materialId": "mat_picket",
+            "size": {
+                "l": 11.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    2.75,
+                    3.3125,
+                    0.0
+                ],
+                "rot": [
+                    -90,
+                    0,
+                    -90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 0.75,
+                    "count": 2,
+                    "from": 1.5,
+                    "to": 4.0,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 10.25,
+                    "count": 2,
+                    "from": 1.5,
+                    "to": 4.0,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "screw",
+            "hostPartId": "p_front_1",
+            "insertPartId": "p_low_front",
+            "opRef": 1
+        },
+        {
+            "id": "j1",
+            "type": "screw",
+            "hostPartId": "p_front_1",
+            "insertPartId": "p_top_front",
+            "opRef": 2
+        },
+        {
+            "id": "j2",
+            "type": "screw",
+            "hostPartId": "p_front_2",
+            "insertPartId": "p_low_front",
+            "opRef": 1
+        },
+        {
+            "id": "j3",
+            "type": "screw",
+            "hostPartId": "p_front_2",
+            "insertPartId": "p_top_front",
+            "opRef": 2
+        },
+        {
+            "id": "j4",
+            "type": "screw",
+            "hostPartId": "p_front_3",
+            "insertPartId": "p_low_front",
+            "opRef": 1
+        },
+        {
+            "id": "j5",
+            "type": "screw",
+            "hostPartId": "p_front_3",
+            "insertPartId": "p_top_front",
+            "opRef": 2
+        },
+        {
+            "id": "j6",
+            "type": "screw",
+            "hostPartId": "p_back_1",
+            "insertPartId": "p_low_back",
+            "opRef": 1
+        },
+        {
+            "id": "j7",
+            "type": "screw",
+            "hostPartId": "p_back_1",
+            "insertPartId": "p_top_back",
+            "opRef": 2
+        },
+        {
+            "id": "j8",
+            "type": "screw",
+            "hostPartId": "p_back_2",
+            "insertPartId": "p_low_back",
+            "opRef": 1
+        },
+        {
+            "id": "j9",
+            "type": "screw",
+            "hostPartId": "p_back_2",
+            "insertPartId": "p_top_back",
+            "opRef": 2
+        },
+        {
+            "id": "j10",
+            "type": "screw",
+            "hostPartId": "p_back_3",
+            "insertPartId": "p_low_back",
+            "opRef": 1
+        },
+        {
+            "id": "j11",
+            "type": "screw",
+            "hostPartId": "p_back_3",
+            "insertPartId": "p_top_back",
+            "opRef": 2
+        },
+        {
+            "id": "j12",
+            "type": "screw",
+            "hostPartId": "p_left_1",
+            "insertPartId": "p_low_left",
+            "opRef": 1
+        },
+        {
+            "id": "j13",
+            "type": "screw",
+            "hostPartId": "p_left_1",
+            "insertPartId": "p_top_left",
+            "opRef": 2
+        },
+        {
+            "id": "j14",
+            "type": "screw",
+            "hostPartId": "p_left_2",
+            "insertPartId": "p_low_left",
+            "opRef": 1
+        },
+        {
+            "id": "j15",
+            "type": "screw",
+            "hostPartId": "p_left_2",
+            "insertPartId": "p_top_left",
+            "opRef": 2
+        },
+        {
+            "id": "j16",
+            "type": "screw",
+            "hostPartId": "p_right_1",
+            "insertPartId": "p_low_right",
+            "opRef": 1
+        },
+        {
+            "id": "j17",
+            "type": "screw",
+            "hostPartId": "p_right_1",
+            "insertPartId": "p_top_right",
+            "opRef": 2
+        },
+        {
+            "id": "j18",
+            "type": "screw",
+            "hostPartId": "p_right_2",
+            "insertPartId": "p_low_right",
+            "opRef": 1
+        },
+        {
+            "id": "j19",
+            "type": "screw",
+            "hostPartId": "p_right_2",
+            "insertPartId": "p_top_right",
+            "opRef": 2
+        },
+        {
+            "id": "j20",
+            "type": "pocketScrew",
+            "hostPartId": "p_low_front",
+            "insertPartId": "p_post_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j21",
+            "type": "pocketScrew",
+            "hostPartId": "p_low_front",
+            "insertPartId": "p_post_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j22",
+            "type": "pocketScrew",
+            "hostPartId": "p_low_back",
+            "insertPartId": "p_post_bl",
+            "opRef": 0
+        },
+        {
+            "id": "j23",
+            "type": "pocketScrew",
+            "hostPartId": "p_low_back",
+            "insertPartId": "p_post_br",
+            "opRef": 1
+        },
+        {
+            "id": "j24",
+            "type": "pocketScrew",
+            "hostPartId": "p_low_left",
+            "insertPartId": "p_post_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j25",
+            "type": "pocketScrew",
+            "hostPartId": "p_low_left",
+            "insertPartId": "p_post_bl",
+            "opRef": 1
+        },
+        {
+            "id": "j26",
+            "type": "pocketScrew",
+            "hostPartId": "p_low_right",
+            "insertPartId": "p_post_fr",
+            "opRef": 0
+        },
+        {
+            "id": "j27",
+            "type": "pocketScrew",
+            "hostPartId": "p_low_right",
+            "insertPartId": "p_post_br",
+            "opRef": 1
+        },
+        {
+            "id": "j28",
+            "type": "pocketScrew",
+            "hostPartId": "p_top_front",
+            "insertPartId": "p_post_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j29",
+            "type": "pocketScrew",
+            "hostPartId": "p_top_front",
+            "insertPartId": "p_post_fr",
+            "opRef": 1
+        },
+        {
+            "id": "j30",
+            "type": "pocketScrew",
+            "hostPartId": "p_top_back",
+            "insertPartId": "p_post_bl",
+            "opRef": 0
+        },
+        {
+            "id": "j31",
+            "type": "pocketScrew",
+            "hostPartId": "p_top_back",
+            "insertPartId": "p_post_br",
+            "opRef": 1
+        },
+        {
+            "id": "j32",
+            "type": "pocketScrew",
+            "hostPartId": "p_top_left",
+            "insertPartId": "p_post_fl",
+            "opRef": 0
+        },
+        {
+            "id": "j33",
+            "type": "pocketScrew",
+            "hostPartId": "p_top_left",
+            "insertPartId": "p_post_bl",
+            "opRef": 1
+        },
+        {
+            "id": "j34",
+            "type": "pocketScrew",
+            "hostPartId": "p_top_right",
+            "insertPartId": "p_post_fr",
+            "opRef": 0
+        },
+        {
+            "id": "j35",
+            "type": "pocketScrew",
+            "hostPartId": "p_top_right",
+            "insertPartId": "p_post_br",
+            "opRef": 1
+        },
+        {
+            "id": "j36",
+            "type": "screw",
+            "hostPartId": "p_floor_1",
+            "insertPartId": "p_low_back",
+            "opRef": 0
+        },
+        {
+            "id": "j37",
+            "type": "screw",
+            "hostPartId": "p_floor_1",
+            "insertPartId": "p_low_front",
+            "opRef": 1
+        },
+        {
+            "id": "j38",
+            "type": "screw",
+            "hostPartId": "p_floor_2",
+            "insertPartId": "p_low_back",
+            "opRef": 0
+        },
+        {
+            "id": "j39",
+            "type": "screw",
+            "hostPartId": "p_floor_2",
+            "insertPartId": "p_low_front",
+            "opRef": 1
+        }
+    ],
+    "meta": {
+        "difficulty": "beginner",
+        "notes": "A 16 1/2 x 12 1/4 x 18 planter from dog-eared cedar fence pickets around a cedar 2x2 frame. The pickets keep their dog ears on top; the floor slats rest on the lower rails with gaps at the corners to drain. Line it with landscape fabric.",
+        "tags": [
+            "outdoor",
+            "garden",
+            "planter",
+            "cedar"
+        ]
+    }
+}

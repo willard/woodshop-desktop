@@ -85,5 +85,6 @@ export const DEFAULT_STRUCT_CONFIG: StructConfig = {
         maple: modulusOf('maple'),
         walnut: modulusOf('walnut'),
         cherry: modulusOf('cherry'),
+        cedar: modulusOf('cedar'),
     },
 };

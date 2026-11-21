@@ -21,6 +21,7 @@ export const SPECIES_TONES: Record<Species, number> = {
     maple: 0xe8cd98,
     walnut: 0x7a5234,
     cherry: 0xa85d3a,
+    cedar: 0xc07a52,
 };
 
 /** A material factory the scene builder calls per part. */

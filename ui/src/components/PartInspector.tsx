@@ -126,6 +126,7 @@ const SPECIES_OPTIONS: { value: Species; label: string }[] = [
     { value: 'maple', label: 'Maple' },
     { value: 'walnut', label: 'Walnut' },
     { value: 'cherry', label: 'Cherry' },
+    { value: 'cedar', label: 'Cedar' },
 ];
 
 const EDGE_LABELS: { value: Edge; label: string }[] = [

@@ -292,5 +292,8 @@
     "case:clip-valid": [],
     "case:clip-too-big": [
         "error|op.out-of-bounds|p_a|0|"
-    ]
+    ],
+    "template:picket-planter": [],
+    "template:bench-planter": [],
+    "template:birdhouse": []
 }

@@ -173,9 +173,9 @@ test('a template becomes a new project', async ({ page }) => {
     await page.goto('/#/templates');
     // Every card has its picture, a description for a customer, and the size and stock to buy.
     const cards = page.getByTestId('template-card');
-    await expect(cards).toHaveCount(30);
+    await expect(cards).toHaveCount(33);
     const pictures = page.getByTestId('template-thumb');
-    await expect(pictures).toHaveCount(30);
+    await expect(pictures).toHaveCount(33);
     for (const img of await pictures.all()) {
         await expect.poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth)).toBe(640);
     }

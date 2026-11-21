@@ -608,9 +608,10 @@ const SPECIES_LABEL: Record<Species, string> = {
     maple: 'Maple',
     walnut: 'Walnut',
     cherry: 'Cherry',
+    cedar: 'Cedar',
 };
 
-const SPECIES_NAME_PREFIX = /^(Pine|Oak|Maple|Walnut|Cherry) — /;
+const SPECIES_NAME_PREFIX = /^(Pine|Oak|Maple|Walnut|Cherry|Cedar) — /;
 
 /** True when two materials describe the same physical stock, species aside. */
 function sameStock(a: Material, b: Material): boolean {
@@ -764,11 +765,13 @@ export class SetPartStock implements Command {
                     thickness: size.thickness,
                     stockWidth: size.width,
                     stockLengths:
-                        current.type === 'lumber' && current.stockLengths !== undefined
-                            ? current.stockLengths
-                            : size.metric
-                              ? METRIC_STOCK_LENGTHS
-                              : [96],
+                        size.lengths !== undefined
+                            ? [...size.lengths]
+                            : current.type === 'lumber' && current.stockLengths !== undefined
+                              ? current.stockLengths
+                              : size.metric
+                                ? METRIC_STOCK_LENGTHS
+                                : [96],
                     grain: current.grain ?? true,
                     ...(current.species === undefined ? {} : { species: current.species }),
                     ...(current.costPerBoardFoot === undefined

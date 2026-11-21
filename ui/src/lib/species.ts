@@ -272,7 +272,7 @@ export function modulusOf(id: SpeciesId): number {
 }
 
 /** The five ids `spec.schema.json` can name — the editor's material presets. */
-export const SPEC_SPECIES: readonly Species[] = ['pine', 'oak', 'maple', 'walnut', 'cherry'];
+export const SPEC_SPECIES: readonly Species[] = ['pine', 'oak', 'maple', 'walnut', 'cherry', 'cedar'];
 
 /**
  * Species that move seasonally. Panels are excluded so the movement calculator cannot be pointed at

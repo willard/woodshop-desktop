@@ -67,7 +67,7 @@ describe('agreement with the rest of the app', () => {
     });
 
     it('covers exactly the five species the spec schema can name', () => {
-        expect([...SPEC_SPECIES].sort()).toEqual(['cherry', 'maple', 'oak', 'pine', 'walnut']);
+        expect([...SPEC_SPECIES].sort()).toEqual(['cedar', 'cherry', 'maple', 'oak', 'pine', 'walnut']);
         for (const id of SPEC_SPECIES) {
             expect(speciesById(id)).toBeDefined();
         }

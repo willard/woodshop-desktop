@@ -20,6 +20,8 @@ export interface LumberSize {
     readonly width: number;
     /** Metric timber, sold by its planed size in millimetres. */
     readonly metric?: true;
+    /** The lengths it is sold in, when not the usual (a fence picket is 6'). */
+    readonly lengths?: readonly number[];
 }
 
 /** Standard softwood dressed sizes (US S4S). Ordered for the picker: 1x, 2x, posts. */
@@ -31,6 +33,9 @@ export const LUMBER_SIZES: readonly LumberSize[] = [
     { nominal: '1x8', thickness: 0.75, width: 7.25 },
     { nominal: '1x10', thickness: 0.75, width: 9.25 },
     { nominal: '1x12', thickness: 0.75, width: 11.25 },
+    // Outdoor stock: a dog-eared fence picket and 5/4 deck board.
+    { nominal: 'Fence picket', thickness: 0.625, width: 5.5, lengths: [72] },
+    { nominal: '5/4x6 decking', thickness: 1, width: 5.5, lengths: [96, 120, 144, 192] },
     { nominal: '2x2', thickness: 1.5, width: 1.5 },
     { nominal: '2x3', thickness: 1.5, width: 2.5 },
     { nominal: '2x4', thickness: 1.5, width: 3.5 },

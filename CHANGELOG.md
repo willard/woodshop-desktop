@@ -45,6 +45,11 @@ All notable changes to Woodshop are listed here. The format follows
   or both corners of an end, as on a fence picket. The cut list says "Dog-ear the right end,
   3/4" in", the joinery setups say "Miter saw at 45°", and the shop templates and DXF draw it.
 
+- Outdoor stock and templates: Western red cedar joins the species (format 1.19), and the
+  lumber sizes gain a dog-eared fence picket (5/8" × 5 1/2", 6') and 5/4x6 decking. Three new
+  templates use them: a Cedar Picket Planter, a Cedar Bench Planter and a Cedar Birdhouse,
+  whose gable is dog-eared to a 45° peak.
+
 ### Fixed
 
 - Snapping and the joints the editor finds now measure a curved, tapered or angled part as cut,

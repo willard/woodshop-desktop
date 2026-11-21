@@ -1,0 +1,416 @@
+{
+    "specVersion": "1.19",
+    "units": "in",
+    "name": "Cedar Birdhouse",
+    "materials": [
+        {
+            "id": "mat_1x6",
+            "type": "lumber",
+            "name": "Cedar 1x6",
+            "thickness": 0.75,
+            "stockWidth": 5.5,
+            "stockLengths": [
+                96
+            ],
+            "species": "cedar"
+        }
+    ],
+    "parts": [
+        {
+            "id": "p_front",
+            "name": "Front",
+            "materialId": "mat_1x6",
+            "size": {
+                "l": 9.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    4.5,
+                    2.375
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 2.75
+                },
+                {
+                    "type": "hole",
+                    "face": "front",
+                    "x": 5.0,
+                    "y": 2.75,
+                    "diameter": 1.25,
+                    "purpose": "other"
+                }
+            ]
+        },
+        {
+            "id": "p_back",
+            "name": "Back",
+            "materialId": "mat_1x6",
+            "size": {
+                "l": 9.0,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    4.5,
+                    -2.375
+                ],
+                "rot": [
+                    0,
+                    0,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "curve",
+                    "edge": "w1",
+                    "kind": "clip",
+                    "size": 2.75
+                }
+            ]
+        },
+        {
+            "id": "p_side_left",
+            "name": "Left Side",
+            "materialId": "mat_1x6",
+            "size": {
+                "l": 5.5,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -3.125,
+                    2.75,
+                    0.0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 0.375,
+                    "count": 2,
+                    "from": 1.0,
+                    "to": 4.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "w",
+                    "offset": 5.125,
+                    "count": 2,
+                    "from": 1.0,
+                    "to": 4.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "back",
+                    "axis": "l",
+                    "offset": 0.625,
+                    "count": 2,
+                    "from": 1.25,
+                    "to": 4.25,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_side_right",
+            "name": "Right Side",
+            "materialId": "mat_1x6",
+            "size": {
+                "l": 5.5,
+                "w": 5.5
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    3.125,
+                    2.75,
+                    0.0
+                ],
+                "rot": [
+                    0,
+                    90,
+                    0
+                ]
+            },
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 0.375,
+                    "count": 2,
+                    "from": 1.0,
+                    "to": 4.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 5.125,
+                    "count": 2,
+                    "from": 1.0,
+                    "to": 4.5,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 0.625,
+                    "count": 2,
+                    "from": 1.25,
+                    "to": 4.25,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_floor",
+            "name": "Floor",
+            "materialId": "mat_1x6",
+            "size": {
+                "l": 5.5,
+                "w": 4.0
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    0.0,
+                    0.625,
+                    0.0
+                ],
+                "rot": [
+                    90,
+                    0,
+                    0
+                ]
+            }
+        },
+        {
+            "id": "p_roof_left",
+            "name": "Roof, Left",
+            "materialId": "mat_1x6",
+            "size": {
+                "l": 8.0,
+                "w": 4.3891
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    -1.8169,
+                    7.7134,
+                    0.0
+                ],
+                "rot": [
+                    -90,
+                    -45,
+                    -90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 6.375,
+                    "count": 2,
+                    "from": 1.25,
+                    "to": 3.1391,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 1.625,
+                    "count": 2,
+                    "from": 1.25,
+                    "to": 3.1391,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        },
+        {
+            "id": "p_roof_right",
+            "name": "Roof, Right",
+            "materialId": "mat_1x6",
+            "size": {
+                "l": 8.0,
+                "w": 5.1391
+            },
+            "grainAxis": "l",
+            "transform": {
+                "pos": [
+                    1.5518,
+                    7.9786,
+                    0.0
+                ],
+                "rot": [
+                    -90,
+                    45,
+                    90
+                ]
+            },
+            "ops": [
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 1.625,
+                    "count": 2,
+                    "from": 1.25,
+                    "to": 3.1391,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "w",
+                    "offset": 6.375,
+                    "count": 2,
+                    "from": 1.25,
+                    "to": 3.1391,
+                    "gauge": "#8",
+                    "length": 1.25
+                },
+                {
+                    "type": "screws",
+                    "face": "front",
+                    "axis": "l",
+                    "offset": 4.7641,
+                    "count": 3,
+                    "from": 1.0,
+                    "to": 7.0,
+                    "gauge": "#8",
+                    "length": 1.25
+                }
+            ]
+        }
+    ],
+    "joints": [
+        {
+            "id": "j0",
+            "type": "screw",
+            "hostPartId": "p_side_left",
+            "insertPartId": "p_front",
+            "opRef": 0
+        },
+        {
+            "id": "j1",
+            "type": "screw",
+            "hostPartId": "p_side_left",
+            "insertPartId": "p_back",
+            "opRef": 1
+        },
+        {
+            "id": "j2",
+            "type": "screw",
+            "hostPartId": "p_side_left",
+            "insertPartId": "p_floor",
+            "opRef": 2
+        },
+        {
+            "id": "j3",
+            "type": "screw",
+            "hostPartId": "p_side_right",
+            "insertPartId": "p_front",
+            "opRef": 0
+        },
+        {
+            "id": "j4",
+            "type": "screw",
+            "hostPartId": "p_side_right",
+            "insertPartId": "p_back",
+            "opRef": 1
+        },
+        {
+            "id": "j5",
+            "type": "screw",
+            "hostPartId": "p_side_right",
+            "insertPartId": "p_floor",
+            "opRef": 2
+        },
+        {
+            "id": "j6",
+            "type": "screw",
+            "hostPartId": "p_roof_left",
+            "insertPartId": "p_front",
+            "opRef": 0
+        },
+        {
+            "id": "j7",
+            "type": "screw",
+            "hostPartId": "p_roof_left",
+            "insertPartId": "p_back",
+            "opRef": 1
+        },
+        {
+            "id": "j8",
+            "type": "screw",
+            "hostPartId": "p_roof_right",
+            "insertPartId": "p_front",
+            "opRef": 0
+        },
+        {
+            "id": "j9",
+            "type": "screw",
+            "hostPartId": "p_roof_right",
+            "insertPartId": "p_back",
+            "opRef": 1
+        },
+        {
+            "id": "j10",
+            "type": "screw",
+            "hostPartId": "p_roof_right",
+            "insertPartId": "p_roof_left",
+            "opRef": 2
+        }
+    ],
+    "meta": {
+        "difficulty": "beginner",
+        "notes": "A birdhouse from one cedar 1x6: the front and back are dog-eared to a 45° peak, the right roof panel laps over the left at the ridge, and the sides stop short of the roof to leave a vent under the eaves. The 1 1/4\" hole suits chickadees and wrens. The floor sits 1/4\" up to drain.",
+        "tags": [
+            "outdoor",
+            "garden",
+            "birdhouse",
+            "cedar"
+        ]
+    }
+}
