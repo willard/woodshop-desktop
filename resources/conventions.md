@@ -64,6 +64,10 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
   stands flat on the floor and meets the top flat. On a long edge it is a tapered leg; add
   `"from"` (1.19) to keep it straight that far from its full-size end, so a leg stays square
   where the apron meets it and tapers below.
+  `kind: "clip"` (1.19) with `size` is a dog ear: a straight 45° cut that takes `size` off
+  both edges at a corner, like a fence picket's top. With no `corner` it clips both corners of
+  the edge (a dog-eared end); with `"corner": "l1"` only that one. It is not a taper, which
+  moves one corner along one edge.
   `corner`/`low` must be perpendicular to `edge`. Cut through the full
   thickness; the part's `size` stays the full rectangular blank. A curve and a
   dado/groove/rabbet DO combine on the same part — a curved side with a shelf dado in it is

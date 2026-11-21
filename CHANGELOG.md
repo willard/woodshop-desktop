@@ -41,6 +41,10 @@ All notable changes to Woodshop are listed here. The format follows
   where the apron meets it and tapers it below. The dining table's and side table's legs now
   taper on their inside faces below the apron.
 
+- Dog ears (format 1.19): Curve or angle offers a dog ear, a straight 45° cut off one corner
+  or both corners of an end, as on a fence picket. The cut list says "Dog-ear the right end,
+  3/4" in", the joinery setups say "Miter saw at 45°", and the shop templates and DXF draw it.
+
 ### Fixed
 
 - Snapping and the joints the editor finds now measure a curved, tapered or angled part as cut,

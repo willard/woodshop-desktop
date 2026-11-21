@@ -817,7 +817,8 @@ the owner to check, as computer use of the app is declined.
   saw turns (atan(height / width) over 50°), suggesting a jig or a bandsaw. A constant for now; a shop setting would need `lint_with(spec, units, opts)`
   threaded through WASM and MCP, so leave it until asked. Done when: a case in
   `ui/src/fixtures/lint-cases.json` and a Rust test.
-- **7.6 Dog ears (corner clips), spec 1.19.** `Curve` gains `kind: "clip"` with `corner` and
+- **7.6 Dog ears (corner clips), spec 1.19.** Done (`Curve::Clip`, drawn through the corner
+  path rounds use, cut straight; outline and lint cases; e2e test). `Curve` gains `kind: "clip"` with `corner` and
   `size`: a straight 45° cut off one corner; dog-earing an end clips both corners. Not a
   `taper`: a taper moves one corner along one edge (the cut runs to the opposite corner); a clip
   takes the same `size` off both edges at a corner. Touches

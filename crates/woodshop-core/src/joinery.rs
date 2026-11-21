@@ -4,7 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::spec::{Ease, Hole, Op, Spec, op_summary};
+use crate::spec::{Curve, Ease, Hole, Op, Spec, op_summary};
 use crate::units::{Units, format_length};
 
 /// One setting of a tool (a dado stack, bit or blade angle) and every cut made at it.
@@ -103,6 +103,7 @@ fn setup_of(op: &Op, units: Units) -> Option<String> {
             None => format!("{} bit, through", len(h.diameter)),
         },
         Op::Miter(m) => format!("Blade or miter gauge at {}°", m.angle),
+        Op::Curve(Curve::Clip { .. }) => "Miter saw at 45°".to_owned(),
         Op::Ease(Ease::Roundover { radius, .. }) => format!("{} roundover bit", len(*radius)),
         Op::Ease(Ease::Chamfer { width, .. }) => format!("{} chamfer bit", len(*width)),
         Op::Ease(Ease::Bullnose { .. }) => "Bullnose bit".to_owned(),

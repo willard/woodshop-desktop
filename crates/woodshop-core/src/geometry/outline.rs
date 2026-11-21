@@ -180,6 +180,8 @@ pub fn build(l: f64, w: f64, curves: &[Curve], notches: &[Notch]) -> Outline {
     let mut ramps: PerEdge<Ramp> = [None; 4];
     let mut scallops_by_edge: [Vec<SpanFeature>; 4] = Default::default();
     let mut corner_radius = [0.0f64; 4];
+    // A clipped corner is cut straight across (a dog ear), not rounded.
+    let mut corner_clip = [false; 4];
 
     for op in curves {
         let edge = op.edge();
@@ -225,6 +227,18 @@ pub fn build(l: f64, w: f64, curves: &[Curve], notches: &[Notch]) -> Outline {
                         straight: matches!(op, Curve::Taper { .. }),
                         from: from.map(|f| f.clamp(0.0, chord)),
                     });
+                }
+            }
+            Curve::Clip { size, corner, .. } => {
+                let size = size.min(if corner.is_some() { chord } else { chord / 2.0 }).min(span);
+                let (_, from, to) = walk_for(edge);
+                let targets: Vec<usize> = match corner {
+                    Some(c) => shared_corner(edge, *c).into_iter().collect(),
+                    None => vec![from, to],
+                };
+                for i in targets {
+                    corner_radius[i] = corner_radius[i].max(size);
+                    corner_clip[i] = true;
                 }
             }
             Curve::Round { radius, corner, .. } => {
@@ -329,6 +343,7 @@ pub fn build(l: f64, w: f64, curves: &[Curve], notches: &[Notch]) -> Outline {
         &effective,
         &corners,
         &corner_radius,
+        &corner_clip,
         &domes,
         &ramps,
         &features_by_edge,
@@ -385,6 +400,7 @@ fn walk_edges(
     effective: &[P; 4],
     corners: &[P; 4],
     corner_radius: &[f64; 4],
+    corner_clip: &[bool; 4],
     domes: &PerEdge<f64>,
     ramps: &PerEdge<Ramp>,
     features_by_edge: &[Vec<SpanFeature>; 4],
@@ -527,7 +543,11 @@ fn walk_edges(
                 segments.push(Segment::line(end));
                 // Quarter-round into the next edge (skipped when radius 0: end == the corner).
                 let r = corner_radius[to];
-                if r > 0.0 {
+                if r > 0.0 && corner_clip[to] {
+                    // Straight across to where the next edge starts.
+                    let (_, nf, nt) = EDGE_WALK[(walk_index + 1) % 4];
+                    segments.push(Segment::line(point(nf, nt)));
+                } else if r > 0.0 {
                     let (_, nf, nt) = EDGE_WALK[(walk_index + 1) % 4];
                     let c = point(nf, nt);
                     let centre = [end[0] + (c[0] - b[0]), end[1] + (c[1] - b[1])];

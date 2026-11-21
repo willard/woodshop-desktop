@@ -507,7 +507,15 @@ export function PartInspector(p: PartInspectorProps) {
                 });
                 break;
             case 'curve':
-                if (op.kind === 'round')
+                if (op.kind === 'clip')
+                    setCurve({
+                        edge: op.edge,
+                        kind: 'clip',
+                        size: v(op.size),
+                        end: op.corner ?? 'both',
+                        from: '',
+                    });
+                else if (op.kind === 'round')
                     setCurve({
                         edge: op.edge,
                         kind: 'round',
@@ -644,11 +652,22 @@ export function PartInspector(p: PartInspectorProps) {
 
     function submitCurve(): void {
         setFormError(null);
-        const size = dim(curve.kind === 'round' ? 'Radius' : 'Height', curve.size);
+        const size = dim(
+            curve.kind === 'round' ? 'Radius' : curve.kind === 'clip' ? 'Size' : 'Height',
+            curve.size,
+        );
         if (size === null) return;
         const edge = curve.edge as Edge;
         if (curve.kind === 'arc') {
             add({ type: 'curve', edge, kind: 'arc', height: size });
+        } else if (curve.kind === 'clip') {
+            add({
+                type: 'curve',
+                edge,
+                kind: 'clip',
+                size,
+                ...(curve.end === 'both' ? {} : { corner: curve.end as Edge }),
+            });
         } else if (curve.kind === 'ramp' || curve.kind === 'taper') {
             const low = curve.end === 'both' ? endsOf(edge)[0].value : (curve.end as Edge);
             // A taper may run straight first (a leg square where the apron meets it).
@@ -1804,6 +1823,7 @@ export function PartInspector(p: PartInspectorProps) {
                                     <option value="round">rounded corners</option>
                                     <option value="ramp">one-sided sweep</option>
                                     <option value="taper">straight taper / angled end</option>
+                                    <option value="clip">dog ear (45° off a corner)</option>
                                 </Select>
                             </Field>
                         </div>
@@ -1823,7 +1843,9 @@ export function PartInspector(p: PartInspectorProps) {
                                     data-testid="curve-end"
                                     onChange={(e) => updateCurve({ end: e.target.value })}
                                 >
-                                    {curve.kind === 'round' && <option value="both">both corners</option>}
+                                    {(curve.kind === 'round' || curve.kind === 'clip') && (
+                                        <option value="both">both corners</option>
+                                    )}
                                     {endsOf(curve.edge).map((e) => (
                                         <option key={e.value} value={e.value}>
                                             {e.label}
@@ -1841,7 +1863,9 @@ export function PartInspector(p: PartInspectorProps) {
                                       ? `Height (${unitSuffix()}) — how far the low end drops`
                                       : curve.kind === 'taper'
                                         ? `Height (${unitSuffix()}) — how far that corner moves in`
-                                        : `Corner radius (${unitSuffix()})`
+                                        : curve.kind === 'clip'
+                                          ? `Size (${unitSuffix()}) — along each edge`
+                                          : `Corner radius (${unitSuffix()})`
                             }
                         >
                             <TextInput

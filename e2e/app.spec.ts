@@ -882,6 +882,21 @@ test('your own build steps replace the suggested order, and reset back', async (
     await expect(page.getByText('The order Woodshop suggests.')).toBeVisible();
 });
 
+test('a dog ear clips both corners of an end at 45°', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await page.getByTestId('outline').getByRole('button', { name: 'Top', exact: true }).click();
+    const rows = page.getByTestId('section-cuts').getByTestId('ops-row');
+    const before = await rows.count();
+    await page.getByTestId('ops-add-menu').click();
+    await page.getByTestId('ops-add-curve').click();
+    await page.getByTestId('curve-kind').selectOption('clip');
+    await page.getByTestId('curve-edge').selectOption('w1');
+    await page.getByTestId('curve-size').fill('3/4');
+    await page.getByTestId('curve-submit').click();
+    await expect(rows).toHaveCount(before + 1);
+    await expect(rows.last()).toContainText('Dog-ear the right end, 3/4" in');
+});
+
 test('the PDF plan gets a picture of each assembly step', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('cutlist-toggle').click();

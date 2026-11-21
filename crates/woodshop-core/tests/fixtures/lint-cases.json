@@ -7751,5 +7751,109 @@
             }
         ],
         "joints": []
+    },
+    "clip-valid": {
+        "specVersion": "1.19",
+        "units": "in",
+        "name": "clip-valid",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 30,
+                    "w": 3.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "w1",
+                        "kind": "clip",
+                        "size": 0.75
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
+    },
+    "clip-too-big": {
+        "specVersion": "1.19",
+        "units": "in",
+        "name": "clip-too-big",
+        "materials": [
+            {
+                "id": "mat_a",
+                "type": "sheet",
+                "name": "Ply",
+                "thickness": 0.75,
+                "sheetSize": {
+                    "l": 60,
+                    "w": 60
+                },
+                "grain": true
+            }
+        ],
+        "parts": [
+            {
+                "id": "p_a",
+                "name": "A",
+                "materialId": "mat_a",
+                "size": {
+                    "l": 30,
+                    "w": 3.5
+                },
+                "grainAxis": "l",
+                "transform": {
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "rot": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "ops": [
+                    {
+                        "type": "curve",
+                        "edge": "w1",
+                        "kind": "clip",
+                        "size": 3
+                    }
+                ],
+                "qty": 1
+            }
+        ],
+        "joints": []
     }
 }

@@ -176,6 +176,25 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                             }
                         }
                     }
+                    Curve::Clip { size, corner, .. } => {
+                        let max = if corner.is_some() { chord } else { chord / 2.0 };
+                        if *size > max + EPS || *size > span + EPS {
+                            fail(format!(
+                                "dog ear on \"{name}\" of {} doesn't fit the {}-long edge.",
+                                len(*size),
+                                len(chord)
+                            ));
+                        }
+                        if let Some(c) = corner
+                            && !perpendicular(*c)
+                        {
+                            fail(format!(
+                                "dog ear on \"{name}\" names corner \"{}\", which is parallel to edge {} — use one of its adjacent edges.",
+                                c.as_str(),
+                                edge.as_str()
+                            ));
+                        }
+                    }
                     Curve::Round { radius, corner, .. } => {
                         let max_radius = if corner.is_some() { chord } else { chord / 2.0 };
                         if *radius > max_radius + EPS || *radius > span + EPS {

@@ -140,6 +140,15 @@ pub fn op_summary(op: &Op, units: Units) -> String {
             len(*height),
             edge_name(*low)
         ),
+        Op::Curve(Curve::Clip { edge, size, corner }) => match corner {
+            None => format!("Dog-ear the {}, {} in", edge_name(*edge), len(*size)),
+            Some(c) => format!(
+                "Dog-ear the corner where the {} meets the {}, {} in",
+                edge_name(*edge),
+                edge_name(*c),
+                len(*size)
+            ),
+        },
         Op::Curve(Curve::Round { edge, radius, corner }) => match corner {
             None => format!("Corners of the {} rounded, {} radius", edge_name(*edge), len(*radius)),
             Some(c) => format!(

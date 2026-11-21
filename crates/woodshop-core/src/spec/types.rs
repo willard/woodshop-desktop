@@ -463,6 +463,14 @@ pub enum Curve {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         corner: Option<Edge>,
     },
+    /// A straight 45° cut off a corner, `size` along each edge (1.19): a dog ear. With no
+    /// `corner`, both corners of the edge (a dog-eared end).
+    Clip {
+        edge: Edge,
+        size: f64,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        corner: Option<Edge>,
+    },
     /// One-sided tangent-arc sweep dropping toward `low`.
     Ramp { edge: Edge, height: f64, low: Edge },
     /// A straight cut from the opposite corner to the corner shared with `low`, moved in by
@@ -484,7 +492,8 @@ impl Curve {
             Curve::Arc { edge, .. }
             | Curve::Round { edge, .. }
             | Curve::Ramp { edge, .. }
-            | Curve::Taper { edge, .. } => *edge,
+            | Curve::Taper { edge, .. }
+            | Curve::Clip { edge, .. } => *edge,
         }
     }
 
@@ -494,6 +503,7 @@ impl Curve {
             Curve::Round { .. } => "round",
             Curve::Ramp { .. } => "ramp",
             Curve::Taper { .. } => "taper",
+            Curve::Clip { .. } => "clip",
         }
     }
 }

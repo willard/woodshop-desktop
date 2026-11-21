@@ -307,5 +307,9 @@
     ],
     "case:taper-straight-run-too-long": [
         "error|op.out-of-bounds|p_a|0|"
+    ],
+    "case:clip-valid": [],
+    "case:clip-too-big": [
+        "error|op.out-of-bounds|p_a|0|"
     ]
 }

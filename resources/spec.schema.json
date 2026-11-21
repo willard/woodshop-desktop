@@ -727,6 +727,35 @@
                         "type",
                         "edge",
                         "kind",
+                        "size"
+                    ],
+                    "properties": {
+                        "type": {
+                            "const": "curve"
+                        },
+                        "edge": {
+                            "$ref": "#/$defs/edge"
+                        },
+                        "kind": {
+                            "const": "clip"
+                        },
+                        "size": {
+                            "$ref": "#/$defs/positiveDim",
+                            "description": "Dog ear: a straight 45° cut off the corner, this far along each edge. Cut through the full thickness (added in 1.19)."
+                        },
+                        "corner": {
+                            "$ref": "#/$defs/edge",
+                            "description": "Clip only the corner this edge shares with the named edge (must be perpendicular to it); omit to clip both corners, a dog-eared end (added in 1.19)."
+                        }
+                    }
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "type",
+                        "edge",
+                        "kind",
                         "height",
                         "low"
                     ],

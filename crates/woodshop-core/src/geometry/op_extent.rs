@@ -37,6 +37,7 @@ pub fn local_box(op: &Op, part: &Part, thickness: f64) -> Option<Aabb> {
             let (depth, from, to) = match c {
                 Curve::Arc { height, from, to, .. } => (*height, *from, *to),
                 Curve::Round { radius, .. } => (*radius, None, None),
+                Curve::Clip { size, .. } => (*size, None, None),
                 Curve::Ramp { height, .. } | Curve::Taper { height, .. } => (*height, None, None),
             };
             edge_span(c.edge(), depth, from, to, l, w, ht)
