@@ -6,6 +6,11 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- A project card's ⋯ menu was cut off at the bottom of the card. Menus now open over the page,
+  and above their button when there is no room below.
+
 ## [0.1.4] — 2026-11-23
 
 ### Added

@@ -138,6 +138,14 @@ test('a project card opens the project, and its menu renames, duplicates and tra
 
     // Rename from the menu.
     await menu('Record stand');
+    // The whole menu shows: the card clips what overflows it, so the menu must not be inside it.
+    const trash = page.getByTestId('project-menu').getByRole('button', { name: 'Move to trash' });
+    expect(
+        await trash.evaluate((el) => {
+            const r = el.getBoundingClientRect();
+            return el.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2));
+        }),
+    ).toBe(true);
     await page.getByTestId('project-menu').getByRole('button', { name: 'Rename' }).click();
     await page.getByTestId('rename-input').fill('Hi-fi stand');
     await page.getByTestId('rename-input').press('Enter');
