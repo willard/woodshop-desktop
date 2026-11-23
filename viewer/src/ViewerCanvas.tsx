@@ -22,8 +22,10 @@ export const ViewerCanvas = forwardRef<
         selectedIds: readonly string[];
         hiddenIds: ReadonlySet<string>;
         onPick(id: string | null): void;
+        /** The AR model beside the page, where AR Quick Look can open it. */
+        arHref?: string;
     }
->(function ViewerCanvas({ spec, theme, selectedIds, hiddenIds, onPick }, ref) {
+>(function ViewerCanvas({ spec, theme, selectedIds, hiddenIds, onPick, arHref }, ref) {
     const canvas = useRef<HTMLCanvasElement>(null);
     const engine = useRef<EditorEngine | null>(null);
     const pick = useRef(onPick);
@@ -154,7 +156,26 @@ export const ViewerCanvas = forwardRef<
                 >
                     Fit
                 </button>
+                {arHref !== undefined && (
+                    // AR Quick Look opens a link whose only child is an image, so the words are drawn.
+                    <a
+                        rel="ar"
+                        href={arHref}
+                        className="border-fg/10 hover:bg-fg/5 flex h-7 items-center rounded-lg border px-2.5 pointer-coarse:h-10 pointer-coarse:px-4"
+                        data-testid="viewer-ar"
+                        title="Place the piece in your room at full size"
+                    >
+                        <img src={arLabel(theme)} width={112} height={16} alt="View in your room" />
+                    </a>
+                )}
             </div>
         </div>
     );
 });
+
+/** "View in your room" as a small image in the theme's text colour. */
+function arLabel(theme: ThemeName): string {
+    const fill = theme === 'light' ? '#44403c' : '#d6d3d1';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="112" height="16"><text x="56" y="12" text-anchor="middle" font-family="-apple-system,system-ui,sans-serif" font-size="13" fill="${fill}">View in your room</text></svg>`;
+    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}

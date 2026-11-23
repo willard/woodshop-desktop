@@ -9,7 +9,8 @@ import { ViewerCanvas, type ViewerCanvasHandle } from './ViewerCanvas';
 import { PartDetail } from './PartDetail';
 import { orderNotes, type ExportPayload } from './payload';
 
-export function ViewerApp({ payload }: { payload: ExportPayload }) {
+/** `arHref`: the AR model beside the page, where the browser has AR Quick Look. */
+export function ViewerApp({ payload, arHref }: { payload: ExportPayload; arHref?: string }) {
     const [theme, setTheme] = useState<ThemeName>(payload.theme);
     const [tab, setTab] = useState<'cutlist' | 'part'>('cutlist');
     const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -117,6 +118,7 @@ export function ViewerApp({ payload }: { payload: ExportPayload }) {
                         selectedIds={selectedIds}
                         hiddenIds={shownHidden}
                         onPick={select}
+                        arHref={arHref}
                     />
                     {buildStep !== null && (
                         <BuildStepBar steps={steps} index={buildStep} onStep={setBuildStep} />

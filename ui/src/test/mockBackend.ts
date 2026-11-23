@@ -360,6 +360,15 @@ export function installMockBackend(): void {
                     `labels for ${r.project.name} in ${String(a.units)} from label ${Number(a.skip ?? 0) + 1}`,
             };
         },
+        export_viewer: (a) => {
+            const store = window as unknown as { __written?: Record<string, string> };
+            store.__written = {
+                ...(store.__written ?? {}),
+                [String(a.path)]:
+                    `3D plan for ${row(a.id as number).project.name}` +
+                    (a.arModel === null || a.arModel === undefined ? '' : ` linking to ${String(a.arModel)}`),
+            };
+        },
         write_text_file: (a) => {
             const file = a.file as { path: string; contents: string };
             const store = window as unknown as { __written?: Record<string, string> };

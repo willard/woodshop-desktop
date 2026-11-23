@@ -570,6 +570,8 @@ pub async fn export_labels(
 }
 
 /// The interactive 3D plan as one self-contained HTML file that opens in any browser, offline.
+// A Tauri command's arguments are the invoke payload's fields.
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 pub fn export_viewer(
     lib: State<'_, Library>,
@@ -579,6 +581,7 @@ pub fn export_viewer(
     theme: String,
     exported_at: String,
     units: Option<woodshop_core::units::Units>,
+    ar_model: Option<String>,
 ) -> CmdResult<()> {
     let (project, notes) = lib.with(|s| Ok((s.get_project(id)?, plan_notes(s, id)?)))?;
     let html = woodshop_export::render_viewer_html(&woodshop_export::ViewerInput {
@@ -589,6 +592,8 @@ pub fn export_viewer(
         exported_at: &exported_at,
         notes,
         units: units.unwrap_or_default(),
+        // Only a bare file name beside the page; anything with a path in it is dropped.
+        ar_model: ar_model.as_deref().filter(|f| !f.contains(['/', '\\'])),
     });
     std::fs::write(&path, html)?;
     Ok(())

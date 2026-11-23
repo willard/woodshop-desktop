@@ -276,11 +276,13 @@ export const api = {
     /** One label per piece to cut, on a sheet of sticky labels (Letter, or A4 in millimetres). */
     exportLabels: (id: number, path: string, kerf: number, skip = 0) =>
         invoke<void>('export_labels', { id, path, kerf, units: getUnits(), skip }),
-    exportViewer: (id: number, path: string, kerf: number) =>
+    /** `arModel`: the file name of the USDZ saved beside the page, which it then links to. */
+    exportViewer: (id: number, path: string, kerf: number, arModel?: string) =>
         invoke<void>('export_viewer', {
             id,
             path,
             kerf,
+            arModel: arModel ?? null,
             theme: document.documentElement.dataset.theme ?? 'dark',
             exportedAt: new Date().toISOString(),
             units: getUnits(),

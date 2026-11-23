@@ -890,6 +890,11 @@ the owner to check, as computer use of the app is declined.
   AR Quick Look wants a real `.usdz` URL, which a blob made inside an offline HTML file likely
   is not: export the `.usdz` beside the 3D plan and link to it. Try that on a real iPad first,
   before building the rest. Done when: checked on a real iPad (by the owner).
+  Spike built (2026-11-23): Export AR model (USDZ), and the 3D plan saves `<name>.usdz` beside
+  itself with a `rel="ar"` link (plain HTML, so it works without scripts; the viewer moves it into
+  its 3D controls, or drops it where there is no AR Quick Look). The model passes
+  `usdchecker --arkit`. Waiting on the owner's iPad check: the link from Safari and from the
+  Files app, the size and the floor placement, and how the grain and paint look.
 - **7.14 Plans from known makers.** A template `author` field credited on the PDF and in the
   gallery, and a contribution path in `resources/DATA.md`. Which makers, and any licence, are the
   owner's call.

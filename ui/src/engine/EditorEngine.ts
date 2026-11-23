@@ -1915,6 +1915,18 @@ export class EditorEngine {
     }
 
     /**
+     * The assembly as USDZ for AR Quick Look on iPhone and iPad: the same parts as glTF, in metres
+     * with +Y up, set on the floor (horizontal plane anchoring) at its real size.
+     */
+    async exportUsdz(name: string): Promise<Uint8Array> {
+        const { USDZExporter } = await import('three/addons/exporters/USDZExporter.js');
+        const root = this.exportRoot(name);
+        root.scale.setScalar(0.0254);
+        root.updateMatrixWorld(true);
+        return new USDZExporter().parseAsync(root, { quickLookCompatible: true, onlyVisible: true });
+    }
+
+    /**
      * The assembly as a mesh file, in millimetres. STL (binary) is for a slicer, which wants +Z
      * up, so the model is turned upright for it; OBJ keeps +Y up, as Blender and most modelling
      * software read it. Built from the same parts as glTF.

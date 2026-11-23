@@ -6,6 +6,12 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- See it in your room (trial): the 3D plan is saved with an AR model (`.usdz`) beside it, and on
+  an iPhone or iPad, in Safari, View in your room places the piece in the room at full size with
+  AR Quick Look. The AR model can also be exported on its own.
+
 ## [0.1.3] — 2026-11-22
 
 ### Added

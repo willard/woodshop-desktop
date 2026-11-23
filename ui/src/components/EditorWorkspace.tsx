@@ -153,6 +153,8 @@ export interface EditorWorkspaceHandle {
     gltf(name: string): Promise<string>;
     /** The assembly as STL bytes or OBJ text, in millimetres (see `EditorEngine.exportMesh`). */
     mesh(name: string, format: 'stl' | 'obj'): Promise<Uint8Array | string>;
+    /** The assembly as USDZ for AR Quick Look (see `EditorEngine.exportUsdz`). */
+    usdz(name: string): Promise<Uint8Array>;
     highlight(ids: string[]): void;
 }
 
@@ -427,6 +429,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             mesh: (name, format) =>
                 engineRef.current?.exportMesh(name, format) ??
                 Promise.reject(new Error('The 3D view is not ready.')),
+            usdz: (name) =>
+                engineRef.current?.exportUsdz(name) ?? Promise.reject(new Error('The 3D view is not ready.')),
             highlight: (ids) => engineRef.current?.setHighlight(ids),
         }));
 

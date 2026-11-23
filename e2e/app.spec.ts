@@ -640,6 +640,31 @@ test('parts export as DXF for a CNC, labels and the assembly as glTF', async ({ 
     const obj = (await written())['/mock/exports/Wall Cabinet.obj'];
     expect(obj).toContain('o Left Side');
     expect(obj.split('\n').filter((l) => l.startsWith('v ')).length).toBeGreaterThan(100);
+
+    // USDZ for AR Quick Look: a zip with the scene first, every part named, in metres.
+    const usdz = () =>
+        page.evaluate(() => {
+            const bytes = (window as unknown as { __binary: { bytes: Uint8Array } }).__binary.bytes;
+            return { head: Array.from(bytes.subarray(0, 2)), text: new TextDecoder('latin1').decode(bytes) };
+        });
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('export-usdz').click();
+    await expect(page.getByText('AR model saved.')).toBeVisible();
+    const ar = await usdz();
+    expect(String.fromCharCode(...ar.head)).toBe('PK');
+    expect(ar.text.indexOf('model.usda')).toBe(30); // the first entry's name
+    expect(ar.text).toContain('metersPerUnit = 1');
+    expect(ar.text).toContain('preliminary:anchoring:type = "plane"');
+    for (const part of ['LeftSide', 'LeftDoor']) expect(ar.text).toContain(part);
+
+    // The 3D plan saves the AR model beside itself and links to it by name.
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('export-html').click();
+    await expect(page.getByText('Interactive 3D plan saved.')).toBeVisible();
+    expect((await written())['/mock/exports/Wall Cabinet.html']).toBe(
+        '3D plan for Wall Cabinet linking to Wall Cabinet.usdz',
+    );
+    expect(String.fromCharCode(...(await usdz()).head)).toBe('PK');
 });
 
 test('notes are kept with the project', async ({ page }) => {

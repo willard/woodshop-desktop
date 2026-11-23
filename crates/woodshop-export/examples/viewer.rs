@@ -6,6 +6,8 @@ fn main() {
         args.get(2).map_or("plan.html", String::as_str),
     );
     let spec = woodshop_core::templates::find(id).expect("known template id");
+    // `WOODSHOP_AR=Bench.usdz` links the page to an AR model saved beside it.
+    let ar_model = std::env::var("WOODSHOP_AR").ok();
     let html = woodshop_export::render_viewer_html(&woodshop_export::ViewerInput {
         title: &spec.name,
         spec: woodshop_core::spec::to_value(&spec),
@@ -22,6 +24,7 @@ fn main() {
             Ok("decimal") => woodshop_core::units::Units::Decimal,
             _ => woodshop_core::units::Units::Fraction,
         },
+        ar_model: ar_model.as_deref(),
     });
     std::fs::write(out, html).expect("writable");
 }

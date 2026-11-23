@@ -29,6 +29,13 @@ export interface ExportTarget {
     getGltf?: (name: string) => Promise<string>;
     /** The assembly as STL bytes or OBJ text, in millimetres, from the 3D view. */
     getMesh?: (name: string, format: 'stl' | 'obj') => Promise<Uint8Array | string>;
+    /** The assembly as USDZ for AR Quick Look, from the 3D view. */
+    getUsdz?: (name: string) => Promise<Uint8Array>;
+}
+
+/** `/a/Bench.html` → `/a/Bench.usdz`: the AR model saved beside the 3D plan. */
+export function usdzBeside(htmlPath: string): string {
+    return htmlPath.replace(/\.html?$/i, '') + '.usdz';
 }
 
 /**
@@ -86,7 +93,22 @@ export function useProjectExports(target: ExportTarget) {
             exportTo(
                 'html',
                 '3D plan (HTML)',
-                (path) => api.exportViewer(target.projectId, path, target.kerf),
+                async (path) => {
+                    // The AR model goes beside the page, which links to it by name: AR Quick Look
+                    // wants a real file, not a blob made inside the page. Without a 3D view (or if
+                    // the model cannot be made) the plan is saved without the link.
+                    let arModel: string | undefined;
+                    if (target.getUsdz !== undefined) {
+                        try {
+                            const usdzPath = usdzBeside(path);
+                            await api.writeBinaryFile(usdzPath, await target.getUsdz(target.projectName));
+                            arModel = usdzPath.split(/[\\/]/).pop();
+                        } catch {
+                            arModel = undefined;
+                        }
+                    }
+                    await api.exportViewer(target.projectId, path, target.kerf, arModel);
+                },
                 'Interactive 3D plan saved.',
             ),
         /** The cut list as shown (same kerf, same grouping), for a spreadsheet. */
@@ -126,6 +148,17 @@ export function useProjectExports(target: ExportTarget) {
                     await api.writeTextFile(path, await target.getGltf(target.projectName));
                 },
                 '3D model saved.',
+            ),
+        /** The assembled model for AR Quick Look: open it on an iPhone or iPad to place it in a room. */
+        usdz: () =>
+            exportTo(
+                'usdz',
+                'AR model (USDZ)',
+                async (path) => {
+                    if (target.getUsdz === undefined) throw new Error('The 3D view is not ready.');
+                    await api.writeBinaryFile(path, await target.getUsdz(target.projectName));
+                },
+                'AR model saved.',
             ),
         /** The assembled model for a 3D printer's slicer: binary STL in millimetres, Z up. */
         stl: () =>
@@ -271,6 +304,16 @@ export function ExportMenuItems(
             >
                 Export 3D model (glTF)…
             </button>
+            {props.getUsdz && (
+                <button
+                    className={item}
+                    data-testid="export-usdz"
+                    title="The assembled model at full size for iPhone and iPad: open it to see the piece in your room"
+                    onClick={run(exports.usdz)}
+                >
+                    Export AR model (USDZ)…
+                </button>
+            )}
             <button
                 className={item}
                 data-testid="export-stl"

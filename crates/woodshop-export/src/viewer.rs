@@ -25,6 +25,9 @@ pub struct ViewerInput<'a> {
     pub notes: Vec<PlanNote>,
     /// How the page shows sizes (the exporter's setting).
     pub units: woodshop_core::units::Units,
+    /// The file name of the AR model (USDZ) saved beside the page, if there is one. The page
+    /// links to it for AR Quick Look on iPhone and iPad.
+    pub ar_model: Option<&'a str>,
 }
 
 #[derive(Serialize)]
@@ -53,6 +56,33 @@ fn script_safe_json(value: &impl Serialize) -> String {
         .replace('<', "\\u003c")
         .replace('>', "\\u003e")
         .replace('&', "\\u0026")
+}
+
+/// A file name as one relative URL path segment: everything but unreserved bytes escaped.
+fn encode_segment(name: &str) -> String {
+    name.bytes()
+        .map(|b| match b {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => (b as char).to_string(),
+            _ => format!("%{b:02X}"),
+        })
+        .collect()
+}
+
+/// The badge inside the AR link. AR Quick Look wants the link's only child to be an image, so
+/// the words are drawn in it.
+const AR_BADGE: &str = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='172' height='36'%3E%3Crect width='172' height='36' rx='18' fill='%23ffffff' fill-opacity='0.92' stroke='%23000000' stroke-opacity='0.15'/%3E%3Ctext x='86' y='23' text-anchor='middle' font-family='-apple-system,system-ui,sans-serif' font-size='14' font-weight='600' fill='%231c1917'%3EView in your room%3C/text%3E%3C/svg%3E";
+
+/// A plain link, centred on the page, so it works where the page's scripts do not run (a plan
+/// opened from the Files app shows nothing else). Where scripts run, the viewer moves it into
+/// its 3D controls, or removes it where the browser has no AR Quick Look.
+fn ar_link(file: Option<&str>) -> String {
+    match file {
+        None => String::new(),
+        Some(file) => format!(
+            "<a rel=\"ar\" id=\"woodshop-ar\" href=\"{}\" style=\"position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;line-height:0\"><img src=\"{AR_BADGE}\" width=\"172\" height=\"36\" alt=\"View in your room\"></a>",
+            escape_html(&encode_segment(file))
+        ),
+    }
 }
 
 fn escape_html(s: &str) -> String {
@@ -85,6 +115,7 @@ pub fn render_viewer_html(input: &ViewerInput<'_>) -> String {
             ("css", &css),
             ("payload", &script_safe_json(&payload)),
             ("js", &js),
+            ("ar", &ar_link(input.ar_model)),
         ],
     )
 }
@@ -134,10 +165,11 @@ mod tests {
             exported_at: "2026-01-01T00:00:00Z",
             notes: vec![],
             units: Default::default(),
+            ar_model: None,
         });
         assert!(html.starts_with("<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"light\""));
         assert!(html.contains("<title>Box — Woodshop plan</title>"));
-        for key in ["theme", "title", "css", "payload", "js"] {
+        for key in ["theme", "title", "css", "payload", "js", "ar"] {
             assert!(!html.contains(&format!("{{{{{key}}}}}")), "{key} filled");
         }
     }
@@ -152,9 +184,34 @@ mod tests {
             exported_at: "2026-01-01T00:00:00Z",
             notes: vec![],
             units: Default::default(),
+            ar_model: None,
         });
         assert!(!html.contains("</script><img"));
         assert!(html.contains("<title>&lt;b&gt;Box&lt;/b&gt; — Woodshop plan</title>"));
         assert_eq!(html.matches("</script>").count(), 2);
+    }
+
+    #[test]
+    fn a_plan_with_an_ar_model_links_to_it_beside_the_page() {
+        let input = |ar_model| ViewerInput {
+            title: "Box",
+            spec: serde_json::json!({}),
+            kerf: 0.125,
+            theme: "light",
+            exported_at: "2026-01-01T00:00:00Z",
+            notes: vec![],
+            units: Default::default(),
+            ar_model,
+        };
+        let html = render_viewer_html(&input(Some("Bancs & \"tables\".usdz")));
+        assert!(html.contains("<a rel=\"ar\" id=\"woodshop-ar\" href=\"Bancs%20%26%20%22tables%22.usdz\""));
+        let link = &html[html.find("<a rel").unwrap()..];
+        let link = &link[..link.find("</a>").unwrap()];
+        assert_eq!(
+            link.matches('<').count(),
+            2,
+            "the image is the link's only child: {link}"
+        );
+        assert!(!render_viewer_html(&input(None)).contains("rel=\"ar\""));
     }
 }

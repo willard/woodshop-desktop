@@ -23,7 +23,7 @@ const scriptSafe = (value: unknown): string =>
 /** The template filled in one pass, as `fill` does. */
 function exportedPlan(values: Record<string, string>): string {
     const template = readFileSync('crates/woodshop-export/templates/viewer.html', 'utf8');
-    return template.replace(/\{\{(\w+)\}\}/g, (whole, key: string) => values[key] ?? whole);
+    return template.replace(/\{\{(\w+)\}\}/g, (whole, key: string) => ({ ar: '', ...values })[key] ?? whole);
 }
 
 test('an exported plan opens from a file and works offline', async ({ page }, info) => {
@@ -136,4 +136,71 @@ test('a plan from a newer Woodshop says so instead of a blank page', async ({ pa
     await expect(page.getByTestId('viewer-error')).toHaveText(
         'This plan was written by a newer version of Woodshop and cannot be opened here.',
     );
+});
+
+test('a plan with an AR model links to it where AR Quick Look is, and only there', async ({
+    browser,
+}, info) => {
+    const html = readFileSync('crates/woodshop-export/templates/viewer.html', 'utf8');
+    expect(html).toContain('{{ar}}');
+    const link =
+        '<a rel="ar" id="woodshop-ar" href="Record%20stand.usdz" style="position:fixed;left:12px;bottom:12px"><img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\'/%3E" width="172" height="36" alt="View in your room"></a>';
+    const payload = {
+        version: 1,
+        exportedAt: '2026-11-23T12:00:00Z',
+        project: { name: 'Record stand' },
+        spec: recordStand,
+        kerf: 0.125,
+        theme: 'light',
+        notes: [],
+        units: 'fraction',
+    };
+    const file = info.outputPath('Record stand.html');
+    writeFileSync(
+        file,
+        exportedPlan({
+            theme: 'light',
+            title: 'Record stand',
+            css: bundle('viewer.css').replace(/<\/style/g, '<\\/style'),
+            payload: scriptSafe(payload),
+            js: bundle('viewer.js').replace(/<\/script/g, '<\\/script'),
+            ar: link,
+        }),
+    );
+
+    // Opened from the Files app, scripts do not run: the plain link is still there.
+    const noScripts = await browser.newContext({ javaScriptEnabled: false });
+    const still = await noScripts.newPage();
+    await still.goto(pathToFileURL(file).href);
+    await expect(still.getByRole('link', { name: 'View in your room' })).toHaveAttribute(
+        'href',
+        'Record%20stand.usdz',
+    );
+    await noScripts.close();
+
+    // Safari on an iPhone or iPad has AR Quick Look: the link moves into the 3D controls.
+    const quickLook = await browser.newContext();
+    await quickLook.addInitScript(() => {
+        const supports = DOMTokenList.prototype.supports;
+        DOMTokenList.prototype.supports = function (token: string) {
+            return token === 'ar' || supports.call(this, token);
+        };
+    });
+    const ios = await quickLook.newPage();
+    await ios.goto(pathToFileURL(file).href);
+    await expect(ios.getByTestId('viewer-canvas')).toBeVisible();
+    const ar = ios.getByRole('link', { name: 'View in your room' });
+    await expect(ar).toHaveCount(1);
+    await expect(ar).toHaveAttribute('data-testid', 'viewer-ar');
+    await expect(ar).toHaveAttribute('rel', 'ar');
+    await expect(ar).toHaveAttribute('href', 'Record%20stand.usdz');
+    expect(await ar.evaluate((a) => [a.children.length, a.firstElementChild?.tagName])).toEqual([1, 'IMG']);
+    await quickLook.close();
+
+    // A desktop browser would only download the file, so the link goes.
+    const page = await browser.newPage();
+    await page.goto(pathToFileURL(file).href);
+    await expect(page.getByTestId('viewer-canvas')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'View in your room' })).toHaveCount(0);
+    await page.close();
 });
