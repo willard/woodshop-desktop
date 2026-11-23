@@ -12,21 +12,37 @@ import { createPortal } from 'react-dom';
 const GAP = 4;
 const MARGIN = 8;
 
-/** Where the panel goes, in viewport pixels: under the anchor, or over it when it would not fit. */
+/**
+ * Where the panel goes, in viewport pixels: under the anchor, or over it when it fits only there.
+ * When it fits neither way it goes on the roomier side and scrolls, `maxHeight` tall.
+ */
 export function placePanel(
     anchor: { top: number; bottom: number; left: number; right: number },
     panel: { width: number; height: number },
     view: { width: number; height: number },
     align: 'left' | 'right',
-): { top: number; left: number } {
-    const below = anchor.bottom + GAP;
-    const above = anchor.top - GAP - panel.height;
-    const top =
-        below + panel.height <= view.height - MARGIN || above < MARGIN
-            ? Math.max(MARGIN, Math.min(below, view.height - MARGIN - panel.height))
-            : above;
+): { top: number; left: number; maxHeight: number } {
+    const roomBelow = view.height - MARGIN - (anchor.bottom + GAP);
+    const roomAbove = anchor.top - GAP - MARGIN;
+    const up = panel.height > roomBelow && (panel.height <= roomAbove || roomAbove > roomBelow);
+    const maxHeight = Math.max(0, up ? roomAbove : roomBelow);
+    const top = up ? anchor.top - GAP - Math.min(panel.height, maxHeight) : anchor.bottom + GAP;
     const wanted = align === 'right' ? anchor.right - panel.width : anchor.left;
     const left = Math.max(MARGIN, Math.min(wanted, view.width - MARGIN - panel.width));
+    return { top, left, maxHeight };
+}
+
+/** Where a menu opened at a point goes: at the point, or up and in from the window's edges. */
+export function placeAtPoint(
+    point: { x: number; y: number },
+    panel: { width: number; height: number },
+    view: { width: number; height: number },
+): { top: number; left: number } {
+    const top =
+        point.y + panel.height <= view.height - MARGIN
+            ? point.y
+            : Math.max(MARGIN, Math.min(point.y - panel.height, view.height - MARGIN - panel.height));
+    const left = Math.max(MARGIN, Math.min(point.x, view.width - MARGIN - panel.width));
     return { top, left };
 }
 
@@ -68,7 +84,8 @@ export function Popover({
             setPosition(
                 placePanel(
                     a,
-                    { width: p.offsetWidth, height: p.offsetHeight },
+                    // Its whole height, not the height a scrolling panel is held to.
+                    { width: p.offsetWidth, height: p.scrollHeight },
                     { width: window.innerWidth, height: window.innerHeight },
                     align,
                 ),
@@ -98,7 +115,7 @@ export function Popover({
                         <div
                             ref={panel}
                             style={position}
-                            className={`bg-surface-3 border-fg/10 fixed z-40 rounded-xl border shadow-2xl ${panelClassName}`}
+                            className={`bg-surface-3 border-fg/10 fixed z-40 overflow-y-auto overscroll-contain rounded-xl border shadow-2xl ${panelClassName}`}
                             data-testid={testId}
                         >
                             {children(close)}

@@ -10,6 +10,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 - A project card's ⋯ menu was cut off at the bottom of the card. Menus now open over the page,
   and above their button when there is no room below.
+- In a short window the editor's ⋯ menu ran off the bottom with no way to reach its last items; a
+  menu taller than the room now scrolls. A part's right-click menu near the bottom or right edge
+  opens up and in instead of off the window.
 
 ## [0.1.4] — 2026-11-23
 

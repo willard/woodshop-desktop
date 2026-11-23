@@ -13,6 +13,7 @@ import {
     useCallback,
     useEffect,
     useImperativeHandle,
+    useLayoutEffect,
     useMemo,
     useRef,
     useState,
@@ -133,7 +134,7 @@ import { MirrorButtons } from './MirrorButtons';
 import { HardwareDialog } from './HardwareDialog';
 import { findItem, itemName } from '@/hardware/catalog';
 import { PartInspector } from './PartInspector';
-import { Popover } from './Popover';
+import { placeAtPoint, Popover } from './Popover';
 import { SnapSettings } from './SnapSettings';
 import { ToolbarOverflow } from './ToolbarOverflow';
 import { PartsOutline } from './PartsOutline';
@@ -236,6 +237,19 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         const [hardwareDrag, setHardwareDrag] = useState<HardwareDragInfo | null>(null);
         const [mode, setMode] = useState<'view' | 'edit'>('edit');
         const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+        const contextMenuRef = useRef<HTMLDivElement>(null);
+        // A right-click near the window's bottom or right edge opens the menu up and in, whole.
+        useLayoutEffect(() => {
+            const menu = contextMenuRef.current;
+            if (contextMenu === null || menu === null) return;
+            const { top, left } = placeAtPoint(
+                contextMenu,
+                { width: menu.offsetWidth, height: menu.offsetHeight },
+                { width: window.innerWidth, height: window.innerHeight },
+            );
+            menu.style.top = `${top}px`;
+            menu.style.left = `${left}px`;
+        }, [contextMenu]);
         const [dockOpen, setDockOpen] = useState(true);
         const [activeTab, setActiveTab] = useState<DockTab>('cutlist');
         const [issuesOpen, setIssuesOpen] = useState(false);
@@ -2321,6 +2335,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                         }}
                     >
                         <div
+                            ref={contextMenuRef}
                             className="bg-surface-3 border-fg/10 absolute min-w-40 overflow-hidden rounded-xl border text-sm shadow-xl"
                             style={{ left: contextMenu.x, top: contextMenu.y }}
                             data-testid="context-menu"
