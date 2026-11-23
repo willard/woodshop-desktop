@@ -122,12 +122,55 @@ export function openedPoses(
 
         if (movable.kind === 'door') {
             applyDoor(movable, anchor, members, thicknessOf(anchor), clamped, config, poses);
+        } else if (movable.kind === 'leaf') {
+            const { pivot, axis, sign } = leafHinge(anchor, thicknessOf(anchor), movable.hingeEdge);
+            swing(members, pivot, axis, sign * clamped * 90 * DEG2RAD, poses);
         } else {
             applyDrawer(anchor, members, thicknessOf, clamped, config, poses);
         }
     }
 
     return poses;
+}
+
+/**
+ * A leaf's hinge line and fold: the hinge edge's LOWER arris (a leaf is stored raised, so its
+ * underside is the face pointing down), and the sign that drops its free edge.
+ */
+export function leafHinge(
+    leaf: Part,
+    thickness: number,
+    hingeEdge: 'l0' | 'l1' | 'w0' | 'w1',
+): { pivot: THREE.Vector3; axis: THREE.Vector3; sign: number; under: 1 | -1 } {
+    const quat = quatOf(leaf);
+    const up = new THREE.Vector3(0, 0, 1).applyQuaternion(quat).y;
+    const under: 1 | -1 = up >= 0 ? -1 : 1;
+    const local = hingeLineLocal(leaf, thickness, hingeEdge);
+    const point = new THREE.Vector3(local.point[0], local.point[1], (under * thickness) / 2);
+    const pivot = point.applyQuaternion(quat).add(posOf(leaf));
+    const axis = new THREE.Vector3(...local.direction).applyQuaternion(quat).normalize();
+    const free = new THREE.Vector3(...freeEdgeLocal(leaf, hingeEdge)).applyQuaternion(quat).add(posOf(leaf));
+    const velocity = new THREE.Vector3().crossVectors(axis, free.sub(pivot));
+    return { pivot, axis, sign: velocity.y <= 0 ? 1 : -1, under };
+}
+
+/** Turns every member rigidly by `angle` about the line through `pivot` along `axis`. */
+function swing(
+    members: readonly Part[],
+    pivot: THREE.Vector3,
+    axis: THREE.Vector3,
+    angle: number,
+    poses: Map<string, OpenPose>,
+): void {
+    const rotation = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+    for (const member of members) {
+        const centre = posOf(member).sub(pivot).applyQuaternion(rotation).add(pivot);
+        const quat = rotation.clone().multiply(quatOf(member));
+        poses.set(member.id, {
+            pos: [centre.x, centre.y, centre.z],
+            quat: [quat.x, quat.y, quat.z, quat.w],
+        });
+    }
 }
 
 function applyDoor(

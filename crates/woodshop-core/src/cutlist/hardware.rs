@@ -325,6 +325,44 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
                     derived: false,
                 });
             }
+            Movable::Leaf {
+                hinge_edge,
+                hinge,
+                support,
+                ..
+            } => {
+                let span = hinge_edge_length(anchor, *hinge_edge);
+                let chosen = hinge.as_deref().and_then(hardware::find);
+                let continuous =
+                    chosen.is_some_and(|i| i.model.get("shape").and_then(|s| s.as_str()) == Some("pianoHinge"));
+                let (key, desc) = match chosen {
+                    Some(item) => (format!("hinge|{}", item.id), words.list(item)),
+                    None => ("hinge|inset".into(), "inset butt hinges".into()),
+                };
+                let (key, desc) = finished(key, desc);
+                rows.push(Sized {
+                    key,
+                    kind: HardwareKind::Hinge,
+                    description: desc,
+                    qty: if continuous { 1 } else { hinge_count_for(span) },
+                    derived: false,
+                });
+                // Folding brackets under it: a pair, and a third past 40".
+                let bracket = match support.as_deref() {
+                    Some(id) => hardware::find(id),
+                    None => crate::movables::leaf_support_for(crate::movables::leaf_depth(anchor, *hinge_edge)),
+                };
+                if let Some(item) = bracket {
+                    let (key, desc) = finished(format!("item|{}", item.id), words.list(item));
+                    rows.push(Sized {
+                        key,
+                        kind: HardwareKind::Other,
+                        description: desc,
+                        qty: hinge_count_for(span),
+                        derived: false,
+                    });
+                }
+            }
             Movable::Drawer { part_ids, slide, .. } => {
                 let members: Vec<&Part> = part_ids.iter().filter_map(|id| spec.part(id)).collect();
                 let depth = extent_along(&members, thickness_of, front_normal(anchor));

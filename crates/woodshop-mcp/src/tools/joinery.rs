@@ -530,26 +530,29 @@ pub const DELETE_JOINT: ToolDef = ToolDef {
 
 pub const ADD_MOVABLE: ToolDef = ToolDef {
     name: "add_movable",
-    description: "Declare existing parts a door or a drawer (§3.3). A movable names the parts that move as \
-        a unit plus the anchor whose local frame defines the motion: a door needs panel_part_id and \
-        hinge_edge, a drawer needs front_part_id (it pulls out along that part's front face, local +Z). \
-        The spec stores the CLOSED position — opening is a view, never a change to the geometry. Parts \
-        hung this way are held by their hardware, so they no longer need fastening to the carcase, and \
-        the cut list gains the hinges, slides, and knob.",
+    description: "Declare existing parts a door, a drawer or a drop leaf (§3.3). A movable names the parts \
+        that move as a unit plus the anchor whose local frame defines the motion: a door needs \
+        hinge_edge, a drawer pulls out along its front's face (local +Z), and a leaf (a fold-down wing \
+        or drop-leaf top) needs hinge_edge, the leaf's edge against the piece. A door or drawer is \
+        stored CLOSED and a leaf RAISED, level and in use — opening is a view, never a change to the \
+        geometry. Parts hung this way are held by their hardware, so they no longer need fastening to \
+        the carcase, and the cut list gains the hinges, slides and knob, or a leaf's hinges and folding \
+        brackets. A leaf may overhang the piece; that is what it is for.",
     read_only: false,
     schema: || {
         object(
             json!({
                 "project_id": integer(PROJECT_ID),
-                "kind": one_of(&["door", "drawer"], "door or drawer."),
+                "kind": one_of(&["door", "drawer", "leaf"], "door, drawer, or leaf (a fold-down wing or drop leaf)."),
                 "part_ids": array(json!({ "type": "string" }), "Every part that moves together (a door panel; or a drawer front plus its box parts)."),
-                "anchor_part_id": string("The panel (door) or front (drawer). Must be one of part_ids; its local frame defines the motion."),
-                "hinge_edge": one_of(EDGES, "Doors only: the panel edge the hinges mount on, in its own frame (§3.1)."),
-                "style": one_of(&["overlay", "inset"], "overlay laps the opening, inset sits inside it. Defaults to overlay."),
+                "anchor_part_id": string("The panel (door), front (drawer) or leaf panel. Must be one of part_ids; its local frame defines the motion."),
+                "hinge_edge": one_of(EDGES, "Doors and leaves: the edge the hinges mount on, in the anchor's own frame (§3.1)."),
+                "style": one_of(&["overlay", "inset"], "Doors and drawers: overlay laps the opening, inset sits inside it. Defaults to overlay."),
                 "name": string("Optional label, e.g. \"Left Door\"."),
-                "hinge": string("Doors only: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style."),
+                "hinge": string("Doors and leaves: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style (butt hinges on a leaf)."),
                 "slide": string("Drawers only: a catalog slide id (list_hardware with role \"slide\"). Omit for side-mount ball-bearing slides."),
-                "pull": string("A catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
+                "support": string("Leaves only: a folding bracket id (list_hardware, category \"brackets\", e.g. bracket.folding-16in). Omit for the longest that fits under the leaf."),
+                "pull": string("Doors and drawers: a catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
                 "finish": one_of(FINISHES, "The finish of the pull (and a door's hinges): satin nickel, matte black, brass or oil-rubbed bronze. Omit for plain steel."),
             }),
             &["project_id", "kind", "part_ids", "anchor_part_id"],
@@ -562,8 +565,8 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
     let project_id = args.project_id(PROVIDE_PROJECT)?;
     let kind = args.enumerated(
         "kind",
-        &["door", "drawer"],
-        "A movable is either a door or a drawer.",
+        &["door", "drawer", "leaf"],
+        "A movable is a door, a drawer or a leaf.",
         "",
     )?;
     let part_ids: Vec<String> = match args.opt_array("part_ids", usize::MAX)? {
@@ -591,7 +594,16 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
     let hinge = fitting(args, "hinge", Role::Hinge)?;
     let slide = fitting(args, "slide", Role::Slide)?;
     let pull = fitting(args, "pull", Role::Pull)?;
+    let support = folding_bracket(args)?;
     let finish = args.opt_enum("finish", FINISHES, FINISH_INVALID)?;
+    if kind != "leaf" && support.is_some() {
+        return Err("Only a leaf takes a `support` (its folding brackets).".into());
+    }
+    if kind == "leaf" && (slide.is_some() || pull.is_some() || style.is_some()) {
+        return Err(
+            "A leaf has hinges and folding brackets: give it `hinge` and `support`, not a slide, pull or style.".into(),
+        );
+    }
     if kind == "drawer" && hinge.is_some() {
         return Err("A drawer has no hinge; give it a `slide` instead.".into());
     }
@@ -612,8 +624,10 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
             "The anchor \"{anchor}\" must also be listed in part_ids — it is the part whose frame defines the motion."
         ));
     }
-    if kind == "door" && hinge_edge.is_none() {
-        return Err("A door needs hinge_edge: the panel edge the hinges mount on (l0, l1, w0, or w1).".into());
+    if kind != "drawer" && hinge_edge.is_none() {
+        return Err(format!(
+            "A {kind} needs hinge_edge: the edge the hinges mount on (l0, l1, w0, or w1), in its own frame."
+        ));
     }
     for existing in design.draft["movables"].as_array().into_iter().flatten() {
         for claimed in existing["partIds"].as_array().into_iter().flatten() {
@@ -636,18 +650,20 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
         n += 1;
         id = format!("{stem}_{n}");
     }
-    let door = kind == "door";
+    let (door, drawer, leaf) = (kind == "door", kind == "drawer", kind == "leaf");
     let movable = compact(json!({
         "id": id,
         "kind": kind,
         "name": name,
         "partIds": part_ids,
         "panelPartId": door.then_some(anchor),
-        "frontPartId": (!door).then_some(anchor),
-        "hingeEdge": if door { hinge_edge } else { None },
-        "style": style.unwrap_or("overlay"),
-        "hinge": if door { hinge } else { None },
-        "slide": if door { None } else { slide },
+        "frontPartId": drawer.then_some(anchor),
+        "leafPartId": leaf.then_some(anchor),
+        "hingeEdge": if drawer { None } else { hinge_edge },
+        "style": (!leaf).then(|| style.unwrap_or("overlay")),
+        "hinge": if drawer { None } else { hinge },
+        "slide": if drawer { slide } else { None },
+        "support": support,
         "pull": pull,
         "finish": finish,
     }));
@@ -668,25 +684,43 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
 }
 
 fn no_movable(id: &str) -> String {
-    format!("No door or drawer \"{id}\" in this design. Call get_design to see its movables.")
+    format!("No door, drawer or leaf \"{id}\" in this design. Call get_design to see its movables.")
+}
+
+/// A leaf's `support` argument: a catalog folding bracket.
+fn folding_bracket<'a>(args: &Args<'a>) -> Result<Option<&'a str>, String> {
+    let Some(id) = args.opt_str("support")? else {
+        return Ok(None);
+    };
+    match woodshop_core::hardware::find(id) {
+        Some(item) if item.model.get("shape").and_then(|s| s.as_str()) == Some("foldingBracket") => Ok(Some(id)),
+        Some(item) => Err(format!(
+            "{} is not a folding bracket. Call list_hardware with category \"brackets\" for the ones that are.",
+            item.name
+        )),
+        None => Err(format!(
+            "\"{id}\" is not in the hardware catalog. Call list_hardware to see it."
+        )),
+    }
 }
 
 pub const UPDATE_MOVABLE: ToolDef = ToolDef {
     name: "update_movable",
-    description: "Change a door or drawer already on a design: its hinge edge, its style, or its name. Use \
-        this when it opens the wrong way — hingeEdge names an edge in the anchor part's OWN local frame \
-        (§3.1), so the fix is usually a different edge, not moved geometry. Only doors have a hinge edge. \
-        The parts and their positions are untouched.",
+    description: "Change a door, drawer or leaf already on a design: its hinge edge, its style, its \
+        hardware, or its name. Use this when it opens the wrong way — hingeEdge names an edge in the anchor \
+        part's OWN local frame (§3.1), so the fix is usually a different edge, not moved geometry. Doors and \
+        leaves have a hinge edge; only a leaf has a `support`. The parts and their positions are untouched.",
     read_only: false,
     schema: || {
         object(
             json!({
                 "project_id": integer(PROJECT_ID),
                 "movable_id": string("The id of the door or drawer (from get_design)."),
-                "hinge_edge": one_of(EDGES, "Doors only: the panel edge the hinges mount on, in its own frame (§3.1)."),
-                "style": one_of(&["overlay", "inset"], "Overlay laps the opening; inset sits inside it."),
+                "hinge_edge": one_of(EDGES, "Doors and leaves: the edge the hinges mount on, in its own frame (§3.1)."),
+                "style": one_of(&["overlay", "inset"], "Doors and drawers: overlay laps the opening; inset sits inside it."),
                 "name": string("New display name, e.g. \"Left Door\"."),
-                "hinge": string("Doors only: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style."),
+                "hinge": string("Doors and leaves: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style."),
+                "support": string("Leaves only: a folding bracket id (list_hardware, category \"brackets\")."),
                 "slide": string("Drawers only: a catalog slide id (list_hardware with role \"slide\"). Omit for side-mount ball-bearing slides."),
                 "pull": string("A catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
                 "finish": one_of(FINISHES_OR_STEEL, "The finish of the pull (and a door's hinges), or \"steel\" to go back to plain steel."),
@@ -716,6 +750,7 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
             ("name", args.opt_str_max("name", 80)?.filter(|n| !n.is_empty())),
             ("hinge", fitting(args, "hinge", Role::Hinge)?),
             ("slide", fitting(args, "slide", Role::Slide)?),
+            ("support", folding_bracket(args)?),
             ("pull", fitting(args, "pull", Role::Pull)?),
             (
                 "finish",
@@ -726,22 +761,33 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
         .filter_map(|(k, v)| v.map(|v| (k, v)))
         .collect();
         if changes.is_empty() {
-            return Err("Provide what to change: hinge_edge, style, name, hinge, slide, pull or finish.".into());
+            return Err(
+                "Provide what to change: hinge_edge, style, name, hinge, slide, support, pull or finish.".into(),
+            );
         }
         let design = w.load_editable(project_id)?;
         let movable = find(&design.draft, "movables", movable_id).ok_or_else(|| no_movable(movable_id))?;
-        let is_door = movable["kind"] == "door";
-        if changes.iter().any(|(k, _)| *k == "hinge") && !is_door {
+        let kind = movable["kind"].as_str().unwrap_or_default().to_owned();
+        let has = |key: &str| changes.iter().any(|(k, _)| *k == key);
+        if has("hinge") && kind == "drawer" {
             return Err(format!(
                 "\"{movable_id}\" is a drawer, which has no hinge; set its `slide` instead."
             ));
         }
-        if changes.iter().any(|(k, _)| *k == "slide") && is_door {
+        if has("slide") && kind != "drawer" {
             return Err(format!(
-                "\"{movable_id}\" is a door, which has no slides; set its `hinge` instead."
+                "\"{movable_id}\" is a {kind}, which has no slides; set its `hinge` instead."
             ));
         }
-        if changes.iter().any(|(k, _)| *k == "hingeEdge") && movable["kind"] != "door" {
+        if has("support") && kind != "leaf" {
+            return Err(format!("\"{movable_id}\" is a {kind}; only a leaf takes a `support`."));
+        }
+        if (has("style") || has("pull")) && kind == "leaf" {
+            return Err(format!(
+                "\"{movable_id}\" is a leaf, which has no style or pull: set its `hinge` or `support`."
+            ));
+        }
+        if has("hingeEdge") && kind == "drawer" {
             return Err(format!(
                 "\"{movable_id}\" is a drawer, which has no hinge edge — it pulls out along its front's own +Z \
                  face normal. Rotate the front if it opens the wrong way."

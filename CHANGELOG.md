@@ -15,9 +15,17 @@ All notable changes to Woodshop are listed here. The format follows
   cuts right through) and corner radius. It is cut in the 3D view, drawn on the shop template and
   the top view, exported to DXF (`CUT_INSIDE` for a through cut) and listed in the joinery with
   how to cut it. A part may stand in a through opening without the checks calling it a collision.
+- Drop leaves and fold-down wings (format 1.22): Door, drawer or leaf ▸ Make a leaf turns a panel
+  into a leaf hinged on one edge and held level by folding brackets. It is modelled raised; Open
+  folds it down. The hardware list gets its hinges and a pair of brackets (the longest that stops
+  short of the edge unless you pick one), a leaf may overhang the piece without a warning, and the
+  checks say when its brackets are too short or are not folding brackets. Agents make one with
+  `add_movable` and `kind: "leaf"`.
 
 ### Changed
 
+- Designs are saved in format 1.22 (for cutouts and leaves). This version opens every older
+  design, but one saved now needs it or later to open.
 - For agents: `delete_hardware` takes a `part_id` to remove everything on a part at once,
   `get_cut_list` takes `detail: "summary"` for the totals, what to cut and buy, and the
   hardware alone, and `add_parts` with `replace_parts` now removes the hardware, doors, drawers

@@ -23,6 +23,7 @@ import {
     type ShelfPinRun,
 } from '@/engine';
 import { opSummary } from '@/spec/opLabel';
+import { movableKindLabel } from '@/spec/movables';
 import { Section } from './InspectorSection';
 import { Popover } from './Popover';
 import {
@@ -89,7 +90,7 @@ export interface PartInspectorProps {
     onPushOut(overlapPartId: string): void;
     onDowelTo(matePartId: string): void;
     onFastenTo(matePartId: string, method: 'pocket' | 'screws'): void;
-    onMakeMovable(kind: 'door' | 'drawer'): void;
+    onMakeMovable(kind: 'door' | 'drawer' | 'leaf'): void;
     onUpdateMovable(patch: Record<string, unknown>): void;
     onDissolveMovable(): void;
     /** Catalog hardware mounted on this part (spec 1.15). */
@@ -1176,14 +1177,15 @@ export function PartInspector(p: PartInspectorProps) {
                 </div>
             </Section>
 
-            <Section id="movable" title="Door or drawer">
+            <Section id="movable" title="Door, drawer or leaf">
                 {p.movable === null ? (
                     <div className="mb-4" data-testid="movable-none">
                         <p className="text-muted mb-2 text-xs">
-                            Turn this part into a door or a drawer. Use Open in the toolbar to see it move.
+                            Turn this part into a door, a drawer, or a leaf that folds down (a drop leaf or a
+                            cart's wing, modelled raised). Use Open in the toolbar to see it move.
                         </p>
-                        <div className="grid grid-cols-2 gap-2">
-                            {(['door', 'drawer'] as const).map((kind) => (
+                        <div className="grid grid-cols-3 gap-2">
+                            {(['door', 'drawer', 'leaf'] as const).map((kind) => (
                                 <button
                                     key={kind}
                                     className="hover:border-accent/60 border-fg/15 text-fg/65 h-9 rounded-lg border border-dashed text-xs"
@@ -1199,7 +1201,7 @@ export function PartInspector(p: PartInspectorProps) {
                     <div className="bg-surface-2/60 mb-4 rounded-lg p-2.5" data-testid="movable-panel">
                         <div className="mb-2 flex items-center justify-between gap-2">
                             <span className="text-fg/80 text-[13px] font-semibold" data-testid="movable-kind">
-                                {p.movable.kind === 'door' ? 'Door' : 'Drawer'}
+                                {movableKindLabel(p.movable.kind)}
                                 <span className="text-muted text-xs font-normal">
                                     {' '}
                                     · {p.movable.partIds.length}{' '}
@@ -1215,17 +1217,19 @@ export function PartInspector(p: PartInspectorProps) {
                             </button>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <Field label="Style">
-                                <Select
-                                    value={p.movable.style}
-                                    data-testid="movable-style"
-                                    onChange={(e) => p.onUpdateMovable({ style: e.target.value })}
-                                >
-                                    <option value="overlay">overlay</option>
-                                    <option value="inset">inset</option>
-                                </Select>
-                            </Field>
-                            {p.movable.kind === 'door' && (
+                            {p.movable.kind !== 'leaf' && (
+                                <Field label="Style">
+                                    <Select
+                                        value={p.movable.style}
+                                        data-testid="movable-style"
+                                        onChange={(e) => p.onUpdateMovable({ style: e.target.value })}
+                                    >
+                                        <option value="overlay">overlay</option>
+                                        <option value="inset">inset</option>
+                                    </Select>
+                                </Field>
+                            )}
+                            {(p.movable.kind === 'door' || p.movable.kind === 'leaf') && (
                                 <Field label="Hinges on">
                                     <Select
                                         value={p.movable.hingeEdge}

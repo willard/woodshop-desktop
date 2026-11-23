@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import type { HardwareMount, Movable, Part, Side } from '@/spec';
-import { findItem, itemName, itemsForRole, sideExtent } from '@/hardware/catalog';
+import { catalog, findItem, itemName, itemsForRole, sideExtent } from '@/hardware/catalog';
 import type { HardwarePatch } from '@/engine';
 import { Field, Select, TextInput } from './form';
 import { lenValue, parseLen } from '@/lib/display';
@@ -218,7 +218,10 @@ export function PartHardware(props: {
     );
 }
 
-/** Which hinge, slide and pull a door or drawer uses. "Standard" leaves the choice to the app. */
+/**
+ * Which hinge, slide and pull a door or drawer uses, or a leaf's hinge and folding brackets.
+ * "Standard" leaves the choice to the app.
+ */
 export function MovableFittings(props: { movable: Movable; onChange(patch: Record<string, unknown>): void }) {
     const m = props.movable;
     const pick = (field: 'hinge' | 'slide' | 'pull', label: string, standard: string, withNone = false) => {
@@ -247,6 +250,43 @@ export function MovableFittings(props: { movable: Movable; onChange(patch: Recor
             </Field>
         );
     };
+    if (m.kind === 'leaf') {
+        const support = m.support as string | undefined;
+        const brackets = catalog().items.filter((item) => item.model.shape === 'foldingBracket');
+        return (
+            <div className="mt-2 grid grid-cols-2 gap-2" data-testid="movable-fittings">
+                {pick('hinge', 'Hinge', 'Standard (butt)')}
+                <Field label="Folding brackets">
+                    <Select
+                        value={support ?? ''}
+                        data-testid="movable-support"
+                        onChange={(e) =>
+                            props.onChange({ support: e.target.value === '' ? undefined : e.target.value })
+                        }
+                    >
+                        <option value="">Longest that fits</option>
+                        {brackets.map((item) => (
+                            <option key={item.id} value={item.id}>
+                                {itemName(item)}
+                            </option>
+                        ))}
+                        {support !== undefined && findItem(support) === undefined && (
+                            <option value={support}>{support}</option>
+                        )}
+                    </Select>
+                </Field>
+                <div className="col-span-2">
+                    <Field label="Finish (hinges and brackets)">
+                        <FinishSelect
+                            value={m.finish}
+                            testId="movable-finish"
+                            onChange={(finish) => props.onChange({ finish })}
+                        />
+                    </Field>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="mt-2 grid grid-cols-2 gap-2" data-testid="movable-fittings">
             {m.kind === 'door'

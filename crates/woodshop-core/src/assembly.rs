@@ -308,6 +308,18 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
                     part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
                 });
             }
+            Movable::Leaf { .. } => {
+                let mut lines = Vec::new();
+                for (i, n) in members.iter().enumerate().skip(1) {
+                    lines.push(line(spec, n, &members[..i]));
+                }
+                lines.push("Hinge it to the piece, raise it level, and screw the folding brackets under it.".into());
+                steps.push(AssemblyStep {
+                    heading: format!("Hang {}", name.unwrap_or_else(|| "the leaf".into())),
+                    lines,
+                    part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
+                });
+            }
             Movable::Door { .. } => {
                 let mut lines = Vec::new();
                 for (i, n) in members.iter().enumerate().skip(1) {

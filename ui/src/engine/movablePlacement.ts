@@ -4,15 +4,23 @@
  * transform — drag, explode, and the door swing itself — for free, exactly as screws do.
  */
 import type { Spec, Part, Movable, Vec3 } from '../spec/types';
-import { extentAlong, frontNormal, hingeEdgeLength, hingeCountFor, movableAnchorId } from '../spec/movables';
+import {
+    extentAlong,
+    frontNormal,
+    hingeEdgeLength,
+    hingeCountFor,
+    leafDepth,
+    leafSupportFor,
+    movableAnchorId,
+} from '../spec/movables';
 import { localAxesWorld } from '../spec/geometry';
-import { hingeLineLocal } from './open';
+import { hingeLineLocal, leafHinge } from './open';
 import { findItem } from '@/hardware/catalog';
 
 /** One piece of hardware, placed in the local frame of the part it mounts on. */
 export interface HardwarePlacement {
     partId: string;
-    kind: 'hinge' | 'knob' | 'slideRail';
+    kind: 'hinge' | 'knob' | 'slideRail' | 'support';
     pos: Vec3;
     /** Rotation about local Z, in radians — enough to lay a hinge barrel along the hinge line. */
     spinZ: number;
@@ -58,6 +66,11 @@ export function hardwarePlacements(spec: Spec, movable: Movable): HardwarePlacem
         spec.materials.find((m) => m.id === part.materialId)?.thickness ?? 0;
     const thickness = thicknessOf(anchor);
     const placements: HardwarePlacement[] = [];
+
+    if (movable.kind === 'leaf') {
+        leafPlacements(anchor, thickness, movable, placements);
+        return placements;
+    }
 
     if (movable.kind === 'door') {
         const line = hingeLineLocal(anchor, thickness, movable.hingeEdge);
@@ -170,6 +183,79 @@ export function hardwarePlacements(spec: Spec, movable: Movable): HardwarePlacem
         });
     }
     return placements;
+}
+
+/** The default hinge for a leaf that names none: the core's "inset butt hinges". */
+const LEAF_HINGE = 'hinge.butt-2-5in';
+
+/**
+ * A leaf's metal, in its own frame: hinges along the hinge edge's lower arris, and the folding
+ * brackets under it, each leg down the piece's face and its arm out under the leaf.
+ */
+function leafPlacements(
+    leaf: Part,
+    thickness: number,
+    movable: Extract<Movable, { kind: 'leaf' }>,
+    placements: HardwarePlacement[],
+): void {
+    const edge = movable.hingeEdge as keyof typeof INWARD;
+    const { under } = leafHinge(leaf, thickness, edge);
+    const line = hingeLineLocal(leaf, thickness, edge);
+    const point: Vec3 = [line.point[0], line.point[1], (under * thickness) / 2];
+    const span = hingeEdgeLength(leaf, edge);
+    const alongX = line.direction[0] !== 0;
+    const at = (offset: number): Vec3 =>
+        alongX ? [point[0] + offset, point[1], point[2]] : [point[0], point[1] + offset, point[2]];
+    const spread = (inset: number): number[] => {
+        const count = hingeCountFor(span);
+        const reach = Math.max(0, span / 2 - inset);
+        return Array.from({ length: count }, (_, i) =>
+            count === 1 ? 0 : (-1 + (2 * i) / (count - 1)) * reach,
+        );
+    };
+    const down: Vec3 = [0, 0, under];
+
+    const hinge = findItem(movable.hinge ?? LEAF_HINGE);
+    if (hinge?.model.shape === 'pianoHinge') {
+        placements.push({
+            partId: leaf.id,
+            kind: 'hinge',
+            pos: point,
+            spinZ: 0,
+            length: Math.max(1, span - 1),
+            itemId: hinge.id,
+            basis: { x: line.direction, z: down },
+        });
+    } else if (hinge !== undefined) {
+        for (const offset of spread(HINGE_INSET)) {
+            placements.push({
+                partId: leaf.id,
+                kind: 'hinge',
+                pos: at(offset),
+                spinZ: 0,
+                itemId: hinge.id,
+                basis: { x: line.direction, z: down },
+            });
+        }
+    }
+
+    const bracket =
+        movable.support === undefined ? leafSupportFor(leafDepth(leaf, edge)) : findItem(movable.support);
+    if (bracket?.model.shape !== 'foldingBracket') return;
+    const leg = typeof bracket.model.leg === 'number' ? bracket.model.leg : 9;
+    const up = neg(down);
+    // Brackets stand in from the hinges, so the two never share a spot.
+    for (const offset of spread(HINGE_INSET * 2)) {
+        const top = at(offset);
+        placements.push({
+            partId: leaf.id,
+            kind: 'support',
+            pos: [top[0] - (up[0] * leg) / 2, top[1] - (up[1] * leg) / 2, top[2] - (up[2] * leg) / 2],
+            spinZ: 0,
+            itemId: bracket.id,
+            basis: { x: up, z: INWARD[edge] },
+        });
+    }
 }
 
 /** The pull a movable opens with: its chosen catalog item, the plain knob, or nothing. */

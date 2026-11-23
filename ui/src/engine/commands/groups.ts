@@ -10,6 +10,7 @@ import { type Command, uniquePartIdFrom, uniqueGroupId, uniqueMovableId } from '
 import { aabbFromPart } from '../snapping';
 import { cloneHardware, detachHardware, reattachHardware, type DetachedHardware } from './hardware';
 import { exitFocusMode } from '../focus';
+import { movableAnchorId, withAnchor } from '../../spec/movables';
 
 const DEG2RAD = Math.PI / 180;
 const RAD2DEG = 180 / Math.PI;
@@ -264,7 +265,7 @@ export function cascadeMovables(spec: Spec, removedIds: ReadonlySet<string>): Mo
             next.push(movable);
             return;
         }
-        const anchorId = movable.kind === 'door' ? movable.panelPartId : movable.frontPartId;
+        const anchorId = movableAnchorId(movable);
         if (remaining.length === 0 || removedIds.has(anchorId)) {
             dissolved.push({ movable, index });
             return;
@@ -473,23 +474,15 @@ export class DuplicateGroup implements Command {
                     .map((id: string) => idMap.get(id))
                     .filter((id: string | undefined): id is string => id !== undefined);
                 if (clonedPartIds.length > 0) {
-                    if (sourceMovable.kind === 'door') {
-                        movable = {
+                    movable = withAnchor(
+                        {
                             ...sourceMovable,
-                            id: uniqueMovableId(spec, 'door'),
+                            id: uniqueMovableId(spec, sourceMovable.kind),
                             name: sourceMovable.name ? `${sourceMovable.name} copy` : undefined,
                             partIds: clonedPartIds,
-                            panelPartId: idMap.get(sourceMovable.panelPartId) ?? clonedPartIds[0],
-                        };
-                    } else {
-                        movable = {
-                            ...sourceMovable,
-                            id: uniqueMovableId(spec, 'drawer'),
-                            name: sourceMovable.name ? `${sourceMovable.name} copy` : undefined,
-                            partIds: clonedPartIds,
-                            frontPartId: idMap.get(sourceMovable.frontPartId) ?? clonedPartIds[0],
-                        };
-                    }
+                        },
+                        idMap.get(movableAnchorId(sourceMovable)) ?? clonedPartIds[0],
+                    );
                 }
             }
 

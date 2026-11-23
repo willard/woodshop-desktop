@@ -5,6 +5,7 @@
  */
 import type { Spec, Part, Movable } from '../../spec/types';
 import type { Command } from './Command';
+import { movableAnchorId } from '../../spec/movables';
 
 /** What a preset produces: the parts, the joinery holding them, and the movable itself. */
 export interface MovableAddition {
@@ -27,7 +28,7 @@ export class MakeMovable implements Command {
     do(spec: Spec): Spec {
         const known = new Set(spec.parts.map((p) => p.id));
         const claimed = new Set((spec.movables ?? []).flatMap((m) => m.partIds));
-        const anchorId = this.movable.kind === 'door' ? this.movable.panelPartId : this.movable.frontPartId;
+        const anchorId = movableAnchorId(this.movable);
 
         // Defensive no-ops, matching GroupParts: an unknown part, a part already in another
         // movable, or an anchor that isn't a member would all be linter errors on arrival.

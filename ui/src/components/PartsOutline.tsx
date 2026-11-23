@@ -6,6 +6,7 @@
 import { ChevronDown, ChevronRight, Lock, LockOpen } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { Spec } from '@/spec';
+import { movableAnchorId, movableKindLabel } from '@/spec/movables';
 
 interface Props {
     spec: Spec;
@@ -189,17 +190,14 @@ function Row({
 export function outlineOf(spec: Spec): Section[] {
     const claimed = new Set<string>();
     const sections: Section[] = [];
-    let doors = 0;
-    let drawers = 0;
+    const counts = new Map<string, number>();
     for (const movable of spec.movables ?? []) {
-        const door = movable.kind === 'door';
-        const n = door ? (doors += 1) : (drawers += 1);
-        const anchor = door
-            ? (movable as { panelPartId: string }).panelPartId
-            : (movable as { frontPartId: string }).frontPartId;
+        const n = (counts.get(movable.kind) ?? 0) + 1;
+        counts.set(movable.kind, n);
+        const anchor = movableAnchorId(movable);
         sections.push({
             key: `movable:${movable.id}`,
-            title: movable.name ?? `${door ? 'Door' : 'Drawer'} ${n}`,
+            title: movable.name ?? `${movableKindLabel(movable.kind)} ${n}`,
             anchor,
             partIds: [...movable.partIds],
         });

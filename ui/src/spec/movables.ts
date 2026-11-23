@@ -11,6 +11,7 @@
 import type { Spec, Part, Movable, Op, Vec3 } from './types';
 import { localAxesWorld } from './geometry';
 import { wasm } from '@/domain';
+import { catalog, type HardwareItem } from '@/hardware/catalog';
 
 /** How far an overlay door/drawer front laps the opening, per side. */
 export const OVERLAY_ALLOWANCE = 0.5;
@@ -44,9 +45,69 @@ export function slideLengthFor(boxDepth: number): number {
     return best;
 }
 
+/** The field naming each kind's anchor: a door's panel, a drawer's front, a leaf's panel. */
+export function anchorField(kind: Movable['kind']): 'panelPartId' | 'frontPartId' | 'leafPartId' {
+    if (kind === 'door') return 'panelPartId';
+    if (kind === 'leaf') return 'leafPartId';
+    return 'frontPartId';
+}
+
 /** The member whose local frame defines the movable's motion (§3.3). */
 export function movableAnchorId(movable: Movable): string {
-    return movable.kind === 'door' ? movable.panelPartId : movable.frontPartId;
+    return (movable as Record<string, unknown>)[anchorField(movable.kind)] as string;
+}
+
+/** A copy of `movable` anchored on another part (its copy in a duplicate or a mirror). */
+export function withAnchor(movable: Movable, anchorId: string): Movable {
+    return { ...movable, [anchorField(movable.kind)]: anchorId } as Movable;
+}
+
+/** How far a leaf reaches out from its hinge edge: the panel's other dimension. */
+export function leafDepth(leaf: Part, hingeEdge: 'l0' | 'l1' | 'w0' | 'w1'): number {
+    return hingeEdge === 'l0' || hingeEdge === 'l1' ? leaf.size.w : leaf.size.l;
+}
+
+/**
+ * The folding bracket a leaf `depth` deep gets when it names none: the longest whose arm stops at
+ * least an inch short of the free edge, or the shortest there is. Mirrors the core's
+ * `leaf_support_for`.
+ */
+export function leafSupportFor(depth: number): HardwareItem | undefined {
+    const arm = (item: HardwareItem) => (typeof item.model.arm === 'number' ? item.model.arm : 0);
+    const brackets = catalog()
+        .items.filter((item) => item.model.shape === 'foldingBracket')
+        .sort((a, b) => arm(a) - arm(b));
+    return [...brackets].reverse().find((item) => arm(item) <= depth - 1) ?? brackets[0];
+}
+
+/**
+ * The edge a new leaf most likely hinges on: the one nearest the middle of the rest of the
+ * piece, which is the edge that butts against it.
+ */
+export function leafHingeEdgeFor(spec: Spec, leaf: Part): 'l0' | 'l1' | 'w0' | 'w1' {
+    const others = spec.parts.filter((p) => p.id !== leaf.id);
+    if (others.length === 0) return 'w0';
+    const centre = [0, 1, 2].map(
+        (i) => others.reduce((sum, p) => sum + p.transform.pos[i], 0) / others.length,
+    );
+    const [ax, ay] = localAxesWorld(leaf);
+    const at = (along: readonly number[], half: number) =>
+        [0, 1, 2].map((i) => leaf.transform.pos[i] + along[i] * half);
+    const edges: ['l0' | 'l1' | 'w0' | 'w1', number[]][] = [
+        ['w0', at(ax, -leaf.size.l / 2)],
+        ['w1', at(ax, leaf.size.l / 2)],
+        ['l0', at(ay, -leaf.size.w / 2)],
+        ['l1', at(ay, leaf.size.w / 2)],
+    ];
+    const distance = (p: number[]) => Math.hypot(p[0] - centre[0], p[1] - centre[1], p[2] - centre[2]);
+    return edges.reduce((best, edge) => (distance(edge[1]) < distance(best[1]) ? edge : best))[0];
+}
+
+/** What a movable is called in the editor. */
+export function movableKindLabel(kind: Movable['kind']): string {
+    if (kind === 'door') return 'Door';
+    if (kind === 'leaf') return 'Leaf';
+    return 'Drawer';
 }
 
 /** Length of the panel edge the hinges mount on (its chord, §3.1). */

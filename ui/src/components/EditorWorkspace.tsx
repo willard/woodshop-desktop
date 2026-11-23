@@ -124,6 +124,7 @@ import { assessSturdiness } from '@/struct';
 import { dowelLabelOf, nominalOf } from '@/lib/lumberSizes';
 import { handleEditorKeydown, SHORTCUTS, type NudgeDirection, type NudgeStep } from '@/lib/shortcuts';
 import { Modal } from './Modal';
+import { leafHingeEdgeFor } from '@/spec/movables';
 import { SIDES } from './HardwareFittings';
 import { activeTheme, onThemeChange, sceneFor } from '@/lib/theme';
 import { AddMovableDialog } from './AddMovableDialog';
@@ -979,15 +980,28 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             doc.execute(new AddScrewJoint(plan.partId, plan.matePartId, plan.op));
         }
 
-        function makeMovable(kind: 'door' | 'drawer'): void {
+        function makeMovable(kind: 'door' | 'drawer' | 'leaf'): void {
             if (selected === null) return;
             const id = uniqueMovableId(doc.spec, kind);
-            const common = { id, name: selected.name, partIds: [selected.id], style: 'overlay' as const };
+            const common = { id, name: selected.name, partIds: [selected.id] };
             doc.execute(
                 new MakeMovable(
                     kind === 'door'
-                        ? { ...common, kind: 'door', panelPartId: selected.id, hingeEdge: 'w0' }
-                        : { ...common, kind: 'drawer', frontPartId: selected.id },
+                        ? {
+                              ...common,
+                              style: 'overlay',
+                              kind: 'door',
+                              panelPartId: selected.id,
+                              hingeEdge: 'w0',
+                          }
+                        : kind === 'leaf'
+                          ? {
+                                ...common,
+                                kind: 'leaf',
+                                leafPartId: selected.id,
+                                hingeEdge: leafHingeEdgeFor(doc.spec, selected),
+                            }
+                          : { ...common, style: 'overlay', kind: 'drawer', frontPartId: selected.id },
                 ),
             );
         }
@@ -1627,7 +1641,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                 <button
                                     className={toolBtn(doorsOpen > 0)}
                                     data-testid="open-toggle"
-                                    aria-label="Open doors and drawers"
+                                    aria-label="Open doors, drawers and leaves"
                                     title={
                                         doorsOpen > 0
                                             ? 'Close the doors and drawers (O)'

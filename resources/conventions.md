@@ -144,6 +144,15 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
   · `hingeEdge` is the panel's OWN edge (§3.1), not a world direction — the hinges sit on
     that edge's front arris and the door swings toward its show face.
   · A drawer pulls out along its front's local +Z, so point that face out of the cabinet.
+  · A drop leaf or fold-down wing (spec 1.22) is `{ "id": "mv_wing", "kind": "leaf",
+    "partIds": ["p_wing"], "leafPartId": "p_wing", "hingeEdge": "w0" }`: a flat panel hinged
+    along `hingeEdge` (its edge against the piece) and held level by folding brackets. Model
+    it RAISED, level with the top, butted to the piece; Open folds it down. Optional `hinge`
+    (a catalog hinge; butt hinges otherwise) and `support` (a folding bracket such as
+    `bracket.folding-16in`; otherwise the longest that stops an inch short of the free edge).
+    The hardware list gets the hinges and a pair of brackets (three past 40"). A leaf may
+    overhang the piece, and needs no lid stay; the checks warn (`movable.leaf-support`) when
+    its brackets reach past the edge or less than halfway under it.
   · `style`: `overlay` laps the opening by 1/2" a side, `inset` sits inside it with a 1/16"
     reveal. Size the front accordingly.
   · A door panel needs no fastening — its hinges hold it. Every OTHER member (drawer sides,

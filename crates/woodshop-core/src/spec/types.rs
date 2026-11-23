@@ -792,52 +792,79 @@ pub enum Movable {
         #[serde(default, skip_serializing_if = "Option::is_none")]
         finish: Option<Finish>,
     },
+    /// A drop leaf or fold-down wing (1.22), stored raised; it folds down about its hinge edge.
+    Leaf {
+        id: Id,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        name: Option<String>,
+        #[serde(rename = "partIds")]
+        part_ids: Vec<Id>,
+        #[serde(rename = "leafPartId")]
+        leaf_part_id: Id,
+        #[serde(rename = "hingeEdge")]
+        hinge_edge: Edge,
+        /// Catalog hinge; `None` = butt hinges.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        hinge: Option<String>,
+        /// Catalog folding bracket; `None` = the longest that fits under the leaf.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        support: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        finish: Option<Finish>,
+    },
 }
 
 impl Movable {
     pub fn id(&self) -> &str {
         match self {
-            Movable::Door { id, .. } | Movable::Drawer { id, .. } => id,
+            Movable::Door { id, .. } | Movable::Drawer { id, .. } | Movable::Leaf { id, .. } => id,
         }
     }
 
     pub fn name(&self) -> Option<&str> {
         match self {
-            Movable::Door { name, .. } | Movable::Drawer { name, .. } => name.as_deref(),
+            Movable::Door { name, .. } | Movable::Drawer { name, .. } | Movable::Leaf { name, .. } => name.as_deref(),
         }
     }
 
     pub fn part_ids(&self) -> &[Id] {
         match self {
-            Movable::Door { part_ids, .. } | Movable::Drawer { part_ids, .. } => part_ids,
+            Movable::Door { part_ids, .. } | Movable::Drawer { part_ids, .. } | Movable::Leaf { part_ids, .. } => {
+                part_ids
+            }
         }
     }
 
-    /// The panel (door) or front (drawer) part.
+    /// The panel (door), front (drawer) or leaf part.
     pub fn anchor_part_id(&self) -> &str {
         match self {
             Movable::Door { panel_part_id, .. } => panel_part_id,
             Movable::Drawer { front_part_id, .. } => front_part_id,
+            Movable::Leaf { leaf_part_id, .. } => leaf_part_id,
         }
     }
 
-    /// The chosen pull's catalog id, `"none"`, or `None` for the default knob.
+    /// The chosen pull's catalog id, `"none"`, or `None` for the default knob. A leaf has no
+    /// pull: `"none"`.
     pub fn pull(&self) -> Option<&str> {
         match self {
             Movable::Door { pull, .. } | Movable::Drawer { pull, .. } => pull.as_deref(),
+            Movable::Leaf { .. } => Some("none"),
         }
     }
 
     /// The finish of the pull (and a door's hinges); `None` = plain steel.
     pub fn finish(&self) -> Option<Finish> {
         match self {
-            Movable::Door { finish, .. } | Movable::Drawer { finish, .. } => *finish,
+            Movable::Door { finish, .. } | Movable::Drawer { finish, .. } | Movable::Leaf { finish, .. } => *finish,
         }
     }
 
-    pub fn style(&self) -> MovableStyle {
+    /// Overlay or inset; `None` for a leaf, which covers no opening.
+    pub fn style(&self) -> Option<MovableStyle> {
         match self {
-            Movable::Door { style, .. } | Movable::Drawer { style, .. } => *style,
+            Movable::Door { style, .. } | Movable::Drawer { style, .. } => Some(*style),
+            Movable::Leaf { .. } => None,
         }
     }
 }

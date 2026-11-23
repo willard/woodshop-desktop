@@ -13,6 +13,7 @@ import type { Group, HardwareMount, Joint, Movable, Part, Spec } from '../../spe
 import type { Command } from './Command';
 import { uniqueGroupId, uniqueMovableId, uniquePartIdFrom } from './Command';
 import { uniqueHardwareId } from './hardware';
+import { movableAnchorId, withAnchor } from '../../spec/movables';
 import { aabbFromPart } from '../snapping';
 import {
     flipEdge,
@@ -125,22 +126,12 @@ export class MirrorCopy implements Command {
             const id = uniqueMovableId({ ...spec, movables: takenMovables }, movable.kind);
             const name = movable.name === undefined ? undefined : mirrorName(movable.name, axis);
             let copy: Movable;
-            if (movable.kind === 'door') {
-                const flip = flips.get(movable.panelPartId) ?? 'l';
-                copy = {
-                    ...movable,
-                    id,
-                    partIds: partIds as string[],
-                    panelPartId: idMap.get(movable.panelPartId)!,
-                    hingeEdge: flipEdge(movable.hingeEdge, flip),
-                };
-            } else {
-                copy = {
-                    ...movable,
-                    id,
-                    partIds: partIds as string[],
-                    frontPartId: idMap.get(movable.frontPartId)!,
-                };
+            const anchorId = movableAnchorId(movable);
+            copy = withAnchor({ ...movable, id, partIds: partIds as string[] }, idMap.get(anchorId)!);
+            // A door or leaf hinges on the mirrored edge of its mirrored panel.
+            if (copy.kind === 'door' || copy.kind === 'leaf') {
+                const flip = flips.get(anchorId) ?? 'l';
+                copy = { ...copy, hingeEdge: flipEdge(copy.hingeEdge, flip) };
             }
             if (name === undefined) delete copy.name;
             else copy.name = name;

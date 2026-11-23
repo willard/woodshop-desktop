@@ -1,6 +1,7 @@
 import type { Spec, Vec3 } from '../spec/types';
 import { aabbFromPart } from './snapping';
 import { uniquePartIdFrom } from './commands/Command';
+import { movableAnchorId, withAnchor } from '../spec/movables';
 
 export interface FocusState {
     focusSpec: Spec;
@@ -134,12 +135,8 @@ export function exitFocusMode(mainSpec: Spec, focusSpec: Spec, originalGroupId: 
             !m.partIds.every((id: string) => originalPartIds.has(id)),
     );
     const updatedFocusMovables = (focusSpec.movables ?? []).map((m) => {
-        if (m.kind === 'door') {
-            return {
-                ...m,
-                partIds: m.partIds.map(remapId),
-                panelPartId: remapId(m.panelPartId),
-            };
+        if (m.kind === 'door' || m.kind === 'leaf') {
+            return withAnchor({ ...m, partIds: m.partIds.map(remapId) }, remapId(movableAnchorId(m)));
         }
         return {
             ...m,

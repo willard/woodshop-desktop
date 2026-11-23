@@ -76,6 +76,33 @@ pub fn movable_member_of(spec: &Spec) -> HashMap<&str, &Movable> {
 
 /// Hinges sit this far in from each end of the hinge edge.
 pub const HINGE_INSET: f64 = 3.0;
+
+/// How far a leaf reaches out from its hinge edge: the panel's other dimension.
+pub fn leaf_depth(leaf: &Part, hinge_edge: Edge) -> f64 {
+    if hinge_edge.is_l_edge() {
+        leaf.size.w
+    } else {
+        leaf.size.l
+    }
+}
+
+/// The folding bracket a leaf `depth` deep gets when it names none: the longest whose arm stops
+/// at least an inch short of the free edge, or the shortest there is.
+pub fn leaf_support_for(depth: f64) -> Option<&'static crate::hardware::Item> {
+    let arm = |item: &crate::hardware::Item| item.model.get("arm").and_then(serde_json::Value::as_f64);
+    let mut brackets: Vec<&crate::hardware::Item> = crate::hardware::catalog()
+        .items
+        .iter()
+        .filter(|i| i.model.get("shape").and_then(|s| s.as_str()) == Some("foldingBracket"))
+        .collect();
+    brackets.sort_by(|a, b| arm(a).partial_cmp(&arm(b)).unwrap_or(std::cmp::Ordering::Equal));
+    brackets
+        .iter()
+        .rev()
+        .find(|i| arm(i).is_some_and(|a| a <= depth - 1.0))
+        .or(brackets.first())
+        .copied()
+}
 /// Wood a cup bore must leave behind it, or the bit's point comes through the show face.
 pub const CUP_FLOOR: f64 = 0.0625;
 
@@ -186,6 +213,15 @@ mod tests {
             "movables": [door],
         });
         spec::from_value(spec::migrate_to_latest(raw).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn a_leaf_gets_the_longest_bracket_that_stops_short_of_its_edge() {
+        let arm = |depth: f64| leaf_support_for(depth).unwrap().model["arm"].as_f64().unwrap();
+        assert_eq!(arm(24.0), 20.0);
+        assert_eq!(arm(18.0), 16.0);
+        assert_eq!(arm(16.5), 12.0);
+        assert_eq!(arm(6.0), 10.0, "nothing fits: the shortest");
     }
 
     #[test]

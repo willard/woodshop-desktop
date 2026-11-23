@@ -581,10 +581,10 @@ pub(super) fn remove_part(spec: &mut Value, part_id: &str) {
             if !has(&m["partIds"]) {
                 return true;
             }
-            let anchor = if m["kind"] == "door" {
-                &m["panelPartId"]
-            } else {
-                &m["frontPartId"]
+            let anchor = match m["kind"].as_str() {
+                Some("door") => &m["panelPartId"],
+                Some("leaf") => &m["leafPartId"],
+                _ => &m["frontPartId"],
             };
             if anchor == part_id {
                 return false;

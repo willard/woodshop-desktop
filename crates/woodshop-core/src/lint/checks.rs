@@ -385,8 +385,13 @@ pub(super) fn movables(spec: &Spec, issues: &mut Vec<LintIssue>) {
     let mut member_of: HashMap<&str, &str> = HashMap::new();
 
     for movable in spec.movables() {
-        let is_door = matches!(movable, Movable::Door { .. });
-        let kind_label = if is_door { "Door" } else { "Drawer" };
+        let is_drawer = matches!(movable, Movable::Drawer { .. });
+        let is_leaf = matches!(movable, Movable::Leaf { .. });
+        let kind_label = match movable {
+            Movable::Door { .. } => "Door",
+            Movable::Drawer { .. } => "Drawer",
+            Movable::Leaf { .. } => "Leaf",
+        };
         let label = movable.name().unwrap_or(movable.id());
         let part_ids = movable.part_ids();
 
@@ -417,7 +422,11 @@ pub(super) fn movables(spec: &Spec, issues: &mut Vec<LintIssue>) {
 
         let anchor_id = movable.anchor_part_id();
         if !part_ids.iter().any(|p| p == anchor_id) {
-            let field = if is_door { "panel" } else { "front" };
+            let field = match movable {
+                Movable::Door { .. } => "panel",
+                Movable::Drawer { .. } => "front",
+                Movable::Leaf { .. } => "leaf",
+            };
             issues.push(LintIssue::part(
                 Severity::Error,
                 "movable.anchor-missing",
@@ -442,7 +451,7 @@ pub(super) fn movables(spec: &Spec, issues: &mut Vec<LintIssue>) {
             rest.iter().any(|o| separation(&b, &aabb(spec, o)) <= HARDWARE_REACH)
         });
         if !reachable {
-            let hardware = if is_door { "hinges" } else { "slides" };
+            let hardware = if is_drawer { "slides" } else { "hinges" };
             issues.push(LintIssue::part(
                 Severity::Warn,
                 "movable.adrift",
@@ -456,7 +465,7 @@ pub(super) fn movables(spec: &Spec, issues: &mut Vec<LintIssue>) {
         let normal = local_axes_world(anchor)[2];
 
         // A drawer whose front's show face points at the build opens into the cabinet.
-        if !is_door {
+        if is_drawer {
             let n = rest.len() as f64;
             let mut centroid = [0.0; 3];
             for p in &rest {
@@ -477,6 +486,11 @@ pub(super) fn movables(spec: &Spec, issues: &mut Vec<LintIssue>) {
                     anchor_id,
                 ));
             }
+        }
+
+        // A leaf is meant to stand out past the piece: that is what it is for.
+        if is_leaf {
+            continue;
         }
 
         // A front larger than the face it covers, judged across the front plane only.
@@ -777,8 +791,10 @@ pub(super) fn fastening(spec: &Spec, member_of: &HashMap<&str, &Movable>, issues
         if let Some(movable) = member_of.get(part.id.as_str()) {
             let kind = match movable {
                 Movable::Door { panel_part_id, .. } if *panel_part_id == part.id => continue,
+                Movable::Leaf { leaf_part_id, .. } if *leaf_part_id == part.id => continue,
                 Movable::Door { .. } => "door",
                 Movable::Drawer { .. } => "drawer",
+                Movable::Leaf { .. } => "leaf",
             };
             issues.push(LintIssue::part(
                 Severity::Warn,
@@ -992,7 +1008,7 @@ pub(super) fn hardware(spec: &Spec, issues: &mut Vec<LintIssue>) {
     for movable in spec.movables() {
         let label = movable.name().unwrap_or(movable.id());
         let (fitting, role, field) = match movable {
-            Movable::Door { hinge, .. } => (hinge.as_deref(), Role::Hinge, "hinge"),
+            Movable::Door { hinge, .. } | Movable::Leaf { hinge, .. } => (hinge.as_deref(), Role::Hinge, "hinge"),
             Movable::Drawer { slide, .. } => (slide.as_deref(), Role::Slide, "slide"),
         };
         let pull = movable.pull().filter(|p| *p != "none");
@@ -1226,6 +1242,72 @@ pub(super) fn lid_stays(spec: &Spec, issues: &mut Vec<LintIssue>) {
                     "\"{label}\" opens upward with nothing to hold it open, so it can drop shut on someone's hands. Add a lid stay (Hardware, Lids) on the side beside it."
                 ),
                 &panel.id,
+            ));
+        }
+    }
+}
+
+/// A leaf's folding brackets: a named one has to be a folding bracket, and its arm has to carry
+/// most of the leaf without poking out past the free edge.
+pub(super) fn leaf_supports(spec: &Spec, issues: &mut Vec<LintIssue>) {
+    use crate::movables::{leaf_depth, leaf_support_for};
+    for movable in spec.movables() {
+        let Movable::Leaf {
+            leaf_part_id,
+            hinge_edge,
+            support,
+            ..
+        } = movable
+        else {
+            continue;
+        };
+        let Some(leaf) = spec.part(leaf_part_id) else { continue };
+        let label = movable.name().unwrap_or(movable.id());
+        let depth = leaf_depth(leaf, *hinge_edge);
+        let item = match support.as_deref() {
+            Some(id) => match crate::hardware::find(id) {
+                Some(item) if item.model.get("shape").and_then(|s| s.as_str()) == Some("foldingBracket") => item,
+                _ => {
+                    issues.push(LintIssue::part(
+                        Severity::Warn,
+                        "movable.leaf-support",
+                        format!(
+                            "\"{label}\" is held up by \"{id}\", which is not a folding bracket. Pick one from Hardware, Brackets & plates."
+                        ),
+                        &leaf.id,
+                    ));
+                    continue;
+                }
+            },
+            None => match leaf_support_for(depth) {
+                Some(item) => item,
+                None => continue,
+            },
+        };
+        let Some(arm) = item.model.get("arm").and_then(serde_json::Value::as_f64) else {
+            continue;
+        };
+        let problem = if arm > depth + TOUCH_TOL {
+            Some(format!(
+                "its {} brackets reach past the {}-deep leaf's edge. Use a shorter bracket or a deeper leaf.",
+                len(arm),
+                len(depth)
+            ))
+        } else if arm < depth * 0.5 {
+            Some(format!(
+                "its {} brackets reach less than halfway under the {}-deep leaf, so the outer edge will sag. Use a longer bracket.",
+                len(arm),
+                len(depth)
+            ))
+        } else {
+            None
+        };
+        if let Some(problem) = problem {
+            issues.push(LintIssue::part(
+                Severity::Warn,
+                "movable.leaf-support",
+                format!("\"{label}\": {problem}"),
+                &leaf.id,
             ));
         }
     }

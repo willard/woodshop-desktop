@@ -1232,6 +1232,60 @@
                         "id",
                         "kind",
                         "partIds",
+                        "leafPartId",
+                        "hingeEdge"
+                    ],
+                    "properties": {
+                        "id": {
+                            "$ref": "#/$defs/id"
+                        },
+                        "kind": {
+                            "const": "leaf"
+                        },
+                        "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                        },
+                        "partIds": {
+                            "type": "array",
+                            "minItems": 1,
+                            "maxItems": 20,
+                            "uniqueItems": true,
+                            "items": {
+                                "$ref": "#/$defs/id"
+                            },
+                            "description": "Every part that folds with the leaf (the panel plus any edging or cleats). Must include leafPartId."
+                        },
+                        "leafPartId": {
+                            "$ref": "#/$defs/id",
+                            "description": "The leaf panel; must be listed in partIds."
+                        },
+                        "hingeEdge": {
+                            "$ref": "#/$defs/edge",
+                            "description": "The leaf's edge against the piece, in its LOCAL frame (\u00a73.1). The leaf folds down about that edge's lower arris."
+                        },
+                        "hinge": {
+                            "$ref": "#/$defs/hardwareItemId",
+                            "description": "Which catalog hinge joins it to the piece. Omit for butt hinges."
+                        },
+                        "support": {
+                            "$ref": "#/$defs/hardwareItemId",
+                            "description": "Which catalog folding bracket holds it level. Omit for the longest that fits under the leaf."
+                        },
+                        "finish": {
+                            "$ref": "#/$defs/finish",
+                            "description": "The finish of its hinges and brackets. Omit for plain steel."
+                        }
+                    },
+                    "description": "A drop leaf or fold-down wing (added in 1.22): a flat panel hinged along one edge to the piece and held level by folding brackets under it. The design stores it raised, in use; Open in the 3D view folds it down."
+                },
+                {
+                    "additionalProperties": false,
+                    "required": [
+                        "id",
+                        "kind",
+                        "partIds",
                         "frontPartId",
                         "style"
                     ],

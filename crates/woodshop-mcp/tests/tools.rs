@@ -418,7 +418,7 @@ fn movables_round_trip() {
             "add_movable",
             json!({ "project_id": id, "kind": "door", "part_ids": [panel], "anchor_part_id": panel })
         ),
-        "A door needs hinge_edge: the panel edge the hinges mount on (l0, l1, w0, or w1)."
+        "A door needs hinge_edge: the edge the hinges mount on (l0, l1, w0, or w1), in its own frame."
     );
     let added = ok(
         &w,
@@ -1193,4 +1193,79 @@ fn hardware_comes_off_a_part_in_one_call_and_goes_with_a_replaced_part() {
     keys.sort_unstable();
     assert_eq!(keys, ["hardware", "more", "name", "projectId", "sections", "totals"]);
     assert!(err(&w, "get_cut_list", json!({ "project_id": id, "detail": "brief" })).contains("summary"));
+}
+
+#[test]
+fn a_wing_is_a_leaf_with_hinges_and_folding_brackets() {
+    let w = woodshop();
+    let started = ok(
+        &w,
+        "start_design",
+        json!({ "name": "Saw cart", "material_type": "sheet" }),
+    );
+    let id = started["projectId"].as_i64().unwrap();
+    let material = started["spec"]["materials"][0]["id"].as_str().unwrap().to_owned();
+    let base = started["spec"]["parts"][0]["id"].as_str().unwrap().to_owned();
+    let base_part = part(&w, id, &base);
+    let (l, pos) = (
+        base_part["size"]["l"].as_f64().unwrap(),
+        base_part["transform"]["pos"].clone(),
+    );
+    let rot = base_part["transform"]["rot"].clone();
+    // A 24"-deep wing butted to the base's +X end, level with it.
+    let x = pos[0].as_f64().unwrap() + l / 2.0 + 12.0;
+    ok(
+        &w,
+        "add_part",
+        json!({ "project_id": id, "id": "p_wing", "name": "Wing", "material_id": material, "length": 24, "width": base_part["size"]["w"], "pos": [x, pos[1], pos[2]], "rot": rot }),
+    );
+    assert!(
+        err(
+            &w,
+            "add_movable",
+            json!({ "project_id": id, "kind": "leaf", "part_ids": ["p_wing"], "anchor_part_id": "p_wing" })
+        )
+        .contains("hinge_edge")
+    );
+    assert!(
+        err(&w, "add_movable", json!({ "project_id": id, "kind": "leaf", "part_ids": ["p_wing"], "anchor_part_id": "p_wing", "hinge_edge": "w0", "support": "caster.swivel-3in" }))
+            .contains("not a folding bracket")
+    );
+    let added = ok(
+        &w,
+        "add_movable",
+        json!({ "project_id": id, "kind": "leaf", "part_ids": ["p_wing"], "anchor_part_id": "p_wing", "hinge_edge": "w0", "support": "bracket.folding-16in", "name": "Right wing" }),
+    );
+    assert!(added["summary"].as_str().unwrap().contains("leaf"), "{added}");
+    let movable = ok(&w, "get_design", json!({ "project_id": id }))["spec"]["movables"][0].clone();
+    assert_eq!(movable["kind"], "leaf");
+    assert_eq!(movable["leafPartId"], "p_wing");
+    assert!(
+        movable.get("style").is_none() && movable.get("pull").is_none(),
+        "{movable}"
+    );
+
+    let cut = ok(&w, "get_cut_list", json!({ "project_id": id, "detail": "summary" }));
+    assert!(
+        cut["hardware"].to_string().contains("16\\\" folding shelf brackets"),
+        "{}",
+        cut["hardware"]
+    );
+    assert!(
+        err(
+            &w,
+            "update_movable",
+            json!({ "project_id": id, "movable_id": movable["id"], "pull": "none" })
+        )
+        .contains("no style or pull")
+    );
+    ok(
+        &w,
+        "update_movable",
+        json!({ "project_id": id, "movable_id": movable["id"], "support": "bracket.folding-20in" }),
+    );
+    // Deleting the wing takes the leaf with it.
+    ok(&w, "delete_part", json!({ "project_id": id, "part_id": "p_wing" }));
+    let after = ok(&w, "get_design", json!({ "project_id": id }))["spec"]["movables"].clone();
+    assert!(after.as_array().is_none_or(Vec::is_empty), "{after}");
 }
