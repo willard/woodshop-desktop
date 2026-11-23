@@ -873,8 +873,10 @@ the owner to check, as computer use of the app is declined.
   (`ui/src/engine/snapping.ts` `aabbFromPart`, `ui/src/engine/joints.ts`) still use the uncut
   blank, so a dragged part can snap to a corner that was cut away. Give them the same hull (a
   WASM `faceHull`). Done when: a unit test drags a part against a tapered leg.
-- **7.18 Release v0.1.2.** Designs saved now are spec 1.17, which v0.1.1 cannot open; ship the
-  template fixes, tapers, real thickness and the video together.
+- **7.18 Release v0.1.3.** v0.1.2 shipped on 2026-11-20 with the template fixes, tapers, real
+  thickness and the video. Designs saved now are spec 1.20, which v0.1.2 cannot open, so 0.1.3
+  ships drawings, build steps, sizes, quick build, outdoor stock, feedback, what's new and paint
+  together. Prepared (versions and changelog); done once the tag's release is published.
 
 ### 7c. Bigger bets (owner decides first)
 

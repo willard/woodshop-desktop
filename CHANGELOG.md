@@ -6,6 +6,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.3] — 2026-11-22
+
 ### Added
 
 - Paint, stain and glass (format 1.20): a material's Look, in the cut list's Materials, can be
@@ -55,13 +57,17 @@ All notable changes to Woodshop are listed here. The format follows
   lumber sizes gain a dog-eared fence picket (5/8" × 5 1/2", 6') and 5/4x6 decking. Three new
   templates use them: a Cedar Picket Planter, a Cedar Bench Planter and a Cedar Birdhouse,
   whose gable is dog-eared to a 45° peak.
-
 - Feedback from the editor: the ⋯ menu's Feedback section opens the GitHub form for a problem
   or an idea, with your version filled in, and can copy a picture of the design to paste into
   it. Nothing is sent unless you send it.
-
 - What's new: after an update, the new version's notes show once, and Help has a What's new
   button for them any time.
+
+### Changed
+
+- Designs are saved in format 1.20 (for paint, stain and glass, tapers that start partway and
+  dog ears). Woodshop 0.1.3 opens every older design, but a design saved in 0.1.3 needs 0.1.3 or
+  later to open: update on every computer you share designs between.
 
 ### Fixed
 
@@ -265,7 +271,8 @@ The first release build, for macOS (universal), Windows and Linux.
 - A local MCP server (`woodshop --mcp`) so AI agents can read and edit designs.
 - Signed in-app updates from GitHub Releases.
 
-[Unreleased]: https://github.com/willard/woodshop-desktop/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/willard/woodshop-desktop/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/willard/woodshop-desktop/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/willard/woodshop-desktop/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/willard/woodshop-desktop/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/willard/woodshop-desktop/releases/tag/v0.1.0
