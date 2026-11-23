@@ -1,6 +1,11 @@
 /** The shell around every page except the editor: brand, primary nav, theme. */
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Link, Outlet, useRouterState } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/app/api';
+import { useSettings } from '@/app/settings';
+import { LAST_SEEN_SETTING, releaseNotes, shouldShowNotes, type Release } from '@/app/whatsNew';
+import { WhatsNewDialog } from './WhatsNewDialog';
 import { ThemeToggle } from './ThemeToggle';
 
 const LINKS = [
@@ -14,8 +19,29 @@ const LINKS = [
 /** Pages that are a grid of cards use the window's width; reading pages keep a readable measure. */
 const WIDE = new Set(['/', '/trash', '/templates']);
 
+/**
+ * After an update, the new version's notes, once. The version is remembered either way, so a
+ * first install starts quietly and a second start after an update does not show them again.
+ */
+function useNotesAfterUpdate(): [Release | null, () => void] {
+    const info = useQuery({ queryKey: ['library-info'], queryFn: api.libraryInfo, staleTime: Infinity });
+    const settings = useSettings();
+    const [notes, setNotes] = useState<Release | null>(null);
+    const checked = useRef(false);
+    useEffect(() => {
+        if (checked.current || info.data === undefined || settings.data === undefined) return;
+        checked.current = true;
+        const current = info.data.version;
+        const lastSeen = settings.data[LAST_SEEN_SETTING];
+        if (shouldShowNotes(current, lastSeen)) setNotes(releaseNotes(current));
+        if (lastSeen !== current) void api.setSetting(LAST_SEEN_SETTING, current).catch(() => undefined);
+    }, [info.data, settings.data]);
+    return [notes, () => setNotes(null)];
+}
+
 export function AppLayout() {
     const path = useRouterState({ select: (s) => s.location.pathname });
+    const [notes, closeNotes] = useNotesAfterUpdate();
     const width = WIDE.has(path) ? 'max-w-[1680px]' : 'max-w-6xl';
     return (
         <div className="flex h-full flex-col overflow-hidden">
@@ -57,6 +83,7 @@ export function AppLayout() {
                     </Suspense>
                 </div>
             </main>
+            {notes && <WhatsNewDialog release={notes} onClose={closeNotes} />}
         </div>
     );
 }

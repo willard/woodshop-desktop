@@ -843,7 +843,9 @@ the owner to check, as computer use of the app is declined.
   (`.github/ISSUE_TEMPLATE/bug.yml`, `feature.yml`); optionally copy a
   picture of the design to the clipboard to paste in. Nothing is sent without the user, so
   PRIVACY.md is unchanged. Done when: an e2e test checks the URLs.
-- **7.9 What's new.** Bundle `CHANGELOG.md` at build time (Vite raw import) and show the newest
+- **7.9 What's new.** Done (`app/whatsNew.ts` reads `CHANGELOG.md?raw`; `AppLayout` shows the
+  notes once when `lastSeenVersion` is an older version, a first install just records it;
+  Help ▸ What's new; unit tests of the parsing and the show-once rule). Bundle `CHANGELOG.md` at build time (Vite raw import) and show the newest
   version in a dialog after an update, keeping the last version seen in settings; also Help ▸
   What's new. Done when: it shows once per version; a unit test of the parsing.
 - **7.10 Paint, stain and glass, spec 1.20.** A material gets an optional

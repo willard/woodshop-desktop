@@ -897,6 +897,18 @@ test('a dog ear clips both corners of an end at 45°', async ({ page }) => {
     await expect(rows.last()).toContainText('Dog-ear the right end, 3/4" in');
 });
 
+test("Help shows what's new in the latest release", async ({ page }) => {
+    await page.goto('/#/help');
+    await page.getByTestId('whats-new-open').click();
+    const dialog = page.getByTestId('whats-new');
+    await expect(dialog.getByRole('heading', { level: 2 })).toHaveText(
+        /^What's new in Woodshop \d+\.\d+\.\d+$/,
+    );
+    await expect(dialog.locator('li').first()).toBeVisible();
+    await page.getByTestId('whats-new-close').click();
+    await expect(dialog).toHaveCount(0);
+});
+
 test('feedback from the editor opens the matching GitHub form', async ({ page }) => {
     await page.goto('/#/projects/1');
     const opened = () => page.evaluate(() => (window as unknown as { __opened?: string[] }).__opened ?? []);

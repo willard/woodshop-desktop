@@ -54,6 +54,9 @@ All notable changes to Woodshop are listed here. The format follows
   or an idea, with your version filled in, and can copy a picture of the design to paste into
   it. Nothing is sent unless you send it.
 
+- What's new: after an update, the new version's notes show once, and Help has a What's new
+  button for them any time.
+
 ### Fixed
 
 - Snapping and the joints the editor finds now measure a curved, tapered or angled part as cut,

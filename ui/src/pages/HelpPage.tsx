@@ -1,5 +1,9 @@
 import { Link, useNavigate } from '@tanstack/react-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { api } from '@/app/api';
+import { RELEASES, releaseNotes } from '@/app/whatsNew';
+import { WhatsNewDialog } from '@/components/WhatsNewDialog';
 import { HELP_ARTICLES } from '@/help';
 import { failure } from '@/app/api';
 import { openSampleWithTour } from '@/app/tour';
@@ -14,9 +18,25 @@ export default function HelpPage() {
         onSuccess: (project) => navigate({ to: '/projects/$id', params: { id: String(project.id) } }),
         onError: (e) => toast.error(failure('open the sample project', e)),
     });
+    const info = useQuery({ queryKey: ['library-info'], queryFn: api.libraryInfo, staleTime: Infinity });
+    const [notesOpen, setNotesOpen] = useState(false);
+    // This version's notes; a development build shows the newest release's.
+    const notes = (info.data && releaseNotes(info.data.version)) ?? RELEASES[0] ?? null;
     return (
         <>
-            <h1 className="mb-2 text-xl font-semibold tracking-tight">Help Center</h1>
+            {notesOpen && notes && <WhatsNewDialog release={notes} onClose={() => setNotesOpen(false)} />}
+            <div className="mb-2 flex items-center justify-between gap-3">
+                <h1 className="text-xl font-semibold tracking-tight">Help Center</h1>
+                {notes && (
+                    <button
+                        className="border-fg/12 text-accent hover:bg-surface-2 rounded-md border px-3 py-1.5 text-sm"
+                        data-testid="whats-new-open"
+                        onClick={() => setNotesOpen(true)}
+                    >
+                        What's new
+                    </button>
+                )}
+            </div>
             <p className="text-muted mb-6 text-sm">
                 How Woodshop works, from your first design to a printed plan.
             </p>
