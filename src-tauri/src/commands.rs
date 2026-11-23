@@ -599,6 +599,49 @@ pub fn export_viewer(
     Ok(())
 }
 
+/// Everything a gallery post carries, as one zip: the design as a `.woodshop` file (without its
+/// version history or notes) and its 3D plan (without the shop notes). `stem` names both inside.
+// A Tauri command's arguments are the invoke payload's fields.
+#[allow(clippy::too_many_arguments)]
+#[tauri::command]
+pub fn export_gallery_bundle(
+    lib: State<'_, Library>,
+    id: i64,
+    path: PathBuf,
+    stem: String,
+    kerf: f64,
+    theme: String,
+    exported_at: String,
+    units: Option<woodshop_core::units::Units>,
+) -> CmdResult<()> {
+    if stem.is_empty() || stem.contains(['/', '\\']) {
+        return Err(CommandError::invalid(vec!["Not a file name.".into()]));
+    }
+    let (project, archive) = lib.with(|s| Ok((s.get_project(id)?, s.export_archive(id)?.for_sharing())))?;
+    let mut design = std::io::Cursor::new(Vec::new());
+    archive.write(&mut design)?;
+    let html = woodshop_export::render_viewer_html(&woodshop_export::ViewerInput {
+        title: &project.name,
+        spec: spec::to_value(&project.draft),
+        kerf,
+        theme: &theme,
+        exported_at: &exported_at,
+        notes: Vec::new(),
+        units: units.unwrap_or_default(),
+        ar_model: None,
+    });
+    let tmp = path.with_extension("zip.partial");
+    woodshop_store::write_bundle(
+        BufWriter::new(File::create(&tmp)?),
+        &[
+            (&format!("{stem}.woodshop"), design.get_ref()),
+            (&format!("{stem} 3D plan.html"), html.as_bytes()),
+        ],
+    )?;
+    std::fs::rename(&tmp, &path)?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::{base64_decode, percent_decode};

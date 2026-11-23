@@ -8,6 +8,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Share to the gallery, in the editor's ⋯ menu: Woodshop saves a zip with the design and its 3D
+  plan (without its saved versions or notes) and a picture of it, then opens a new post in the
+  Gallery on GitHub Discussions with the size and materials filled in.
 - See it in your room (trial): the 3D plan is saved with an AR model (`.usdz`) beside it, and on
   an iPhone or iPad, in Safari, View in your room places the piece in the room at full size with
   AR Quick Look. The AR model can also be exported on its own.

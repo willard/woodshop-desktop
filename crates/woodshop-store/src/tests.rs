@@ -147,6 +147,31 @@ fn archives_round_trip_through_a_file() {
     let steps = imported.draft.meta.unwrap().build_steps.unwrap();
     assert_eq!(steps[0].heading, "Glue it up");
     assert_eq!(steps[0].note.as_deref(), Some("Clamp overnight."));
+
+    // Shared to the gallery: the design and its picture, not the history or the notes.
+    let shared = store.export_archive(p.id).unwrap().for_sharing();
+    assert!(shared.versions.is_empty() && shared.notes.is_empty());
+    assert_eq!(shared.draft, archive.draft);
+    assert_eq!(shared.thumbnail.as_deref(), Some(&png[..]));
+
+    // Zipped with its 3D plan for a gallery post, the design opens as any `.woodshop` file does.
+    let mut design = std::io::Cursor::new(Vec::new());
+    shared.write(&mut design).unwrap();
+    let mut bundle = std::io::Cursor::new(Vec::new());
+    crate::write_bundle(
+        &mut bundle,
+        &[
+            ("Rack.woodshop", design.get_ref()),
+            ("Rack 3D plan.html", b"<!DOCTYPE html>"),
+        ],
+    )
+    .unwrap();
+    bundle.set_position(0);
+    let mut zip = zip::ZipArchive::new(bundle).unwrap();
+    assert_eq!(zip.file_names().collect::<Vec<_>>().len(), 2);
+    let mut inner = Vec::new();
+    std::io::Read::read_to_end(&mut zip.by_name("Rack.woodshop").unwrap(), &mut inner).unwrap();
+    assert_eq!(ProjectArchive::read(std::io::Cursor::new(inner)).unwrap(), shared);
 }
 
 #[test]

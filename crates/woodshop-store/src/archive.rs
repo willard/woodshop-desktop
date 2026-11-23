@@ -70,7 +70,29 @@ struct RawVersion {
     spec: Value,
 }
 
+/// A zip of files written as they are, for the design gallery: the shared `.woodshop` file and
+/// its 3D plan, so a post carries one attachment.
+pub fn write_bundle<W: Write + Seek>(out: W, files: &[(&str, &[u8])]) -> Result<(), ArchiveError> {
+    let mut zip = zip::ZipWriter::new(out);
+    let opts = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+    for (name, bytes) in files {
+        zip.start_file(*name, opts)?;
+        zip.write_all(bytes)?;
+    }
+    zip.finish()?;
+    Ok(())
+}
+
 impl ProjectArchive {
+    /// The design to share with strangers: the draft and its picture, without the version
+    /// history or the notes, which are the maker's own.
+    #[must_use]
+    pub fn for_sharing(mut self) -> Self {
+        self.versions.clear();
+        self.notes.clear();
+        self
+    }
+
     pub fn write<W: Write + Seek>(&self, out: W) -> Result<(), ArchiveError> {
         let mut zip = zip::ZipWriter::new(out);
         let opts = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);

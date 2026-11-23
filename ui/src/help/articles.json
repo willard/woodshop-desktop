@@ -478,7 +478,7 @@
             },
             {
                 "type": "p",
-                "text": "Save project file, in the ⋯ menu on a project card or in the editor, writes a single .woodshop file with the design, its versions and its notes. Send it to someone, keep it somewhere safe, or move it to another computer; Import… on the Projects page (or double-clicking the file) brings it back."
+                "text": "Save project file, in the ⋯ menu on a project card or in the editor, writes a single .woodshop file with the design, its versions and its notes. Send it to someone, keep it somewhere safe, or move it to another computer; Import… on the Projects page (or double-clicking the file) brings it back. Share to the gallery, in the same menu, posts a design for other makers: Woodshop saves a zip with the design and its 3D plan (not its saved versions or notes) and a picture of it, then opens a new post on the public gallery on GitHub with the size and materials filled in. Drag the two files in, add a few words, and post it."
             }
         ]
     },

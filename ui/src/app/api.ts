@@ -276,6 +276,17 @@ export const api = {
     /** One label per piece to cut, on a sheet of sticky labels (Letter, or A4 in millimetres). */
     exportLabels: (id: number, path: string, kerf: number, skip = 0) =>
         invoke<void>('export_labels', { id, path, kerf, units: getUnits(), skip }),
+    /** The design (without its history or notes) and its 3D plan, zipped for a gallery post. */
+    exportGalleryBundle: (id: number, path: string, stem: string, kerf: number) =>
+        invoke<void>('export_gallery_bundle', {
+            id,
+            path,
+            stem,
+            kerf,
+            theme: 'light',
+            exportedAt: new Date().toISOString(),
+            units: getUnits(),
+        }),
     /** `arModel`: the file name of the USDZ saved beside the page, which it then links to. */
     exportViewer: (id: number, path: string, kerf: number, arModel?: string) =>
         invoke<void>('export_viewer', {

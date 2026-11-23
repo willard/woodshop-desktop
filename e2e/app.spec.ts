@@ -976,6 +976,46 @@ test('feedback from the editor opens the matching GitHub form', async ({ page })
     expect(idea.searchParams.get('template')).toBe('feature.yml');
 });
 
+test('a design is shared to the gallery as a zip and a picture, with the post filled in', async ({
+    page,
+}) => {
+    await page.goto('/#/templates');
+    await page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Wall Cabinet', exact: true }) })
+        .getByTestId('use-template')
+        .click();
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('share-gallery').click();
+    const dialog = page.getByTestId('gallery-dialog');
+    await expect(dialog).toContainText('not its saved versions or its notes');
+    await dialog.getByTestId('gallery-share').click();
+    await expect(page.getByText('Saved. Drag the picture and the zip into the post.')).toBeVisible();
+    await expect(dialog).toHaveCount(0);
+
+    const name = 'Wall Cabinet';
+    const written = await page.evaluate(
+        () => (window as unknown as { __written: Record<string, string> }).__written,
+    );
+    expect(written[`/mock/exports/${name} for the gallery.zip`]).toBe(
+        `gallery zip for ${name}: ${name}.woodshop, ${name} 3D plan.html`,
+    );
+    // The picture beside it (the preview keeps the last binary file): a PNG.
+    const head = await page.evaluate(
+        () => (window as unknown as { __binary: { head: number[] } }).__binary.head,
+    );
+    expect(head.slice(1, 4)).toEqual([0x50, 0x4e, 0x47]);
+
+    const opened = await page.evaluate(() => (window as unknown as { __opened: string[] }).__opened);
+    const post = new URL(opened.at(-1)!);
+    expect(post.pathname).toBe('/willard/woodshop-desktop/discussions/new');
+    expect(post.searchParams.get('category')).toBe('gallery');
+    expect(post.searchParams.get('title')).toBe(name);
+    expect(post.searchParams.get('body')).toMatch(
+        /\*\*Overall:\*\* .+\n\*\*Materials:\*\* .+\n\*\*Pieces:\*\* \d+/,
+    );
+});
+
 test('the PDF plan gets a picture of each assembly step', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('cutlist-toggle').click();

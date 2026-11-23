@@ -17,7 +17,7 @@ use serde_json::Value;
 use thiserror::Error;
 use woodshop_core::spec::{self, Spec};
 
-pub use archive::{ArchiveError, ArchivedNote, ArchivedVersion, ProjectArchive};
+pub use archive::{ArchiveError, ArchivedNote, ArchivedVersion, ProjectArchive, write_bundle};
 pub use model::*;
 
 #[derive(Debug, Error)]

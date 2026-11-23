@@ -35,6 +35,14 @@ export function installErrorCapture(): void {
 /** The project's public repository: source, licence, privacy note and issue tracker. */
 export const REPO_URL = 'https://github.com/willard/woodshop-desktop';
 
+/** The design gallery: a Discussions category on the project's repository, moderated there. */
+export const GALLERY_URL = `${REPO_URL}/discussions/categories/gallery`;
+
+/** A new gallery post, its title and words filled in; the files are dragged in by the maker. */
+export function galleryPostUrl(title: string, body: string): string {
+    return `${REPO_URL}/discussions/new?${new URLSearchParams({ category: 'gallery', title, body }).toString()}`;
+}
+
 /** Where problems are reported: the project's public issue tracker. */
 export const ISSUES_URL = `${REPO_URL}/issues/new`;
 

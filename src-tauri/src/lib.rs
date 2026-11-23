@@ -177,6 +177,7 @@ pub fn run() {
             commands::export_pdf,
             commands::export_labels,
             commands::export_viewer,
+            commands::export_gallery_bundle,
             assistant::assistant_keys,
             assistant::assistant_set_key,
             assistant::assistant_send,

@@ -369,6 +369,18 @@ export function installMockBackend(): void {
                     (a.arModel === null || a.arModel === undefined ? '' : ` linking to ${String(a.arModel)}`),
             };
         },
+        export_gallery_bundle: (a) => {
+            const store = window as unknown as { __written?: Record<string, string> };
+            store.__written = {
+                ...(store.__written ?? {}),
+                [String(a.path)]:
+                    `gallery zip for ${row(a.id as number).project.name}: ${String(a.stem)}.woodshop, ${String(a.stem)} 3D plan.html`,
+            };
+        },
+        'plugin:opener|reveal_item_in_dir': (a) => {
+            const store = window as unknown as { __revealed?: string[] };
+            store.__revealed = [...(store.__revealed ?? []), JSON.stringify(a)];
+        },
         write_text_file: (a) => {
             const file = a.file as { path: string; contents: string };
             const store = window as unknown as { __written?: Record<string, string> };

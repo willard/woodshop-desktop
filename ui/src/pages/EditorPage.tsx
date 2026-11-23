@@ -18,6 +18,7 @@ import { EditorWorkspace, type EditorWorkspaceHandle } from '@/components/Editor
 import { NotesPanel } from '@/components/NotesPanel';
 import { AssistantPanel } from '@/components/AssistantPanel';
 import { VersionsPanel } from '@/components/VersionsPanel';
+import { GalleryShare } from '@/components/GalleryShare';
 import { CutListExportButtons, ExportMenuItems, LabelsExport, VideoExport } from '@/components/ExportMenu';
 import { useToast } from '@/components/Toast';
 import { useDefaultKerf } from '@/app/settings';
@@ -246,6 +247,7 @@ function Editor({ project }: { project: Project }) {
     /** The part labels dialog is open. */
     const [labelsOpen, setLabelsOpen] = useState(false);
     const [videoOpen, setVideoOpen] = useState(false);
+    const [galleryOpen, setGalleryOpen] = useState(false);
     const [assistantChanged, setAssistantChanged] = useState(0);
 
     // An MCP agent, the assistant or another window edited this project: take it if we have
@@ -421,6 +423,17 @@ function Editor({ project }: { project: Project }) {
                         >
                             Save project file (.woodshop)…
                         </button>
+                        <button
+                            className="enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
+                            data-testid="share-gallery"
+                            title="Post this design to the public gallery on GitHub for other makers to build"
+                            onClick={() => {
+                                close();
+                                setGalleryOpen(true);
+                            }}
+                        >
+                            Share to the gallery…
+                        </button>
                         <div className="bg-fg/[0.08] my-1 h-px" />
                         <div className="text-muted px-2.5 pt-1 pb-0.5 text-[11px] font-semibold tracking-wider uppercase">
                             Feedback
@@ -481,6 +494,19 @@ function Editor({ project }: { project: Project }) {
                         setShowVersions(false);
                     }}
                     onClose={() => setShowVersions(false)}
+                />
+            )}
+
+            {galleryOpen && (
+                <GalleryShare
+                    projectId={project.id}
+                    projectName={name}
+                    version={appVersion()}
+                    kerf={kerf ?? defaultKerf}
+                    getSpec={() => docRef.current.spec}
+                    flush={flush}
+                    getPicture={async () => (await workspace.current?.snapshot(1600, 'image/png')) ?? null}
+                    onClose={() => setGalleryOpen(false)}
                 />
             )}
 

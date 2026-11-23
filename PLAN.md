@@ -884,6 +884,11 @@ the owner to check, as computer use of the app is declined.
   without a server: a gallery repository or a GitHub Discussions category, and a Share to gallery
   button that prepares the files and opens the submission page. Hosting and moderation are the
   owner's call.
+  Built (2026-11-23), on the owner's choice of a Discussions category: Share to the gallery saves
+  `<name> for the gallery.zip` (the `.woodshop` file without versions or notes, and the 3D plan
+  without shop notes) and `<name>.png` beside it, shows them, and opens
+  `discussions/new?category=gallery` with the title and the size, materials and pieces filled in.
+  Done when the owner has made the Gallery category (slug `gallery`) and posted one design.
 - **7.13 See it in your room.** three's `USDZExporter`; the exported 3D plan gets a View in your
   room link (`rel="ar"`, AR Quick Look) on iPad and iPhone, and Android's Scene Viewer takes the
   glTF. A plan opened from the Files app runs without scripts (Phase 6), so this needs Safari.
@@ -919,12 +924,12 @@ Ask before starting the phase that needs them. Do not guess.
 | Apple Developer account ($99/yr) and Windows signing certificate | Phase 3 |
 | Launch platforms: macOS first, or macOS and Windows together | Phase 3 |
 | Hosted crash reporting (Sentry) or GitHub issues only | Phase 3 |
-| Design gallery: where it is hosted and who moderates it | Phase 7.12 |
 | Plans from known makers: who, and under what licence | Phase 7.14 |
 | Translation: whether to take on French (touches nearly every file) | Phase 7.15 |
 
 Decided: repository `willard/woodshop-desktop`, public (2026-11-12); updater key
-password-protected, backed up by the owner (2026-11-12); fully free and open source, no paid
+password-protected, backed up by the owner (2026-11-12); design gallery in a GitHub Discussions
+category on the repository, moderated by the owner (2026-11-23); fully free and open source, no paid
 tier; GPL-3.0-or-later; DCO; commits from the GitHub noreply address (2026-11-13).
 
 ## Known issues and debts
