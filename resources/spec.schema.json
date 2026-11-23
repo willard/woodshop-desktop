@@ -13,7 +13,7 @@
     ],
     "properties": {
         "specVersion": {
-            "const": "1.20"
+            "const": "1.21"
         },
         "units": {
             "const": "in",
@@ -87,6 +87,34 @@
                     "items": {
                         "type": "string",
                         "maxLength": 30
+                    }
+                },
+                "author": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "name"
+                    ],
+                    "description": "Who drew the plan this design is from (added in 1.21). Credited on the PDF plan, on the template card and in a gallery post; it stays with a copy that is changed.",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80,
+                            "description": "The maker or shop, as they want to be credited."
+                        },
+                        "url": {
+                            "type": "string",
+                            "pattern": "^https?://[^\\s]+$",
+                            "maxLength": 300,
+                            "description": "Where their plans are, e.g. their website or channel."
+                        },
+                        "license": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80,
+                            "description": "The terms the plan is shared under, e.g. CC BY 4.0, or \"Shared with permission\"."
+                        }
                     }
                 },
                 "buildSteps": {

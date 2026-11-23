@@ -166,6 +166,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
             notes: None,
             tags: None,
             build_steps: None,
+            author: None,
         }),
     }
 }

@@ -304,3 +304,9 @@ their stock, and a fully connected assembly with no floating parts.
   belongs in exactly one step; the checks warn (`meta.build-step-parts`) about a part in none or
   two, or a step naming a part that is gone. `delete_part` takes a deleted part out of the steps.
   These are the user's: leave them as they are unless asked.
+
+## Credit (spec 1.21)
+
+- `meta.author` credits the maker a plan comes from: `{ "name", "url"?, "license"? }`, with
+  `url` an `http(s)://` link. The PDF plan, the template card and a gallery post print it as
+  "Plan by …". Keep it on a copy that is changed; never add or change it unless asked.

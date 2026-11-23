@@ -903,6 +903,10 @@ the owner to check, as computer use of the app is declined.
 - **7.14 Plans from known makers.** A template `author` field credited on the PDF and in the
   gallery, and a contribution path in `resources/DATA.md`. Which makers, and any licence, are the
   owner's call.
+  Built (2026-11-23): spec 1.21 `meta.author` (`name`, `url`, `license`), credited under the PDF
+  title, on the template card and in a gallery post; `resources/DATA.md` has "A plan from a maker"
+  and a review line for it. Still the owner's call: which makers, and on what terms. No template
+  has an author yet.
 - **7.15 French.** There is no i18n today, and two halves need it separately:
   - 7.15a The UI: bring in i18next (or similar) and move strings out area by area.
   - 7.15b The core: lint messages, cut-list and assembly text, joinery and the PDF are built in

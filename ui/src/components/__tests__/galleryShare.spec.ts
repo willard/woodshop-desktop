@@ -12,6 +12,19 @@ describe('the gallery post', () => {
         expect(body).toMatch(/\*\*Materials:\*\* Birch Plywood 3\/4", Pine 2x2/);
         expect(body).toMatch(/\*\*Pieces:\*\* \d+/);
         expect(body).toContain('Made with Woodshop 0.1.3.');
+        expect(body).not.toContain('Plan by');
+    });
+
+    it('credits the maker a plan comes from', () => {
+        const spec = sideTable as unknown as Spec;
+        const author = { name: 'Jo Maker', url: 'https://jo.example/plans', license: 'CC BY 4.0' };
+        const body = galleryPostBody({ ...spec, meta: { ...spec.meta, author } }, '0.1.3');
+        expect(body).toContain('**Plan by:** [Jo Maker](https://jo.example/plans) (CC BY 4.0)');
+        const plain = galleryPostBody(
+            { ...spec, meta: { ...spec.meta, author: { name: 'Jo Maker' } } },
+            '0.1.3',
+        );
+        expect(plain).toContain('**Plan by:** Jo Maker\n');
     });
 
     it('opens a new post in the gallery category, filled in', () => {

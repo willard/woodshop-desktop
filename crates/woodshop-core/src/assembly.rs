@@ -460,6 +460,7 @@ mod tests {
                 notes: None,
                 tags: None,
                 build_steps: None,
+                author: None,
             })
             .build_steps = Some(vec![
             crate::spec::BuildStep {

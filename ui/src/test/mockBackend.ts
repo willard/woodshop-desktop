@@ -46,6 +46,7 @@ export function installMockBackend(): void {
                 summary: (gallery as Record<string, string>)[id] ?? null,
                 notes: spec.meta?.notes ?? null,
                 tags: spec.meta?.tags ?? [],
+                author: spec.meta?.author ?? null,
                 partCount: spec.parts.length,
                 overall: overallSize(spec),
                 sheetCount: totals.sheetCount,

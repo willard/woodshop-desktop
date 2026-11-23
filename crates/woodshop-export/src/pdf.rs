@@ -68,6 +68,10 @@ pub struct PlanInput<'a> {
 struct PlanView {
     title: String,
     date: String,
+    /// "Plan by Jo Maker (CC BY 4.0)" when the design credits the maker it is from.
+    credit: Option<String>,
+    /// The maker's link, printed after the credit.
+    credit_url: Option<String>,
     overall: Option<String>,
     part_count: usize,
     has_thumbnail: bool,
@@ -393,6 +397,7 @@ fn finish_line(totals: &woodshop_core::cutlist::CutListTotals, units: Units) -> 
 fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
     let units = input.units;
     let overall = overall_size(input.spec).map(|o| dims3(o.width, o.depth, o.height, units));
+    let author = input.spec.meta.as_ref().and_then(|m| m.author.as_ref());
     let mut notes = input.notes.clone();
     notes.sort_by_key(|n| !n.pinned);
     PlanView {
@@ -451,6 +456,8 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
                 lines: step.lines,
             })
             .collect(),
+        credit: author.map(|a| a.credit()),
+        credit_url: author.and_then(|a| a.url.clone()),
         build_notes: input
             .spec
             .meta
@@ -923,6 +930,39 @@ mod tests {
         })
         .unwrap();
         assert!(pdf.len() > without.len());
+    }
+
+    #[test]
+    fn a_plan_from_a_maker_credits_them_under_the_title() {
+        let raw = include_str!("../../../resources/templates/bookshelf.json");
+        let mut spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
+        fn input(spec: &Spec) -> PlanInput<'_> {
+            PlanInput {
+                title: "Bookshelf",
+                spec,
+                kerf: 0.125,
+                date: "Nov 23, 2026",
+                notes: vec![],
+                thumbnail: None,
+                units: Units::Fraction,
+                hardware_prices: BTreeMap::new(),
+                offcuts: Vec::new(),
+                sheet_trim: 0.0,
+                board_trim: 0.0,
+                step_pictures: Vec::new(),
+            }
+        }
+        let cut_list = |spec: &Spec| compute_cut_list(spec, CutListConfig::default());
+        assert_eq!(plan_view(&input(&spec), &cut_list(&spec)).credit, None);
+        spec.meta.as_mut().unwrap().author = Some(spec::Author {
+            name: "Jo Maker".into(),
+            url: Some("https://jo.example/plans".into()),
+            license: Some("CC BY 4.0".into()),
+        });
+        let view = plan_view(&input(&spec), &cut_list(&spec));
+        assert_eq!(view.credit.as_deref(), Some("Plan by Jo Maker (CC BY 4.0)"));
+        assert_eq!(view.credit_url.as_deref(), Some("https://jo.example/plans"));
+        assert!(render_plan_pdf(&input(&spec)).unwrap().starts_with(b"%PDF-"));
     }
 
     #[test]

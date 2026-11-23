@@ -21,12 +21,15 @@ export function galleryPostBody(spec: Spec, version: string): string {
     const used = new Set(spec.parts.map((p) => p.materialId));
     const materials = spec.materials.filter((m) => used.has(m.id)).map((m) => m.name);
     const pieces = spec.parts.reduce((n, p) => n + (p.qty ?? 1), 0);
+    const author = spec.meta?.author;
+    const maker = author && (author.url ? `[${author.name}](${author.url})` : author.name);
     return [
         '<!-- Drag in the picture and the .zip that Woodshop saved, and say a few words about the piece. -->',
         '',
         ...(size === null ? [] : [`**Overall:** ${dims(size.width, size.depth, size.height)}`]),
         `**Materials:** ${materials.join(', ') || 'none'}`,
         `**Pieces:** ${pieces}`,
+        ...(maker ? [`**Plan by:** ${maker}${author?.license ? ` (${author.license})` : ''}`] : []),
         '',
         `Made with Woodshop ${version}. To build it, download the .zip: open the 3D plan in any browser, or choose Import… in Woodshop and pick the .woodshop file.`,
     ].join('\n');

@@ -27,6 +27,10 @@
     #text(size: 20pt, weight: "bold", data.title)
     #v(-6pt)
     #text(fill: muted)[Cut list & plan · #data.date]
+    #if data.credit != none [
+      #v(2pt)
+      #text(fill: muted)[#data.credit#if data.creditUrl != none [ · #link(data.creditUrl)]]
+    ]
     #if data.overall != none [
       #v(2pt)
       #text(fill: muted)[Overall #data.overall (W × D × H) · #data.partCount parts]

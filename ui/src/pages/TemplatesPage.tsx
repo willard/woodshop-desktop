@@ -131,6 +131,11 @@ function TemplateCard({
                 <p className="text-muted text-sm leading-snug">
                     {t.summary ?? t.notes ?? 'A starter design.'}
                 </p>
+                {t.author && (
+                    <p className="text-faint text-xs" data-testid="template-credit">
+                        Plan by {t.author.name}
+                    </p>
+                )}
                 <p className="text-faint mt-auto pt-2 text-xs" data-testid="template-facts">
                     {facts.join(' · ')}
                 </p>

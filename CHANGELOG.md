@@ -14,6 +14,10 @@ All notable changes to Woodshop are listed here. The format follows
 - See it in your room (trial): the 3D plan is saved with an AR model (`.usdz`) beside it, and on
   an iPhone or iPad, in Safari, View in your room places the piece in the room at full size with
   AR Quick Look. The AR model can also be exported on its own.
+- Credit for a plan's maker (format 1.21): a design can name who drew the plan it comes from,
+  with a link and the licence. The PDF plan prints "Plan by …" under its title, the template card
+  shows it, and a gallery post carries it. `resources/DATA.md` says how to contribute a maker's
+  plan as a template.
 
 ## [0.1.3] — 2026-11-22
 

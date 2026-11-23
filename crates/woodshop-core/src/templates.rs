@@ -8,7 +8,7 @@ use serde::Serialize;
 
 use crate::cutlist::{CutListConfig, compute_cut_list};
 use crate::geometry::{OverallSize, overall_size};
-use crate::spec::{self, Difficulty, Spec};
+use crate::spec::{self, Author, Difficulty, Spec};
 
 /// What the gallery says about each template, for someone choosing one: kept apart from the
 /// design's own `meta.notes`, which are build notes for the maker (and for agents).
@@ -33,6 +33,8 @@ pub struct TemplateSummary {
     /// The design's build notes (`meta.notes`).
     pub notes: Option<String>,
     pub tags: Vec<String>,
+    /// The maker the plan comes from (`meta.author`), for the card's credit.
+    pub author: Option<Author>,
     pub part_count: usize,
     /// Finished size, inches: width × depth × height.
     pub overall: Option<OverallSize>,
@@ -52,6 +54,7 @@ pub fn all() -> Vec<TemplateSummary> {
                 notes: None,
                 tags: None,
                 build_steps: None,
+                author: None,
             });
             let totals = compute_cut_list(&spec, CutListConfig::default()).totals;
             Some(TemplateSummary {
@@ -61,6 +64,7 @@ pub fn all() -> Vec<TemplateSummary> {
                 summary: gallery().get(*id).cloned(),
                 notes: meta.notes,
                 tags: meta.tags.unwrap_or_default(),
+                author: meta.author,
                 part_count: spec.parts.len(),
                 overall: overall_size(&spec),
                 sheet_count: totals.sheet_count,

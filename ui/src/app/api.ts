@@ -96,6 +96,13 @@ export interface Project {
     deletedAt: number | null;
 }
 
+/** Who drew a plan (spec 1.21 `meta.author`). */
+export interface PlanAuthor {
+    name: string;
+    url?: string;
+    license?: string;
+}
+
 export interface TemplateSummary {
     id: string;
     name: string;
@@ -105,6 +112,8 @@ export interface TemplateSummary {
     /** The design's build notes (`meta.notes`). */
     notes: string | null;
     tags: string[];
+    /** The maker the plan comes from (`meta.author`), credited on the card. */
+    author: PlanAuthor | null;
     partCount: number;
     /** Finished size in inches. */
     overall: { width: number; depth: number; height: number } | null;

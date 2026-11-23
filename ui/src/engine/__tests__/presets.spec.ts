@@ -10,7 +10,7 @@ const THICKNESS = 0.75;
 /** A spec holding one flat top, 36 × 24, resting on the ground unless placed higher. */
 function specWithTop(pos: [number, number, number] = [0, THICKNESS / 2, 0]): Spec {
     return {
-        specVersion: '1.20',
+        specVersion: '1.21',
         units: 'in',
         name: 'Table',
         movables: [],

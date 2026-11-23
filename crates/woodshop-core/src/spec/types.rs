@@ -74,6 +74,32 @@ pub struct Meta {
     /// Your own assembly order (1.18); replaces the generated one when present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub build_steps: Option<Vec<BuildStep>>,
+    /// Who drew the plan this design is from (1.21), credited on the PDF and in the gallery.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub author: Option<Author>,
+}
+
+/// The maker a design's plan comes from (1.21).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Author {
+    pub name: String,
+    /// Where their plans are.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    /// The terms the plan is shared under.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license: Option<String>,
+}
+
+impl Author {
+    /// "Plan by Jo Maker (CC BY 4.0)", for a credit line.
+    pub fn credit(&self) -> String {
+        match self.license.as_deref().map(str::trim).filter(|l| !l.is_empty()) {
+            Some(license) => format!("Plan by {} ({license})", self.name.trim()),
+            None => format!("Plan by {}", self.name.trim()),
+        }
+    }
 }
 
 /// One step of your own assembly order.

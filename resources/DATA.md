@@ -151,6 +151,30 @@ in lowercase letters, digits and hyphens. To add one:
 4. Render its pictures with `ONLY=<id> npm run thumbnails` on a machine with a GPU, and commit
    the two `.webp` files it writes to `ui/public/templates/`.
 
+### A plan from a maker
+
+A template can be a plan someone else drew, when they agree to it being shared. Credit them in
+the design's `meta.author`:
+
+```json
+"meta": {
+    "difficulty": "beginner",
+    "author": { "name": "Jo Maker", "url": "https://jo.example/plans", "license": "CC BY 4.0" }
+}
+```
+
+- `name` (required) is the maker or shop as they want to be credited.
+- `url` is where their plans are: their site or channel, `http://` or `https://`.
+- `license` is the terms the plan is shared under: an open licence such as `CC BY 4.0`, or
+  `Shared with permission` when the maker gave it to Woodshop by name.
+
+The PDF plan prints "Plan by Jo Maker (CC BY 4.0)" and the link under its title, the template
+card says "Plan by Jo Maker", and a design made from it carries the credit into a gallery post.
+In the pull request, link the original plan and show the permission: the licence on the maker's
+page, or their message saying it may be shared under the licence given. Woodshop is GPL-3.0, but
+the templates are data and keep their own terms; a licence that forbids changes (`ND`) does not
+fit, because a template is meant to be changed.
+
 ## Review checklist
 
 For the contributor and the reviewer of a hardware or template pull request:
@@ -164,6 +188,8 @@ For the contributor and the reviewer of a hardware or template pull request:
 - [ ] A template opens from the gallery, shows no design-check errors, and its cut list, PDF and
       hardware list make sense for someone building it.
 - [ ] A template uses catalog hardware by id, not generic hardware text.
+- [ ] A template from a maker has `meta.author`, and the pull request links the original plan
+      and its licence or the maker's permission.
 - [ ] Gallery text is one or two sentences; build notes stay in `meta.notes`.
 - [ ] `cargo test -p woodshop-core` passes. It checks the catalog's fields and shapes, the
       gallery text, and every template against its lint entry.

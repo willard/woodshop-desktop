@@ -5,7 +5,17 @@ fn main() {
         args.get(1).map_or("bookshelf", String::as_str),
         args.get(2).map_or("plan.pdf", String::as_str),
     );
-    let spec = woodshop_core::templates::find(id).expect("known template id");
+    let mut spec = woodshop_core::templates::find(id).expect("known template id");
+    // `WOODSHOP_AUTHOR="Jo Maker"` previews a maker's credit under the title.
+    if let Ok(name) = std::env::var("WOODSHOP_AUTHOR")
+        && let Some(meta) = spec.meta.as_mut()
+    {
+        meta.author = Some(woodshop_core::spec::Author {
+            name,
+            url: std::env::var("WOODSHOP_AUTHOR_URL").ok(),
+            license: std::env::var("WOODSHOP_AUTHOR_LICENSE").ok(),
+        });
+    }
     let pdf = woodshop_export::render_plan_pdf(&woodshop_export::PlanInput {
         title: &spec.name,
         spec: &spec,

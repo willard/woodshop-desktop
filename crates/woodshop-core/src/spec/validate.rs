@@ -329,7 +329,7 @@ mod tests {
 
     fn base() -> Value {
         json!({
-            "specVersion": "1.20", "units": "in", "name": "T",
+            "specVersion": "1.21", "units": "in", "name": "T",
             "materials": [{"id": "mat_a", "type": "sheet", "name": "Ply", "thickness": 0.75, "sheetSize": {"l": 96, "w": 48}}],
             "parts": [{"id": "p_a", "name": "A", "materialId": "mat_a", "size": {"l": 10, "w": 5}, "transform": {"pos": [0, 0, 0]}}]
         })
@@ -350,6 +350,18 @@ mod tests {
         assert!(errs[0].starts_with("/materials/0/appearance/color"), "{errs:?}");
         s["materials"][0]["appearance"] = json!({"kind": "lacquer"});
         assert!(validate(&s).is_err());
+    }
+
+    #[test]
+    fn a_plan_credits_its_author_with_a_web_link_only() {
+        let mut s = base();
+        s["meta"] = json!({"author": {"name": "Jo Maker", "url": "https://jo.example/plans", "license": "CC BY 4.0"}});
+        assert_eq!(validate(&s), Ok(()));
+        s["meta"]["author"]["url"] = json!("javascript:alert(1)");
+        let errs = validate(&s).unwrap_err();
+        assert!(errs[0].starts_with("/meta/author/url"), "{errs:?}");
+        s["meta"]["author"] = json!({"url": "https://jo.example"});
+        assert!(validate(&s).is_err(), "a credit needs a name");
     }
 
     #[test]
