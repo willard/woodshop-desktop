@@ -57,6 +57,19 @@ pub fn local_box(op: &Op, part: &Part, thickness: f64) -> Option<Aabb> {
                 max: [cx + r, cy + r, z.1],
             }
         }
+        Op::Cutout(c) => {
+            let (x0, y0, x1, y1) = c.footprint(l, w);
+            let depth = c.depth.unwrap_or(thickness);
+            let z = if c.face == Face::Front {
+                (ht - depth, ht)
+            } else {
+                (-ht, -ht + depth)
+            };
+            Aabb {
+                min: [x0, y0, z.0],
+                max: [x1, y1, z.1],
+            }
+        }
         Op::Dado(c) | Op::Groove(c) => {
             let along = c.axis == Axis::L;
             let (span, run) = if along { (w, l) } else { (l, w) };

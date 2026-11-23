@@ -5,9 +5,9 @@
 //!
 //! One SVG user unit is one inch of the piece; the root is sized for a page, not 1:1.
 
-use super::frame::{convex_hull, local_axes_world, shape_points};
+use super::frame::{convex_hull, local_axes_world, local_to_world, shape_points};
 use super::outline_svg::{esc, n};
-use crate::spec::{Spec, Vec3};
+use crate::spec::{Op, Spec, Vec3};
 use crate::units::{Units, format_length};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -58,6 +58,50 @@ struct Silhouette {
     /// A fixed panel lying flat (a shelf, top or bottom), whose openings the front view measures.
     /// A drawer's bottom is not one: drawers and doors are what the openings hold.
     flat: bool,
+    /// Through cutouts seen face-on (a saw well in a top, from above), as closed outlines.
+    cutouts: Vec<Vec<[f64; 2]>>,
+}
+
+/// A through cutout's outline in the view, when the view looks at the face it is cut in; its
+/// rounded corners as short runs of points.
+fn cutout_outline(
+    part: &crate::spec::Part,
+    thickness: f64,
+    c: &crate::spec::Cutout,
+    view: View,
+) -> Option<Vec<[f64; 2]>> {
+    let normal = local_axes_world(part)[2];
+    let facing = match view {
+        View::Front => normal[2],
+        View::Side => normal[0],
+        View::Top => normal[1],
+    };
+    if facing.abs() < 0.9 {
+        return None;
+    }
+    let (x0, y0, x1, y1) = c.footprint(part.size.l, part.size.w);
+    let r = c.corner();
+    let z = thickness / 2.0;
+    let mut local = Vec::new();
+    let corners = [
+        (x1 - r, y0 + r, -90.0),
+        (x1 - r, y1 - r, 0.0),
+        (x0 + r, y1 - r, 90.0),
+        (x0 + r, y0 + r, 180.0),
+    ];
+    for (cx, cy, start) in corners {
+        let steps = if r > 0.0 { 6 } else { 0 };
+        for i in 0..=steps {
+            let a = (start + 90.0 * i as f64 / steps.max(1) as f64).to_radians();
+            local.push([cx + r * a.cos(), cy + r * a.sin(), z]);
+        }
+    }
+    Some(
+        local
+            .into_iter()
+            .map(|p| view.project(local_to_world(part, p)).0)
+            .collect(),
+    )
 }
 
 /// A dimension: from `a` to `b` along x or y, drawn `offset` away (in the drawing's units).
@@ -140,6 +184,18 @@ pub fn elevation_svg(spec: &Spec, view: View, units: Units) -> String {
             points.join(" "),
             n(line * 1.6)
         ));
+        for outline in &part.cutouts {
+            let points: Vec<String> = outline
+                .iter()
+                .map(|p| format!("{},{}", n(x(p[0])), n(y(p[1]))))
+                .collect();
+            body.push(format!(
+                "<polygon data-cutout=\"{}\" points=\"{}\" fill=\"#f5f5f4\" stroke=\"#1c1917\" stroke-width=\"{}\" stroke-linejoin=\"round\"/>",
+                esc(&part.name),
+                points.join(" "),
+                n(line * 1.6)
+            ));
+        }
     }
     let ink = "#b45309";
     for d in &dims {
@@ -274,6 +330,14 @@ fn silhouettes(spec: &Spec, view: View) -> Vec<Silhouette> {
                 min,
                 max,
                 flat: local_axes_world(part)[2][1].abs() > 0.9 && !moving.contains(&part.id.as_str()),
+                cutouts: part
+                    .ops()
+                    .iter()
+                    .filter_map(|op| match op {
+                        Op::Cutout(c) if c.depth.is_none() => cutout_outline(part, thickness, c, view),
+                        _ => None,
+                    })
+                    .collect(),
             }
         })
         .collect()
@@ -383,6 +447,31 @@ mod tests {
         let back = front.find("data-part=\"Back Panel\"").unwrap();
         let shelf = front.find("data-part=\"Shelf 1\"").unwrap();
         assert!(back < shelf);
+    }
+
+    #[test]
+    fn a_saw_well_shows_from_above_and_not_from_the_front() {
+        let mut spec = template("bookshelf");
+        let top = spec.parts.iter_mut().find(|p| p.name.contains("Top")).expect("a top");
+        let (l, w) = (top.size.l, top.size.w);
+        top.ops.get_or_insert_with(Vec::new).push(
+            serde_json::from_value(serde_json::json!({
+                "type": "cutout", "face": "front", "x": l / 2.0, "y": w / 2.0, "length": 8, "width": 4, "radius": 0.5
+            }))
+            .unwrap(),
+        );
+        assert_eq!(
+            elevation_svg(&spec, View::Top, Units::Fraction)
+                .matches("data-cutout")
+                .count(),
+            1
+        );
+        assert_eq!(
+            elevation_svg(&spec, View::Front, Units::Fraction)
+                .matches("data-cutout")
+                .count(),
+            0
+        );
     }
 
     #[test]

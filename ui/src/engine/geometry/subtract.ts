@@ -6,7 +6,8 @@
  *
  * Two kinds of cutter are subtracted:
  *
- *  · Holes, which have no procedural equivalent — a bore is a boolean or it is nothing.
+ *  · Holes and cutouts, which have no procedural equivalent — a bore is a boolean or it is
+ *    nothing.
  *  · Channels (dado/groove/rabbet) on a SHAPED part. A rectangular part slabs its channels
  *    procedurally in `partGeometry.ts` and never comes here; a curved or notched part is extruded
  *    from its face outline as a full-thickness blank, and the channels are cut out of that blank
@@ -29,6 +30,17 @@ export interface HoleSpec {
     depth?: number;
 }
 
+/** A cutout (spec 1.22): a rectangle centred at (x, y) on the face, `length` along X. */
+export interface CutoutSpec {
+    face: 'front' | 'back';
+    x: number;
+    y: number;
+    length: number;
+    width: number;
+    depth?: number;
+    radius?: number;
+}
+
 /** A channel op as it crosses the worker boundary — the spec op itself, structured-cloneable. */
 export type ChannelSpec = ChannelOp;
 
@@ -42,6 +54,7 @@ export interface PartDims {
 export interface SubtractionOps {
     holes: readonly HoleSpec[];
     channels: readonly ChannelSpec[];
+    cutouts?: readonly CutoutSpec[];
 }
 
 const OVERSHOOT = 0.02; // extend a cutter past the surface it breaks through, for a clean cut
@@ -65,6 +78,9 @@ export function subtractOps(
     }
     for (const hole of ops.holes) {
         cutters.push(holeCutterGeometry(hole, dims));
+    }
+    for (const cutout of ops.cutouts ?? []) {
+        cutters.push(cutoutCutterGeometry(cutout, dims));
     }
     if (cutters.length === 0) {
         return base;
@@ -115,6 +131,39 @@ export function holeCutterGeometry(hole: HoleSpec, dims: PartDims): THREE.Buffer
         cz = -dims.thickness / 2 - OVERSHOOT + height / 2;
     }
     geo.translate(cx, cy, cz);
+    return geo;
+}
+
+/** A cutout's prism: its rounded rectangle extruded through the thickness, or `depth` in. */
+export function cutoutCutterGeometry(cutout: CutoutSpec, dims: PartDims): THREE.BufferGeometry {
+    const through = cutout.depth === undefined;
+    // Past both faces when it goes through; past only the face it starts from when it does not,
+    // so a pocket's floor is exactly `depth` down.
+    const height = through ? dims.thickness + OVERSHOOT * 2 : cutout.depth! + OVERSHOOT;
+    const hl = cutout.length / 2;
+    const hw = cutout.width / 2;
+    const r = Math.max(0, Math.min(cutout.radius ?? 0, hl, hw));
+    const shape = new THREE.Shape();
+    shape.moveTo(-hl + r, -hw);
+    shape.lineTo(hl - r, -hw);
+    if (r > 0) shape.absarc(hl - r, -hw + r, r, -Math.PI / 2, 0, false);
+    shape.lineTo(hl, hw - r);
+    if (r > 0) shape.absarc(hl - r, hw - r, r, 0, Math.PI / 2, false);
+    shape.lineTo(-hl + r, hw);
+    if (r > 0) shape.absarc(-hl + r, hw - r, r, Math.PI / 2, Math.PI, false);
+    shape.lineTo(-hl, -hw + r);
+    if (r > 0) shape.absarc(-hl + r, -hw + r, r, Math.PI, (3 * Math.PI) / 2, false);
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: height, bevelEnabled: false, curveSegments: 8 });
+
+    let z0: number; // where the prism starts along Z
+    if (through) {
+        z0 = -dims.thickness / 2 - OVERSHOOT;
+    } else if (cutout.face === 'front') {
+        z0 = dims.thickness / 2 + OVERSHOOT - height;
+    } else {
+        z0 = -dims.thickness / 2 - OVERSHOOT;
+    }
+    geo.translate(-dims.l / 2 + cutout.x, -dims.w / 2 + cutout.y, z0);
     return geo;
 }
 

@@ -112,6 +112,15 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
   with a dado/groove/rabbet on the same part; what it may NOT share an edge with is a
   whole-edge curve — a partial-span arc on that edge is fine as long as the two runs do not
   overlap.
+- Cutouts (spec 1.22): `{ "type": "cutout", "face": "front", "x": 18, "y": 12, "length":
+  21.5, "width": 6.75, "radius": 0.5 }` cuts a rectangular opening in a face, away from the
+  edges: a saw well in a cart top, a pass-through, a hand hole. `x`/`y` are its CENTRE on the
+  hole datum (`x` from the w0 end along the length, `y` from the l0 edge across the width);
+  `length` runs along the part's length and `width` across it. Omit `depth` to cut right
+  through; give it for a pocket that far into `face`. `radius` rounds the corners (a jigsaw or
+  router leaves at least the bit's radius). It must stay inside the face (`op.out-of-bounds`
+  otherwise): a cut that breaks an edge is a notch. A part may stand in a through opening
+  without counting as piercing it.
 - Soft edges: `{ "type": "ease", "edge": "l1", "profile": "roundover", "radius": 0.25 }` runs a
   router down the named edge so it is not sharp — the finishing touch on a tabletop, a shelf's
   front edge, or anything hands touch. `profile` is `roundover` (`radius`), `chamfer` (`width`),

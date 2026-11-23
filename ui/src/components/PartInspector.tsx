@@ -170,7 +170,8 @@ function endsOf(edge: string): { value: Edge; label: string }[] {
           ];
 }
 
-type OpForm = 'dado' | 'rabbet' | 'hole' | 'pins' | 'curve' | 'notch' | 'pocket' | 'miter' | 'ease';
+type OpForm =
+    'dado' | 'rabbet' | 'hole' | 'cutout' | 'pins' | 'curve' | 'notch' | 'pocket' | 'miter' | 'ease';
 
 /**
  * What a taper's height comes to as an angle off square, so an angled end can be cut to the
@@ -205,6 +206,12 @@ const OP_BUTTONS: { form: OpForm; label: string; does: string; icon: string }[] 
         icon: 'curve',
     },
     { form: 'notch', label: 'Notch', does: 'A cut-out from an edge', icon: 'notch' },
+    {
+        form: 'cutout',
+        label: 'Cutout',
+        does: 'An opening or recess in the face, away from the edges',
+        icon: 'cutout',
+    },
     { form: 'miter', label: 'Miter', does: 'An angled edge for a corner joint', icon: 'miter' },
     { form: 'ease', label: 'Soft edge', does: 'Roundover, chamfer or bullnose', icon: 'ease' },
 ];
@@ -222,6 +229,7 @@ function OpIcon({ type }: { type: string }) {
         screws: 'M12 3v4m-3 0h6l-1 12h-4ZM10 11h4m-4 4h4',
         curve: 'M3 18c4-10 14-10 18 0',
         notch: 'M3 6h6v6h6V6h6v12H3Z',
+        cutout: 'M3 5h18v14H3ZM8 9h8v6H8Z',
         miter: 'M4 18h16L4 6Z',
         ease: 'M4 18V10a6 6 0 0 1 6-6h10',
     };
@@ -247,6 +255,8 @@ function editFormOf(op: Op): OpForm | null {
             return 'rabbet';
         case 'hole':
             return 'hole';
+        case 'cutout':
+            return 'cutout';
         case 'curve':
             return 'curve';
         case 'notch':
@@ -393,6 +403,15 @@ export function PartInspector(p: PartInspectorProps) {
         depth: '',
         purpose: 'other',
     });
+    const [cutout, setCutout] = useState({
+        face: 'front',
+        x: '',
+        y: '',
+        length: '',
+        width: '',
+        depth: '',
+        radius: '',
+    });
     const [curve, setCurve] = useState({ edge: 'l1', kind: 'arc', size: '', end: 'both', from: '' });
     const [notch, setNotch] = useState({ edge: 'l1', from: '0', to: '', depth: '' });
     const [clearance, setClearance] = useState(lenValue(0.0625));
@@ -447,6 +466,10 @@ export function PartInspector(p: PartInspectorProps) {
         }
         if (next === 'rabbet' && rabbet.depth === '' && p.thickness !== null) {
             setRabbet((r) => ({ ...r, depth: lenValue(p.thickness! / 2) }));
+        }
+        // A new opening starts in the middle of the face.
+        if (next === 'cutout') {
+            setCutout((c) => ({ ...c, x: lenValue(part.size.l / 2), y: lenValue(part.size.w / 2) }));
         }
     }
 
@@ -505,6 +528,17 @@ export function PartInspector(p: PartInspectorProps) {
                     diameter: v(op.diameter),
                     depth: v(op.depth),
                     purpose: op.purpose ?? 'other',
+                });
+                break;
+            case 'cutout':
+                setCutout({
+                    face: op.face,
+                    x: v(op.x),
+                    y: v(op.y),
+                    length: v(op.length),
+                    width: v(op.width),
+                    depth: v(op.depth),
+                    radius: v(op.radius),
                 });
                 break;
             case 'curve':
@@ -649,6 +683,27 @@ export function PartInspector(p: PartInspectorProps) {
             purpose: hole.purpose as 'dowel' | 'shelfPin' | 'hardware' | 'other',
         });
         setOpenForm(null);
+    }
+
+    function submitCutout(): void {
+        setFormError(null);
+        const x = dim('X', cutout.x);
+        const y = dim('Y', cutout.y);
+        const length = dim('Length', cutout.length);
+        const width = dim('Width', cutout.width);
+        const depth = cutout.depth.trim() === '' ? undefined : dim('Depth', cutout.depth);
+        const radius = cutout.radius.trim() === '' ? undefined : dim0('Corner radius', cutout.radius);
+        if ([x, y, length, width, depth, radius].includes(null)) return;
+        add({
+            type: 'cutout',
+            face: cutout.face as 'front' | 'back',
+            x: x!,
+            y: y!,
+            length: length!,
+            width: width!,
+            ...(depth === undefined ? {} : { depth: depth! }),
+            ...(radius === undefined || radius === 0 ? {} : { radius: radius! }),
+        });
     }
 
     function submitCurve(): void {
@@ -2043,6 +2098,78 @@ export function PartInspector(p: PartInspectorProps) {
                                 Place in 3D
                             </SecondaryButton>
                         </div>
+                    </FormBox>
+                )}
+
+                {openForm === 'cutout' && (
+                    <FormBox testId="cutout-form">
+                        <p className="text-muted mb-2 text-xs">
+                            Centred on X and Y. Leave the depth empty to cut right through; a jigsaw or router
+                            leaves round corners.
+                        </p>
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <FaceField
+                                value={cutout.face}
+                                onChange={(face) => setCutout({ ...cutout, face })}
+                            />
+                            <Field label="Depth (empty = through)">
+                                <TextInput
+                                    value={cutout.depth}
+                                    inputMode="decimal"
+                                    placeholder="through"
+                                    data-testid="cutout-depth"
+                                    onChange={(e) => setCutout({ ...cutout, depth: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <div className="mb-2 grid grid-cols-2 gap-2">
+                            <Field label={`Length (${unitSuffix()})`}>
+                                <TextInput
+                                    value={cutout.length}
+                                    inputMode="decimal"
+                                    data-testid="cutout-length"
+                                    onChange={(e) => setCutout({ ...cutout, length: e.target.value })}
+                                />
+                            </Field>
+                            <Field label={`Width (${unitSuffix()})`}>
+                                <TextInput
+                                    value={cutout.width}
+                                    inputMode="decimal"
+                                    data-testid="cutout-width"
+                                    onChange={(e) => setCutout({ ...cutout, width: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <div className="mb-2 grid grid-cols-3 gap-2">
+                            <Field label="Centre X">
+                                <TextInput
+                                    value={cutout.x}
+                                    inputMode="decimal"
+                                    data-testid="cutout-x"
+                                    onChange={(e) => setCutout({ ...cutout, x: e.target.value })}
+                                />
+                            </Field>
+                            <Field label="Centre Y">
+                                <TextInput
+                                    value={cutout.y}
+                                    inputMode="decimal"
+                                    data-testid="cutout-y"
+                                    onChange={(e) => setCutout({ ...cutout, y: e.target.value })}
+                                />
+                            </Field>
+                            <Field label="Corners">
+                                <TextInput
+                                    value={cutout.radius}
+                                    inputMode="decimal"
+                                    placeholder="square"
+                                    data-testid="cutout-radius"
+                                    onChange={(e) => setCutout({ ...cutout, radius: e.target.value })}
+                                />
+                            </Field>
+                        </div>
+                        <PrimaryButton className="w-full" data-testid="cutout-submit" onClick={submitCutout}>
+                            {editing === null ? 'Add cutout' : 'Save changes'}
+                        </PrimaryButton>
                     </FormBox>
                 )}
 

@@ -9,7 +9,7 @@ use crate::geometry::{
     Aabb, TOUCH_TOL, local_axes_world, obb_penetration, php_float as f, round_to, separation, world_aabb,
 };
 use crate::movables::{HARDWARE_REACH, OVERLAY_ALLOWANCE};
-use crate::spec::{GrainAxis, JointType, Material, MaterialType, Movable, Op, Part, Spec, Vec3};
+use crate::spec::{Cutout, GrainAxis, JointType, Material, MaterialType, Movable, Op, Part, Spec, Vec3};
 
 fn r3(v: f64) -> String {
     f(round_to(v, 3))
@@ -610,7 +610,8 @@ pub(super) fn floating_parts(spec: &Spec, member_of: &HashMap<&str, &Movable>, i
 
 /// One part passing clean through the body of another. An AABB pre-filter (intruder spans the
 /// pierced part on one axis, overlap strictly interior on the others) is confirmed by an oriented
-/// box test, since AABBs inflate tilted parts. Notched parts are exempt.
+/// box test, since AABBs inflate tilted parts. Notched parts, and parts with a cutout right
+/// through them, are exempt: what passes through may pass through the opening.
 pub(super) fn pierced_parts(spec: &Spec, issues: &mut Vec<LintIssue>) {
     const LABELS: [&str; 3] = ["x", "y", "z"];
     let boxes: Vec<(&Part, f64, Aabb, bool)> = spec
@@ -618,7 +619,10 @@ pub(super) fn pierced_parts(spec: &Spec, issues: &mut Vec<LintIssue>) {
         .iter()
         .map(|p| {
             let t = thickness(spec, p);
-            let notched = p.ops().iter().any(|o| matches!(o, Op::Notch(_)));
+            let notched = p
+                .ops()
+                .iter()
+                .any(|o| matches!(o, Op::Notch(_) | Op::Cutout(Cutout { depth: None, .. })));
             (p, t, world_aabb(p, t), notched)
         })
         .collect();

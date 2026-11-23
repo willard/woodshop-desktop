@@ -85,6 +85,24 @@ pub fn op_summary(op: &Op, units: Units) -> String {
                 len(h.y)
             )
         }
+        Op::Cutout(c) => {
+            let (name, depth) = match c.depth {
+                None => ("Cutout", "through".to_owned()),
+                Some(d) => ("Pocket", format!("{} deep", len(d))),
+            };
+            let corners = match c.corner() {
+                r if r > 0.0 => format!(", {} corners", len(r)),
+                _ => String::new(),
+            };
+            format!(
+                "{name} {} × {}, {depth}{corners}, in the {}, centred {} from the left end, {} up",
+                len(c.length),
+                len(c.width),
+                face_name(c.face),
+                len(c.x),
+                len(c.y)
+            )
+        }
         Op::PocketHoles(p) => {
             let mut s = format!("{} through the {}", many(p.count, "pocket screw"), edge_name(p.edge));
             if let Some(l) = p.length {
@@ -212,6 +230,14 @@ mod tests {
             (
                 json!({ "type": "rabbet", "edge": "l0", "width": 0.5, "depth": 0.25 }),
                 "Rabbet 1/2\" wide × 1/4\" deep along the bottom edge",
+            ),
+            (
+                json!({ "type": "cutout", "face": "front", "x": 18, "y": 12, "length": 21.5, "width": 6.75, "radius": 0.5 }),
+                "Cutout 21 1/2\" × 6 3/4\", through, 1/2\" corners, in the front face, centred 18\" from the left end, 12\" up",
+            ),
+            (
+                json!({ "type": "cutout", "face": "back", "x": 4, "y": 3, "length": 4, "width": 3, "depth": 0.25 }),
+                "Pocket 4\" × 3\", 1/4\" deep, in the back face, centred 4\" from the left end, 3\" up",
             ),
             (
                 json!({ "type": "hole", "face": "front", "x": 2, "y": 3, "diameter": 0.25 }),

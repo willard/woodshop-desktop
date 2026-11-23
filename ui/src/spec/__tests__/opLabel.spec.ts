@@ -34,6 +34,11 @@ const cases: ReadonlyArray<readonly [string, Op, string]> = [
         'Rabbet 1/2" wide × 1/4" deep along the bottom edge',
     ],
     [
+        'cutout',
+        { type: 'cutout', face: 'front', x: 18, y: 12, length: 21.5, width: 6.75, radius: 0.5 },
+        'Cutout 21 1/2" × 6 3/4", through, 1/2" corners, in the front face, centred 18" from the left end, 12" up',
+    ],
+    [
         'hole, through',
         { type: 'hole', face: 'front', x: 2, y: 3, diameter: 0.25 },
         'Hole ⌀ 1/4", through, in the front face, 2" from the left end, 3" up',

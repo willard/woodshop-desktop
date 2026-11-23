@@ -6,7 +6,13 @@
  * conflict with the DOM lib); Vite compiles and type-checks it at build time.
  */
 import * as THREE from 'three';
-import { subtractOps, type ChannelSpec, type HoleSpec, type PartDims } from '../geometry/subtract';
+import {
+    subtractOps,
+    type ChannelSpec,
+    type CutoutSpec,
+    type HoleSpec,
+    type PartDims,
+} from '../geometry/subtract';
 
 interface SerializedGeometry {
     position: Float32Array;
@@ -21,6 +27,7 @@ interface CsgRequest {
     holes: HoleSpec[];
     /** Channels to cut with a boolean — only ever sent for a shaped part (D72). */
     channels?: ChannelSpec[];
+    cutouts?: CutoutSpec[];
     dims: PartDims;
 }
 
@@ -42,8 +49,8 @@ function toGeometry(data: SerializedGeometry): THREE.BufferGeometry {
 }
 
 ctx.onmessage = (event: MessageEvent<CsgRequest>) => {
-    const { id, base, holes, channels, dims } = event.data;
-    const result = subtractOps(toGeometry(base), { holes, channels: channels ?? [] }, dims);
+    const { id, base, holes, channels, cutouts, dims } = event.data;
+    const result = subtractOps(toGeometry(base), { holes, channels: channels ?? [], cutouts }, dims);
 
     const position = result.getAttribute('position').array as Float32Array;
     const transfer: Transferable[] = [position.buffer];

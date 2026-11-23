@@ -127,7 +127,7 @@ export function flipOp(op: Op, flip: Flip, size: { l: number; w: number }): Op {
         if (out.axis === flip) out = flipRun(out as { from?: number; to?: number }, span) as typeof out;
         else out.offset = clean(span - out.offset);
     }
-    if (out.type === 'hole') {
+    if (out.type === 'hole' || out.type === 'cutout') {
         if (flip === 'l') out.x = clean(size.l - out.x);
         else out.y = clean(size.w - out.y);
     }

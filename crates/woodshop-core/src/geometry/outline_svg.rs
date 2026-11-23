@@ -163,6 +163,7 @@ fn ops(part: &Part, thickness: f64) -> String {
         let attrs = format!(" data-op-index=\"{index}\" data-op-type=\"{}\"", op.type_name());
         out.push(match op {
             Op::Hole(h) => hole(h.diameter, &b, &attrs),
+            Op::Cutout(c) => cutout(c.depth.is_none(), c.corner(), &b, &attrs),
             Op::PocketHoles(p) => fastener_run(p.count, &b, &attrs),
             Op::Screws(s) => fastener_run(s.count, &b, &attrs),
             _ => footprint(&b, &attrs),
@@ -189,6 +190,23 @@ fn hole(diameter: f64, b: &Aabb, attrs: &str) -> String {
         n(cy - tick),
         n(cx),
         n(cy + tick),
+    )
+}
+
+/// A through cutout is a cut line, like the outline; a pocket is dashed, like a channel.
+fn cutout(through: bool, r: f64, b: &Aabb, attrs: &str) -> String {
+    let style = if through {
+        format!("stroke=\"#1c1917\" stroke-width=\"{CUT_WIDTH}\"")
+    } else {
+        format!("stroke=\"#0284c7\" stroke-width=\"{THIN_WIDTH}\" stroke-dasharray=\"0.08 0.06\"")
+    };
+    format!(
+        "<rect{attrs} x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"none\" {style}/>",
+        n(b.min[0]),
+        n(b.min[1]),
+        n(b.max[0] - b.min[0]),
+        n(b.max[1] - b.min[1]),
+        n(r)
     )
 }
 

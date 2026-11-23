@@ -5,7 +5,7 @@
  * (CLAUDE.md: cache CSG per part, invalidate only when that part's ops/size change).
  */
 import * as THREE from 'three';
-import type { ChannelSpec, HoleSpec, PartDims } from './geometry/subtract';
+import type { ChannelSpec, CutoutSpec, HoleSpec, PartDims } from './geometry/subtract';
 
 /**
  * How the worker is spawned. Required, and injected rather than defaulted: the app fetches it as
@@ -47,6 +47,7 @@ export class PartCsg {
         holes: HoleSpec[],
         channels: ChannelSpec[],
         dims: PartDims,
+        cutouts: CutoutSpec[] = [],
     ): Promise<THREE.BufferGeometry> {
         const cached = this.cache.get(key);
         if (cached !== undefined) {
@@ -56,7 +57,7 @@ export class PartCsg {
         const [payload, transfer] = serialize(base);
         const result = await new Promise<THREE.BufferGeometry>((resolve) => {
             this.pending.set(id, resolve);
-            this.worker.postMessage({ id, base: payload, holes, channels, dims }, transfer);
+            this.worker.postMessage({ id, base: payload, holes, channels, cutouts, dims }, transfer);
         });
         this.cache.set(key, result);
         return result.clone();

@@ -7699,7 +7699,7 @@
         }
     },
     "taper-straight-run-too-long": {
-        "specVersion": "1.21",
+        "specVersion": "1.22",
         "units": "in",
         "name": "taper-straight-run-too-long",
         "materials": [
@@ -7753,7 +7753,7 @@
         "joints": []
     },
     "clip-valid": {
-        "specVersion": "1.21",
+        "specVersion": "1.22",
         "units": "in",
         "name": "clip-valid",
         "materials": [
@@ -7805,7 +7805,7 @@
         "joints": []
     },
     "clip-too-big": {
-        "specVersion": "1.21",
+        "specVersion": "1.22",
         "units": "in",
         "name": "clip-too-big",
         "materials": [

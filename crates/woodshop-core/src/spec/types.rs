@@ -396,6 +396,7 @@ pub enum Op {
     Groove(Channel),
     Rabbet(Rabbet),
     Hole(Hole),
+    Cutout(Cutout),
     PocketHoles(PocketHoles),
     Screws(Screws),
     Miter(Miter),
@@ -411,6 +412,7 @@ impl Op {
             Op::Groove(_) => "groove",
             Op::Rabbet(_) => "rabbet",
             Op::Hole(_) => "hole",
+            Op::Cutout(_) => "cutout",
             Op::PocketHoles(_) => "pocketHoles",
             Op::Screws(_) => "screws",
             Op::Miter(_) => "miter",
@@ -470,6 +472,43 @@ pub struct Hole {
     pub depth: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub purpose: Option<HolePurpose>,
+}
+
+/// A rectangular opening or pocket in a face, away from the edges (1.22).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Cutout {
+    pub face: Face,
+    /// Centre, from the w0 end along the length.
+    pub x: f64,
+    /// Centre, from the l0 edge across the width.
+    pub y: f64,
+    pub length: f64,
+    pub width: f64,
+    /// `None` = through.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub depth: Option<f64>,
+    /// Corner radius; `None` or 0 = square corners.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub radius: Option<f64>,
+}
+
+impl Cutout {
+    /// The corner radius actually cut: never more than half the shorter side.
+    pub fn corner(&self) -> f64 {
+        self.radius.unwrap_or(0.0).clamp(0.0, self.length.min(self.width) / 2.0)
+    }
+
+    /// Its footprint on the face, local frame (centred on the part): (min x, min y, max x, max y).
+    pub fn footprint(&self, l: f64, w: f64) -> (f64, f64, f64, f64) {
+        let (cx, cy) = (-l / 2.0 + self.x, -w / 2.0 + self.y);
+        (
+            cx - self.length / 2.0,
+            cy - self.width / 2.0,
+            cx + self.length / 2.0,
+            cy + self.width / 2.0,
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

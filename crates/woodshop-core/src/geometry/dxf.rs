@@ -25,6 +25,8 @@ const ROW: f64 = 96.0;
 const LABEL_HEIGHT: f64 = 0.25;
 
 pub const LAYER_CUT: &str = "CUT_OUTSIDE";
+/// A through cutout's outline: cut on the inside of the line.
+pub const LAYER_CUT_INSIDE: &str = "CUT_INSIDE";
 pub const LAYER_LABEL: &str = "LABELS";
 
 /// One drawable entity, in drawing units, already placed in the layout.
@@ -130,6 +132,17 @@ fn part_entities(
             Op::Dado(c) | Op::Groove(c) => {
                 out.push(rect(layer("POCKET", depth, through, c.face, scale, units), &b, &at))
             }
+            Op::Cutout(c) => {
+                let layer = if through {
+                    LAYER_CUT_INSIDE.to_owned()
+                } else {
+                    layer("POCKET", depth, through, c.face, scale, units)
+                };
+                out.push(Entity::Polyline {
+                    layer,
+                    points: rounded_rect(&b, c.corner(), &at),
+                });
+            }
             // A rabbet is always cut from the front (§3.1).
             Op::Rabbet(_) => out.push(rect(
                 layer("POCKET", depth, through, Face::Front, scale, units),
@@ -166,6 +179,38 @@ fn rect(layer: String, b: &super::Aabb, at: &impl Fn(f64, f64) -> (f64, f64)) ->
         layer,
         points: corners.iter().map(|&(x, y)| (x, y, 0.0)).collect(),
     }
+}
+
+/// A box's outline with its corners rounded to `r`, counter-clockwise, as polyline vertices
+/// (a quarter arc is a bulge of tan(90° / 4)).
+fn rounded_rect(b: &super::Aabb, r: f64, at: &impl Fn(f64, f64) -> (f64, f64)) -> Vec<(f64, f64, f64)> {
+    let (x0, y0, x1, y1) = (b.min[0], b.min[1], b.max[0], b.max[1]);
+    if r < 1e-9 {
+        return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+            .iter()
+            .map(|&(x, y)| {
+                let p = at(x, y);
+                (p.0, p.1, 0.0)
+            })
+            .collect();
+    }
+    let k = (std::f64::consts::FRAC_PI_2 / 4.0).tan();
+    [
+        (x0 + r, y0, 0.0),
+        (x1 - r, y0, k),
+        (x1, y0 + r, 0.0),
+        (x1, y1 - r, k),
+        (x1 - r, y1, 0.0),
+        (x0 + r, y1, k),
+        (x0, y1 - r, 0.0),
+        (x0, y0 + r, k),
+    ]
+    .iter()
+    .map(|&(x, y, bulge)| {
+        let p = at(x, y);
+        (p.0, p.1, bulge)
+    })
+    .collect()
 }
 
 /// The outline as polyline vertices `(x, y, bulge)`, where a vertex's bulge shapes the segment
@@ -428,6 +473,33 @@ mod tests {
 
     fn value(e: &[(i32, String)], code: i32) -> f64 {
         e.iter().find(|(c, _)| *c == code).unwrap().1.parse().unwrap()
+    }
+
+    #[test]
+    fn a_through_cutout_is_cut_inside_with_round_corners_and_a_pocket_is_pocketed() {
+        let s = spec(
+            json!([{ "id": "p1", "name": "Top", "materialId": "ply", "size": { "l": 36, "w": 24 }, "ops": [
+            { "type": "cutout", "face": "front", "x": 18, "y": 12, "length": 21.5, "width": 6.75, "radius": 0.5 },
+            { "type": "cutout", "face": "back", "x": 6, "y": 6, "length": 4, "width": 3, "depth": 0.25 }
+        ] }]),
+        );
+        let dxf = spec_dxf(&s, Units::Fraction);
+        let layers: Vec<String> = entities(&dxf, "POLYLINE")
+            .iter()
+            .map(|e| e.iter().find(|(c, _)| *c == 8).unwrap().1.clone())
+            .collect();
+        assert_eq!(layers, [LAYER_CUT, LAYER_CUT_INSIDE, "POCKET_0.25_BACK"]);
+        // The through cut: eight vertices, four of them starting a quarter arc.
+        let vertices = entities(&dxf, "VERTEX");
+        let arcs = vertices[4..12]
+            .iter()
+            .filter(|v| v.iter().any(|(c, b)| *c == 42 && b.parse::<f64>().unwrap() > 0.4))
+            .count();
+        assert_eq!(arcs, 4);
+        let xs: Vec<f64> = vertices[4..12].iter().map(|v| value(v, 10)).collect();
+        let lo = xs.iter().cloned().fold(f64::MAX, f64::min);
+        let hi = xs.iter().cloned().fold(f64::MIN, f64::max);
+        assert_eq!((lo, hi), (7.25, 28.75));
     }
 
     #[test]

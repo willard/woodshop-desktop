@@ -329,7 +329,7 @@ mod tests {
 
     fn base() -> Value {
         json!({
-            "specVersion": "1.21", "units": "in", "name": "T",
+            "specVersion": "1.22", "units": "in", "name": "T",
             "materials": [{"id": "mat_a", "type": "sheet", "name": "Ply", "thickness": 0.75, "sheetSize": {"l": 96, "w": 48}}],
             "parts": [{"id": "p_a", "name": "A", "materialId": "mat_a", "size": {"l": 10, "w": 5}, "transform": {"pos": [0, 0, 0]}}]
         })
@@ -362,6 +362,18 @@ mod tests {
         assert!(errs[0].starts_with("/meta/author/url"), "{errs:?}");
         s["meta"]["author"] = json!({"url": "https://jo.example"});
         assert!(validate(&s).is_err(), "a credit needs a name");
+    }
+
+    #[test]
+    fn a_cutout_is_a_sized_opening_in_a_face() {
+        let mut s = base();
+        s["parts"][0]["ops"] = json!([{"type": "cutout", "face": "front", "x": 5, "y": 2.5, "length": 4, "width": 2}]);
+        assert_eq!(validate(&s), Ok(()));
+        s["parts"][0]["ops"][0]["width"] = json!(0);
+        assert!(validate(&s).is_err(), "an opening has a size");
+        s["parts"][0]["ops"][0]["width"] = json!(2);
+        s["parts"][0]["ops"][0]["edge"] = json!("l0");
+        assert!(validate(&s).is_err(), "a cutout names a face, not an edge");
     }
 
     #[test]

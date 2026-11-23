@@ -1297,6 +1297,17 @@ test('the inspector adds a cut from one menu, says it in plain words, and rememb
     await expect(cuts.getByTestId('ops-row').last()).toContainText('Hole ⌀ 1/4"');
     await expect(cuts.getByTestId('ops-row').last()).toContainText('2" from the left end, 3" up');
 
+    // A saw well through the middle of the face: the form starts it centred.
+    await page.getByTestId('ops-add-menu').click();
+    await page.getByTestId('ops-add-cutout').click();
+    await page.getByTestId('cutout-length').fill('10');
+    await page.getByTestId('cutout-width').fill('4');
+    await page.getByTestId('cutout-radius').fill('1/2');
+    await page.getByTestId('cutout-submit').click();
+    await expect(cuts.getByTestId('ops-row')).toHaveCount(before + 2);
+    await expect(cuts.getByTestId('ops-row').last()).toContainText('Cutout 10" × 4", through, 1/2" corners');
+    await expect(page.getByTestId('lint-badge')).toContainText('Buildable');
+
     // Rotation says what it does.
     await expect(page.getByTestId('rot-90-1')).toHaveText('Turn 90°');
 

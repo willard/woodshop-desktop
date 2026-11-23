@@ -114,6 +114,31 @@ pub(super) fn ops_fit_part(part: &Part, material: &Material, issues: &mut Vec<Li
                     ));
                 }
             }
+            Op::Cutout(c) => {
+                let (x0, y0, x1, y1) = c.footprint(part.size.l, part.size.w);
+                let (hl, hw) = (part.size.l / 2.0, part.size.w / 2.0);
+                if x0 < -hl + EPS || y0 < -hw + EPS || x1 > hl - EPS || y1 > hw - EPS {
+                    fail(format!(
+                        "cutout on \"{name}\" ({} × {} centred at {}, {}) runs off the {}×{} face; \
+                         keep it inside, or use a notch for a cut that breaks an edge.",
+                        len(c.length),
+                        len(c.width),
+                        f(c.x),
+                        f(c.y),
+                        f(part.size.l),
+                        len(part.size.w)
+                    ));
+                }
+                if let Some(d) = c.depth
+                    && d > thickness + EPS
+                {
+                    fail(format!(
+                        "cutout on \"{name}\" depth {} exceeds thickness {}; omit depth to cut through.",
+                        len(d),
+                        len(thickness)
+                    ));
+                }
+            }
             Op::Curve(curve) => {
                 let edge = curve.edge();
                 let (chord, span) = chord_and_span(part, edge);

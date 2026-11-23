@@ -29,7 +29,7 @@ import {
     type Dimension,
 } from './measure';
 import { PartCsg, type CsgWorkerFactory } from './PartCsg';
-import type { ChannelSpec, HoleSpec } from './geometry/subtract';
+import type { ChannelSpec, CutoutSpec, HoleSpec } from './geometry/subtract';
 import { isChannel } from './geometry/partGeometry';
 import { DARK_SCENE, type ScenePalette } from './theme';
 
@@ -1872,10 +1872,11 @@ export class EditorEngine {
             const bored = derived.get(part.id) ?? [];
             const holes = holeSpecsOf(part.ops ?? []).concat(holeSpecsOf(bored));
             const channels = csgChannelsOf(part);
+            const cutouts = cutoutSpecsOf(part.ops ?? []);
             const material = materials.get(part.materialId);
             const mesh = this.partsGroup?.getObjectByName(part.id) as THREE.Mesh | undefined;
             if (
-                (holes.length === 0 && channels.length === 0) ||
+                (holes.length === 0 && channels.length === 0 && cutouts.length === 0) ||
                 material === undefined ||
                 mesh === undefined
             ) {
@@ -1886,7 +1887,7 @@ export class EditorEngine {
             // ops array goes into the key — channels included, and in their authored order.
             const key = `${part.id}|${material.thickness}|${part.size.l}x${part.size.w}|${JSON.stringify(part.ops)}|${JSON.stringify(bored)}`;
             void (this.partCsg ??= new PartCsg(this.csgWorkerFactory))
-                .subtract(key, mesh.geometry, holes, channels, dims)
+                .subtract(key, mesh.geometry, holes, channels, dims, cutouts)
                 .then((geometry) => {
                     const current = this.partsGroup?.getObjectByName(part.id) as THREE.Mesh | undefined;
                     if (this.disposed || generation !== this.csgGeneration || current === undefined) {
@@ -2302,6 +2303,21 @@ function holeSpecsOf(ops: Op[]): HoleSpec[] {
     return ops
         .filter((op): op is Extract<typeof op, { type: 'hole' }> => op.type === 'hole')
         .map((op) => ({ face: op.face, x: op.x, y: op.y, diameter: op.diameter, depth: op.depth }));
+}
+
+/** A part's cutouts (spec 1.22), as the worker takes them. */
+function cutoutSpecsOf(ops: Op[]): CutoutSpec[] {
+    return ops
+        .filter((op): op is Extract<typeof op, { type: 'cutout' }> => op.type === 'cutout')
+        .map(({ face, x, y, length, width, depth, radius }) => ({
+            face,
+            x,
+            y,
+            length,
+            width,
+            depth,
+            radius,
+        }));
 }
 
 /**

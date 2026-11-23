@@ -91,7 +91,8 @@ fn parts_joinery(spec: &Spec, units: Units) -> Vec<PartJoinery> {
 }
 
 /// The tool setting an op is cut at, if it has one: a dado or groove at the dado stack's width
-/// and depth, a rabbet, a hole by bit and depth, a miter by blade angle, an eased edge by bit.
+/// and depth, a rabbet, a hole by bit and depth, a cutout by jigsaw or router, a miter by blade
+/// angle, an eased edge by bit.
 /// Curves and notches are cut to a line, and fasteners are left to the assembly order.
 fn setup_of(op: &Op, units: Units) -> Option<String> {
     let len = |n: f64| format_length(n, units);
@@ -101,6 +102,10 @@ fn setup_of(op: &Op, units: Units) -> Option<String> {
         Op::Hole(h) => match h.depth {
             Some(d) => format!("{} bit, {} deep", len(h.diameter), len(d)),
             None => format!("{} bit, through", len(h.diameter)),
+        },
+        Op::Cutout(c) => match c.depth {
+            Some(d) => format!("Router with a pattern bit, {} deep", len(d)),
+            None => "Starter holes in the corners, then a jigsaw to the line".to_owned(),
         },
         Op::Miter(m) => format!("Blade or miter gauge at {}°", m.angle),
         Op::Curve(Curve::Clip { .. }) => "Miter saw at 45°".to_owned(),

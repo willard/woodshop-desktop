@@ -8,7 +8,7 @@ const SIDES = ['front', 'back', 'l0', 'l1', 'w0', 'w1'] as const;
 
 function spec(hardware: Partial<HardwareMount>[], parts = [{ id: 'd1' }, { id: 'd2' }]): Spec {
     return parseSpec({
-        specVersion: '1.21',
+        specVersion: '1.22',
         name: 'Drawers',
         units: 'in',
         materials: [

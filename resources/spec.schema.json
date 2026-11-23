@@ -13,7 +13,7 @@
     ],
     "properties": {
         "specVersion": {
-            "const": "1.21"
+            "const": "1.22"
         },
         "units": {
             "const": "in",
@@ -579,6 +579,56 @@
                         }
                     },
                     "description": "Omit depth for a through hole."
+                },
+                {
+                    "additionalProperties": false,
+                    "required": [
+                        "type",
+                        "face",
+                        "x",
+                        "y",
+                        "length",
+                        "width"
+                    ],
+                    "properties": {
+                        "type": {
+                            "const": "cutout"
+                        },
+                        "face": {
+                            "$ref": "#/$defs/face"
+                        },
+                        "x": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 240,
+                            "description": "Centre of the opening, from the w0 end along the length (the hole datum)."
+                        },
+                        "y": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 240,
+                            "description": "Centre of the opening, from the l0 edge across the width."
+                        },
+                        "length": {
+                            "$ref": "#/$defs/positiveDim",
+                            "description": "Along the part's length."
+                        },
+                        "width": {
+                            "$ref": "#/$defs/positiveDim",
+                            "description": "Across the part's width."
+                        },
+                        "depth": {
+                            "$ref": "#/$defs/positiveDim",
+                            "description": "Omit to cut right through."
+                        },
+                        "radius": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 120,
+                            "description": "Corner radius; 0 or omitted for square corners. A through cut made with a jigsaw or router has round corners at least the bit's radius."
+                        }
+                    },
+                    "description": "A rectangular opening (omit depth) or pocket (with depth) cut into a face, away from the edges (added in 1.22): a saw well in a cart top, a pass-through, a recess. For a cut that breaks an edge, use notch."
                 },
                 {
                     "additionalProperties": false,
