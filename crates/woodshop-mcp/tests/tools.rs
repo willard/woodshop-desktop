@@ -36,7 +36,7 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 39);
+    assert_eq!(tools::TOOLS.len(), 40);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
@@ -1110,4 +1110,29 @@ fn a_quick_build_starts_a_sound_design() {
         json!({ "kind": "box", "width": 96, "height": 60, "depth": 30 }),
     );
     assert!(refused.contains("bigger than a 96\" × 48\" sheet"), "{refused}");
+}
+
+#[test]
+fn a_material_can_be_painted_and_back_to_bare_wood() {
+    let w = woodshop();
+    let id = ok(&w, "start_from_template", json!({ "template": "record-stand" }))["projectId"]
+        .as_i64()
+        .unwrap();
+    let paint = json!({ "project_id": id, "material_id": "mat_bb18", "kind": "paint",
+        "color": "#8A9A5B", "name": "Sage green" });
+    let done = ok(&w, "set_material_appearance", paint);
+    assert_eq!(done["summary"], "\"Baltic Birch 18mm\" is now paint, Sage green.");
+    let material = &ok(&w, "get_design", json!({ "project_id": id }))["spec"]["materials"][0];
+    assert_eq!(
+        material["appearance"],
+        json!({ "kind": "paint", "color": "#8A9A5B", "name": "Sage green" })
+    );
+
+    let bad = json!({ "project_id": id, "material_id": "mat_bb18", "kind": "paint", "color": "green" });
+    assert!(err(&w, "set_material_appearance", bad).starts_with("color must be #rrggbb"));
+
+    let bare = json!({ "project_id": id, "material_id": "mat_bb18", "kind": "wood" });
+    ok(&w, "set_material_appearance", bare);
+    let material = &ok(&w, "get_design", json!({ "project_id": id }))["spec"]["materials"][0];
+    assert!(material.get("appearance").is_none(), "{material}");
 }

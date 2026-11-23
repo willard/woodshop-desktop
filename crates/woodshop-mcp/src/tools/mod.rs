@@ -48,6 +48,7 @@ pub static TOOLS: &[ToolDef] = &[
     authoring::ADD_MATERIAL,
     authoring::RENAME_MATERIAL,
     authoring::SET_MATERIAL_THICKNESS,
+    authoring::SET_MATERIAL_APPEARANCE,
     authoring::DELETE_MATERIAL,
     authoring::ADD_PART,
     authoring::ADD_PARTS,

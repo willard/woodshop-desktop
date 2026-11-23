@@ -148,6 +148,73 @@ pub const RENAME_MATERIAL: ToolDef = ToolDef {
     },
 };
 
+pub const SET_MATERIAL_APPEARANCE: ToolDef = ToolDef {
+    name: "set_material_appearance",
+    description: "Set how a material looks once finished: `paint` (opaque, the grain hidden), `stain` (a \
+        tint the grain shows through), `glass` (a door or cabinet pane), `metal` (steel or aluminium \
+        stock) or `wood` (bare or clear-finished, the default). Every part of the material takes it, in \
+        the 3D view, the exports and the video. Give a paint or stain its colour as #rrggbb and, \
+        optionally, the name on the can: the cut list then lists the paint by name with the area it \
+        covers. To paint only some parts, add a second material for them and set_part_material.",
+    read_only: false,
+    schema: || {
+        object(
+            json!({
+                "project_id": integer(PROJECT_ID),
+                "material_id": string("The id of the material (from get_design)."),
+                "kind": one_of(APPEARANCES, "How it looks: wood (default), paint, stain, glass or metal."),
+                "color": string("Optional colour as #rrggbb, e.g. \"#8a9a5b\" for a sage green paint."),
+                "name": string("Optional: what the colour is called on the can, e.g. \"Sage green\"."),
+            }),
+            &["project_id", "material_id", "kind"],
+        )
+    },
+    run: |w, args| {
+        let project_id = args.project_id(PROVIDE_PROJECT)?;
+        let material_id = args.str("material_id", "Provide the id of the material (see get_design).")?;
+        let kind = args.enumerated(
+            "kind",
+            APPEARANCES,
+            "kind must be one of wood, paint, stain, glass or metal.",
+            "Provide kind: wood, paint, stain, glass or metal.",
+        )?;
+        let color = args.opt_str("color")?;
+        if let Some(c) = color
+            && !(c.len() == 7 && c.starts_with('#') && c[1..].chars().all(|ch| ch.is_ascii_hexdigit()))
+        {
+            return Err(format!("color must be #rrggbb, e.g. \"#8a9a5b\"; got \"{c}\"."));
+        }
+        let colour_name = args.opt_str_max("name", 60)?.map(str::trim).filter(|n| !n.is_empty());
+        let design = w.load_editable(project_id)?;
+        let material = find(&design.draft, "materials", material_id).ok_or_else(|| no_material(material_id))?;
+        let label = material["name"].as_str().unwrap_or(material_id).to_owned();
+        let look = if kind == "wood" && color.is_none() && colour_name.is_none() {
+            None
+        } else {
+            Some(compact(json!({ "kind": kind, "color": color, "name": colour_name })))
+        };
+        let result = w.apply(&design, &format!("Set {label} to {kind}"), true, |spec| {
+            map_one(spec, "materials", material_id, |m| match &look {
+                Some(look) => {
+                    m.insert("appearance".into(), look.clone());
+                }
+                None => {
+                    m.remove("appearance");
+                }
+            });
+        });
+        let what = match (kind, colour_name.or(color)) {
+            ("wood", _) => "bare wood".to_owned(),
+            (k, Some(c)) => format!("{k}, {c}"),
+            (k, None) => k.to_owned(),
+        };
+        w.render(result, &design, &format!("\"{label}\" is now {what}."))
+    },
+};
+
+/// The looks a material can have (spec 1.20).
+const APPEARANCES: &[&str] = &["wood", "paint", "stain", "glass", "metal"];
+
 pub const SET_MATERIAL_THICKNESS: ToolDef = ToolDef {
     name: "set_material_thickness",
     description: "Set the thickness a material's stock really measures: 3/4\" plywood that is 23/32\" \

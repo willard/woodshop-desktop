@@ -80,7 +80,8 @@ each intermediate state. move_part (new position and/or rotation), resize_part, 
 set_part_material, set_part_species, and delete_part change one part by id; rename_material and \
 delete_material keep the material list clean (a material in use cannot be deleted); \
 set_material_thickness sets what the stock really measures (23/32\" plywood) and resizes the dados, \
-grooves and rabbets its parts sit in; they keep the \
+grooves and rabbets its parts sit in; set_material_appearance paints, stains or glazes a material; they \
+keep the \
 design buildable and are rejected only if the edit itself would break it. When a run of authoring \
 calls is done, call check_design to confirm the piece actually holds together.
 

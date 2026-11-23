@@ -8,6 +8,12 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Paint, stain and glass (format 1.20): a material's Look, in the cut list's Materials, can be
+  bare wood, paint, stain, glass or metal, with its colour and the name on the can. Painted parts
+  are drawn flat in the colour, stain tints the grain, and glass is see-through, in the editor,
+  the 3D plan, the exports and the video. The cut list and the shopping list name each paint and
+  stain with the surface it covers, and the clear finish counts only bare and stained wood. Agents
+  can set it with `set_material_appearance`.
 - The design checks warn about angles a saw does not reach: a bevel past 45° (most blades tilt
   no further) and an angled end more than 50° off square (most miter saws turn no further), with
   what to use instead. The picnic table's braces are a degree steeper so both their cuts are

@@ -17,6 +17,16 @@ export type HardwareMount = NonNullable<Spec['hardware']>[number];
 export type Side = HardwareMount['side'];
 export type Op = Part['ops'] extends readonly (infer O)[] | undefined ? O : never;
 
+/** How a material looks once finished (spec 1.20). */
+export type AppearanceKind = 'wood' | 'paint' | 'stain' | 'glass' | 'metal';
+export interface Appearance {
+    kind: AppearanceKind;
+    /** `#rrggbb`. */
+    color?: string;
+    /** What the colour is called on the can. */
+    name?: string;
+}
+
 /** Wood species preset (spec 1.3) — drives renderer tint and cut-list labels. */
 export type Species = NonNullable<Material['species']>;
 

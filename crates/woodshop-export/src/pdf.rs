@@ -23,7 +23,7 @@ use woodshop_core::geometry::elevation::{View, elevation_svg};
 use woodshop_core::geometry::overall_size;
 use woodshop_core::joinery::{Joinery, joinery};
 use woodshop_core::movables::derived_borings;
-use woodshop_core::spec::{Edge, MaterialType, Movable, Spec};
+use woodshop_core::spec::{AppearanceKind, Edge, MaterialType, Movable, Spec};
 use woodshop_core::units::{Units, format_finish, format_length, format_length_value, format_weight};
 
 use crate::ExportError;
@@ -74,7 +74,8 @@ struct PlanView {
     /// Front, side and top drawings with sizes are served as `/front.svg` and so on.
     has_drawings: bool,
     totals: Vec<Total>,
-    /// "Finish: 83 sq ft, about 0.8 qt a coat", or empty with nothing to finish.
+    /// "Finish: 83 sq ft, about 0.8 qt a coat.", the paints and stains first when there are any, or
+    /// empty with nothing to finish.
     finish: String,
     notes: Vec<PlanNote>,
     sections: Vec<SectionView>,
@@ -363,6 +364,32 @@ fn drilling_notes(spec: &Spec, units: Units) -> Vec<String> {
     notes
 }
 
+/// The paints and stains to buy and the clear coat, in a sentence: "Paint, Sage green: 14 sq ft,
+/// about 0.1 qt a coat. Clear finish: …".
+fn finish_line(totals: &woodshop_core::cutlist::CutListTotals, units: Units) -> String {
+    let mut lines: Vec<String> = totals
+        .coatings
+        .iter()
+        .map(|c| {
+            let kind = if c.kind == AppearanceKind::Paint {
+                "Paint"
+            } else {
+                "Stain"
+            };
+            let colour = c.name.as_deref().or(c.color.as_deref()).unwrap_or("colour to choose");
+            format!("{kind}, {colour}: {}.", format_finish(c.area, units))
+        })
+        .collect();
+    if totals.finish_area > 0.0 {
+        let label = if lines.is_empty() { "Finish" } else { "Clear finish" };
+        lines.push(format!("{label}: {}.", format_finish(totals.finish_area, units)));
+    }
+    if lines.is_empty() {
+        return String::new();
+    }
+    format!("{} Both faces and every edge of each part counted.", lines.join(" "))
+}
+
 fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
     let units = input.units;
     let overall = overall_size(input.spec).map(|o| dims3(o.width, o.depth, o.height, units));
@@ -375,14 +402,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
         part_count: input.spec.parts.len(),
         has_thumbnail: input.thumbnail.is_some(),
         has_drawings: !input.spec.parts.is_empty(),
-        finish: if cut_list.totals.finish_area > 0.0 {
-            format!(
-                "Finish: {}, counting both faces and every edge of each part.",
-                format_finish(cut_list.totals.finish_area, units)
-            )
-        } else {
-            String::new()
-        },
+        finish: finish_line(&cut_list.totals, units),
         totals: vec![
             Total {
                 label: "Board feet",
@@ -805,6 +825,26 @@ mod tests {
                 "hingeEdge": "w1", "style": "overlay", "hinge": hinge }],
         });
         spec::from_value(spec::migrate_to_latest(raw).unwrap()).unwrap()
+    }
+
+    #[test]
+    fn the_plan_names_the_paint_to_buy_before_the_clear_coat() {
+        let mut spec = door("hinge.euro-full-overlay");
+        let cut = |spec: &Spec| woodshop_core::cutlist::compute_cut_list(spec, Default::default());
+        let bare = finish_line(&cut(&spec).totals, Units::Fraction);
+        assert!(bare.starts_with("Finish: "), "{bare}");
+
+        spec.materials[0].appearance = Some(woodshop_core::spec::Appearance {
+            kind: AppearanceKind::Paint,
+            color: Some("#8a9a5b".into()),
+            name: Some("Sage green".into()),
+        });
+        let painted = finish_line(&cut(&spec).totals, Units::Fraction);
+        assert!(painted.starts_with("Paint, Sage green: "), "{painted}");
+        assert!(
+            !painted.contains("Clear finish"),
+            "nothing bare is left to clear-coat: {painted}"
+        );
     }
 
     #[test]

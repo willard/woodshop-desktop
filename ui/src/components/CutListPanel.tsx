@@ -18,13 +18,14 @@ import {
     type StockSuggestion,
 } from '@/cutlist';
 import { overallSize, type Material, type Spec } from '@/spec';
+import { MaterialLook } from './MaterialLook';
 import { dims, len, lenValue, parseLen, size as sizeOf, useUnits, weight, finishArea } from '@/lib/display';
 import { plural } from '@/app/format';
 import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
 import { useOffcuts } from '@/cutlist/offcuts';
 import { TRIM_OPTIONS, saveTrim, useTrim, type TrimKey } from '@/cutlist/trim';
 import { boardLength, boardSizes, boughtBoards } from '@/cutlist/boards';
-import type { SawCut } from '@/cutlist/types';
+import { clearFinishLabel, coatingLabel, type SawCut } from '@/cutlist/types';
 import { OnHandSection } from './OnHandSection';
 import { BoardPrice, BoardStock, stockLabel } from './BoardPrice';
 import { useCutProgress } from '@/cutlist/progress';
@@ -227,13 +228,30 @@ export function CutListPanel(props: CutListPanelProps) {
                                 About {weight(cutList.totals.weight)} of wood
                             </div>
                         )}
+                        {(cutList.totals.coatings ?? []).map((c) => (
+                            <div
+                                key={`${c.kind}${c.color ?? ''}${c.name ?? ''}`}
+                                className="text-muted flex items-center gap-1.5 text-xs"
+                                title="Both faces and every edge of each part of it; a coat at 100 sq ft a quart, as a paint or stain label gives it"
+                                data-testid="cutlist-coating"
+                            >
+                                {c.color !== undefined && (
+                                    <span
+                                        aria-hidden="true"
+                                        className="border-fg/15 inline-block h-2.5 w-2.5 flex-none rounded-full border"
+                                        style={{ background: c.color }}
+                                    />
+                                )}
+                                {coatingLabel(c)}: {finishArea(c.area)}
+                            </div>
+                        ))}
                         {cutList.totals.finishArea > 0 && (
                             <div
                                 className="text-muted text-xs"
-                                title="Both faces and every edge of each part; a coat at 100 sq ft a quart, as a brushed polyurethane or paint label gives it (oils go further)"
+                                title="Both faces and every edge of each bare or stained part; a coat at 100 sq ft a quart, as a brushed polyurethane label gives it (oils go further)"
                                 data-testid="cutlist-finish"
                             >
-                                Finish: {finishArea(cutList.totals.finishArea)}
+                                {clearFinishLabel(cutList.totals)}: {finishArea(cutList.totals.finishArea)}
                             </div>
                         )}
                     </div>
@@ -880,6 +898,11 @@ export function CutListPanel(props: CutListPanelProps) {
                                     />
                                 </div>
                             )}
+                            <MaterialLook
+                                material={material}
+                                readonly={readonly}
+                                onChange={(appearance) => props.onMaterial?.(material.id, { appearance })}
+                            />
                             {material.type === 'sheet' && material.sheetSize !== undefined && (
                                 <div className="flex items-center gap-2">
                                     {readonly ? (

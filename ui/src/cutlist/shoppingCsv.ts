@@ -5,7 +5,7 @@
 import { finishArea, len } from '@/lib/display';
 import { boardSizes } from './boards';
 import { row } from './csv';
-import type { ShoppingList } from './types';
+import { clearFinishLabel, coatingLabel, type ShoppingList } from './types';
 
 const cash = (n: number | null | undefined): string => (n == null ? '' : n.toFixed(2));
 
@@ -27,8 +27,11 @@ export function shoppingCsv(list: ShoppingList, designs: string[]): string {
     for (const h of list.hardware) {
         lines.push(row([h.description, h.qty, '', cash(h.cost)]));
     }
+    for (const c of list.totals.coatings ?? []) {
+        lines.push(row([coatingLabel(c), '', finishArea(c.area), '']));
+    }
     if (list.totals.finishArea > 0) {
-        lines.push(row(['Finish', '', finishArea(list.totals.finishArea), '']));
+        lines.push(row([clearFinishLabel(list.totals), '', finishArea(list.totals.finishArea), '']));
     }
     if (list.totals.estimatedCost != null) {
         lines.push(row(['Total', '', '', cash(list.totals.estimatedCost)]));

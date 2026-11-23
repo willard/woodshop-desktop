@@ -176,8 +176,31 @@ export interface CutListTotals {
     wastePercent: number;
     /** About what the wood weighs once built, in pounds. */
     weight: number;
-    /** Surface to finish, every face and edge, in square feet. */
+    /** Surface to clear-coat (bare and stained wood), every face and edge, in square feet. */
     finishArea: number;
+    /** The paints and stains to buy (spec 1.20), one row per colour. */
+    coatings?: Coating[];
+}
+
+/** A paint or stain to buy and the surface it covers. */
+export interface Coating {
+    kind: 'paint' | 'stain';
+    /** `#rrggbb`. */
+    color?: string;
+    /** What the colour is called on the can. */
+    name?: string;
+    /** Square feet, every face and edge. */
+    area: number;
+}
+
+/** "Paint, Sage green" or "Stain, #6b4423": what to ask for at the store. */
+export function coatingLabel(c: Coating): string {
+    return `${c.kind === 'paint' ? 'Paint' : 'Stain'}, ${c.name ?? c.color ?? 'colour to choose'}`;
+}
+
+/** The clear-coat line's label: "Finish", or "Clear finish" beside paint or stain. */
+export function clearFinishLabel(totals: { coatings?: Coating[] }): string {
+    return (totals.coatings?.length ?? 0) > 0 ? 'Clear finish' : 'Finish';
 }
 
 export interface CutList {

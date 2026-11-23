@@ -13,7 +13,7 @@
     ],
     "properties": {
         "specVersion": {
-            "const": "1.19"
+            "const": "1.20"
         },
         "units": {
             "const": "in",
@@ -249,6 +249,37 @@
                 "costPerBoardFoot": {
                     "type": "number",
                     "minimum": 0
+                },
+                "appearance": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "kind"
+                    ],
+                    "properties": {
+                        "kind": {
+                            "enum": [
+                                "wood",
+                                "paint",
+                                "stain",
+                                "glass",
+                                "metal"
+                            ],
+                            "description": "wood = bare or clear-finished; paint = opaque, grain hidden; stain = a tint the grain shows through; glass and metal for stock that is not wood."
+                        },
+                        "color": {
+                            "type": "string",
+                            "pattern": "^#[0-9a-fA-F]{6}$",
+                            "description": "The paint, the stain's tint, the glass's tint or the metal, as #rrggbb."
+                        },
+                        "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60,
+                            "description": "What the colour is called on the can, e.g. Sage green; the shopping list names it."
+                        }
+                    },
+                    "description": "How the material looks once finished (added in 1.20). Omit for bare wood."
                 }
             },
             "allOf": [

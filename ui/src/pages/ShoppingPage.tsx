@@ -10,7 +10,7 @@ import { api, failure } from '@/app/api';
 import { chooseSavePath } from '@/app/files';
 import { plural } from '@/app/format';
 import { useDefaultKerf } from '@/app/settings';
-import { boardSizes, shoppingList } from '@/cutlist';
+import { boardSizes, clearFinishLabel, coatingLabel, shoppingList } from '@/cutlist';
 import { shoppingCsv } from '@/cutlist/shoppingCsv';
 import { finishArea, len } from '@/lib/display';
 import { parseSpec } from '@/spec';
@@ -221,9 +221,20 @@ export default function ShoppingPage() {
                                             </td>
                                         </tr>
                                     ))}
+                                    {(list.totals.coatings ?? []).map((c) => (
+                                        <tr
+                                            key={`${c.kind}${c.color ?? ''}${c.name ?? ''}`}
+                                            data-testid="shopping-coating"
+                                        >
+                                            <td className={td}>{coatingLabel(c)}</td>
+                                            <td className={td} />
+                                            <td className={`${td} text-muted pl-4`}>{finishArea(c.area)}</td>
+                                            <td className={td} />
+                                        </tr>
+                                    ))}
                                     {list.totals.finishArea > 0 && (
                                         <tr data-testid="shopping-finish">
-                                            <td className={td}>Finish</td>
+                                            <td className={td}>{clearFinishLabel(list.totals)}</td>
                                             <td className={td} />
                                             <td className={`${td} text-muted pl-4`}>
                                                 {finishArea(list.totals.finishArea)}

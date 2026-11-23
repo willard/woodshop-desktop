@@ -116,6 +116,7 @@ pub fn compute_cut_list(spec: &Spec, config: CutListConfig) -> CutList {
     );
     totals.weight = weight::wood_weight(spec);
     totals.finish_area = surface::finish_area(spec);
+    totals.coatings = surface::coatings(spec);
     CutList {
         parts,
         sheets,
@@ -507,5 +508,6 @@ fn totals_of(
         waste_percent: if allocated > 0.0 { offcut / allocated } else { 0.0 },
         weight: 0.0,
         finish_area: 0.0,
+        coatings: Vec::new(),
     }
 }

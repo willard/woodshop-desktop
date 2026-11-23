@@ -1,9 +1,9 @@
-//! How much the finished piece weighs, wood only: each part's volume at a typical density for its
+//! How much the finished piece weighs, wood only (glass and metal stock left out): each part's volume at a typical density for its
 //! material, read from the material's name ("MDF", "Baltic Birch", "Cedar 4x4") and else its
 //! species and kind. Densities are air-dried averages; a board varies by 10% or more either way,
 //! so this is an estimate for hanging, moving and choosing casters, not a shipping weight.
 
-use crate::spec::{Material, MaterialType, Spec};
+use crate::spec::{AppearanceKind, Material, MaterialType, Spec};
 
 /// Pounds per cubic foot, by a word in the material's name: the first match wins, so sheet goods
 /// come before the woods they are faced with.
@@ -56,7 +56,12 @@ pub fn wood_weight(spec: &Spec) -> f64 {
     spec.parts
         .iter()
         .filter_map(|part| {
-            let material = spec.materials.iter().find(|m| m.id == part.material_id)?;
+            let material = spec
+                .materials
+                .iter()
+                .find(|m| m.id == part.material_id)
+                // Glass and metal stock (1.20) are not wood.
+                .filter(|m| !matches!(m.look(), AppearanceKind::Glass | AppearanceKind::Metal))?;
             let t = material.thickness;
             let volume = if material.kind == MaterialType::Round {
                 std::f64::consts::PI * t * t / 4.0 * part.size.l

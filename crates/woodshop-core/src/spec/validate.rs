@@ -329,7 +329,7 @@ mod tests {
 
     fn base() -> Value {
         json!({
-            "specVersion": "1.19", "units": "in", "name": "T",
+            "specVersion": "1.20", "units": "in", "name": "T",
             "materials": [{"id": "mat_a", "type": "sheet", "name": "Ply", "thickness": 0.75, "sheetSize": {"l": 96, "w": 48}}],
             "parts": [{"id": "p_a", "name": "A", "materialId": "mat_a", "size": {"l": 10, "w": 5}, "transform": {"pos": [0, 0, 0]}}]
         })
@@ -338,6 +338,18 @@ mod tests {
     #[test]
     fn valid_spec_passes() {
         assert_eq!(validate(&base()), Ok(()));
+    }
+
+    #[test]
+    fn a_material_can_be_painted_in_a_hex_colour_only() {
+        let mut s = base();
+        s["materials"][0]["appearance"] = json!({"kind": "paint", "color": "#8a9a5b", "name": "Sage green"});
+        assert_eq!(validate(&s), Ok(()));
+        s["materials"][0]["appearance"] = json!({"kind": "paint", "color": "sage"});
+        let errs = validate(&s).unwrap_err();
+        assert!(errs[0].starts_with("/materials/0/appearance/color"), "{errs:?}");
+        s["materials"][0]["appearance"] = json!({"kind": "lacquer"});
+        assert!(validate(&s).is_err());
     }
 
     #[test]

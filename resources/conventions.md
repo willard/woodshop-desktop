@@ -50,8 +50,13 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
   Then confirm the assembled overall width × depth × height equals what the user asked for.
 - Every part references a material by id; a dado that receives a mate must be as wide as the
   mate's thickness.
-- Materials may optionally set `species` (pine|oak|maple|walnut|cherry) — do so when the user
+- Materials may optionally set `species` (pine|oak|maple|walnut|cherry|cedar) — do so when the user
   names a wood ("walnut nightstand"). Parts with `locked: true` keep their materialId untouched.
+- A material may set `appearance` (1.20) for how it looks once finished: `{ "kind": "paint",
+  "color": "#8a9a5b", "name": "Sage green" }`. Kinds: `wood` (bare or clear, the same as no
+  appearance), `paint` (opaque, the grain hidden), `stain` (a tint over the grain), `glass` and
+  `metal`. `color` is `#rrggbb`; `name` is what the can says, for the shopping list. To paint only
+  some parts, give them a material of their own. Use `set_material_appearance`.
 - Curved edges: `{ "type": "curve", "edge": "l1", "kind": "arc", "height": 4 }` domes the named
   edge — its corners drop inward by `height` while the midpoint stays (a headboard top). `kind:
   "round"` with `radius` rounds the edge's corners; add `"corner": "w1"` (an adjacent edge) to

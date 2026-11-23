@@ -7,7 +7,7 @@
 use serde_json::{Map, Value};
 use thiserror::Error;
 
-pub const CURRENT_SPEC_VERSION: &str = "1.19";
+pub const CURRENT_SPEC_VERSION: &str = "1.20";
 
 #[derive(Debug, Error, PartialEq)]
 pub enum MigrateError {
@@ -45,6 +45,7 @@ const STEPS: &[(&str, &str, Step)] = &[
     ("1.16", "1.17", |s| stamp(s, "1.17")), // taper cuts
     ("1.17", "1.18", |s| stamp(s, "1.18")), // your own build steps
     ("1.18", "1.19", |s| stamp(s, "1.19")), // taper `from`
+    ("1.19", "1.20", |s| stamp(s, "1.20")), // paint, stain and glass
 ];
 
 fn stamp(mut spec: Map<String, Value>, to: &str) -> Map<String, Value> {
@@ -154,13 +155,23 @@ mod tests {
         let out = migrate_to_latest(v).unwrap();
         assert_eq!(
             out,
-            json!({"specVersion": "1.19", "meta": {"notes": "n"}, "joints": []})
+            json!({"specVersion": "1.20", "meta": {"notes": "n"}, "joints": []})
+        );
+    }
+
+    #[test]
+    fn a_1_19_design_opens_as_1_20_still_bare_wood() {
+        let v = json!({"specVersion": "1.19", "materials": [{"id": "m", "species": "oak"}]});
+        let out = migrate_to_latest(v).unwrap();
+        assert_eq!(
+            out,
+            json!({"specVersion": "1.20", "materials": [{"id": "m", "species": "oak"}]})
         );
     }
 
     #[test]
     fn current_is_untouched() {
-        let v = json!({"specVersion": "1.19", "joints": [{"type": "butt"}]});
+        let v = json!({"specVersion": "1.20", "joints": [{"type": "butt"}]});
         assert_eq!(migrate_to_latest(v.clone()).unwrap(), v);
     }
 }

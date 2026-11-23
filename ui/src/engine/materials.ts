@@ -1,6 +1,8 @@
 /**
  * Wood materials for the renderer. Pure with respect to the spec: colour is a
  * deterministic function of the material id so a given design always looks the same.
+ * A material's `appearance` (spec 1.20) turns it painted (flat colour, no grain), stained (the
+ * grain under a tint), glass (clear) or metal.
  *
  * Grain is honoured via a procedural streak texture rotated to the part's grainAxis
  * (build-plan §3.1: grainAxis "l" runs along local +X). Texture generation needs a 2D
@@ -8,7 +10,7 @@
  * flat colour, so the scene-graph builder stays testable without WebGL.
  */
 import * as THREE from 'three';
-import type { Material, Part, Species } from '../spec/types';
+import type { Appearance, AppearanceKind, Material, Part, Species } from '../spec/types';
 
 /** Warm shop-friendly wood tones (linear-ish sRGB hex). */
 const WOOD_TONES = [0xb98a55, 0xc9a06a, 0xa9743f, 0xd8b483, 0x8a5a34, 0xcaa472] as const;
@@ -44,15 +46,85 @@ export function woodColorFor(material: Material): number {
     return WOOD_TONES[hashId(material.id) % WOOD_TONES.length];
 }
 
-/** Flat-colour wood material — no canvas needed, used by tests and as a fallback. */
+export type { AppearanceKind };
+
+function appearanceOf(material: Material): Appearance | undefined {
+    return material.appearance as Appearance | undefined;
+}
+
+/** The colour each look takes when none is given. */
+export const DEFAULT_LOOK_COLORS: Record<Exclude<AppearanceKind, 'wood'>, string> = {
+    paint: '#f1ede4',
+    stain: '#6b4423',
+    glass: '#d8ebe6',
+    metal: '#c9ccd1',
+};
+
+/** How much of the stain's colour covers the wood's own tone. */
+export const STAIN_STRENGTH = 0.75;
+
+/** How the material looks: its kind, bare wood when none is set. */
+export function lookOf(material: Material): AppearanceKind {
+    return appearanceOf(material)?.kind ?? 'wood';
+}
+
+function hexColor(value: string | undefined, fallback: string): number {
+    const hex = value !== undefined && /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
+    return parseInt(hex.slice(1), 16);
+}
+
+/** The colour the part is drawn in: the wood's tone, the paint, the stained wood, the glass or metal. */
+export function surfaceColorFor(material: Material): number {
+    const look = appearanceOf(material);
+    if (look === undefined || look.kind === 'wood') {
+        return woodColorFor(material);
+    }
+    const color = hexColor(look.color, DEFAULT_LOOK_COLORS[look.kind]);
+    if (look.kind !== 'stain') {
+        return color;
+    }
+    return new THREE.Color(woodColorFor(material)).lerp(new THREE.Color(color), STAIN_STRENGTH).getHex();
+}
+
+/** Whether the grain texture shows: on bare and stained wood, not under paint, glass or metal. */
+export function showsGrain(material: Material): boolean {
+    const look = lookOf(material);
+    return look === 'wood' || look === 'stain';
+}
+
+/** Flat-colour material — no canvas needed, used by tests and as a fallback. */
 export function createFlatWoodMaterial(material: Material): THREE.MeshStandardMaterial {
-    return new THREE.MeshStandardMaterial({
-        color: woodColorFor(material),
-        roughness: 0.68,
-        metalness: 0,
-        // Per-vertex shade from `shadeGrain`: end grain drinks light, so it reads darker.
-        vertexColors: true,
-    });
+    const color = surfaceColorFor(material);
+    switch (lookOf(material)) {
+        case 'paint':
+            return new THREE.MeshStandardMaterial({
+                color,
+                roughness: 0.5,
+                metalness: 0,
+                vertexColors: true,
+            });
+        case 'glass':
+            // Clear and see-through; it draws after the wood, and leaves no depth to hide what is behind.
+            return new THREE.MeshPhysicalMaterial({
+                color,
+                roughness: 0.06,
+                metalness: 0,
+                transparent: true,
+                opacity: 0.32,
+                depthWrite: false,
+                side: THREE.DoubleSide,
+            });
+        case 'metal':
+            return new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.85 });
+        default:
+            return new THREE.MeshStandardMaterial({
+                color,
+                roughness: 0.68,
+                metalness: 0,
+                // Per-vertex shade from `shadeGrain`: end grain drinks light, so it reads darker.
+                vertexColors: true,
+            });
+    }
 }
 
 /** How much darker end grain and long edges render than the faces. */
@@ -124,7 +196,7 @@ export function createGrainTexture(): THREE.Texture | null {
  */
 export function woodMaterialProvider(grain: THREE.Texture | null): MaterialProvider {
     return (material, part) => {
-        if (grain === null) {
+        if (grain === null || !showsGrain(material)) {
             return createFlatWoodMaterial(material);
         }
         const map = grain.clone();

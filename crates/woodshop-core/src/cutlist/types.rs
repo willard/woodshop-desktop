@@ -283,9 +283,28 @@ pub struct CutListTotals {
     /// About what the wood weighs once built, in pounds (`cutlist::weight`).
     #[serde(default)]
     pub weight: f64,
-    /// Surface to finish, every face and edge, in square feet (`cutlist::surface`).
+    /// Surface to clear-coat, every face and edge, in square feet (`cutlist::surface`): bare and
+    /// stained wood.
     #[serde(default)]
     pub finish_area: f64,
+    /// The paints and stains to buy (1.20), one row per colour.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub coatings: Vec<Coating>,
+}
+
+/// A paint or stain to buy and the surface it covers.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Coating {
+    /// `paint` or `stain`.
+    pub kind: crate::spec::AppearanceKind,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+    /// What the colour is called on the can.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// Square feet, every face and edge.
+    pub area: f64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

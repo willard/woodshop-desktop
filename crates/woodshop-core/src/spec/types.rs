@@ -159,12 +159,60 @@ pub struct Material {
     pub cost_per_sheet: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cost_per_board_foot: Option<f64>,
+    /// How the stock looks once finished (1.20): painted, stained, glass or metal. `None` = bare wood.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub appearance: Option<Appearance>,
 }
 
 impl Material {
     /// Schema default: grain = true.
     pub fn has_grain(&self) -> bool {
         self.grain.unwrap_or(true)
+    }
+
+    /// What it looks like, bare wood when nothing is set.
+    pub fn look(&self) -> AppearanceKind {
+        self.appearance.as_ref().map_or(AppearanceKind::Wood, |a| a.kind)
+    }
+}
+
+/// How a material looks once finished (1.20).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Appearance {
+    pub kind: AppearanceKind,
+    /// `#rrggbb`: the paint, the stain's tint, the glass's tint or the metal.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+    /// What the colour is called on the can, e.g. "Sage green", for the shopping list.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum AppearanceKind {
+    /// Bare or clear-finished wood.
+    Wood,
+    /// Opaque paint: the grain is hidden.
+    Paint,
+    /// Stain: the grain shows through a tint.
+    Stain,
+    /// Glass, e.g. a door panel.
+    Glass,
+    /// Metal stock, e.g. a steel rod.
+    Metal,
+}
+
+impl AppearanceKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Wood => "wood",
+            Self::Paint => "paint",
+            Self::Stain => "stain",
+            Self::Glass => "glass",
+            Self::Metal => "metal",
+        }
     }
 }
 

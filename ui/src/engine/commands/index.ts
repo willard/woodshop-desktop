@@ -469,7 +469,12 @@ export class SetMaterial implements Command {
     do(spec: Spec): Spec {
         return mapMaterial(spec, this.materialId, (material) => {
             this.before = material;
-            return { ...material, ...this.patch };
+            const next: Record<string, unknown> = { ...material, ...this.patch };
+            // A field patched to `undefined` is cleared (bare wood has no `appearance`).
+            for (const [key, value] of Object.entries(this.patch)) {
+                if (value === undefined) delete next[key];
+            }
+            return next as Material;
         });
     }
 

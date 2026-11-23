@@ -75,6 +75,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
                 species: opts.species,
                 cost_per_sheet: None,
                 cost_per_board_foot: None,
+                appearance: None,
             };
             (
                 material,
@@ -102,6 +103,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
                 species: opts.species,
                 cost_per_sheet: None,
                 cost_per_board_foot: None,
+                appearance: None,
             };
             (material, Size2 { l: 24.0, w: diameter })
         }
@@ -125,6 +127,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
                 species: opts.species,
                 cost_per_sheet: None,
                 cost_per_board_foot: None,
+                appearance: None,
             };
             (material, Size2 { l: 24.0, w: 12.0 })
         }

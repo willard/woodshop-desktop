@@ -38,6 +38,7 @@ fn same_stock(a: &Material, b: &Material) -> bool {
         }
         && a.has_grain() == b.has_grain()
         && a.species == b.species
+        && a.appearance == b.appearance
         && a.stock_lengths == b.stock_lengths
         && a.stock_width == b.stock_width
 }
@@ -126,6 +127,9 @@ pub fn shopping_list(designs: &[&Spec], config: &CutListConfig) -> ShoppingList 
     let mut totals = totals_of(&parts, &sheets, &lumber, &allocated, &hardware);
     totals.weight = alone.iter().map(|c| c.totals.weight).sum();
     totals.finish_area = alone.iter().map(|c| c.totals.finish_area).sum();
+    for row in alone.iter().flat_map(|c| &c.totals.coatings) {
+        super::surface::add_coating(&mut totals.coatings, row.clone());
+    }
     ShoppingList {
         separate_sheets: alone.iter().map(|c| c.totals.sheet_count).sum(),
         separate_boards: alone.iter().flat_map(|c| &c.lumber).map(|p| p.stick_count).sum(),

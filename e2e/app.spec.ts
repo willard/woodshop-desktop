@@ -487,6 +487,32 @@ test('a material takes the thickness the stock really measures, and its dados fo
     await expect(thickness).toHaveValue(was);
 });
 
+test('a material can be painted, and the cut list names the paint', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('lint-badge')).toContainText('Buildable');
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('cutlist-coating')).toHaveCount(0);
+    await expect(page.getByTestId('cutlist-finish')).toContainText('Finish:');
+
+    // Painted sage green from a swatch: the paint is listed by name, and nothing is left bare.
+    await page.getByTestId('material-look').first().selectOption('paint');
+    await page.getByRole('button', { name: 'Sage green' }).first().click();
+    await expect(page.getByTestId('cutlist-coating')).toContainText('Paint, Sage green:');
+    await expect(page.getByTestId('cutlist-finish')).toHaveCount(0);
+    await expect(page.getByTestId('lint-badge')).toContainText('Buildable');
+
+    // Its own name on the can.
+    const name = page.getByTestId('material-look-name').first();
+    await name.fill('Hunter green');
+    await name.blur();
+    await expect(page.getByTestId('cutlist-coating')).toContainText('Paint, Hunter green:');
+
+    // Back to bare wood, and the clear finish returns.
+    await page.getByTestId('material-look').first().selectOption('wood');
+    await expect(page.getByTestId('cutlist-coating')).toHaveCount(0);
+    await expect(page.getByTestId('cutlist-finish')).toContainText('Finish:');
+});
+
 test('the cut list words the joinery, with each tool setup set once', async ({ page }) => {
     await page.goto('/#/templates');
     await page

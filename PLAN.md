@@ -848,7 +848,9 @@ the owner to check, as computer use of the app is declined.
   Help ▸ What's new; unit tests of the parsing and the show-once rule). Bundle `CHANGELOG.md` at build time (Vite raw import) and show the newest
   version in a dialog after an update, keeping the last version seen in settings; also Help ▸
   What's new. Done when: it shows once per version; a unit test of the parsing.
-- **7.10 Paint, stain and glass, spec 1.20.** A material gets an optional
+- **7.10 Paint, stain and glass, spec 1.20.** Done (`appearance` on a material; `MaterialLook` in the
+  cut list's Materials; `surfaceColorFor` in `materials.ts`; `CutListTotals.coatings`; MCP
+  `set_material_appearance`). A material gets an optional
   `appearance: { kind: wood|paint|stain|glass|metal, color }`, rendered in `materials.ts` (paint
   flat, stain tinting the grain, glass transmissive) and carried to the viewer, glTF and
   the assembly video (its `FilmStage` uses the same material provider); the
