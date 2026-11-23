@@ -194,13 +194,32 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
         `sheetCount`/`stickCount` is on one of them (not bought). A sheet plan's `trim` is what the user \
         trims off each edge of a bought sheet first, and a lumber plan's what comes off each end of a \
         bought board: parts and cuts sit inside. Matches \
-        what the app shows. Read-only.",
+        what the app shows. The full list is long: pass `detail: \"summary\"` for the totals, the \
+        `sections` (what to cut and buy) and the `hardware` alone. Read-only.",
     read_only: true,
-    schema: || object(json!({ "project_id": integer(PROJECT_ID) }), &["project_id"]),
+    schema: || {
+        object(
+            json!({
+                "project_id": integer(PROJECT_ID),
+                "detail": one_of(
+                    &["full", "summary"],
+                    "Optional: `summary` returns only `totals`, `sections` and `hardware`; `full` (the default) \
+                     adds every part row, the sheet and lumber layouts with their saw cuts, the assembly \
+                     order and the joinery.",
+                ),
+            }),
+            &["project_id"],
+        )
+    },
     run: get_cut_list,
 };
 
 fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
+    let summary = match args.opt_str("detail")? {
+        None | Some("full") => false,
+        Some("summary") => true,
+        Some(other) => return Err(format!("`detail` is \"full\" or \"summary\", not \"{other}\".")),
+    };
     let design = w.load(args.project_id(PROVIDE_PROJECT)?)?;
     let spec = design.spec();
     // The user's hardware prices and stock on hand, as the app's cut list uses them.
@@ -258,6 +277,16 @@ fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
         }
     }
     payload["sections"] = json!(group_cut_list(&built));
+    if summary {
+        let keep = ["projectId", "name", "totals", "sections", "hardware"];
+        if let Some(fields) = payload.as_object_mut() {
+            fields.retain(|key, _| keep.contains(&key.as_str()));
+        }
+        payload["more"] = "Call get_cut_list without `detail` for the sheet and lumber layouts with their saw \
+            cuts, every part's ops, the assembly order and the joinery."
+            .into();
+        return Ok(payload);
+    }
     let advice = stock_advice(&built, spec);
     if !advice.is_empty() {
         payload["stockAdvice"] = json!(advice);
@@ -553,7 +582,8 @@ pub const RENDER_PREVIEW: ToolDef = ToolDef {
         of every part with its blank size and op count, so you can pick one. This is how you check a \
         shape you cannot see: whether a cradle is deep enough to hold anything, whether a curve leaves \
         the notch beside it intact. Elements carry data-op-index and data-op-type, so you can cite what \
-        you find without parsing path data. Read-only.",
+        you find without parsing path data. One part only: render_drawing draws the whole piece. \
+        Read-only.",
     read_only: true,
     schema: || {
         object(

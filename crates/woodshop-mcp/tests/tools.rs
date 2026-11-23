@@ -1136,3 +1136,61 @@ fn a_material_can_be_painted_and_back_to_bare_wood() {
     let material = &ok(&w, "get_design", json!({ "project_id": id }))["spec"]["materials"][0];
     assert!(material.get("appearance").is_none(), "{material}");
 }
+
+#[test]
+fn hardware_comes_off_a_part_in_one_call_and_goes_with_a_replaced_part() {
+    let w = woodshop();
+    let started = ok(&w, "start_design", json!({ "name": "Cart", "material_type": "lumber" }));
+    let id = started["projectId"].as_i64().unwrap();
+    let material = started["spec"]["materials"][0]["id"].as_str().unwrap().to_owned();
+    let base = started["spec"]["parts"][0]["id"].as_str().unwrap().to_owned();
+    let hooks = |w: &Woodshop| {
+        for _ in 0..2 {
+            ok(
+                w,
+                "add_hardware",
+                json!({ "project_id": id, "item": "hook.coat-single", "part_id": base }),
+            );
+        }
+    };
+    let mounted = |w: &Woodshop| {
+        ok(w, "get_design", json!({ "project_id": id }))["spec"]["hardware"]
+            .as_array()
+            .map_or(0, Vec::len)
+    };
+
+    hooks(&w);
+    assert_eq!(mounted(&w), 2);
+    let removed = ok(&w, "delete_hardware", json!({ "project_id": id, "part_id": base }));
+    assert!(
+        removed["summary"].as_str().unwrap().contains("Removed 2 pieces"),
+        "{removed}"
+    );
+    assert_eq!(mounted(&w), 0);
+    assert!(err(&w, "delete_hardware", json!({ "project_id": id, "part_id": base })).contains("nothing to remove"));
+    assert!(err(&w, "delete_hardware", json!({ "project_id": id })).contains("either"));
+
+    // Replacing the parts keeps what is on a part whose id comes back, and drops the rest.
+    hooks(&w);
+    let same = json!({ "id": base, "name": "Base", "material_id": material, "length": 24, "width": 3.5, "pos": [0, 0.75, 0], "rot": [90, 0, 0] });
+    ok(
+        &w,
+        "add_parts",
+        json!({ "project_id": id, "replace_parts": true, "parts": [same] }),
+    );
+    assert_eq!(mounted(&w), 2);
+    let other = json!({ "id": "p_deck", "name": "Deck", "material_id": material, "length": 24, "width": 3.5, "pos": [0, 0.75, 0], "rot": [90, 0, 0] });
+    ok(
+        &w,
+        "add_parts",
+        json!({ "project_id": id, "replace_parts": true, "parts": [other] }),
+    );
+    assert_eq!(mounted(&w), 0);
+
+    // The short cut list: what to cut and buy, and a pointer to the rest.
+    let short = ok(&w, "get_cut_list", json!({ "project_id": id, "detail": "summary" }));
+    let mut keys: Vec<&str> = short.as_object().unwrap().keys().map(String::as_str).collect();
+    keys.sort_unstable();
+    assert_eq!(keys, ["hardware", "more", "name", "projectId", "sections", "totals"]);
+    assert!(err(&w, "get_cut_list", json!({ "project_id": id, "detail": "brief" })).contains("summary"));
+}

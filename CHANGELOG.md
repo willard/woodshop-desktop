@@ -6,6 +6,15 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- For agents: `delete_hardware` takes a `part_id` to remove everything on a part at once,
+  `get_cut_list` takes `detail: "summary"` for the totals, what to cut and buy, and the
+  hardware alone, and `add_parts` with `replace_parts` now removes the hardware, doors, drawers
+  and groups of the parts it drops (those on a part whose id comes back stay). The conventions
+  say what a pocket-hole row's `from`/`to` measure and which way each face and edge points after
+  each rotation recipe, and the instructions point to `render_drawing` for the whole piece.
+
 ### Fixed
 
 - A project card's ⋯ menu was cut off at the bottom of the card. Menus now open over the page,

@@ -39,6 +39,22 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
   · [0, 0, 90]  l→Y (height), w→X, t→Z — vertical leg (length pointing up); splay by moving
     the Z angle away from 90 (e.g. 66 or 114 for an A-frame)
   · a rail on edge running along Z instead of X: [0, 90, 0] with l = its run along Z
+- Which way each face and edge points after the recipe's rot (world +Z is the front of the
+  piece, +Y up). `front`/`back` are the faces ops name (local +Z/-Z); `w0`/`w1` the ends
+  (local -X/+X), `l0`/`l1` the long edges (local -Y/+Y). Pocket holes go on the face pointing
+  INTO the piece; screw heads on the face pointing AWAY from the mate:
+
+  | rot | front | back | w0 | w1 | l0 | l1 |
+  |---|---|---|---|---|---|---|
+  | [0, 0, 0] | +Z | -Z | -X | +X | -Y (down) | +Y (up) |
+  | [90, 0, 0] | -Y (down) | +Y (up) | -X | +X | -Z | +Z |
+  | [90, 0, 90] | -Y (down) | +Y (up) | -Z | +Z | +X | -X |
+  | [0, 90, 0] | +X | -X | +Z | -Z | -Y (down) | +Y (up) |
+  | [0, 0, 90] | +Z | -Z | -Y (down) | +Y (up) | +X | -X |
+
+  So a left cabinet side at [0, 90, 0] has its `front` face pointing +X, into the cabinet, and
+  a right side's inside face is its `back`. For any other rot, `explain_part` reports
+  `facesInWorld`.
 - Worked example — a 24" wide (X) × 16" deep (Z) × 24" tall carcass in 0.75" ply; copy this
   arithmetic pattern for every panel you place:
   · side_l: size l=16 (depth), w=24 (height), rot [0,90,0], pos [-(24/2 - 0.75/2), 12, 0]
@@ -139,6 +155,11 @@ FASTENING IS ENFORCED — touching is not holding, and this is rejected as hard 
       stretcher or cleat that butt into legs or perpendicular aprons.
     * `l0` (y = -w/2, bottom) & `l1` (y = +w/2, top) are the long edges (e.g. an apron driving
       upward into the underside of a tabletop or seat).
+    * `from`/`to` (optional) place the row along the named edge, measured from its low
+      end: along the length from the `w0` end for `l0`/`l1`, along the width from the `l0`
+      edge for `w0`/`w1`. Omit both to spread the pockets evenly over the whole edge. The
+      checks warn when no screw reaches a mate (`op.fastener-no-mate`) or only some do
+      (`op.fastener-partial-miss`, which names the from/to that would fix the row).
     * `face`: "back" (default, local -Z) or "front" (local +Z) specifies which face the pocket
       is drilled on. Always drill on the INSIDE face so holes are concealed from the outside.
       Check `facesInWorld` from `explain_part` to confirm which face points inside.

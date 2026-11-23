@@ -532,7 +532,7 @@ pub const DELETE_PART: ToolDef = ToolDef {
 /// on it, its place in
 /// groups (dissolving a group left with one member), and its place in a movable (dissolving the
 /// movable when it was the anchor).
-fn remove_part(spec: &mut Value, part_id: &str) {
+pub(super) fn remove_part(spec: &mut Value, part_id: &str) {
     let has = |list: &Value| list.as_array().is_some_and(|ids| ids.iter().any(|id| id == part_id));
     let without = |list: &Value| -> Vec<Value> {
         list.as_array()

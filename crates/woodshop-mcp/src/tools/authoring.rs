@@ -518,7 +518,7 @@ pub const ADD_PARTS: ToolDef = ToolDef {
         object(
             json!({
                 "project_id": integer(PROJECT_ID),
-                "replace_parts": boolean("Optional: when true, replaces all existing parts and joints with this batch (e.g. wiping the starter base)."),
+                "replace_parts": boolean("Optional: when true, replaces all existing parts and joints with this batch (e.g. wiping the starter base). Hardware, doors, drawers, groups and build steps on a part whose id is in the batch stay on it; those on a part left out are removed with it."),
                 "parts": array(object(part, &["name", "material_id", "length", "width", "pos"]), "The parts to add, in one call."),
                 "joints": array(
                     object(
@@ -676,6 +676,18 @@ fn add_parts(w: &Woodshop, args: &Args) -> Outcome {
     let joint_count = joints.len();
     let result = w.apply(&design, &label, false, |spec| {
         if replace {
+            // Hardware, doors, drawers, groups and build steps stay with a part whose id comes
+            // back in the batch; what was on a part that does not is removed, as delete_part does.
+            let gone: Vec<String> = spec["parts"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(|p| text(p, "id").to_owned())
+                .filter(|id| !part_ids.contains(id))
+                .collect();
+            for id in &gone {
+                super::edit::remove_part(spec, id);
+            }
             spec["parts"] = json!(parts);
             spec["joints"] = json!(joints);
         } else {

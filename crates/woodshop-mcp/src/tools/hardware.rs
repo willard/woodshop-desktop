@@ -294,34 +294,65 @@ pub const UPDATE_HARDWARE: ToolDef = ToolDef {
 
 pub const DELETE_HARDWARE: ToolDef = ToolDef {
     name: "delete_hardware",
-    description: "Remove one mounted piece of hardware by its id. The part is untouched.",
+    description: "Remove mounted hardware: one piece by `hardware_id`, or everything mounted on a part \
+        by `part_id` (one call, one restore point). The parts are untouched. Hardware a door or \
+        drawer carries (its hinges, slides and pull) is set on the movable: change it with \
+        update_movable.",
     read_only: false,
     schema: || {
         object(
             json!({
                 "project_id": integer(PROJECT_ID),
-                "hardware_id": string("The id of the mounted piece (from get_design's `hardware` list)."),
+                "hardware_id": string("The id of one mounted piece (from get_design's `hardware` list)."),
+                "part_id": string("Instead of `hardware_id`: remove every piece mounted on this part."),
             }),
-            &["project_id", "hardware_id"],
+            &["project_id"],
         )
     },
     run: |w, args| {
         let project_id = args.project_id(PROVIDE_PROJECT)?;
-        let hardware_id = args.str(
-            "hardware_id",
-            "Provide the id of the hardware to remove (see get_design).",
-        )?;
+        let hardware_id = args.opt_str("hardware_id")?;
+        let part_id = args.opt_str("part_id")?;
         let design = w.load_editable(project_id)?;
-        let current = find(&design.draft, "hardware", hardware_id).ok_or_else(|| no_hardware(hardware_id))?;
-        let name = hardware::find(text(current, "item"))
-            .map(|i| i.name.clone())
-            .unwrap_or_else(|| text(current, "item").to_owned());
-        let result = w.apply(&design, "Remove hardware", false, |spec| {
-            if let Some(list) = spec["hardware"].as_array_mut() {
-                list.retain(|h| h["id"] != hardware_id);
+        match (hardware_id, part_id) {
+            (Some(hardware_id), None) => {
+                let current = find(&design.draft, "hardware", hardware_id).ok_or_else(|| no_hardware(hardware_id))?;
+                let name = hardware::find(text(current, "item"))
+                    .map(|i| i.name.clone())
+                    .unwrap_or_else(|| text(current, "item").to_owned());
+                let result = w.apply(&design, "Remove hardware", false, |spec| {
+                    if let Some(list) = spec["hardware"].as_array_mut() {
+                        list.retain(|h| h["id"] != hardware_id);
+                    }
+                });
+                w.render(result, &design, &format!("Removed {name} (\"{hardware_id}\")."))
             }
-        });
-        w.render(result, &design, &format!("Removed {name} (\"{hardware_id}\")."))
+            (None, Some(part_id)) => {
+                if find(&design.draft, "parts", part_id).is_none() {
+                    return Err(format!(
+                        "No part \"{part_id}\" in this design. get_design lists the part ids."
+                    ));
+                }
+                let count = design.draft["hardware"]
+                    .as_array()
+                    .map_or(0, |list| list.iter().filter(|h| h["partId"] == part_id).count());
+                if count == 0 {
+                    return Err(format!("No hardware is mounted on \"{part_id}\"; nothing to remove."));
+                }
+                let result = w.apply(&design, "Remove hardware", false, |spec| {
+                    if let Some(list) = spec["hardware"].as_array_mut() {
+                        list.retain(|h| h["partId"] != part_id);
+                    }
+                });
+                let pieces = if count == 1 { "piece" } else { "pieces" };
+                w.render(
+                    result,
+                    &design,
+                    &format!("Removed {count} {pieces} of hardware from \"{part_id}\"."),
+                )
+            }
+            _ => Err("Give either `hardware_id` (one piece) or `part_id` (everything on that part), not both.".into()),
+        }
     },
 };
 

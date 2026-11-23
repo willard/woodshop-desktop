@@ -65,8 +65,10 @@ Seeing what you built: explain_part reports a part's world bounding box, WHICH W
 length/width/thickness land on after rotation, and the world box each op occupies — the check you \
 would otherwise need a rendered screenshot for. render_preview draws a part full-size as an SVG shop \
 template — the outline you would cut, with holes and channels marked — so you can see whether a cradle \
-is deep enough to hold anything before a human does. get_cut_list adds the ops that shape each part, \
-the stock to buy, and the order to assemble the piece.
+is deep enough to hold anything before a human does. render_drawing draws the WHOLE piece from the \
+front, side or top with its overall sizes: the check for a part in the wrong place, a wing on the \
+wrong side or a hinge on the wrong edge. get_cut_list adds the ops that shape each part, the stock to \
+buy, and the order to assemble the piece (`detail: \"summary\"` for the short version).
 
 Hardware: list_hardware browses a catalog of real hardware with true dimensions. A door's hinge and \
 pull and a drawer's slides and pull are set on the movable (add_movable / update_movable) and placed \
