@@ -109,6 +109,14 @@ Drawer slides, cut to the drawer's depth.
 - `leg`: of each arm.
 - `width`, `thickness`: of the steel.
 
+#### `foldingBracket`
+A shelf or wing bracket that locks out level and folds flat. Drawn locked out: the leg on the
+surface along the item's length, its top at the far end, the arm standing out from there.
+- `arm`: how far it reaches out from the surface; the size it is sold by.
+- `leg`: down the post or side it is screwed to.
+- `width`, `thickness`: of the steel.
+- `load`: the maker's rating for a pair, in pounds, spread over the arm.
+
 #### `flatPlate`
 Mending plates and shelf standards.
 - `length`, `width`, `thickness`.

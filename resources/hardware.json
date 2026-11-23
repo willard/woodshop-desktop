@@ -736,6 +736,70 @@
    "description": "Sits in an inside corner; mount it on one face with the other leg standing up."
   },
   {
+   "id": "bracket.folding-10in",
+   "category": "brackets",
+   "name": "Folding shelf bracket 10\"",
+   "list": "10\" folding shelf brackets",
+   "metric": {"name": "Folding shelf bracket 250 mm", "list": "250 mm folding shelf brackets"},
+   "model": {
+    "shape": "foldingBracket",
+    "arm": 10,
+    "leg": 8,
+    "width": 1.5,
+    "thickness": 0.12,
+    "load": 500
+   },
+   "description": "Heavy-duty steel bracket that locks out level to hold a drop-down wing or shelf and folds flat against the wall when released. Mount the leg on the post or side, arm at the top; use a pair. Typical rating about 500 lb a pair, spread over the arm: check the one you buy."
+  },
+  {
+   "id": "bracket.folding-12in",
+   "category": "brackets",
+   "name": "Folding shelf bracket 12\"",
+   "list": "12\" folding shelf brackets",
+   "metric": {"name": "Folding shelf bracket 300 mm", "list": "300 mm folding shelf brackets"},
+   "model": {
+    "shape": "foldingBracket",
+    "arm": 12,
+    "leg": 9,
+    "width": 1.5,
+    "thickness": 0.12,
+    "load": 500
+   },
+   "description": "Heavy-duty steel bracket that locks out level to hold a drop-down wing or shelf and folds flat against the wall when released. Mount the leg on the post or side, arm at the top; use a pair. Typical rating about 500 lb a pair, spread over the arm: check the one you buy."
+  },
+  {
+   "id": "bracket.folding-16in",
+   "category": "brackets",
+   "name": "Folding shelf bracket 16\"",
+   "list": "16\" folding shelf brackets",
+   "metric": {"name": "Folding shelf bracket 400 mm", "list": "400 mm folding shelf brackets"},
+   "model": {
+    "shape": "foldingBracket",
+    "arm": 16,
+    "leg": 12,
+    "width": 1.5,
+    "thickness": 0.12,
+    "load": 400
+   },
+   "description": "Heavy-duty steel bracket that locks out level to hold a drop-down wing or shelf and folds flat against the wall when released. Mount the leg on the post or side, arm at the top; use a pair. Typical rating about 400 lb a pair, spread over the arm: check the one you buy."
+  },
+  {
+   "id": "bracket.folding-20in",
+   "category": "brackets",
+   "name": "Folding shelf bracket 20\"",
+   "list": "20\" folding shelf brackets",
+   "metric": {"name": "Folding shelf bracket 500 mm", "list": "500 mm folding shelf brackets"},
+   "model": {
+    "shape": "foldingBracket",
+    "arm": 20,
+    "leg": 14,
+    "width": 1.5,
+    "thickness": 0.12,
+    "load": 300
+   },
+   "description": "Heavy-duty steel bracket that locks out level to hold a drop-down wing or shelf and folds flat against the wall when released. Mount the leg on the post or side, arm at the top; use a pair. Typical rating about 300 lb a pair, spread over the arm: check the one you buy."
+  },
+  {
    "id": "plate.mending-2in",
    "category": "brackets",
    "name": "Mending plate 2\"",

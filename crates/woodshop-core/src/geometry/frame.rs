@@ -302,7 +302,8 @@ pub fn overall_size(spec: &Spec) -> Option<OverallSize> {
         let (Some(part), Some(item)) = (spec.part(&mount.part_id), crate::hardware::find(&mount.item)) else {
             continue;
         };
-        let reach = ["height", "projection"]
+        // A folding bracket counts locked out, as the wing it holds does.
+        let reach = ["height", "projection", "arm"]
             .iter()
             .find_map(|k| item.model.get(*k).and_then(|v| v.as_f64()))
             .unwrap_or(0.0);

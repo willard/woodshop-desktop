@@ -42,6 +42,13 @@ describe('catalog hardware geometry', () => {
         expect(piano.max.x - piano.min.x).toBeCloseTo(30, 1); // cut to the lid, not the stock length
     });
 
+    it('draws a folding bracket locked out: the leg on the post, the arm standing out from its top', () => {
+        const b = boundsOf(buildHardwareGeometry(findItem('bracket.folding-16in')!.model));
+        expect(b.max.x - b.min.x).toBeCloseTo(12, 1); // the leg
+        expect(b.max.z).toBeCloseTo(16, 1); // the arm's reach
+        expect(b.max.y - b.min.y).toBeCloseTo(1.5, 2);
+    });
+
     it('draws a T-hinge as a leaf, a knuckle and a strap tapering across the door', () => {
         const model = findItem('hinge.tee-6in')!.model;
         const b = boundsOf(buildHardwareGeometry(model));

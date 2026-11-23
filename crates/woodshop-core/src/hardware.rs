@@ -183,6 +183,7 @@ mod tests {
         ("caster", &["wheel", "height", "plate", "swivel", "brake"]),
         ("leveler", &["base", "height", "stem"]),
         ("cornerBracket", &["leg", "width", "thickness"]),
+        ("foldingBracket", &["arm", "leg", "width", "thickness", "load"]),
         ("flatPlate", &["length", "width", "thickness"]),
         ("shelfPin", &["diameter", "length"]),
         ("barrelBolt", &["length", "width", "projection"]),
@@ -260,7 +261,8 @@ mod tests {
                 "{}: shape",
                 item.id
             );
-            for (key, value) in &item.model {
+            // Every number is a size in inches, but a load rating, in pounds.
+            for (key, value) in item.model.iter().filter(|(k, _)| *k != "load") {
                 if let Some(n) = value.as_f64() {
                     assert!((0.0..60.0).contains(&n), "{}: {key} = {n}", item.id);
                 }

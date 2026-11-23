@@ -226,6 +226,21 @@ const BUILDERS: Record<string, Builder> = {
         return [box(leg, w, t, leg / 2, 0, t / 2), box(t, w, leg, t / 2, 0, leg / 2)];
     },
 
+    foldingBracket: (m) => {
+        // Locked out: the leg flat on the post (along X, its top at +X), the arm standing out from
+        // the top of it (+Z), and the folding brace from the foot of the leg up to the arm.
+        const arm = num(m, 'arm', 12);
+        const leg = num(m, 'leg', 9);
+        const w = num(m, 'width', 1.5);
+        const t = num(m, 'thickness', 0.12);
+        const run = leg - t;
+        const rise = arm * 0.6;
+        const brace = box(Math.hypot(run, rise), w * 0.6, t)
+            .rotateY(-Math.atan2(rise, run))
+            .translate(0, 0, rise / 2 + t);
+        return [box(leg, w, t, 0, 0, t / 2), box(t, w, arm, leg / 2 - t / 2, 0, arm / 2), brace];
+    },
+
     flatPlate: (m) => {
         const t = num(m, 'thickness', PLATE);
         return [box(num(m, 'length', 2), num(m, 'width', 0.75), t, 0, 0, t / 2)];

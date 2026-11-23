@@ -6,6 +6,11 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Folding shelf brackets, 10" to 20", in Hardware ▸ Brackets & plates: steel brackets that lock
+  out level under a drop-down wing or shelf and fold flat, with a typical load rating for a pair.
+
 ### Changed
 
 - For agents: `delete_hardware` takes a `part_id` to remove everything on a part at once,

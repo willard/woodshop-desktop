@@ -53,6 +53,12 @@ export function keySize(item: HardwareItem): string {
                 ];
             case 'cornerBracket':
                 return [inches('leg') && `${inches('leg')} legs`];
+            case 'foldingBracket':
+                return [
+                    inches('arm') && `${inches('arm')} arm`,
+                    typeof m.load === 'number' ? `about ${m.load} lb a pair` : null,
+                    'folds flat',
+                ];
             case 'chestHandle':
                 return [inches('width') && `${inches('width')} wide`];
             case 'hook':
