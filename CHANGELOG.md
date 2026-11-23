@@ -50,6 +50,10 @@ All notable changes to Woodshop are listed here. The format follows
   templates use them: a Cedar Picket Planter, a Cedar Bench Planter and a Cedar Birdhouse,
   whose gable is dog-eared to a 45° peak.
 
+- Feedback from the editor: the ⋯ menu's Feedback section opens the GitHub form for a problem
+  or an idea, with your version filled in, and can copy a picture of the design to paste into
+  it. Nothing is sent unless you send it.
+
 ### Fixed
 
 - Snapping and the joints the editor finds now measure a curved, tapered or angled part as cut,

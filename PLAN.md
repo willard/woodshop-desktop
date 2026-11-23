@@ -836,7 +836,8 @@ the owner to check, as computer use of the app is declined.
     the 7.6 dog ears.
   - Done when: the templates lint clean, the parity test holds them, and they have pictures in
     both themes.
-- **7.8 Feedback from the editor.** Report a problem exists (`problemReportUrl` in
+- **7.8 Feedback from the editor.** Done (Feedback in the editor's ⋯ menu: `problemReportUrl`,
+  `ideaUrl`, Copy a picture of the design via the clipboard; e2e test checks the URLs). Report a problem exists (`problemReportUrl` in
   `ui/src/app/diagnostics.ts`, under Settings ▸ Diagnostics). Add Feedback to the editor menu
   with "Something's broken" or "Idea", opening the matching GitHub issue form
   (`.github/ISSUE_TEMPLATE/bug.yml`, `feature.yml`); optionally copy a

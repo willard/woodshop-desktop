@@ -897,6 +897,22 @@ test('a dog ear clips both corners of an end at 45°', async ({ page }) => {
     await expect(rows.last()).toContainText('Dog-ear the right end, 3/4" in');
 });
 
+test('feedback from the editor opens the matching GitHub form', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    const opened = () => page.evaluate(() => (window as unknown as { __opened?: string[] }).__opened ?? []);
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('feedback-problem').click();
+    await expect.poll(opened).toHaveLength(1);
+    await page.getByTestId('toolbar-overflow-toggle').click();
+    await page.getByTestId('feedback-idea').click();
+    await expect.poll(opened).toHaveLength(2);
+    const [problem, idea] = (await opened()).map((u) => new URL(u));
+    expect(problem.pathname).toBe('/willard/woodshop-desktop/issues/new');
+    expect(problem.searchParams.get('template')).toBe('bug.yml');
+    expect(problem.searchParams.get('version')).not.toBeNull();
+    expect(idea.searchParams.get('template')).toBe('feature.yml');
+});
+
 test('the PDF plan gets a picture of each assembly step', async ({ page }) => {
     await page.goto('/#/projects/1');
     await page.getByTestId('cutlist-toggle').click();

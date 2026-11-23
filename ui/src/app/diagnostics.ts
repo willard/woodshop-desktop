@@ -43,6 +43,11 @@ export const ISSUES_URL = `${REPO_URL}/issues/new`;
  * and the system — nothing about the user or their designs. GitHub fills form fields from query
  * parameters named by their `id`. The log stays on this computer until the person attaches it.
  */
+/** The idea form: what someone is trying to build, and what would help. */
+export function ideaUrl(version: string): string {
+    return `${ISSUES_URL}?${new URLSearchParams({ template: 'feature.yml', version }).toString()}`;
+}
+
 export function problemReportUrl(version: string): string {
     const os = navigator.userAgent.match(/\(([^)]+)\)/)?.[1] ?? navigator.platform;
     return `${ISSUES_URL}?${new URLSearchParams({ template: 'bug.yml', version, os }).toString()}`;

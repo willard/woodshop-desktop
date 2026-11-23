@@ -7,6 +7,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { openUrl } from '@tauri-apps/plugin-opener';
+import { ideaUrl, problemReportUrl } from '@/app/diagnostics';
 import { api, failure, isCommandError, type Project } from '@/app/api';
 import { chooseSavePath, fileStem, WOODSHOP_FILTER } from '@/app/files';
 import { EditorDocument } from '@/engine';
@@ -77,6 +79,24 @@ function Editor({ project }: { project: Project }) {
     const docRef = useRef(doc);
     docRef.current = doc;
     const workspace = useRef<EditorWorkspaceHandle>(null);
+    const libraryInfo = useQuery({
+        queryKey: ['library-info'],
+        queryFn: api.libraryInfo,
+        staleTime: Infinity,
+    });
+    const appVersion = () => libraryInfo.data?.version ?? 'unknown';
+
+    /** A picture of the 3D view on the clipboard, to paste into a problem or idea form. */
+    async function copyPicture(): Promise<void> {
+        try {
+            const png = await workspace.current?.snapshot(1600, 'image/png');
+            if (!png) throw new Error('The 3D view is not ready.');
+            await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
+            toast.success('Picture copied. Paste it into the form.');
+        } catch (e) {
+            toast.error(failure('copy the picture', e));
+        }
+    }
     const [saveState, setSaveState] = useState<SaveState>('idle');
     const [conflict, setConflict] = useState<{
         draft: Spec;
@@ -392,6 +412,47 @@ function Editor({ project }: { project: Project }) {
                             }}
                         >
                             Save project file (.woodshop)…
+                        </button>
+                        <div className="bg-fg/[0.08] my-1 h-px" />
+                        <div className="text-muted px-2.5 pt-1 pb-0.5 text-[11px] font-semibold tracking-wider uppercase">
+                            Feedback
+                        </div>
+                        <button
+                            className="enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
+                            data-testid="feedback-problem"
+                            title="Opens the problem form on GitHub, with your version filled in"
+                            onClick={() => {
+                                close();
+                                void openUrl(problemReportUrl(appVersion())).catch((e) =>
+                                    toast.error(failure('open the problem report page', e)),
+                                );
+                            }}
+                        >
+                            Something's broken…
+                        </button>
+                        <button
+                            className="enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
+                            data-testid="feedback-idea"
+                            title="Opens the idea form on GitHub"
+                            onClick={() => {
+                                close();
+                                void openUrl(ideaUrl(appVersion())).catch((e) =>
+                                    toast.error(failure('open the idea page', e)),
+                                );
+                            }}
+                        >
+                            I have an idea…
+                        </button>
+                        <button
+                            className="enabled:hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
+                            data-testid="feedback-picture"
+                            title="A picture of the 3D view, to paste into the form. Nothing is sent unless you paste and send it."
+                            onClick={() => {
+                                close();
+                                void copyPicture();
+                            }}
+                        >
+                            Copy a picture of the design
                         </button>
                     </>
                 )}

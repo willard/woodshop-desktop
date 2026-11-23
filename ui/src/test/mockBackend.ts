@@ -376,6 +376,11 @@ export function installMockBackend(): void {
                 bytes,
             };
         },
+        // Links open in the browser; the preview notes which, for the tests.
+        'plugin:opener|open_url': (a) => {
+            const store = window as unknown as { __opened?: string[] };
+            store.__opened = [...(store.__opened ?? []), String(a.url)];
+        },
         'plugin:event|listen': () => nextId++,
         'plugin:event|unlisten': () => undefined,
     };

@@ -43,3 +43,13 @@ describe('reportError', () => {
         expect([...url.searchParams.keys()].sort()).toEqual(['os', 'template', 'version']);
     });
 });
+
+describe('ideaUrl', () => {
+    it('opens the idea form with the version filled in', async () => {
+        const { ideaUrl } = await import('@/app/diagnostics');
+        const url = new URL(ideaUrl('0.1.2'));
+        expect(url.pathname).toBe('/willard/woodshop-desktop/issues/new');
+        expect(url.searchParams.get('template')).toBe('feature.yml');
+        expect(url.searchParams.get('version')).toBe('0.1.2');
+    });
+});
