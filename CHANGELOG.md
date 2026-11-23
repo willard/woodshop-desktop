@@ -6,6 +6,8 @@ All notable changes to Woodshop are listed here. The format follows
 
 ## [Unreleased]
 
+## [0.1.4] — 2026-11-23
+
 ### Added
 
 - Share to the gallery, in the editor's ⋯ menu: Woodshop saves a zip with the design and its 3D
@@ -18,6 +20,12 @@ All notable changes to Woodshop are listed here. The format follows
   with a link and the licence. The PDF plan prints "Plan by …" under its title, the template card
   shows it, and a gallery post carries it. `resources/DATA.md` says how to contribute a maker's
   plan as a template.
+
+### Changed
+
+- Designs are saved in format 1.21 (for the maker's credit). Woodshop 0.1.4 opens every older
+  design, but a design saved in 0.1.4 needs 0.1.4 or later to open: update on every computer you
+  share designs between.
 
 ## [0.1.3] — 2026-11-22
 
@@ -284,7 +292,8 @@ The first release build, for macOS (universal), Windows and Linux.
 - A local MCP server (`woodshop --mcp`) so AI agents can read and edit designs.
 - Signed in-app updates from GitHub Releases.
 
-[Unreleased]: https://github.com/willard/woodshop-desktop/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/willard/woodshop-desktop/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/willard/woodshop-desktop/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/willard/woodshop-desktop/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/willard/woodshop-desktop/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/willard/woodshop-desktop/compare/v0.1.0...v0.1.1
