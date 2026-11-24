@@ -171,6 +171,15 @@
             },
             "default": [],
             "description": "Things shown with the piece but not built (added in 1.22): the totes on a tote rack, a saw on its stand. Drawn in 3D and in the 3D plan; never in the cut list, the hardware list, the cost, the overall size or the checks."
+        },
+        "models": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+                "$ref": "#/$defs/importedModel"
+            },
+            "default": [],
+            "description": "3D models imported from files for props to show (added in 1.22). The files themselves are kept in the library, by hash."
         }
     },
     "$defs": {
@@ -1272,7 +1281,7 @@
                         },
                         "hingeEdge": {
                             "$ref": "#/$defs/edge",
-                            "description": "The leaf's edge against the piece, in its LOCAL frame (\u00a73.1). The leaf folds down about that edge's lower arris."
+                            "description": "The leaf's edge against the piece, in its LOCAL frame (§3.1). The leaf folds down about that edge's lower arris."
                         },
                         "hinge": {
                             "type": "string",
@@ -1368,7 +1377,6 @@
             "additionalProperties": false,
             "required": [
                 "id",
-                "item",
                 "pos"
             ],
             "properties": {
@@ -1377,7 +1385,11 @@
                 },
                 "item": {
                     "$ref": "#/$defs/hardwareItemId",
-                    "description": "A catalog item in the props category, e.g. prop.tote-hdx-27gal."
+                    "description": "A catalog item in the props category, e.g. prop.tote-hdx-27gal. Give this or `model`, not both."
+                },
+                "model": {
+                    "$ref": "#/$defs/id",
+                    "description": "Instead of `item`: the id of one of the design's imported `models` (added in 1.22)."
                 },
                 "name": {
                     "type": "string",
@@ -1406,7 +1418,7 @@
                 "color": {
                     "type": "string",
                     "pattern": "^#[0-9a-fA-F]{6}$",
-                    "description": "Its main colour as #rrggbb (a tote's base). Omit for the catalog colour."
+                    "description": "Its main colour as #rrggbb (a tote's base). Omit for the catalog colour. An imported model keeps its own colours."
                 },
                 "accent": {
                     "type": "string",
@@ -1476,6 +1488,79 @@
                 }
             },
             "description": "One piece of catalog hardware mounted on a part (added in 1.15): a pull, caster, bracket, latch… Annotation only: it adds to the hardware list and the 3D view and never cuts the part."
+        },
+        "importedModel": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "name",
+                "hash",
+                "size",
+                "bytes"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/id"
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "description": "What it is, e.g. Milwaukee Packout tool box."
+                },
+                "hash": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$",
+                    "description": "The SHA-256 of its GLB file, which the library keeps and the .woodshop file and the 3D plan carry."
+                },
+                "size": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "l",
+                        "w",
+                        "h"
+                    ],
+                    "properties": {
+                        "l": {
+                            "type": "number",
+                            "exclusiveMinimum": 0,
+                            "maximum": 480,
+                            "description": "Along its X, in inches."
+                        },
+                        "w": {
+                            "type": "number",
+                            "exclusiveMinimum": 0,
+                            "maximum": 480,
+                            "description": "Along its Z (depth), in inches."
+                        },
+                        "h": {
+                            "type": "number",
+                            "exclusiveMinimum": 0,
+                            "maximum": 480,
+                            "description": "Its height, in inches."
+                        }
+                    },
+                    "description": "How big it is as imported: standing on its bottom, centred, in inches."
+                },
+                "bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "The size of its GLB file."
+                },
+                "source": {
+                    "type": "string",
+                    "maxLength": 300,
+                    "description": "Where it came from, e.g. the maker's page."
+                },
+                "license": {
+                    "type": "string",
+                    "maxLength": 120,
+                    "description": "The terms it may be shared under, e.g. CC BY 4.0. The 3D plan credits it."
+                }
+            },
+            "description": "A 3D model imported from a GLB or STL file (added in 1.22), shown as a prop."
         }
     }
 }

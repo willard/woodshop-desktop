@@ -15,6 +15,7 @@ import { assemblyOrder } from '@/cutlist';
 import { buildPropsGroup, buildSpecGroup } from '@/engine/buildScene';
 import { createGrainTexture, woodMaterialProvider } from '@/engine/materials';
 import { explodedPositions } from '@/engine/explode';
+import { loadKeptModel } from '@/engine/importedModels';
 import { isSoftwareRenderer } from '@/engine/EditorEngine';
 import { scenePalette, type ThemeName } from '@/engine/theme';
 import { easeOutCubic, frameCount, planFilm, poseAt, type Caption, type FilmPlan } from './timeline';
@@ -32,6 +33,8 @@ export interface FilmOptions {
     subtitle: string;
     /** Called with the share done, 0 to 1. */
     onProgress?: (done: number) => void;
+    /** Fetches an imported model's GLB by hash (spec 1.22), so the film shows it. */
+    loadModel?: (hash: string) => Promise<ArrayBuffer | null>;
     signal?: AbortSignal;
 }
 
@@ -100,7 +103,8 @@ export async function renderAssemblyFilm(spec: Spec, options: FilmOptions): Prom
         throw new Error('This computer cannot encode H.264 video here.');
     }
     const plan = planFilm(assemblyOrder(spec), options.seconds, (spec.props ?? []).length > 0);
-    const stage = new FilmStage(spec, width, height, options.theme);
+    const models = await loadModels(spec, options.loadModel);
+    const stage = new FilmStage(spec, width, height, options.theme, models);
     const card = new CaptionCard(width, height, options.theme, options.title, options.subtitle);
 
     const target = new ArrayBufferTarget();
@@ -154,6 +158,25 @@ export async function renderAssemblyFilm(spec: Spec, options: FilmOptions): Prom
     }
 }
 
+/** Every imported model the spec shows, loaded once by hash; one that fails stays a plain box. */
+async function loadModels(
+    spec: Spec,
+    load: ((hash: string) => Promise<ArrayBuffer | null>) | undefined,
+): Promise<Map<string, THREE.Object3D>> {
+    const models = new Map<string, THREE.Object3D>();
+    if (load === undefined) return models;
+    for (const { hash } of spec.models ?? []) {
+        if (models.has(hash)) continue;
+        try {
+            const bytes = await load(hash);
+            if (bytes !== null) models.set(hash, await loadKeptModel(bytes));
+        } catch {
+            // drawn as a box of its size
+        }
+    }
+    return models;
+}
+
 interface Band {
     /** Half-width the piece may take, and the top and bottom it must stay between (NDC). */
     x: number;
@@ -200,7 +223,13 @@ class FilmStage {
     private readonly props: THREE.Group;
     private readonly propPaths: { holder: THREE.Object3D; home: THREE.Vector3; from: THREE.Vector3 }[] = [];
 
-    constructor(spec: Spec, width: number, height: number, theme: ThemeName) {
+    constructor(
+        spec: Spec,
+        width: number,
+        height: number,
+        theme: ThemeName,
+        models?: ReadonlyMap<string, THREE.Object3D>,
+    ) {
         const palette = scenePalette(theme);
         this.canvas = document.createElement('canvas');
         this.canvas.width = width;
@@ -238,7 +267,7 @@ class FilmStage {
         this.grain = createGrainTexture();
         this.parts = buildSpecGroup(spec, woodMaterialProvider(this.grain));
         this.scene.add(this.parts);
-        this.props = buildPropsGroup(spec);
+        this.props = buildPropsGroup(spec, models);
         this.scene.add(this.props);
 
         const box = new THREE.Box3().setFromObject(this.parts);

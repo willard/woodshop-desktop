@@ -8,8 +8,11 @@ import { useEffect, useState } from 'react';
 import type { Prop, Spec } from '@/spec';
 import { catalog, findItem, itemName } from '@/hardware/catalog';
 import { besideThePiece, restOn } from '@/spec/props';
-import { lenValue, parseSignedLen, unitSuffix } from '@/lib/display';
-import { uniquePropId, type PropPatch } from '@/engine';
+import { len, lenValue, parseSignedLen, unitSuffix } from '@/lib/display';
+import { uniqueModelId, uniquePropId, type PropPatch } from '@/engine';
+import type { ImportedModel } from '@/spec';
+import type * as THREE from 'three';
+import { ModelImport } from './ModelImport';
 import { Modal } from './Modal';
 import { Field, PrimaryButton, SecondaryButton, Select, TextInput, onEnter } from './form';
 
@@ -19,7 +22,12 @@ export function PropsDialog(props: {
     focus: string | null;
     shown: boolean;
     onShow(shown: boolean): void;
-    onAdd(prop: Prop): void;
+    /** With `model`, the prop shows a model just imported, which the design now lists. */
+    onAdd(prop: Prop, model?: ImportedModel): void;
+    /** Keeps an imported model's GLB in the library; resolves to its hash. */
+    keepModel(glb: Uint8Array): Promise<string>;
+    /** A model just imported, to draw at once. */
+    onModelReady(hash: string, object: THREE.Object3D): void;
     onUpdate(id: string, patch: PropPatch): void;
     onRemove(id: string): void;
     onClose(): void;
@@ -28,16 +36,55 @@ export function PropsDialog(props: {
     const placed = props.spec.props ?? [];
     const [selected, setSelected] = useState<string | null>(props.focus ?? placed[0]?.id ?? null);
     const [itemId, setItemId] = useState(items[0]?.id ?? '');
+    const [importing, setImporting] = useState(false);
     const current = placed.find((p) => p.id === selected) ?? null;
-    const nameOf = (p: Prop) => p.name ?? (findItem(p.item) ? itemName(findItem(p.item)!) : p.item);
+    const models = props.spec.models ?? [];
+    const nameOf = (p: Prop) => {
+        if (p.name !== undefined) return p.name;
+        const item = findItem(p.item);
+        if (item !== undefined) return itemName(item);
+        return models.find((m) => m.id === p.model)?.name ?? p.item ?? p.model ?? p.id;
+    };
 
     const add = () => {
         const item = items.find((i) => i.id === itemId);
         if (item === undefined) return;
         const id = uniquePropId(props.spec, item.id);
-        props.onAdd({ id, item: item.id, pos: besideThePiece(props.spec, item), rot: 0 });
+        const depth = typeof item.model.width === 'number' ? item.model.width : 12;
+        props.onAdd({ id, item: item.id, pos: besideThePiece(props.spec, depth), rot: 0 });
         setSelected(id);
     };
+
+    if (importing) {
+        return (
+            <Modal onClose={() => setImporting(false)} testId="props-dialog" className="max-w-2xl">
+                <h2 className="mb-1 text-base font-semibold">Import a 3D model</h2>
+                <p className="text-muted mb-3 text-xs">
+                    Shown with the piece like a tote: in the 3D view, the 3D plan, the 3D exports and the
+                    video, never in the cut list. It is kept in your library and goes with the design.
+                </p>
+                <ModelImport
+                    keep={props.keepModel}
+                    onCancel={() => setImporting(false)}
+                    onImported={({ model, object }) => {
+                        const existing = models.find((m) => m.hash === model.hash);
+                        const entry: ImportedModel = existing ?? {
+                            ...model,
+                            id: uniqueModelId(props.spec, model.name),
+                        };
+                        props.onModelReady(entry.hash, object);
+                        const id = uniquePropId(props.spec, entry.id);
+                        props.onAdd(
+                            { id, model: entry.id, pos: besideThePiece(props.spec, entry.size.w), rot: 0 },
+                            existing === undefined ? entry : undefined,
+                        );
+                        setSelected(id);
+                        setImporting(false);
+                    }}
+                />
+            </Modal>
+        );
+    }
 
     return (
         <Modal onClose={props.onClose} testId="props-dialog" className="max-w-2xl">
@@ -97,6 +144,42 @@ export function PropsDialog(props: {
                             Add
                         </PrimaryButton>
                     </div>
+                    {models.length > 0 && (
+                        <div className="flex gap-2">
+                            <Select
+                                h="sm"
+                                defaultValue=""
+                                data-testid="prop-model"
+                                onChange={(e) => {
+                                    const entry = models.find((m) => m.id === e.target.value);
+                                    e.target.value = '';
+                                    if (entry === undefined) return;
+                                    const id = uniquePropId(props.spec, entry.id);
+                                    props.onAdd({
+                                        id,
+                                        model: entry.id,
+                                        pos: besideThePiece(props.spec, entry.size.w),
+                                        rot: 0,
+                                    });
+                                    setSelected(id);
+                                }}
+                            >
+                                <option value="">Add another of an imported model…</option>
+                                {models.map((m) => (
+                                    <option key={m.id} value={m.id}>
+                                        {m.name}
+                                    </option>
+                                ))}
+                            </Select>
+                        </div>
+                    )}
+                    <SecondaryButton
+                        className="px-3"
+                        data-testid="prop-import"
+                        onClick={() => setImporting(true)}
+                    >
+                        Import a 3D model (GLB, STL)…
+                    </SecondaryButton>
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -111,7 +194,7 @@ export function PropsDialog(props: {
                             prop={current}
                             onUpdate={(patch) => props.onUpdate(current.id, patch)}
                             onDuplicate={() => {
-                                const id = uniquePropId(props.spec, current.item);
+                                const id = uniquePropId(props.spec, current.item ?? current.model ?? 'item');
                                 props.onAdd({ ...current, id, name: undefined });
                                 setSelected(id);
                             }}
@@ -153,7 +236,9 @@ function PropEditor(props: {
     const parts = [...spec.parts].sort((a, b) => a.name.localeCompare(b.name));
     const [railA, setRailA] = useState('');
     const [railB, setRailB] = useState('');
-    const resting = item && railA !== '' && railB !== '' ? restOn(spec, item, railA, railB) : null;
+    const model = (spec.models ?? []).find((m) => m.id === prop.model);
+    const resting =
+        railA !== '' && railB !== '' ? restOn(spec, item ?? null, railA, railB, model?.size) : null;
     const commitPos = () => {
         const next = pos.map((v) => parseSignedLen(v));
         if (next.some((n) => n === null)) {
@@ -171,7 +256,7 @@ function PropEditor(props: {
                 <TextInput
                     h="md"
                     value={name}
-                    placeholder={item ? itemName(item) : prop.item}
+                    placeholder={item ? itemName(item) : (model?.name ?? prop.item ?? '')}
                     data-testid="prop-name"
                     onChange={(e) => setName(e.target.value)}
                     onBlur={() =>
@@ -264,7 +349,14 @@ function PropEditor(props: {
             </div>
             <p className="text-muted mb-2.5 text-xs">The position is the middle of its bottom.</p>
 
-            <div className="mb-3 flex items-center gap-4">
+            {model !== undefined && (
+                <p className="text-muted mb-3 text-xs" data-testid="prop-model-info">
+                    Imported model, {len(model.size.l)} × {len(model.size.w)} × {len(model.size.h)}
+                    {model.source !== undefined && <>, from {model.source}</>}
+                    {model.license !== undefined && <> ({model.license})</>}. It keeps its own colours.
+                </p>
+            )}
+            <div className={`mb-3 flex items-center gap-4 ${model !== undefined ? 'hidden' : ''}`}>
                 {(
                     [
                         ['color', item?.model.shape === 'tote' ? 'Base' : 'Colour'],

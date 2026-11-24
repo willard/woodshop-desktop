@@ -28,6 +28,9 @@ pub struct ViewerInput<'a> {
     /// The file name of the AR model (USDZ) saved beside the page, if there is one. The page
     /// links to it for AR Quick Look on iPhone and iPad.
     pub ar_model: Option<&'a str>,
+    /// The GLB files of the imported models the design shows (spec 1.22), as (hash, bytes). They
+    /// ride in the payload, base64, so the page stays one file that works offline.
+    pub models: Vec<(String, Vec<u8>)>,
 }
 
 #[derive(Serialize)]
@@ -41,6 +44,8 @@ struct Payload<'a> {
     theme: &'a str,
     notes: &'a [PlanNote],
     units: woodshop_core::units::Units,
+    #[serde(skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    models: std::collections::BTreeMap<&'a str, String>,
 }
 
 #[derive(Serialize)]
@@ -103,6 +108,14 @@ pub fn render_viewer_html(input: &ViewerInput<'_>) -> String {
         theme,
         notes: &input.notes,
         units: input.units,
+        models: input
+            .models
+            .iter()
+            .map(|(hash, glb)| {
+                use base64::Engine;
+                (hash.as_str(), base64::engine::general_purpose::STANDARD.encode(glb))
+            })
+            .collect(),
     };
     // A bundle can never contain a literal closing tag that would end the inline script early.
     let js = VIEWER_JS.replace("</script", "<\\/script");
@@ -166,6 +179,7 @@ mod tests {
             notes: vec![],
             units: Default::default(),
             ar_model: None,
+            models: vec![],
         });
         assert!(html.starts_with("<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"light\""));
         assert!(html.contains("<title>Box — Woodshop plan</title>"));
@@ -185,6 +199,7 @@ mod tests {
             notes: vec![],
             units: Default::default(),
             ar_model: None,
+            models: vec![],
         });
         assert!(!html.contains("</script><img"));
         assert!(html.contains("<title>&lt;b&gt;Box&lt;/b&gt; — Woodshop plan</title>"));
@@ -202,6 +217,7 @@ mod tests {
             notes: vec![],
             units: Default::default(),
             ar_model,
+            models: vec![],
         };
         let html = render_viewer_html(&input(Some("Bancs & \"tables\".usdz")));
         assert!(html.contains("<a rel=\"ar\" id=\"woodshop-ar\" href=\"Bancs%20%26%20%22tables%22.usdz\""));
@@ -213,5 +229,21 @@ mod tests {
             "the image is the link's only child: {link}"
         );
         assert!(!render_viewer_html(&input(None)).contains("rel=\"ar\""));
+    }
+
+    #[test]
+    fn a_plan_carries_its_imported_models_as_base64() {
+        let html = render_viewer_html(&ViewerInput {
+            title: "Rack",
+            spec: serde_json::json!({}),
+            kerf: 0.125,
+            theme: "dark",
+            exported_at: "2026-01-01T00:00:00Z",
+            notes: vec![],
+            units: Default::default(),
+            ar_model: None,
+            models: vec![("ab".repeat(32), b"glTF".to_vec())],
+        });
+        assert!(html.contains(&format!("\"models\":{{\"{}\":\"Z2xURg==\"}}", "ab".repeat(32))));
     }
 }

@@ -264,3 +264,97 @@ fn a_library_from_the_first_schema_is_brought_up_to_date() {
     let p = store.create_project("Box", &spec("Box")).unwrap();
     store.set_assistant_chat(p.id, &serde_json::json!({})).unwrap();
 }
+
+/// The smallest thing `check_glb` takes: a GLB header and a little padding.
+fn glb(tag: u8) -> Vec<u8> {
+    let mut bytes = b"glTF".to_vec();
+    bytes.extend(2u32.to_le_bytes());
+    bytes.extend(24u32.to_le_bytes());
+    bytes.extend([tag; 12]);
+    bytes
+}
+
+fn with_model(name: &str, hash: &str) -> Spec {
+    let mut s = spec(name);
+    s.models = Some(vec![woodshop_core::spec::ImportedModel {
+        id: "m_box".into(),
+        name: "Box".into(),
+        hash: hash.into(),
+        size: woodshop_core::spec::ModelSize {
+            l: 10.0,
+            w: 8.0,
+            h: 6.0,
+        },
+        bytes: 24,
+        source: None,
+        license: None,
+    }]);
+    s.props = Some(vec![woodshop_core::spec::Prop {
+        id: "pr_box".into(),
+        item: None,
+        model: Some("m_box".into()),
+        name: None,
+        pos: [0.0, 0.0, 20.0],
+        rot: None,
+        color: None,
+        accent: None,
+    }]);
+    s
+}
+
+#[test]
+fn models_are_kept_once_by_hash_and_must_be_glb() {
+    let store = Store::open_in_memory().unwrap();
+    let hash = store.put_model(&glb(1)).unwrap();
+    assert_eq!(hash.len(), 64);
+    assert_eq!(store.put_model(&glb(1)).unwrap(), hash);
+    assert_ne!(store.put_model(&glb(2)).unwrap(), hash);
+    assert_eq!(store.model(&hash).unwrap(), Some(glb(1)));
+    assert_eq!(store.model(&"0".repeat(64)).unwrap(), None);
+    assert!(
+        store.put_model(b"solid cube\nendsolid").is_err(),
+        "an STL is converted first"
+    );
+    assert!(store.put_model(&vec![0u8; 13_000_000]).is_err());
+}
+
+#[test]
+fn a_woodshop_file_carries_the_models_its_design_shows() {
+    let store = Store::open_in_memory().unwrap();
+    let hash = store.put_model(&glb(7)).unwrap();
+    let old = store.put_model(&glb(8)).unwrap();
+    let p = store.create_project("Rack", &with_model("Rack", &old)).unwrap();
+    store
+        .create_version(p.id, &p.draft, Some("old box"), Author::User)
+        .unwrap();
+    store.save_draft(p.id, &with_model("Rack", &hash), None).unwrap();
+
+    let archive = store.export_archive(p.id).unwrap();
+    let mut hashes: Vec<&str> = archive.models.iter().map(|(h, _)| h.as_str()).collect();
+    hashes.sort_unstable();
+    let mut want = vec![hash.as_str(), old.as_str()];
+    want.sort_unstable();
+    assert_eq!(hashes, want, "the draft's and the history's");
+
+    let mut buf = std::io::Cursor::new(Vec::new());
+    archive.clone().for_sharing().write(&mut buf).unwrap();
+    buf.set_position(0);
+    let shared = ProjectArchive::read(buf).unwrap();
+    assert_eq!(
+        shared.models,
+        vec![(hash.clone(), glb(7))],
+        "a shared file carries the draft's only"
+    );
+
+    // Into a library that has never seen it.
+    let other = Store::open_in_memory().unwrap();
+    let mut tampered = shared.clone();
+    tampered.models.push(("f".repeat(64), glb(9)));
+    other.import_archive(tampered).unwrap();
+    assert_eq!(other.model(&hash).unwrap(), Some(glb(7)));
+    assert_eq!(
+        other.model(&"f".repeat(64)).unwrap(),
+        None,
+        "a file that doesn't match its hash is left out"
+    );
+}

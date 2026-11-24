@@ -8,6 +8,7 @@ import { scenePalette, type ThemeName } from '@/engine/theme';
 import { sizeGroups, type PlacedSize } from '@/engine/sizeLabels';
 import { SizeLabels } from '@/components/SizeLabels';
 import type { Spec } from '@/spec';
+import { embeddedModel } from './payload';
 import InlineCsgWorker from '@/engine/workers/csg.worker?worker&inline';
 
 export interface ViewerCanvasHandle {
@@ -24,8 +25,10 @@ export const ViewerCanvas = forwardRef<
         onPick(id: string | null): void;
         /** The AR model beside the page, where AR Quick Look can open it. */
         arHref?: string;
+        /** The imported models the page carries (spec 1.22), base64 by hash. */
+        models?: Record<string, string>;
     }
->(function ViewerCanvas({ spec, theme, selectedIds, hiddenIds, onPick, arHref }, ref) {
+>(function ViewerCanvas({ spec, theme, selectedIds, hiddenIds, onPick, arHref, models }, ref) {
     const canvas = useRef<HTMLCanvasElement>(null);
     const engine = useRef<EditorEngine | null>(null);
     const pick = useRef(onPick);
@@ -67,6 +70,7 @@ export const ViewerCanvas = forwardRef<
         engine.current = e;
         e.setMode('view');
         e.pickHandler = (id) => pick.current(id);
+        e.modelSource = async (hash) => embeddedModel(models ?? {}, hash);
         e.loadSpec(spec, { frame: true });
         const onBeforePrint = () => void capture();
         window.addEventListener('beforeprint', onBeforePrint);

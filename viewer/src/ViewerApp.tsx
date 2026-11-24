@@ -119,6 +119,7 @@ export function ViewerApp({ payload, arHref }: { payload: ExportPayload; arHref?
                         hiddenIds={shownHidden}
                         onPick={select}
                         arHref={arHref}
+                        models={payload.models}
                     />
                     {buildStep !== null && (
                         <BuildStepBar steps={steps} index={buildStep} onStep={setBuildStep} />
@@ -201,6 +202,24 @@ export function ViewerApp({ payload, arHref }: { payload: ExportPayload; arHref?
                         ))}
                     </ul>
                 </section>
+            )}
+            {(payload.spec.models ?? []).length > 0 && (
+                <p
+                    className="border-fg/10 text-muted flex-none border-t px-4 py-2 text-xs"
+                    data-testid="viewer-model-credits"
+                    data-print="keep"
+                >
+                    3D models shown with it, not part of the build:{' '}
+                    {(payload.spec.models ?? [])
+                        .map(
+                            (m) =>
+                                m.name +
+                                (m.source !== undefined ? `, from ${m.source}` : '') +
+                                (m.license !== undefined ? ` (${m.license})` : ''),
+                        )
+                        .join('; ')}
+                    .
+                </p>
             )}
         </div>
     );

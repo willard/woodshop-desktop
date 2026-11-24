@@ -98,3 +98,49 @@ fn a_tote_mounted_as_hardware_is_named() {
     let found = codes(&spec);
     assert!(found.iter().any(|c| c.starts_with("hardware.is-prop")), "{found:?}");
 }
+
+fn imported(bytes: u64) -> serde_json::Value {
+    json!({ "id": "m_box", "name": "Tool box", "hash": "ab".repeat(32), "size": { "l": 20, "w": 10, "h": 12 }, "bytes": bytes })
+}
+
+fn with_models(models: serde_json::Value, props: serde_json::Value) -> Spec {
+    let mut raw = spec::to_value(&shelf(props));
+    raw["models"] = models;
+    spec::parse(raw).expect("valid")
+}
+
+#[test]
+fn a_prop_shows_a_catalog_item_or_an_imported_model() {
+    let fine = with_models(
+        json!([imported(1_000_000)]),
+        json!([{ "id": "pr_box", "model": "m_box", "pos": [0, 12.75, 0] }]),
+    );
+    assert!(
+        codes(&fine)
+            .iter()
+            .all(|c| !c.starts_with("prop.") && !c.starts_with("model.")),
+        "{:?}",
+        codes(&fine)
+    );
+    assert_eq!(fine.models()[0].size.h, 12.0);
+
+    let missing = codes(&with_models(
+        json!([]),
+        json!([{ "id": "pr_box", "model": "m_box", "pos": [0, 0, 0] }]),
+    ));
+    assert!(
+        missing.iter().any(|c| c.starts_with("prop.unknown-model")),
+        "{missing:?}"
+    );
+
+    let both = lint(&with_models(
+        json!([imported(10)]),
+        json!([{ "id": "pr_box", "model": "m_box", "item": "prop.tote-hdx-27gal", "pos": [0, 0, 0] }]),
+    ));
+    assert!(both.iter().any(|i| i.code == "prop.item-and-model" && i.is_error()));
+    let neither = lint(&with_models(json!([]), json!([{ "id": "pr_box", "pos": [0, 0, 0] }])));
+    assert!(neither.iter().any(|i| i.code == "prop.no-item" && i.is_error()));
+
+    let heavy = codes(&with_models(json!([imported(30_000_000)]), json!([])));
+    assert!(heavy.iter().any(|c| c.starts_with("model.too-large")), "{heavy:?}");
+}

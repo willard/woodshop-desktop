@@ -2,7 +2,8 @@
 //! design can be backed up, emailed, or moved to another machine.
 //!
 //! Layout: `manifest.json` (format, name), `draft.json`, `versions.json`, `notes.json`,
-//! `thumbnail.png` (optional). Specs inside are migrated and validated on import like any other.
+//! `thumbnail.png` (optional), and `models/<sha256>.glb` for each imported 3D model the draft or a
+//! version shows (spec 1.22). Specs inside are migrated and validated on import like any other.
 
 use std::io::{Read, Seek, Write};
 
@@ -35,6 +36,8 @@ pub struct ProjectArchive {
     pub versions: Vec<ArchivedVersion>,
     pub notes: Vec<ArchivedNote>,
     pub thumbnail: Option<Vec<u8>>,
+    /// The imported models' GLB files, as (SHA-256 hash, bytes).
+    pub models: Vec<(String, Vec<u8>)>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -90,6 +93,12 @@ impl ProjectArchive {
     pub fn for_sharing(mut self) -> Self {
         self.versions.clear();
         self.notes.clear();
+        let shown: Vec<&str> = self.draft.models().iter().map(|m| m.hash.as_str()).collect();
+        let models = std::mem::take(&mut self.models);
+        self.models = models
+            .into_iter()
+            .filter(|(hash, _)| shown.contains(&hash.as_str()))
+            .collect();
         self
     }
 
@@ -123,6 +132,10 @@ impl ProjectArchive {
                 SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored),
             )?;
             zip.write_all(png)?;
+        }
+        for (hash, glb) in &self.models {
+            zip.start_file(format!("models/{hash}.glb"), opts)?;
+            zip.write_all(glb)?;
         }
         zip.finish()?;
         Ok(())
@@ -192,12 +205,35 @@ impl ProjectArchive {
             Err(e) => return Err(e.into()),
         };
 
+        let mut models = Vec::new();
+        let names: Vec<String> = zip
+            .file_names()
+            .filter_map(Result::ok)
+            .map(|n| n.into_owned())
+            .collect();
+        for name in names {
+            let Some(hash) = name.strip_prefix("models/").and_then(|n| n.strip_suffix(".glb")) else {
+                continue;
+            };
+            if hash.len() != 64 || !hash.bytes().all(|b| b.is_ascii_hexdigit()) {
+                continue;
+            }
+            let mut f = zip.by_name(&name)?;
+            if f.size() > crate::MODEL_MAX_BYTES as u64 {
+                continue;
+            }
+            let mut bytes = Vec::new();
+            f.read_to_end(&mut bytes)?;
+            models.push((hash.to_ascii_lowercase(), bytes));
+        }
+
         Ok(Self {
             name: manifest.name,
             draft,
             versions,
             notes,
             thumbnail,
+            models,
         })
     }
 }

@@ -21,6 +21,7 @@ export type {
     Movable,
     HardwareMount,
     Prop,
+    ImportedModel,
     Side,
     Op,
     Axis,

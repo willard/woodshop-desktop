@@ -204,3 +204,102 @@ test('a plan with an AR model links to it where AR Quick Look is, and only there
     await expect(page.getByRole('link', { name: 'View in your room' })).toHaveCount(0);
     await page.close();
 });
+
+/** A GLB holding one triangle, `size` inches across: the smallest model a plan can carry. */
+function triangleGlb(size: number): Buffer {
+    const positions = Buffer.alloc(36);
+    [0, 0, 0, size, 0, 0, 0, size, 0].forEach((v, i) => positions.writeFloatLE(v, i * 4));
+    let json = JSON.stringify({
+        asset: { version: '2.0' },
+        scene: 0,
+        scenes: [{ nodes: [0] }],
+        nodes: [{ mesh: 0 }],
+        meshes: [{ primitives: [{ attributes: { POSITION: 0 } }] }],
+        accessors: [
+            {
+                bufferView: 0,
+                componentType: 5126,
+                count: 3,
+                type: 'VEC3',
+                min: [0, 0, 0],
+                max: [size, size, 0],
+            },
+        ],
+        bufferViews: [{ buffer: 0, byteLength: 36 }],
+        buffers: [{ byteLength: 36 }],
+    });
+    while (json.length % 4 !== 0) json += ' ';
+    const head = Buffer.alloc(12);
+    head.write('glTF', 0, 'ascii');
+    head.writeUInt32LE(2, 4);
+    head.writeUInt32LE(12 + 8 + json.length + 8 + 36, 8);
+    const chunk = (type: number, body: Buffer) => {
+        const h = Buffer.alloc(8);
+        h.writeUInt32LE(body.length, 0);
+        h.writeUInt32LE(type, 4);
+        return Buffer.concat([h, body]);
+    };
+    return Buffer.concat([head, chunk(0x4e4f534a, Buffer.from(json)), chunk(0x004e4942, positions)]);
+}
+
+test('a plan carries the 3D models a design imported and draws them offline', async ({ page }, info) => {
+    const hash = 'ab'.repeat(32);
+    const spec = {
+        ...recordStand,
+        specVersion: '1.22',
+        models: [
+            {
+                id: 'm_tri',
+                name: 'Triangle',
+                hash,
+                size: { l: 12, w: 1, h: 12 },
+                bytes: 100,
+                source: 'Made for the test',
+                license: 'CC0',
+            },
+        ],
+        props: [{ id: 'pr_tri', model: 'm_tri', pos: [0, 0, 30] }],
+    };
+    const payload = {
+        version: 1,
+        exportedAt: '2026-11-24T12:00:00Z',
+        project: { name: 'Record stand' },
+        spec,
+        kerf: 0.125,
+        theme: 'dark',
+        notes: [],
+        units: 'fraction',
+        models: { [hash]: triangleGlb(12).toString('base64') },
+    };
+    const file = info.outputPath('With a model.html');
+    writeFileSync(
+        file,
+        exportedPlan({
+            theme: 'dark',
+            title: 'Record stand',
+            css: bundle('viewer.css').replace(/<\/style/g, '<\\/style'),
+            payload: scriptSafe(payload),
+            js: bundle('viewer.js').replace(/<\/script/g, '<\\/script'),
+        }),
+    );
+    const problems: string[] = [];
+    page.on('pageerror', (e) => problems.push(String(e)));
+    page.on('console', (m) => m.type() === 'error' && problems.push(m.text()));
+    page.on(
+        'request',
+        (r) =>
+            !r.url().startsWith('file:') &&
+            !r.url().startsWith('blob:') &&
+            !r.url().startsWith('data:') &&
+            problems.push(`fetched ${r.url()}`),
+    );
+    await page.goto(pathToFileURL(file).href);
+    await expect(page.getByTestId('viewer-canvas')).toBeVisible();
+    // The model is credited, never listed: the cut list is the record stand's alone.
+    await expect(page.getByTestId('cutlist-totals')).toContainText('Overall');
+    await expect(page.getByTestId('viewer-model-credits')).toHaveText(
+        '3D models shown with it, not part of the build: Triangle, from Made for the test (CC0).',
+    );
+    await page.waitForTimeout(500); // the model decodes after the first frame
+    expect(problems).toEqual([]);
+});

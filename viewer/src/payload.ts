@@ -23,6 +23,8 @@ export interface ExportPayload {
     notes: ExportNote[];
     /** How sizes are shown; files from before 1.15 carry none and stay in fractions. */
     units: Units;
+    /** The imported models' GLB files, base64, by hash (spec 1.22). */
+    models: Record<string, string>;
 }
 
 interface RawPayload {
@@ -34,6 +36,7 @@ interface RawPayload {
     theme?: unknown;
     notes?: unknown;
     units?: unknown;
+    models?: unknown;
 }
 
 export function readPayload(
@@ -63,6 +66,14 @@ export function readPayload(
             kerf,
             theme: raw.theme === 'light' ? 'light' : 'dark',
             units: isUnits(raw.units) ? raw.units : 'fraction',
+            models:
+                typeof raw.models === 'object' && raw.models !== null
+                    ? Object.fromEntries(
+                          Object.entries(raw.models as Record<string, unknown>).filter(
+                              (entry): entry is [string, string] => typeof entry[1] === 'string',
+                          ),
+                      )
+                    : {},
             notes: Array.isArray(raw.notes)
                 ? raw.notes.flatMap((note) => {
                       const row = note as { body?: unknown; pinned?: unknown };
@@ -73,6 +84,16 @@ export function readPayload(
                 : [],
         },
     };
+}
+
+/** An embedded model's GLB bytes, or null when the page doesn't carry it. */
+export function embeddedModel(models: Record<string, string>, hash: string): ArrayBuffer | null {
+    const base64 = models[hash];
+    if (base64 === undefined) return null;
+    const text = atob(base64);
+    const bytes = new Uint8Array(text.length);
+    for (let i = 0; i < text.length; i++) bytes[i] = text.charCodeAt(i);
+    return bytes.buffer;
 }
 
 /** Pinned notes first, matching the app and the PDF. */

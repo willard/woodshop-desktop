@@ -137,6 +137,7 @@ import { GroupInspector } from './GroupInspector';
 import { MirrorButtons } from './MirrorButtons';
 import { HardwareDialog } from './HardwareDialog';
 import { PropsDialog } from './PropsDialog';
+import { api } from '@/app/api';
 import { findItem, itemName } from '@/hardware/catalog';
 import { PartInspector } from './PartInspector';
 import { placeAtPoint, Popover } from './Popover';
@@ -366,6 +367,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 docRef.current.handlePick(id, modifiers);
             };
             engine.propPickHandler = (id) => setPropsDialog({ focus: id });
+            engine.modelSource = (hash) => api.getModel(hash);
             engine.dragCommitHandler = (ids: string[], delta: Vec3) => {
                 docRef.current.execute(new MoveParts(ids, delta));
                 // Record any dado joints the drop seated (annotations, not constraints).
@@ -2462,7 +2464,9 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                             setPropsShown(shown);
                             engineRef.current?.setPropsVisible(shown);
                         }}
-                        onAdd={(prop) => doc.execute(new AddProp(prop))}
+                        onAdd={(prop, model) => doc.execute(new AddProp(prop, model))}
+                        keepModel={(glb) => api.putModel(glb)}
+                        onModelReady={(hash, object) => engineRef.current?.addLoadedModel(hash, object)}
                         onUpdate={(id, patch) => doc.execute(new UpdateProp(id, patch))}
                         onRemove={(id) => doc.execute(new RemoveProp(id))}
                         onClose={() => setPropsDialog(null)}

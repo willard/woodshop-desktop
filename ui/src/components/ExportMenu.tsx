@@ -416,6 +416,7 @@ export function VideoExport(props: ExportTarget & { onClose(): void }) {
                         subtitle: size === null ? '' : dims(size.width, size.depth, size.height),
                         onProgress,
                         signal,
+                        loadModel: (hash) => api.getModel(hash),
                     });
                     await api.writeBinaryFile(path, bytes);
                     toast.success('Assembly video saved.');

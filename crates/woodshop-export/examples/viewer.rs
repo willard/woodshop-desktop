@@ -25,6 +25,7 @@ fn main() {
             _ => woodshop_core::units::Units::Fraction,
         },
         ar_model: ar_model.as_deref(),
+        models: Vec::new(),
     });
     std::fs::write(out, html).expect("writable");
 }

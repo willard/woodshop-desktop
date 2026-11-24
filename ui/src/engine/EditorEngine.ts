@@ -12,6 +12,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { Spec, Part, Material, Op, HardwareMount } from '../spec/types';
 import { derivedHoleOps } from '../spec/movables';
 import { buildPropsGroup, buildSpecGroup } from './buildScene';
+import { loadKeptModel } from './importedModels';
 import { place, type PlacedSize, type SizeCandidate, type SizeGroup } from './sizeLabels';
 import { woodMaterialProvider, createGrainTexture, shadeGrain, type MaterialProvider } from './materials';
 import { computeSnap, clampAnchorToWorkspace, aabbFromPart, type AABB, type Vec3 } from './snapping';
@@ -178,6 +179,11 @@ export class EditorEngine {
     /** Props (spec 1.22): shown with the piece, never picked, dragged or exploded as parts. */
     private propsGroup: THREE.Group | null = null;
     private propsVisible = true;
+    /** Imported models (spec 1.22), loaded once each by hash and shared by every prop that shows one. */
+    private readonly models = new Map<string, THREE.Object3D>();
+    private readonly modelsLoading = new Set<string>();
+    /** Fetches an imported model's GLB by hash: the library in the app, the page in a 3D plan. */
+    modelSource: ((hash: string) => Promise<ArrayBuffer | null>) | null = null;
     private renderScheduled = false;
     private disposed = false;
 
@@ -1676,10 +1682,11 @@ export class EditorEngine {
             child.userData.baseQuat = [q.x, q.y, q.z, q.w];
         }
         this.scene.add(this.partsGroup);
-        this.propsGroup = buildPropsGroup(spec);
+        this.propsGroup = buildPropsGroup(spec, this.models);
         this.propsGroup.visible = this.propsVisible;
         this.scene.add(this.propsGroup);
         this.currentSpec = spec;
+        this.loadMissingModels(spec);
         // Hardware casts too (a caster's shadow is what puts it on the floor); fastener marks don't.
         this.partsGroup.traverse((object) => {
             if (object.userData.hardware !== undefined) object.castShadow = true;
@@ -2316,6 +2323,51 @@ export class EditorEngine {
             disposeObject(this.propsGroup);
             this.propsGroup = null;
         }
+    }
+
+    /** Loads the imported models the spec shows that aren't loaded yet, then redraws the props. */
+    private loadMissingModels(spec: Spec): void {
+        const source = this.modelSource;
+        if (source === null) return;
+        for (const model of spec.models ?? []) {
+            const hash = model.hash;
+            if (this.models.has(hash) || this.modelsLoading.has(hash)) continue;
+            this.modelsLoading.add(hash);
+            source(hash)
+                .then((bytes) => (bytes === null ? null : loadKeptModel(bytes)))
+                .then((object) => {
+                    if (object === null || this.disposed) return;
+                    this.models.set(hash, object);
+                    this.rebuildProps();
+                })
+                .catch(() => {
+                    // Missing or unreadable: it stays a box of its size.
+                })
+                .finally(() => this.modelsLoading.delete(hash));
+        }
+    }
+
+    /** A model the editor already holds (just imported), so it is drawn without fetching it back. */
+    addLoadedModel(hash: string, object: THREE.Object3D): void {
+        this.models.set(hash, object);
+        this.rebuildProps();
+    }
+
+    /** The imported models loaded so far, by hash: the video draws the same ones. */
+    loadedModels(): ReadonlyMap<string, THREE.Object3D> {
+        return this.models;
+    }
+
+    private rebuildProps(): void {
+        if (this.currentSpec === null || this.partsGroup === null) return;
+        if (this.propsGroup !== null) {
+            this.scene.remove(this.propsGroup);
+            disposeObject(this.propsGroup);
+        }
+        this.propsGroup = buildPropsGroup(this.currentSpec, this.models);
+        this.propsGroup.visible = this.propsVisible;
+        this.scene.add(this.propsGroup);
+        this.requestRender();
     }
 
     /** Shows or hides the props (spec 1.22), such as the totes on a rack, to see the woodwork. */

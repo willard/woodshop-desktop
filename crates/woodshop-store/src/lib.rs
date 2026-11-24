@@ -43,7 +43,11 @@ pub enum StoreError {
 
 pub type Result<T> = std::result::Result<T, StoreError>;
 
-const MIGRATIONS: &[&str] = &[include_str!("schema.sql"), include_str!("schema_v2.sql")];
+const MIGRATIONS: &[&str] = &[
+    include_str!("schema.sql"),
+    include_str!("schema_v2.sql"),
+    include_str!("schema_v3.sql"),
+];
 
 /// Milliseconds since the Unix epoch.
 pub fn now_ms() -> i64 {
@@ -528,6 +532,46 @@ impl Store {
     }
 
     // -----------------------------------------------------------------------------------------
+    // Imported 3D models (spec 1.22)
+
+    /// Keep a GLB file; returns its SHA-256 hash, the id a spec's `models` entry names. The same
+    /// bytes are kept once however often they are put.
+    pub fn put_model(&self, glb: &[u8]) -> Result<String> {
+        check_glb(glb)?;
+        let hash = sha256_hex(glb);
+        self.conn.execute(
+            "INSERT OR IGNORE INTO models (hash, glb, bytes, created_at) VALUES (?1, ?2, ?3, ?4)",
+            params![hash, glb, glb.len() as i64, now_ms()],
+        )?;
+        Ok(hash)
+    }
+
+    /// The GLB file kept under `hash`, if the library has it.
+    pub fn model(&self, hash: &str) -> Result<Option<Vec<u8>>> {
+        Ok(self
+            .conn
+            .query_row("SELECT glb FROM models WHERE hash = ?1", [hash], |r| r.get(0))
+            .optional()?)
+    }
+
+    /// Every model a spec shows, as (hash, GLB), for the ones the library has.
+    pub fn models_for<'a>(&self, specs: impl IntoIterator<Item = &'a Spec>) -> Result<Vec<(String, Vec<u8>)>> {
+        let mut hashes: Vec<&str> = specs
+            .into_iter()
+            .flat_map(|s| s.models().iter().map(|m| m.hash.as_str()))
+            .collect();
+        hashes.sort_unstable();
+        hashes.dedup();
+        let mut out = Vec::new();
+        for hash in hashes {
+            if let Some(glb) = self.model(hash)? {
+                out.push((hash.to_owned(), glb));
+            }
+        }
+        Ok(out)
+    }
+
+    // -----------------------------------------------------------------------------------------
     // Archives (.woodshop files)
 
     pub fn export_archive(&self, id: i64) -> Result<ProjectArchive> {
@@ -555,12 +599,14 @@ impl Store {
             .filter(|p| p.exists())
             .map(std::fs::read)
             .transpose()?;
+        let models = self.models_for(std::iter::once(&project.draft).chain(versions.iter().map(|v| &v.spec)))?;
         Ok(ProjectArchive {
             name: project.name,
             draft: project.draft,
             versions,
             notes,
             thumbnail,
+            models,
         })
     }
 
@@ -594,6 +640,12 @@ impl Store {
             && self.thumbnails.is_some()
         {
             self.save_thumbnail(project.id, png)?;
+        }
+        // The file carries its models by hash; one that does not match its hash is left out.
+        for (hash, glb) in &archive.models {
+            if check_glb(glb).is_ok() && sha256_hex(glb) == *hash {
+                self.put_model(glb)?;
+            }
         }
         self.get_project(project.id)
     }
@@ -646,3 +698,23 @@ fn note_row(r: &rusqlite::Row<'_>) -> rusqlite::Result<Note> {
 
 #[cfg(test)]
 mod tests;
+
+/// The most a single imported model may be, in bytes.
+pub const MODEL_MAX_BYTES: usize = 12_000_000;
+
+/// A GLB (binary glTF 2.0) file of a size the library keeps, or why not.
+fn check_glb(glb: &[u8]) -> Result<()> {
+    let invalid = |m: &str| StoreError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, m.to_owned()));
+    if glb.len() < 20 || &glb[..4] != b"glTF" || u32::from_le_bytes([glb[4], glb[5], glb[6], glb[7]]) != 2 {
+        return Err(invalid("a model must be a GLB file (binary glTF 2.0)"));
+    }
+    if glb.len() > MODEL_MAX_BYTES {
+        return Err(invalid("a model must be 12 MB or less"));
+    }
+    Ok(())
+}
+
+pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    Sha256::digest(bytes).iter().map(|b| format!("{b:02x}")).collect()
+}

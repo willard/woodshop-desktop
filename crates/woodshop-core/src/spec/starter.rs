@@ -162,6 +162,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
         movables: None,
         hardware: None,
         props: None,
+        models: None,
         meta: Some(Meta {
             difficulty: Some(Difficulty::Beginner),
             notes: None,

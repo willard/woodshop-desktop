@@ -28,6 +28,7 @@ export function installMockBackend(): void {
     const keychain = new Set<string>();
     let stopAssistant: (() => void) | null = null;
     const chats = new Map<number, unknown>();
+    const models = new Map<string, Uint8Array>();
     const backups: { file: string; createdAt: number; bytes: number; projects: Row[] }[] = [];
     let nextId = 1;
     let clock = Date.now();
@@ -386,6 +387,22 @@ export function installMockBackend(): void {
             const file = a.file as { path: string; contents: string };
             const store = window as unknown as { __written?: Record<string, string> };
             store.__written = { ...(store.__written ?? {}), [file.path]: file.contents };
+        },
+        // Imported models (spec 1.22), by the SHA-256 of their bytes, as the library keeps them.
+        put_model: async (a) => {
+            const bytes = a as unknown as Uint8Array;
+            const head = String.fromCharCode(...bytes.subarray(0, 4));
+            if (head !== 'glTF')
+                throw { kind: 'io', message: 'a model must be a GLB file (binary glTF 2.0)' };
+            const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes.slice().buffer));
+            const hash = Array.from(digest, (b) => b.toString(16).padStart(2, '0')).join('');
+            models.set(hash, bytes.slice());
+            return hash;
+        },
+        get_model: (a) => {
+            const bytes = models.get(String(a.hash));
+            if (bytes === undefined) throw notFound('Model');
+            return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
         },
         // The raw body arrives without its headers here, so the preview keeps the last file only.
         write_binary_file: (a) => {

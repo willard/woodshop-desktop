@@ -45,7 +45,8 @@ fn prop_item(id: &str) -> Result<&'static hardware::Item, String> {
 pub const ADD_PROP: ToolDef = ToolDef {
     name: "add_prop",
     description: "Show something with the piece that is not built: the totes on a tote rack, a saw on its stand. \
-        Give a catalog prop `item` (list_hardware, category \"props\") and where it stands in the world. It is \
+        Give a catalog prop `item` (list_hardware, category \"props\"), or a `model` the person imported (the \
+        design's `models`, from get_design), and where it stands in the world. It is \
         drawn in the 3D view and the 3D plan, so a client sees the piece in use, but it is never in the cut list, \
         the hardware list, the cost, the overall size or the design checks. Returns the new prop id.",
     read_only: false,
@@ -54,30 +55,55 @@ pub const ADD_PROP: ToolDef = ToolDef {
             json!({
                 "project_id": integer(PROJECT_ID),
                 "item": string("The catalog prop id, e.g. \"prop.tote-hdx-27gal\"."),
+                "model": string("Instead of `item`: the id of a model in the design's `models` (imported from a file in the app; agents cannot import)."),
                 "pos": triple(POS_HELP),
                 "rot": number(ROT_HELP),
                 "name": string("What to call it, e.g. \"Tote, bay 1 upper\". Omit for the catalog name."),
                 "color": string(COLOR_HELP),
                 "accent": string(ACCENT_HELP),
             }),
-            &["project_id", "item", "pos"],
+            &["project_id", "pos"],
         )
     },
     run: |w, args| {
         let project_id = args.project_id(PROVIDE_PROJECT)?;
-        let item_id = args.str(
-            "item",
-            "Provide the catalog id of the prop (list_hardware, category \"props\").",
-        )?;
-        let item = prop_item(item_id)?;
+        let item_id = args.opt_str("item")?;
+        let model_id = args.opt_str("model")?;
+        let item = match (item_id, model_id) {
+            (Some(id), None) => Some(prop_item(id)?),
+            (None, Some(_)) => None,
+            _ => {
+                return Err(
+                    "Give either `item` (a catalog prop) or `model` (one of the design's imported models).".into(),
+                );
+            }
+        };
         let pos = args.vec3("pos", -240.0, 240.0, "pos must be three numbers: [x, y, z].")?;
         let rot = args.opt_num("rot", -180.0, 180.0)?;
         let name = args.opt_str_max("name", 60)?.map(str::trim).filter(|n| !n.is_empty());
         let color = colour(args, "color")?;
         let accent = colour(args, "accent")?;
         let design = w.load_editable(project_id)?;
-        let id = unique_id(&ids(&design.draft, "props"), "pr_", item_id.trim_start_matches("prop."));
-        let mut prop = json!({ "id": id, "item": item_id, "pos": pos });
+        let (stem, base_name, mut prop) = match (item, model_id) {
+            (Some(item), _) => (
+                item.id.trim_start_matches("prop.").to_owned(),
+                item.name.clone(),
+                json!({ "item": item.id, "pos": pos }),
+            ),
+            (None, Some(model)) => {
+                let found = find(&design.draft, "models", model).ok_or_else(|| {
+                    format!("No model \"{model}\" in this design. get_design lists its `models`; a model is imported in the app.")
+                })?;
+                (
+                    model.to_owned(),
+                    text(found, "name").to_owned(),
+                    json!({ "model": model, "pos": pos }),
+                )
+            }
+            (None, None) => unreachable!("checked above"),
+        };
+        let id = unique_id(&ids(&design.draft, "props"), "pr_", &stem);
+        prop["id"] = id.clone().into();
         for (key, value) in [("name", name), ("color", color), ("accent", accent)] {
             if let Some(v) = value {
                 prop[key] = v.into();
@@ -86,7 +112,7 @@ pub const ADD_PROP: ToolDef = ToolDef {
         if let Some(rot) = rot.filter(|r| *r != 0.0) {
             prop["rot"] = rot.into();
         }
-        let label = name.unwrap_or(&item.name).to_owned();
+        let label = name.unwrap_or(&base_name).to_owned();
         let result = w.apply(&design, &format!("Add {label}"), false, |spec| {
             push(spec, "props", prop)
         });
@@ -114,6 +140,7 @@ pub const UPDATE_PROP: ToolDef = ToolDef {
                 "project_id": integer(PROJECT_ID),
                 "prop_id": string("The prop's id (from get_design's `props` list)."),
                 "item": string("Swap it for this catalog prop."),
+                "model": string("Swap it for this imported model (the design's `models`)."),
                 "pos": triple(POS_HELP),
                 "rot": number(ROT_HELP),
                 "name": string("A new name."),
@@ -130,6 +157,10 @@ pub const UPDATE_PROP: ToolDef = ToolDef {
         if let Some(id) = item {
             prop_item(id)?;
         }
+        let model = args.opt_str("model")?;
+        if item.is_some() && model.is_some() {
+            return Err("Give `item` or `model`, not both.".into());
+        }
         let pos = args.opt_vec3("pos", -240.0, 240.0, "pos must be three numbers: [x, y, z].")?;
         let rot = args.opt_num("rot", -180.0, 180.0)?;
         let name = args.opt_str_max("name", 60)?.map(str::trim).filter(|n| !n.is_empty());
@@ -138,6 +169,7 @@ pub const UPDATE_PROP: ToolDef = ToolDef {
         let color = if reset_color { None } else { colour(args, "color")? };
         let accent = if reset_accent { None } else { colour(args, "accent")? };
         if item.is_none()
+            && model.is_none()
             && pos.is_none()
             && rot.is_none()
             && name.is_none()
@@ -150,6 +182,13 @@ pub const UPDATE_PROP: ToolDef = ToolDef {
         }
         let design = w.load_editable(project_id)?;
         let current = find(&design.draft, "props", prop_id).ok_or_else(|| no_prop(prop_id))?;
+        if let Some(model) = model
+            && find(&design.draft, "models", model).is_none()
+        {
+            return Err(format!(
+                "No model \"{model}\" in this design. get_design lists its `models`."
+            ));
+        }
         let label = current["name"]
             .as_str()
             .or_else(|| hardware::find(text(current, "item")).map(|i| i.name.as_str()))
@@ -159,6 +198,11 @@ pub const UPDATE_PROP: ToolDef = ToolDef {
             map_one(spec, "props", prop_id, |p| {
                 if let Some(item) = item {
                     p.insert("item".into(), item.into());
+                    p.remove("model");
+                }
+                if let Some(model) = model {
+                    p.insert("model".into(), model.into());
+                    p.remove("item");
                 }
                 if let Some(pos) = pos {
                     p.insert("pos".into(), json!(pos));

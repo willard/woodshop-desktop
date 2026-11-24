@@ -15,6 +15,8 @@ export type Movable = NonNullable<Spec['movables']>[number];
 export type HardwareMount = NonNullable<Spec['hardware']>[number];
 /** Something shown with the piece but not built, such as a tote on a tote rack (spec 1.22). */
 export type Prop = NonNullable<Spec['props']>[number];
+/** A 3D model imported from a file for props to show (spec 1.22); its GLB is kept by hash. */
+export type ImportedModel = NonNullable<Spec['models']>[number];
 /** A side of a part hardware can mount on: a face or an edge, in the local frame. */
 export type Side = HardwareMount['side'];
 export type Op = Part['ops'] extends readonly (infer O)[] | undefined ? O : never;

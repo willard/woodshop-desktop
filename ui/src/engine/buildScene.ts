@@ -238,8 +238,11 @@ export function buildSpecGroup(
  * rack, in their own group so nothing that walks the parts (picking, dragging, the exploded view,
  * hiding, build steps) ever meets them. Each is a group named by its id, standing at its `pos`
  * (the middle of its bottom) and turned `rot` degrees about the vertical.
+ *
+ * An imported model (spec 1.22) is drawn from `models`, its loaded GLB by hash; one not loaded yet
+ * is a plain box of its size, so the layout is right while the file comes in.
  */
-export function buildPropsGroup(spec: Spec): THREE.Group {
+export function buildPropsGroup(spec: Spec, models?: ReadonlyMap<string, THREE.Object3D>): THREE.Group {
     const group = new THREE.Group();
     group.name = 'spec-props';
     const materials = new Map<string, THREE.MeshStandardMaterial>();
@@ -252,6 +255,11 @@ export function buildPropsGroup(spec: Spec): THREE.Group {
         return material;
     };
     for (const prop of spec.props ?? []) {
+        if (prop.model !== undefined) {
+            const holder = importedModel(spec, prop, models);
+            if (holder !== null) group.add(holder);
+            continue;
+        }
         const item = findItem(prop.item);
         if (item?.prop !== true) {
             continue; // the linter names a prop that isn't one
@@ -282,6 +290,43 @@ export function buildPropsGroup(spec: Spec): THREE.Group {
         group.add(holder);
     }
     return group;
+}
+
+/** A prop that shows one of the design's imported models, or null when the model is missing. */
+function importedModel(
+    spec: Spec,
+    prop: NonNullable<Spec['props']>[number],
+    models: ReadonlyMap<string, THREE.Object3D> | undefined,
+): THREE.Group | null {
+    const entry = (spec.models ?? []).find((m) => m.id === prop.model);
+    if (entry === undefined) {
+        return null; // the linter names it
+    }
+    const holder = new THREE.Group();
+    holder.name = prop.id;
+    holder.userData = { propId: prop.id, modelHash: entry.hash };
+    const loaded = models?.get(entry.hash);
+    if (loaded !== undefined) {
+        const copy = loaded.clone(true);
+        copy.traverse((object) => {
+            object.userData = { propId: prop.id };
+            object.castShadow = true;
+            object.receiveShadow = true;
+        });
+        holder.add(copy);
+    } else {
+        const { l, w, h } = entry.size;
+        const box = new THREE.Mesh(
+            new THREE.BoxGeometry(l, h, w).translate(0, h / 2, 0),
+            new THREE.MeshStandardMaterial({ color: '#8e8e93', transparent: true, opacity: 0.35 }),
+        );
+        box.userData = { propId: prop.id, placeholder: true };
+        holder.add(box);
+        holder.userData.placeholder = true;
+    }
+    holder.position.set(prop.pos[0], prop.pos[1], prop.pos[2]);
+    holder.rotation.y = (prop.rot ?? 0) * DEG2RAD;
+    return holder;
 }
 
 /** Places `piece` at `pos` with its long axis along `x` and its outward direction along `z`. */

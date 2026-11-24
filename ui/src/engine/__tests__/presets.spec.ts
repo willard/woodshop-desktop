@@ -16,6 +16,7 @@ function specWithTop(pos: [number, number, number] = [0, THICKNESS / 2, 0]): Spe
         movables: [],
         hardware: [],
         props: [],
+        models: [],
         groups: [],
         materials: [
             {

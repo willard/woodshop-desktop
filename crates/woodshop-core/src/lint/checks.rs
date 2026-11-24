@@ -1050,6 +1050,33 @@ pub(super) fn hardware(spec: &Spec, issues: &mut Vec<LintIssue>) {
 /// Props (1.22) are only drawn, so nothing about them stops a build: ids must still be unique,
 /// and the item must be a catalog prop for it to be drawn at all.
 pub(super) fn props(spec: &Spec, issues: &mut Vec<LintIssue>) {
+    let mut model_ids = std::collections::HashSet::new();
+    let mut total_bytes = 0u64;
+    for model in spec.models() {
+        total_bytes += model.bytes;
+        if !model_ids.insert(model.id.as_str()) {
+            issues.push(LintIssue::general(
+                Severity::Error,
+                "model.duplicate-id",
+                format!(
+                    "Duplicate model id \"{}\". Every imported model must have a unique id.",
+                    model.id
+                ),
+            ));
+        }
+    }
+    if total_bytes > MODELS_MAX_BYTES {
+        issues.push(LintIssue::general(
+            Severity::Warn,
+            "model.too-large",
+            format!(
+                "The imported models come to {} MB, over the {} MB a design should carry: the .woodshop file and the 3D plan get slow to open. Remove one, or import a simpler model.",
+                total_bytes.div_ceil(1_000_000),
+                MODELS_MAX_BYTES / 1_000_000
+            ),
+        ));
+    }
+
     let mut seen = std::collections::HashSet::new();
     for prop in spec.props() {
         let label = prop.name.as_deref().unwrap_or(prop.id.as_str());
@@ -1060,27 +1087,49 @@ pub(super) fn props(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 format!("Duplicate prop id \"{}\". Every prop must have a unique id.", prop.id),
             ));
         }
-        match crate::hardware::find(&prop.item) {
-            Some(item) if item.prop => {}
-            Some(item) => issues.push(LintIssue::general(
-                Severity::Warn,
-                "prop.not-a-prop",
-                format!(
-                    "\"{label}\" is {}, which is hardware: mount it on a part instead. It isn't drawn as a prop.",
-                    item.name
-                ),
+        let problem = match (prop.item.as_deref(), prop.model.as_deref()) {
+            (Some(_), Some(_)) => Some((
+                Severity::Error,
+                "prop.item-and-model",
+                format!("\"{label}\" names both a catalog item and an imported model. Keep one."),
             )),
-            None => issues.push(LintIssue::general(
-                Severity::Warn,
-                "prop.unknown-item",
-                format!(
-                    "\"{label}\" is \"{}\", which isn't in this version's catalog, so it isn't drawn.",
-                    prop.item
-                ),
+            (None, None) => Some((
+                Severity::Error,
+                "prop.no-item",
+                format!("\"{label}\" names no catalog item and no imported model, so there is nothing to draw."),
             )),
+            (None, Some(model)) => (spec.models().iter().all(|m| m.id != model)).then(|| {
+                (
+                    Severity::Warn,
+                    "prop.unknown-model",
+                    format!("\"{label}\" shows the model \"{model}\", which isn't in the design's models, so it isn't drawn."),
+                )
+            }),
+            (Some(id), None) => match crate::hardware::find(id) {
+                Some(item) if item.prop => None,
+                Some(item) => Some((
+                    Severity::Warn,
+                    "prop.not-a-prop",
+                    format!(
+                        "\"{label}\" is {}, which is hardware: mount it on a part instead. It isn't drawn as a prop.",
+                        item.name
+                    ),
+                )),
+                None => Some((
+                    Severity::Warn,
+                    "prop.unknown-item",
+                    format!("\"{label}\" is \"{id}\", which isn't in this version's catalog, so it isn't drawn."),
+                )),
+            },
+        };
+        if let Some((severity, code, message)) = problem {
+            issues.push(LintIssue::general(severity, code, message));
         }
     }
 }
+
+/// What the imported models of one design should come to at most, in bytes.
+pub const MODELS_MAX_BYTES: u64 = 25_000_000;
 
 /// How closely a drawer box has to match the width its slides call for.
 const SLIDE_FIT_TOL: f64 = 1.0 / 32.0;

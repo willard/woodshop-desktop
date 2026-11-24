@@ -20,6 +20,15 @@ All notable changes to Woodshop are listed here. The format follows
   place, builds the piece without them, and ends with them sliding in, one after another, so it
   closes on the piece in use. Agents use `add_prop`,
   `update_prop` and `delete_prop`.
+- Import a 3D model to show with a piece (format 1.22): Things to show ▸ Import a 3D model reads a
+  GLB or STL file, such as a tool box or a bin from its maker's site. Check its real size (type
+  its length if the file's scale is wrong) and stand it up, name it, and say where it is from and
+  its licence. It is kept once in your library, carried in the `.woodshop` file, the 3D plan
+  (offline, with its credit) and backups, and shown in the 3D view, the 3D exports and the video
+  like a tote, never in the cut list. Rest it on two parts says if it would drop between them. A
+  GLB must hold everything in one file (no textures beside it, no Draco compression); a model
+  can be 12 MB, and a design should carry 25 MB at most. Agents can place more of a model the
+  design already has (`add_prop` with `model`).
 - Toggle latches, 3" and 4", in Hardware ▸ Latches & catches: a draw latch and its keeper, drawn
   closed across the joint. On a cart's front leg, one holds a folded wing tight so it can't swing
   out while the cart rolls.

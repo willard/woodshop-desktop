@@ -312,6 +312,11 @@ their stock, and a fully connected assembly with no floating parts.
 - A prop is drawn in the 3D view and the 3D plan only. It is never in the cut list, the hardware
   list, the cost, the overall size or the drawings, and the checks don't test whether it fits:
   work it out from the parts it sits on (`explain_part` gives their world boxes). A prop never goes in `hardware`, nor hardware in `props`.
+- A prop can show an imported 3D model instead of a catalog item: `model` names one of the
+  design's `models` (each with its `name`, `size` {l, w, h} in inches as it stands, and the
+  SHA-256 `hash` of its GLB). People import models in the app from GLB or STL files; agents
+  cannot import, but can place more of a model the design already has (`add_prop` with `model`).
+  A model stands on its bottom, centred, its length along X, like a catalog prop.
 - A tote hangs by its rim: put its bottom `height - lid - rim` (the item's description gives it)
   below the tops of the runners it rests on, centred between them, its length along the runners.
   One prop per tote.

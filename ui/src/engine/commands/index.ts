@@ -52,7 +52,7 @@ export {
     uniqueHardwareId,
     type HardwarePatch,
 } from './hardware';
-export { AddProp, UpdateProp, RemoveProp, uniquePropId, type PropPatch } from './props';
+export { AddProp, UpdateProp, RemoveProp, uniquePropId, uniqueModelId, type PropPatch } from './props';
 import { cloneHardware, detachHardware, reattachHardware, type DetachedHardware } from './hardware';
 export type { MovableAddition } from './movables';
 

@@ -2,7 +2,7 @@
  * Prop commands (spec 1.22): things shown with the piece but not built, such as the totes on a
  * tote rack. They reference no part, so nothing else has to follow them; each is one undo step.
  */
-import type { Prop, Spec } from '../../spec/types';
+import type { ImportedModel, Prop, Spec } from '../../spec/types';
 import type { Command } from './Command';
 
 /** A prop id not already used in the spec: `pr_<item>` with a counter when taken. */
@@ -20,19 +20,54 @@ export function uniquePropId(spec: Spec, item: string): string {
     return candidate;
 }
 
+/** A model id not already used in the spec: `m_<name>` with a counter when taken. */
+export function uniqueModelId(spec: Spec, name: string): string {
+    const used = new Set((spec.models ?? []).map((m) => m.id));
+    const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+    const stem = `m_${/^[a-z]/.test(slug) ? slug : `model_${slug}`}`.replace(/_+$/, '').slice(0, 34);
+    let candidate = stem;
+    for (let n = 2; used.has(candidate); n += 1) {
+        candidate = `${stem}_${n}`;
+    }
+    return candidate;
+}
+
+/**
+ * Adds a prop; with `model`, also the imported model it shows (spec 1.22), unless the design
+ * already lists that model. Undo takes back what it added.
+ */
 export class AddProp implements Command {
     readonly label = 'Add a prop';
-    constructor(private readonly prop: Prop) {}
+    private addedModel = false;
+    constructor(
+        private readonly prop: Prop,
+        private readonly model?: ImportedModel,
+    ) {}
 
     do(spec: Spec): Spec {
         if ((spec.props ?? []).some((p) => p.id === this.prop.id)) {
             return spec;
         }
-        return { ...spec, props: [...(spec.props ?? []), this.prop] };
+        const models = spec.models ?? [];
+        this.addedModel = this.model !== undefined && !models.some((m) => m.id === this.model!.id);
+        return {
+            ...spec,
+            props: [...(spec.props ?? []), this.prop],
+            models: this.addedModel ? [...models, this.model!] : models,
+        };
     }
 
     undo(spec: Spec): Spec {
-        return { ...spec, props: (spec.props ?? []).filter((p) => p.id !== this.prop.id) };
+        return {
+            ...spec,
+            props: (spec.props ?? []).filter((p) => p.id !== this.prop.id),
+            models: this.addedModel
+                ? (spec.models ?? []).filter((m) => m.id !== this.model!.id)
+                : (spec.models ?? []),
+        };
     }
 }
 
@@ -73,9 +108,11 @@ export class UpdateProp implements Command {
     }
 }
 
+/** Removes a prop, and the imported model it showed once no other prop shows it. */
 export class RemoveProp implements Command {
     readonly label = 'Remove a prop';
     private removed?: { prop: Prop; index: number };
+    private droppedModel?: { model: ImportedModel; index: number };
 
     constructor(private readonly id: string) {}
 
@@ -85,8 +122,17 @@ export class RemoveProp implements Command {
         if (index === -1) {
             return spec;
         }
-        this.removed = { prop: props[index], index };
-        return { ...spec, props: props.filter((p) => p.id !== this.id) };
+        const prop = props[index];
+        this.removed = { prop, index };
+        const rest = props.filter((p) => p.id !== this.id);
+        const models = spec.models ?? [];
+        const modelIndex = models.findIndex((m) => m.id === prop.model);
+        this.droppedModel = undefined;
+        if (modelIndex !== -1 && !rest.some((p) => p.model === prop.model)) {
+            this.droppedModel = { model: models[modelIndex], index: modelIndex };
+            return { ...spec, props: rest, models: models.filter((_, i) => i !== modelIndex) };
+        }
+        return { ...spec, props: rest };
     }
 
     undo(spec: Spec): Spec {
@@ -95,6 +141,9 @@ export class RemoveProp implements Command {
         }
         const props = [...(spec.props ?? [])];
         props.splice(this.removed.index, 0, this.removed.prop);
-        return { ...spec, props };
+        const models = [...(spec.models ?? [])];
+        if (this.droppedModel !== undefined)
+            models.splice(this.droppedModel.index, 0, this.droppedModel.model);
+        return { ...spec, props, models };
     }
 }

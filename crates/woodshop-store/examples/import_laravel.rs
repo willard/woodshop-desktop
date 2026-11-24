@@ -163,6 +163,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 versions,
                 notes,
                 thumbnail,
+                models: Vec::new(),
             };
             let new = store.import_archive(archive)?;
             store.set_project_dates(

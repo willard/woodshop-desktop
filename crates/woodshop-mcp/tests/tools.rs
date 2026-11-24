@@ -1323,6 +1323,15 @@ fn a_tote_is_placed_moved_and_removed_as_a_prop_and_never_counted() {
         .contains("#rrggbb")
     );
 
+    assert!(
+        err(
+            &w,
+            "add_prop",
+            json!({ "project_id": id, "model": "m_box", "pos": [0, 0, 0] })
+        )
+        .contains("No model")
+    );
+    assert!(err(&w, "add_prop", json!({ "project_id": id, "pos": [0, 0, 0] })).contains("either"));
     let placed = ok(
         &w,
         "add_prop",

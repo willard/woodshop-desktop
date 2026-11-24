@@ -173,6 +173,8 @@ pub fn run() {
             commands::create_project_from_spec,
             commands::write_text_file,
             commands::write_binary_file,
+            commands::put_model,
+            commands::get_model,
             commands::mcp_setup,
             commands::export_pdf,
             commands::export_labels,

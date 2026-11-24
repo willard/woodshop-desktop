@@ -16,8 +16,8 @@ function dim(item: HardwareItem, key: string, fallback: number): number {
 }
 
 /** How far above its bottom the prop bears on what holds it: a tote hangs by its rim. */
-export function hangHeight(item: HardwareItem): number {
-    if (item.model.shape !== 'tote') return 0;
+export function hangHeight(item: HardwareItem | null): number {
+    if (item === null || item.model.shape !== 'tote') return 0;
     const height = dim(item, 'height', 15);
     return (
         height - Math.min(dim(item, 'lid', 1.25), height / 4) - Math.min(dim(item, 'rim', 1.5), height / 4)
@@ -39,8 +39,8 @@ function boxOf(spec: Spec, part: Part): AABB {
     return aabbFromPart(part, thickness);
 }
 
-/** On the floor, just in front of the piece and centred on it, turned square. */
-export function besideThePiece(spec: Spec, item: HardwareItem): Point {
+/** On the floor, just in front of the piece and centred on it, for something `depth` deep. */
+export function besideThePiece(spec: Spec, depth: number): Point {
     if (spec.parts.length === 0) return [0, 0, 0];
     let minX = Infinity;
     let maxX = -Infinity;
@@ -52,7 +52,7 @@ export function besideThePiece(spec: Spec, item: HardwareItem): Point {
         maxZ = Math.max(maxZ, box.max[2]);
     }
     const round = (n: number) => Math.round(n * 16) / 16;
-    return [round((minX + maxX) / 2), 0, round(maxZ + dim(item, 'width', 12) / 2 + 2)];
+    return [round((minX + maxX) / 2), 0, round(maxZ + depth / 2 + 2)];
 }
 
 export interface Resting {
@@ -64,10 +64,18 @@ export interface Resting {
 
 /**
  * The prop resting on two parallel parts, such as a tote hung by its rim on a pair of runners:
- * centred between them, its length along them, its bearing height on their tops. Null when the
- * two do not run side by side.
+ * centred between them, its length along them, its bearing height on their tops. `item` is null
+ * for an imported model, which stands on them by its bottom. Null when the two do not run side
+ * by side.
  */
-export function restOn(spec: Spec, item: HardwareItem, aId: string, bId: string): Resting | null {
+export function restOn(
+    spec: Spec,
+    item: HardwareItem | null,
+    aId: string,
+    bId: string,
+    /** An imported model's length and depth, to check it spans the gap. */
+    footprint?: { l: number; w: number },
+): Resting | null {
     const a = spec.parts.find((p) => p.id === aId);
     const b = spec.parts.find((p) => p.id === bId);
     if (a === undefined || b === undefined || a.id === b.id) return null;
@@ -93,7 +101,7 @@ export function restOn(spec: Spec, item: HardwareItem, aId: string, bId: string)
 
     const problems: string[] = [];
     const fmt = (n: number) => `${Math.round(n * 100) / 100}"`;
-    if (item.model.shape === 'tote') {
+    if (item !== null && item.model.shape === 'tote') {
         const { rim, body } = toteWidths(item);
         const outside = far.max[across] - near.min[across];
         if (body > gap) {
@@ -113,6 +121,21 @@ export function restOn(spec: Spec, item: HardwareItem, aId: string, bId: string)
         const length = dim(item, 'length', 28.5);
         if (length > end - start + 0.01) {
             problems.push(`It is ${fmt(length)} long and the runners carry it for ${fmt(end - start)}.`);
+        }
+    }
+    if (item === null && footprint !== undefined) {
+        const outside = far.max[across] - near.min[across];
+        if (footprint.w <= gap) {
+            problems.push(
+                `It is ${fmt(footprint.w)} across, so it drops through the ${fmt(gap)} between them.`,
+            );
+        } else if (footprint.w > outside + 0.01) {
+            problems.push(
+                `It is ${fmt(footprint.w)} across, wider than their outside faces (${fmt(outside)}).`,
+            );
+        }
+        if (footprint.l > end - start + 0.01) {
+            problems.push(`It is ${fmt(footprint.l)} long and they carry it for ${fmt(end - start)}.`);
         }
     }
     if (Math.abs(boxA.max[1] - boxB.max[1]) > 1 / 32) {

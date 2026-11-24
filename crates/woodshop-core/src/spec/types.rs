@@ -26,6 +26,9 @@ pub struct Spec {
     /// Things shown with the piece but not built (1.22): totes on a rack, a saw on its stand.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub props: Option<Vec<Prop>>,
+    /// 3D models imported from files for props to show (1.22); the files are kept by hash.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub models: Option<Vec<ImportedModel>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub meta: Option<Meta>,
 }
@@ -49,6 +52,10 @@ impl Spec {
 
     pub fn props(&self) -> &[Prop] {
         self.props.as_deref().unwrap_or_default()
+    }
+
+    pub fn models(&self) -> &[ImportedModel] {
+        self.models.as_deref().unwrap_or_default()
     }
 
     pub fn material(&self, id: &str) -> Option<&Material> {
@@ -918,7 +925,12 @@ pub struct HardwareMount {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Prop {
     pub id: Id,
-    pub item: String,
+    /// A catalog prop; or else `model`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub item: Option<String>,
+    /// One of the design's imported `models`, by id.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<Id>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The middle of its bottom, in world inches (y up).
@@ -932,6 +944,31 @@ pub struct Prop {
     /// `#rrggbb` second colour (a tote's lid); `None` = the catalog's.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub accent: Option<String>,
+}
+
+/// A 3D model imported from a GLB or STL file (1.22), for props to show. The GLB itself is kept
+/// in the library under its SHA-256 `hash` and travels in `.woodshop` files and 3D plans.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ImportedModel {
+    pub id: Id,
+    pub name: String,
+    pub hash: String,
+    /// As imported: standing on its bottom, centred, in inches.
+    pub size: ModelSize,
+    /// The size of its GLB file.
+    pub bytes: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct ModelSize {
+    pub l: f64,
+    pub w: f64,
+    pub h: f64,
 }
 
 /// A metal finish for visible hardware (1.16).

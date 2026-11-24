@@ -346,6 +346,31 @@ pub fn write_binary_file(request: tauri::ipc::Request<'_>) -> CmdResult<()> {
     Ok(())
 }
 
+// ---------------------------------------------------------------------------------------------
+// Imported 3D models (spec 1.22)
+
+/// Keep an imported model's GLB file (the raw request body) in the library; returns its hash.
+#[tauri::command]
+pub fn put_model(lib: State<'_, Library>, request: tauri::ipc::Request<'_>) -> CmdResult<String> {
+    let tauri::ipc::InvokeBody::Raw(bytes) = request.body() else {
+        return Err(CommandError::invalid(vec![
+            "The model must be sent as raw bytes.".into(),
+        ]));
+    };
+    lib.with(|s| s.put_model(bytes))
+}
+
+/// An imported model's GLB file, as raw bytes; not found when the library doesn't have it.
+#[tauri::command]
+pub fn get_model(lib: State<'_, Library>, hash: String) -> CmdResult<tauri::ipc::Response> {
+    match lib.with(|s| s.model(&hash))? {
+        Some(glb) => Ok(tauri::ipc::Response::new(glb)),
+        None => Err(CommandError::NotFound {
+            message: format!("No model {hash} in the library."),
+        }),
+    }
+}
+
 /// Standard base64 (with or without padding) to bytes; None if it is not base64.
 fn base64_decode(text: &str) -> Option<Vec<u8>> {
     let value = |c: u8| match c {
@@ -583,7 +608,11 @@ pub fn export_viewer(
     units: Option<woodshop_core::units::Units>,
     ar_model: Option<String>,
 ) -> CmdResult<()> {
-    let (project, notes) = lib.with(|s| Ok((s.get_project(id)?, plan_notes(s, id)?)))?;
+    let (project, notes, models) = lib.with(|s| {
+        let project = s.get_project(id)?;
+        let models = s.models_for([&project.draft])?;
+        Ok((project, plan_notes(s, id)?, models))
+    })?;
     let html = woodshop_export::render_viewer_html(&woodshop_export::ViewerInput {
         title: &project.name,
         spec: spec::to_value(&project.draft),
@@ -594,6 +623,7 @@ pub fn export_viewer(
         units: units.unwrap_or_default(),
         // Only a bare file name beside the page; anything with a path in it is dropped.
         ar_model: ar_model.as_deref().filter(|f| !f.contains(['/', '\\'])),
+        models,
     });
     std::fs::write(&path, html)?;
     Ok(())
@@ -629,6 +659,7 @@ pub fn export_gallery_bundle(
         notes: Vec::new(),
         units: units.unwrap_or_default(),
         ar_model: None,
+        models: archive.models.clone(),
     });
     let tmp = path.with_extension("zip.partial");
     woodshop_store::write_bundle(

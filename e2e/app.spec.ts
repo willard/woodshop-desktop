@@ -1815,3 +1815,73 @@ test('hardware takes prices from one price list, and the estimate and CSV includ
     expect(csv).toMatch(/pocket screws",12,0\.10,1\.20/);
     expect(csv).toContain('Hardware total,,,1.20');
 });
+
+test('a 3D model is imported from an STL and shown with the piece, never in the cut list', async ({
+    page,
+}) => {
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('editor-shell').locator('canvas').first()).toBeVisible();
+    await page.getByTestId('add-menu-toggle').click();
+    await page.getByTestId('add-props-menu').click();
+    const dialog = page.getByTestId('props-dialog');
+    await dialog.getByTestId('prop-import').click();
+
+    // A 10" × 4" × 2" box in millimetres, Z up, as STL files usually are.
+    const [x, y, z] = [254, 101.6, 50.8];
+    const corners = [
+        [0, 0, 0],
+        [x, 0, 0],
+        [x, y, 0],
+        [0, y, 0],
+        [0, 0, z],
+        [x, 0, z],
+        [x, y, z],
+        [0, y, z],
+    ];
+    const faces = [
+        [0, 2, 1],
+        [0, 3, 2],
+        [4, 5, 6],
+        [4, 6, 7],
+        [0, 1, 5],
+        [0, 5, 4],
+        [2, 3, 7],
+        [2, 7, 6],
+        [1, 2, 6],
+        [1, 6, 5],
+        [0, 4, 7],
+        [0, 7, 3],
+    ];
+    const stl = ['solid box']
+        .concat(
+            faces.flatMap((f) => [
+                'facet normal 0 0 0',
+                'outer loop',
+                ...f.map((i) => `vertex ${corners[i].join(' ')}`),
+                'endloop',
+                'endfacet',
+            ]),
+        )
+        .concat('endsolid box')
+        .join('\n');
+    await dialog.getByTestId('model-file').setInputFiles({
+        name: 'Parts bin.stl',
+        mimeType: 'model/stl',
+        buffer: Buffer.from(stl),
+    });
+    await expect(dialog.getByTestId('model-file-name')).toContainText('12 triangles');
+    await expect(dialog.getByTestId('model-size')).toHaveText('10" long × 4" deep × 2" tall');
+    // Typing its real length scales it.
+    await dialog.getByTestId('model-length').fill('20');
+    await expect(dialog.getByTestId('model-size')).toHaveText('20" long × 8" deep × 4" tall');
+    await dialog.getByTestId('model-license').fill('CC0');
+    await dialog.getByTestId('model-import-go').click();
+
+    await expect(dialog.getByTestId('prop-row')).toHaveText(['Parts bin']);
+    await expect(dialog.getByTestId('prop-model-info')).toContainText('20" × 8" × 4"');
+    await expect(dialog.getByTestId('prop-model-info')).toContainText('(CC0)');
+    await dialog.getByTestId('props-done').click();
+    await expect(page.getByTestId('save-state')).toHaveText('Saved');
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('cutlist-hardware')).not.toContainText('Parts bin');
+});

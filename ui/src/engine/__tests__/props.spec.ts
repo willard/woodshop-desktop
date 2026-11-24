@@ -113,3 +113,15 @@ describe('props', () => {
         expect(spec.props.map((p) => p.id)).toEqual([id]);
     });
 });
+
+describe('resting an imported model', () => {
+    it('says when it would drop between the runners or overrun them', () => {
+        const narrow = restOn(rack(), null, 'p_left', 'p_right', { l: 22, w: 14 })!;
+        expect(narrow.pos[1]).toBeCloseTo(17.5, 3); // on their tops, by its bottom
+        expect(narrow.problems.join(' ')).toMatch(/drops through/);
+        expect(restOn(rack(), null, 'p_left', 'p_right', { l: 28, w: 18 })!.problems).toEqual([]);
+        expect(restOn(rack(), null, 'p_left', 'p_right', { l: 34, w: 18 })!.problems.join(' ')).toMatch(
+            /carry it/,
+        );
+    });
+});

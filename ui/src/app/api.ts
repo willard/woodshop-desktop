@@ -245,6 +245,14 @@ export const api = {
     /** The bytes go as the raw request body; the path as a header, which must be ASCII. */
     writeBinaryFile: (path: string, bytes: Uint8Array) =>
         invoke<void>('write_binary_file', bytes, { headers: { 'x-path': encodeURIComponent(path) } }),
+    /** Keeps an imported model's GLB in the library (spec 1.22); returns its SHA-256 hash. */
+    putModel: (glb: Uint8Array) => invoke<string>('put_model', glb),
+    /** An imported model's GLB, or null when the library doesn't have it. */
+    getModel: (hash: string) =>
+        invoke<ArrayBuffer>('get_model', { hash }).then(
+            (bytes) => bytes,
+            () => null,
+        ),
     mcpSetup: () => invoke<McpSetup>('mcp_setup'),
     /** Which providers have an API key in the keychain (the keys never come back). */
     assistantKeys: () => invoke<Record<AssistantProvider, boolean>>('assistant_keys'),

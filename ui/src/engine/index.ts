@@ -119,6 +119,7 @@ export {
     UpdateProp,
     RemoveProp,
     uniquePropId,
+    uniqueModelId,
     GroupParts,
     UngroupParts,
     MoveParts,
