@@ -224,7 +224,7 @@ export function PartHardware(props: {
  */
 export function MovableFittings(props: { movable: Movable; onChange(patch: Record<string, unknown>): void }) {
     const m = props.movable;
-    const pick = (field: 'hinge' | 'slide' | 'pull', label: string, standard: string, withNone = false) => {
+    const pick = (field: 'hinge' | 'slide' | 'pull', label: string, standard: string, none?: string) => {
         const current = (m as Record<string, unknown>)[field] as string | undefined;
         return (
             <Field label={label}>
@@ -236,12 +236,15 @@ export function MovableFittings(props: { movable: Movable; onChange(patch: Recor
                     }
                 >
                     <option value="">{standard}</option>
-                    {withNone && <option value="none">None</option>}
-                    {itemsForRole(field).map((item) => (
-                        <option key={item.id} value={item.id}>
-                            {itemName(item)}
-                        </option>
-                    ))}
+                    {none !== undefined && <option value="none">{none}</option>}
+                    {itemsForRole(field)
+                        // A concealed hinge hangs a door in a carcase; it can't carry a leaf.
+                        .filter((item) => m.kind !== 'leaf' || item.model.shape !== 'euroHinge')
+                        .map((item) => (
+                            <option key={item.id} value={item.id}>
+                                {itemName(item)}
+                            </option>
+                        ))}
                     {/* Keep a choice this version's catalog doesn't know visible rather than silently swapping it. */}
                     {current !== undefined && current !== 'none' && findItem(current) === undefined && (
                         <option value={current}>{current}</option>
@@ -255,7 +258,7 @@ export function MovableFittings(props: { movable: Movable; onChange(patch: Recor
         const brackets = catalog().items.filter((item) => item.model.shape === 'foldingBracket');
         return (
             <div className="mt-2 grid grid-cols-2 gap-2" data-testid="movable-fittings">
-                {pick('hinge', 'Hinge', 'Standard (butt)')}
+                {pick('hinge', 'Hinge', 'Standard (butt)', 'None (on the brackets)')}
                 <Field label="Folding brackets">
                     <Select
                         value={support ?? ''}
@@ -292,7 +295,7 @@ export function MovableFittings(props: { movable: Movable; onChange(patch: Recor
             {m.kind === 'door'
                 ? pick('hinge', 'Hinge', m.style === 'inset' ? 'Standard (butt)' : 'Standard (concealed)')
                 : pick('slide', 'Slides', 'Standard (side-mount)')}
-            {pick('pull', 'Pull', 'Standard (knob)', true)}
+            {pick('pull', 'Pull', 'Standard (knob)', 'None')}
             <div className="col-span-2">
                 <Field label={m.kind === 'door' ? 'Finish (pull and hinges)' : 'Finish (pull)'}>
                     <FinishSelect

@@ -12,7 +12,7 @@
 import * as THREE from 'three';
 import type { Spec, Part, Movable } from '../spec/types';
 import type { Vec3 } from './snapping';
-import { extentAlong, frontNormal, movableAnchorId } from '../spec/movables';
+import { extentAlong, frontNormal, leafDrop, movableAnchorId } from '../spec/movables';
 import { DEFAULT_OPEN_CONFIG, type OpenConfig } from './config';
 
 /** Where a part sits while the assembly is open. `quat` is [x, y, z, w]. */
@@ -96,6 +96,9 @@ export function doorHinge(
     return { pivot, axis, sign: velocity.dot(normal) >= 0 ? 1 : -1 };
 }
 
+/** How far a leaf folds down when fully open: a quarter turn, hanging against the piece. */
+export const LEAF_FOLD_RAD = Math.PI / 2;
+
 /**
  * Where every movable part sits at `factor` open (0 = closed, 1 = fully open). Parts that belong
  * to no movable are absent from the map — the caller leaves them at their authored transform.
@@ -123,8 +126,13 @@ export function openedPoses(
         if (movable.kind === 'door') {
             applyDoor(movable, anchor, members, thicknessOf(anchor), clamped, config, poses);
         } else if (movable.kind === 'leaf') {
-            const { pivot, axis, sign } = leafHinge(anchor, thicknessOf(anchor), movable.hingeEdge);
-            swing(members, pivot, axis, sign * clamped * 90 * DEG2RAD, poses);
+            const { pivot, axis, sign } = leafHinge(
+                anchor,
+                thicknessOf(anchor),
+                movable.hingeEdge,
+                leafDrop(spec, movable),
+            );
+            swing(members, pivot, axis, sign * clamped * LEAF_FOLD_RAD, poses);
         } else {
             applyDrawer(anchor, members, thicknessOf, clamped, config, poses);
         }
@@ -135,18 +143,20 @@ export function openedPoses(
 
 /**
  * A leaf's hinge line and fold: the hinge edge's LOWER arris (a leaf is stored raised, so its
- * underside is the face pointing down), and the sign that drops its free edge.
+ * underside is the face pointing down), and the sign that drops its free edge. `drop` lowers the
+ * line below the underside, to the bottom of a box wing's aprons (see `leafDrop`).
  */
 export function leafHinge(
     leaf: Part,
     thickness: number,
     hingeEdge: 'l0' | 'l1' | 'w0' | 'w1',
+    drop = 0,
 ): { pivot: THREE.Vector3; axis: THREE.Vector3; sign: number; under: 1 | -1 } {
     const quat = quatOf(leaf);
     const up = new THREE.Vector3(0, 0, 1).applyQuaternion(quat).y;
     const under: 1 | -1 = up >= 0 ? -1 : 1;
     const local = hingeLineLocal(leaf, thickness, hingeEdge);
-    const point = new THREE.Vector3(local.point[0], local.point[1], (under * thickness) / 2);
+    const point = new THREE.Vector3(local.point[0], local.point[1], under * (thickness / 2 + drop));
     const pivot = point.applyQuaternion(quat).add(posOf(leaf));
     const axis = new THREE.Vector3(...local.direction).applyQuaternion(quat).normalize();
     const free = new THREE.Vector3(...freeEdgeLocal(leaf, hingeEdge)).applyQuaternion(quat).add(posOf(leaf));

@@ -324,6 +324,11 @@ function addMovableHardware(spec: Spec, meshesById: Map<string, THREE.Mesh>): vo
                 piece.rotation.z = placement.spinZ;
             }
             piece.userData = { hardware: placement.kind, movableId: movable.id, itemId: placement.itemId };
+            if (movable.kind === 'leaf' && item?.model.shape === 'foldingBracket') {
+                // The arm rides the leaf; the Open view folds the leg back onto the post.
+                piece.userData.bracketModel = item.model;
+                piece.userData.fold = 0;
+            }
             mesh.add(piece);
         }
     }

@@ -1264,6 +1264,24 @@ fn a_wing_is_a_leaf_with_hinges_and_folding_brackets() {
         "update_movable",
         json!({ "project_id": id, "movable_id": movable["id"], "support": "bracket.folding-20in" }),
     );
+    // Hung on its brackets alone, as on a miter-saw cart: no hinges on the list.
+    ok(
+        &w,
+        "update_movable",
+        json!({ "project_id": id, "movable_id": movable["id"], "hinge": "none" }),
+    );
+    let cut = ok(&w, "get_cut_list", json!({ "project_id": id, "detail": "summary" }));
+    assert!(!cut["hardware"].to_string().contains("hinge"), "{}", cut["hardware"]);
+    // A door can't go without hinges.
+    ok(
+        &w,
+        "add_part",
+        json!({ "project_id": id, "id": "p_door", "name": "Door", "material_id": material, "length": 12, "width": 12, "pos": [pos[0], pos[1].as_f64().unwrap() - 12.0, 0] }),
+    );
+    assert!(
+        err(&w, "add_movable", json!({ "project_id": id, "kind": "door", "part_ids": ["p_door"], "anchor_part_id": "p_door", "hinge_edge": "w0", "hinge": "none" }))
+            .contains("Only a leaf")
+    );
     // Deleting the wing takes the leaf with it.
     ok(&w, "delete_part", json!({ "project_id": id, "part_id": "p_wing" }));
     let after = ok(&w, "get_design", json!({ "project_id": id }))["spec"]["movables"].clone();

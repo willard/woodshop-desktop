@@ -549,7 +549,7 @@ pub const ADD_MOVABLE: ToolDef = ToolDef {
                 "hinge_edge": one_of(EDGES, "Doors and leaves: the edge the hinges mount on, in the anchor's own frame (§3.1)."),
                 "style": one_of(&["overlay", "inset"], "Doors and drawers: overlay laps the opening, inset sits inside it. Defaults to overlay."),
                 "name": string("Optional label, e.g. \"Left Door\"."),
-                "hinge": string("Doors and leaves: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style (butt hinges on a leaf)."),
+                "hinge": string("Doors and leaves: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style (butt hinges on a leaf). On a leaf, \"none\" screws the wing straight to its folding brackets, which pivot on their own knuckles, as on a miter-saw cart."),
                 "slide": string("Drawers only: a catalog slide id (list_hardware with role \"slide\"). Omit for side-mount ball-bearing slides."),
                 "support": string("Leaves only: a folding bracket id (list_hardware, category \"brackets\", e.g. bracket.folding-16in). Omit for the longest that fits under the leaf."),
                 "pull": string("Doors and drawers: a catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
@@ -609,6 +609,9 @@ fn add_movable(w: &Woodshop, args: &Args) -> Outcome {
     }
     if kind == "door" && slide.is_some() {
         return Err("A door has no slides; give it a `hinge` instead.".into());
+    }
+    if kind == "door" && hinge == Some("none") {
+        return Err(NO_HINGE_DOOR.into());
     }
 
     let design = w.load_editable(project_id)?;
@@ -687,6 +690,10 @@ fn no_movable(id: &str) -> String {
     format!("No door, drawer or leaf \"{id}\" in this design. Call get_design to see its movables.")
 }
 
+/// Only a leaf can go without hinges.
+const NO_HINGE_DOOR: &str = "Only a leaf takes hinge \"none\" (a wing screwed to its folding brackets). A door hangs on \
+    hinges: name a catalog hinge, or omit it for the standard one.";
+
 /// A leaf's `support` argument: a catalog folding bracket.
 fn folding_bracket<'a>(args: &Args<'a>) -> Result<Option<&'a str>, String> {
     let Some(id) = args.opt_str("support")? else {
@@ -719,7 +726,7 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
                 "hinge_edge": one_of(EDGES, "Doors and leaves: the edge the hinges mount on, in its own frame (§3.1)."),
                 "style": one_of(&["overlay", "inset"], "Doors and drawers: overlay laps the opening; inset sits inside it."),
                 "name": string("New display name, e.g. \"Left Door\"."),
-                "hinge": string("Doors and leaves: a catalog hinge id (list_hardware with role \"hinge\"). Omit for the standard hinge for the style."),
+                "hinge": string("Doors and leaves: a catalog hinge id (list_hardware with role \"hinge\"), or \"none\" on a leaf hung on its folding brackets alone."),
                 "support": string("Leaves only: a folding bracket id (list_hardware, category \"brackets\")."),
                 "slide": string("Drawers only: a catalog slide id (list_hardware with role \"slide\"). Omit for side-mount ball-bearing slides."),
                 "pull": string("A catalog pull or knob id (list_hardware with role \"pull\"), or \"none\". Omit for a plain knob."),
@@ -773,6 +780,9 @@ pub const UPDATE_MOVABLE: ToolDef = ToolDef {
             return Err(format!(
                 "\"{movable_id}\" is a drawer, which has no hinge; set its `slide` instead."
             ));
+        }
+        if changes.contains(&("hinge", "none")) && kind != "leaf" {
+            return Err(NO_HINGE_DOOR.into());
         }
         if has("slide") && kind != "drawer" {
             return Err(format!(

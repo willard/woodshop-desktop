@@ -19,7 +19,10 @@ All notable changes to Woodshop are listed here. The format follows
   into a leaf hinged on one edge and held level by folding brackets. It is modelled raised; Open
   folds it down. The hardware list gets its hinges and a pair of brackets (the longest that stops
   short of the edge unless you pick one), a leaf may overhang the piece without a warning, and the
-  checks say when its brackets are too short or are not folding brackets. Agents make one with
+  checks say when its brackets are too short or are not folding brackets. A wing can also go
+  without hinges (Hinge ▸ None), screwed to the bracket arms as on a miter-saw cart: the brackets
+  sit at the ends of the edge, on the corner legs, and under the aprons of a box wing. When the leaf
+  folds, the bracket legs stay on the post and the arms fold down with it. Agents make one with
   `add_movable` and `kind: "leaf"`.
 
 ### Changed

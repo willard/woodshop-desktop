@@ -145,6 +145,40 @@ export function extentAlong(parts: readonly Part[], thicknessOf: (part: Part) =>
     return parts.length === 0 ? 0 : hi - lo;
 }
 
+/**
+ * How far a leaf hung on its brackets (hinge "none") reaches below its panel's underside: the
+ * aprons of a box wing. The bracket arms run under the whole box, so that is where it pivots.
+ * 0 for a hinged leaf, whose hinges are on the panel itself.
+ */
+export function leafDrop(spec: Spec, movable: Movable): number {
+    if (movable.kind !== 'leaf' || movable.hinge !== 'none') return 0;
+    const thicknessOf = (part: Part): number =>
+        spec.materials.find((m) => m.id === part.materialId)?.thickness ?? 0;
+    const panel = spec.parts.find((p) => p.id === movable.leafPartId);
+    if (panel === undefined) return 0;
+    const [, , normal] = localAxesWorld(panel);
+    // The panel's local Z, turned to point down (a leaf is stored raised, level).
+    const down: Vec3 = normal[1] > 0 ? [-normal[0], -normal[1], -normal[2]] : normal;
+    const along = (part: Part): number => {
+        const [ax, ay, az] = localAxesWorld(part);
+        const dot = (v: Vec3) => v[0] * down[0] + v[1] * down[1] + v[2] * down[2];
+        const [x, y, z] = part.transform.pos;
+        const centre = dot([x, y, z]);
+        return (
+            centre +
+            Math.abs(dot(ax) * part.size.l) / 2 +
+            Math.abs(dot(ay) * part.size.w) / 2 +
+            Math.abs(dot(az) * thicknessOf(part)) / 2
+        );
+    };
+    const underside = along(panel);
+    const lowest = Math.max(
+        ...spec.parts.filter((p) => movable.partIds.includes(p.id)).map(along),
+        underside,
+    );
+    return lowest - underside;
+}
+
 /** partId → the movable it belongs to. Movables are flat: first wins, the linter errors dupes. */
 export function movableMemberOf(spec: Spec): Map<string, Movable> {
     const byPart = new Map<string, Movable>();

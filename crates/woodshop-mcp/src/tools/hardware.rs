@@ -357,10 +357,11 @@ pub const DELETE_HARDWARE: ToolDef = ToolDef {
 };
 
 /// A movable's `hinge` / `slide` / `pull` argument, checked against the catalog. `Ok(None)` when
-/// not given. `"none"` is allowed for a pull only.
+/// not given. `"none"` is allowed for a pull, and for a hinge (a leaf hung on its brackets; the
+/// caller turns it down for a door).
 pub(super) fn fitting<'a>(args: &Args<'a>, key: &str, role: hardware::Role) -> Result<Option<&'a str>, String> {
     let Some(id) = args.opt_str(key)? else { return Ok(None) };
-    if id == "none" && role == hardware::Role::Pull {
+    if id == "none" && matches!(role, hardware::Role::Pull | hardware::Role::Hinge) {
         return Ok(Some(id));
     }
     match hardware::find(id) {

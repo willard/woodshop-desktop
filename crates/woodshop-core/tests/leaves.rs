@@ -92,3 +92,32 @@ fn brackets_that_are_too_short_or_too_long_or_not_brackets_are_named() {
     let caster = codes(&cart(wing(json!({ "support": "caster.swivel-3in" }))));
     assert!(caster.iter().any(|c| c.contains("not a folding bracket")), "{caster:?}");
 }
+
+#[test]
+fn a_wing_hung_on_its_brackets_lists_no_hinges_and_says_how_to_hang_it() {
+    let hung = cart(wing(json!({ "hinge": "none", "support": "bracket.folding-20in" })));
+    let list = compute_cut_list(&hung, CutListConfig::default()).hardware;
+    assert!(list.iter().all(|h| !h.description.contains("hinge")), "{list:?}");
+    assert!(
+        list.iter()
+            .any(|h| h.description.contains("20\" folding shelf brackets") && h.qty == 2),
+        "{list:?}"
+    );
+    // "none" is not an unknown catalog hinge.
+    let found = codes(&hung);
+    assert!(
+        found.iter().all(|c| !c.starts_with("movable.hardware-unknown")),
+        "{found:?}"
+    );
+
+    let steps = woodshop_core::assembly::assembly_order(&hung);
+    let hang = steps
+        .iter()
+        .find(|s| s.heading.starts_with("Hang"))
+        .expect("a hang step");
+    assert!(
+        hang.lines.iter().any(|l| l.contains("screw it to the arms")),
+        "{hang:?}"
+    );
+    assert!(hang.lines.iter().all(|l| !l.contains("Hinge it")), "{hang:?}");
+}

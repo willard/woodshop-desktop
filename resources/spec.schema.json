@@ -1266,8 +1266,9 @@
                             "description": "The leaf's edge against the piece, in its LOCAL frame (\u00a73.1). The leaf folds down about that edge's lower arris."
                         },
                         "hinge": {
-                            "$ref": "#/$defs/hardwareItemId",
-                            "description": "Which catalog hinge joins it to the piece. Omit for butt hinges."
+                            "type": "string",
+                            "pattern": "^(none|[a-z][a-z0-9.-]{1,59})$",
+                            "description": "Which catalog hinge joins it to the piece, or \"none\" for a wing screwed straight to its folding brackets, which pivot on their own knuckles (the usual miter-saw cart wing). Omit for butt hinges."
                         },
                         "support": {
                             "$ref": "#/$defs/hardwareItemId",
@@ -1278,7 +1279,7 @@
                             "description": "The finish of its hinges and brackets. Omit for plain steel."
                         }
                     },
-                    "description": "A drop leaf or fold-down wing (added in 1.22): a flat panel hinged along one edge to the piece and held level by folding brackets under it. The design stores it raised, in use; Open in the 3D view folds it down."
+                    "description": "A drop leaf or fold-down wing (added in 1.22): a flat panel hinged along one edge to the piece (or hung on its folding brackets alone) and held level by folding brackets under it. The design stores it raised, in use; Open in the 3D view folds it down."
                 },
                 {
                     "additionalProperties": false,

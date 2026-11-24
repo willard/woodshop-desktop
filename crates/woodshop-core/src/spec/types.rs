@@ -803,7 +803,8 @@ pub enum Movable {
         leaf_part_id: Id,
         #[serde(rename = "hingeEdge")]
         hinge_edge: Edge,
-        /// Catalog hinge; `None` = butt hinges.
+        /// Catalog hinge; `None` = butt hinges; `"none"` = no hinges, the leaf is screwed to its
+        /// folding brackets and pivots on their knuckles.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         hinge: Option<String>,
         /// Catalog folding bracket; `None` = the longest that fits under the leaf.
@@ -851,6 +852,11 @@ impl Movable {
             Movable::Door { pull, .. } | Movable::Drawer { pull, .. } => pull.as_deref(),
             Movable::Leaf { .. } => Some("none"),
         }
+    }
+
+    /// A leaf with no hinges: screwed to its folding brackets, which are its pivot.
+    pub fn hung_on_brackets(&self) -> bool {
+        matches!(self, Movable::Leaf { hinge: Some(h), .. } if h == "none")
     }
 
     /// The finish of the pull (and a door's hinges); `None` = plain steel.

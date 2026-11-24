@@ -226,20 +226,7 @@ const BUILDERS: Record<string, Builder> = {
         return [box(leg, w, t, leg / 2, 0, t / 2), box(t, w, leg, t / 2, 0, leg / 2)];
     },
 
-    foldingBracket: (m) => {
-        // Locked out: the leg flat on the post (along X, its top at +X), the arm standing out from
-        // the top of it (+Z), and the folding brace from the foot of the leg up to the arm.
-        const arm = num(m, 'arm', 12);
-        const leg = num(m, 'leg', 9);
-        const w = num(m, 'width', 1.5);
-        const t = num(m, 'thickness', 0.12);
-        const run = leg - t;
-        const rise = arm * 0.6;
-        const brace = box(Math.hypot(run, rise), w * 0.6, t)
-            .rotateY(-Math.atan2(rise, run))
-            .translate(0, 0, rise / 2 + t);
-        return [box(leg, w, t, 0, 0, t / 2), box(t, w, arm, leg / 2 - t / 2, 0, arm / 2), brace];
-    },
+    foldingBracket: (m) => foldingBracketParts(m, 0),
 
     flatPlate: (m) => {
         const t = num(m, 'thickness', PLATE);
@@ -346,6 +333,52 @@ function placeholder(): THREE.BufferGeometry {
  * to fit (a slide as deep as its drawer, a piano hinge as long as its lid). A new geometry each
  * call: the caller owns it and disposes of it with the scene.
  */
+/**
+ * The knuckle a folding bracket folds on, in its own frame: the top of the leg, where the arm
+ * meets it. The leg lies along X (its top at +X) and the arm stands out along +Z.
+ */
+function bracketKnuckle(m: HardwareModel): THREE.Vector3 {
+    return new THREE.Vector3(num(m, 'leg', 9) / 2, 0, 0);
+}
+
+/**
+ * Where a folding bracket's leg goes when the arm has folded `fold` radians down toward it, in a
+ * frame that rides the ARM (the arm is screwed under the leaf and folds with it; the leg stays on
+ * the post). 0 is locked out; π/2 is folded flat, the leg lying along the arm.
+ */
+export function bracketLegMatrix(m: HardwareModel, fold: number): THREE.Matrix4 {
+    const k = bracketKnuckle(m);
+    return new THREE.Matrix4()
+        .makeTranslation(k.x, k.y, k.z)
+        .multiply(new THREE.Matrix4().makeRotationY(fold))
+        .multiply(new THREE.Matrix4().makeTranslation(-k.x, -k.y, -k.z));
+}
+
+/**
+ * A folding bracket's leg, arm and brace, `fold` radians folded. The brace runs from the foot of
+ * the leg to a point up the arm, so it lies down between them as the bracket closes.
+ */
+function foldingBracketParts(m: HardwareModel, fold: number): THREE.BufferGeometry[] {
+    const arm = num(m, 'arm', 12);
+    const leg = num(m, 'leg', 9);
+    const w = num(m, 'width', 1.5);
+    const t = num(m, 'thickness', 0.12);
+    const legMatrix = bracketLegMatrix(m, fold);
+    const legPlate = box(leg, w, t, 0, 0, t / 2).applyMatrix4(legMatrix);
+    const foot = new THREE.Vector3(-leg / 2 + t / 2, 0, t).applyMatrix4(legMatrix);
+    const top = new THREE.Vector3(leg / 2 - t / 2, 0, arm * 0.6 + t);
+    const run = top.clone().sub(foot);
+    const brace = box(Math.max(run.length(), t), w * 0.6, t)
+        .rotateY(Math.atan2(-run.z, run.x))
+        .translate((foot.x + top.x) / 2, 0, (foot.z + top.z) / 2);
+    return [legPlate, box(t, w, arm, leg / 2 - t / 2, 0, arm / 2), brace];
+}
+
+/** A folding bracket `fold` radians folded (0 = locked out), for the Open view of a leaf. */
+export function foldingBracketGeometry(m: HardwareModel, fold: number): THREE.BufferGeometry {
+    return merge(foldingBracketParts(m, fold));
+}
+
 export function buildHardwareGeometry(
     model: HardwareModel | undefined,
     length?: number,

@@ -332,21 +332,24 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
                 ..
             } => {
                 let span = hinge_edge_length(anchor, *hinge_edge);
-                let chosen = hinge.as_deref().and_then(hardware::find);
-                let continuous =
-                    chosen.is_some_and(|i| i.model.get("shape").and_then(|s| s.as_str()) == Some("pianoHinge"));
-                let (key, desc) = match chosen {
-                    Some(item) => (format!("hinge|{}", item.id), words.list(item)),
-                    None => ("hinge|inset".into(), "inset butt hinges".into()),
-                };
-                let (key, desc) = finished(key, desc);
-                rows.push(Sized {
-                    key,
-                    kind: HardwareKind::Hinge,
-                    description: desc,
-                    qty: if continuous { 1 } else { hinge_count_for(span) },
-                    derived: false,
-                });
+                // "none": the leaf is screwed to its brackets, which pivot on their own knuckles.
+                if hinge.as_deref() != Some("none") {
+                    let chosen = hinge.as_deref().and_then(hardware::find);
+                    let continuous =
+                        chosen.is_some_and(|i| i.model.get("shape").and_then(|s| s.as_str()) == Some("pianoHinge"));
+                    let (key, desc) = match chosen {
+                        Some(item) => (format!("hinge|{}", item.id), words.list(item)),
+                        None => ("hinge|inset".into(), "inset butt hinges".into()),
+                    };
+                    let (key, desc) = finished(key, desc);
+                    rows.push(Sized {
+                        key,
+                        kind: HardwareKind::Hinge,
+                        description: desc,
+                        qty: if continuous { 1 } else { hinge_count_for(span) },
+                        derived: false,
+                    });
+                }
                 // Folding brackets under it: a pair, and a third past 40".
                 let bracket = match support.as_deref() {
                     Some(id) => hardware::find(id),

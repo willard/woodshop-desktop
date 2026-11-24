@@ -1008,7 +1008,9 @@ pub(super) fn hardware(spec: &Spec, issues: &mut Vec<LintIssue>) {
     for movable in spec.movables() {
         let label = movable.name().unwrap_or(movable.id());
         let (fitting, role, field) = match movable {
-            Movable::Door { hinge, .. } | Movable::Leaf { hinge, .. } => (hinge.as_deref(), Role::Hinge, "hinge"),
+            Movable::Door { hinge, .. } | Movable::Leaf { hinge, .. } => {
+                (hinge.as_deref().filter(|h| *h != "none"), Role::Hinge, "hinge")
+            }
             Movable::Drawer { slide, .. } => (slide.as_deref(), Role::Slide, "slide"),
         };
         let pull = movable.pull().filter(|p| *p != "none");

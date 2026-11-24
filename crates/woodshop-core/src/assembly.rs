@@ -313,7 +313,13 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
                 for (i, n) in members.iter().enumerate().skip(1) {
                     lines.push(line(spec, n, &members[..i]));
                 }
-                lines.push("Hinge it to the piece, raise it level, and screw the folding brackets under it.".into());
+                lines.push(if movable.hung_on_brackets() {
+                    "Screw the folding brackets' legs to the piece with their knuckles just under the top, lock them \
+                     out, set the leaf level on their arms, and screw it to the arms from underneath."
+                        .into()
+                } else {
+                    "Hinge it to the piece, raise it level, and screw the folding brackets under it.".into()
+                });
                 steps.push(AssemblyStep {
                     heading: format!("Hang {}", name.unwrap_or_else(|| "the leaf".into())),
                     lines,

@@ -148,7 +148,11 @@ Conventions (build-plan §3.1), all dimensions in decimal inches:
     "partIds": ["p_wing"], "leafPartId": "p_wing", "hingeEdge": "w0" }`: a flat panel hinged
     along `hingeEdge` (its edge against the piece) and held level by folding brackets. Model
     it RAISED, level with the top, butted to the piece; Open folds it down. Optional `hinge`
-    (a catalog hinge; butt hinges otherwise) and `support` (a folding bracket such as
+    (a catalog hinge; butt hinges otherwise; `"none"` for a wing screwed straight to its
+    bracket arms, which pivot on their own knuckles, as on a miter-saw cart; its brackets then
+    sit at the two ends of the hinge edge, so put the piece's legs there for their legs to screw to,
+    and meet the bottom of the whole leaf, so a box wing is just its top as `leafPartId` with the
+    aprons under it in `partIds`) and `support` (a folding bracket such as
     `bracket.folding-16in`; otherwise the longest that stops an inch short of the free edge).
     The hardware list gets the hinges and a pair of brackets (three past 40"). A leaf may
     overhang the piece, and needs no lid stay; the checks warn (`movable.leaf-support`) when

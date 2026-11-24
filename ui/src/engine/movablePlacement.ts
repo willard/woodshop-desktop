@@ -10,6 +10,7 @@ import {
     hingeEdgeLength,
     hingeCountFor,
     leafDepth,
+    leafDrop,
     leafSupportFor,
     movableAnchorId,
 } from '../spec/movables';
@@ -68,7 +69,7 @@ export function hardwarePlacements(spec: Spec, movable: Movable): HardwarePlacem
     const placements: HardwarePlacement[] = [];
 
     if (movable.kind === 'leaf') {
-        leafPlacements(anchor, thickness, movable, placements);
+        leafPlacements(anchor, thickness, movable, leafDrop(spec, movable), placements);
         return placements;
     }
 
@@ -196,12 +197,14 @@ function leafPlacements(
     leaf: Part,
     thickness: number,
     movable: Extract<Movable, { kind: 'leaf' }>,
+    drop: number,
     placements: HardwarePlacement[],
 ): void {
     const edge = movable.hingeEdge as keyof typeof INWARD;
     const { under } = leafHinge(leaf, thickness, edge);
     const line = hingeLineLocal(leaf, thickness, edge);
-    const point: Vec3 = [line.point[0], line.point[1], (under * thickness) / 2];
+    // Hinges on the panel's underside; brackets alone under the whole wing, aprons and all.
+    const point: Vec3 = [line.point[0], line.point[1], under * (thickness / 2 + drop)];
     const span = hingeEdgeLength(leaf, edge);
     const alongX = line.direction[0] !== 0;
     const at = (offset: number): Vec3 =>
@@ -215,7 +218,9 @@ function leafPlacements(
     };
     const down: Vec3 = [0, 0, under];
 
-    const hinge = findItem(movable.hinge ?? LEAF_HINGE);
+    // "none": the leaf is screwed to its brackets, which pivot on their own knuckles.
+    const hung = movable.hinge === 'none';
+    const hinge = hung ? undefined : findItem(movable.hinge ?? LEAF_HINGE);
     if (hinge?.model.shape === 'pianoHinge') {
         placements.push({
             partId: leaf.id,
@@ -243,9 +248,11 @@ function leafPlacements(
         movable.support === undefined ? leafSupportFor(leafDepth(leaf, edge)) : findItem(movable.support);
     if (bracket?.model.shape !== 'foldingBracket') return;
     const leg = typeof bracket.model.leg === 'number' ? bracket.model.leg : 9;
+    const width = typeof bracket.model.width === 'number' ? bracket.model.width : 1.5;
     const up = neg(down);
-    // Brackets stand in from the hinges, so the two never share a spot.
-    for (const offset of spread(HINGE_INSET * 2)) {
+    // Brackets stand in from the hinges, so the two never share a spot. With no hinges they are
+    // the pivot, at the very ends of the edge: on the corner posts, where a saw-cart wing has them.
+    for (const offset of spread(hung ? width / 2 : HINGE_INSET * 2)) {
         const top = at(offset);
         placements.push({
             partId: leaf.id,

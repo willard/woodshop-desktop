@@ -5,8 +5,8 @@
  * battery (CLAUDE.md). Phase 1a scope: render & orbit only — commands/snapping come later.
  */
 import * as THREE from 'three';
-import { buildHardwareGeometry } from './geometry/hardwareModels';
-import { findItem, mountFrame, sideExtent } from '@/hardware/catalog';
+import { buildHardwareGeometry, foldingBracketGeometry } from './geometry/hardwareModels';
+import { findItem, mountFrame, sideExtent, type HardwareModel } from '@/hardware/catalog';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { Spec, Part, Material, Op, HardwareMount } from '../spec/types';
@@ -17,7 +17,7 @@ import { woodMaterialProvider, createGrainTexture, shadeGrain, type MaterialProv
 import { computeSnap, clampAnchorToWorkspace, aabbFromPart, type AABB, type Vec3 } from './snapping';
 import { DEFAULT_SNAP_CONFIG, WORKSPACE_POS_BOUND, type SnapConfig } from './config';
 import { explodedPositions } from './explode';
-import { openedPoses } from './open';
+import { LEAF_FOLD_RAD, openedPoses } from './open';
 import { faceHitToOpCoords, faceHitToEdge, hitToSide, type Edge, type Side } from './placement';
 import { mountTargets, sideCoords, sidePlane, snapMount, type MountTargets } from './hardwareDrag';
 import {
@@ -1850,6 +1850,24 @@ export class EditorEngine {
                 }
             }
         }
+        this.foldLeafBrackets(this.explodeFactor > 0 ? 0 : this.openFactor);
+    }
+
+    /**
+     * A leaf's folding brackets fold with it: the arm is under the leaf and turns with it, while
+     * the leg stays screwed to the post. Rebuilt only when the angle changes.
+     */
+    private foldLeafBrackets(factor: number): void {
+        const fold = factor * LEAF_FOLD_RAD;
+        this.partsGroup?.traverse((object) => {
+            const model = object.userData.bracketModel as HardwareModel | undefined;
+            if (model === undefined || object.userData.fold === fold || !(object instanceof THREE.Mesh)) {
+                return;
+            }
+            object.geometry.dispose();
+            object.geometry = foldingBracketGeometry(model, fold);
+            object.userData.fold = fold;
+        });
     }
 
     /**
