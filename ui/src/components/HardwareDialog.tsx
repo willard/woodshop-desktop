@@ -39,6 +39,7 @@ export function keySize(item: HardwareItem): string {
             case 'flatPlate':
             case 'barrelBolt':
             case 'hasp':
+            case 'toggleLatch':
             case 'block':
                 return [inches('length') && `${inches('length')} long`];
             case 'caster':

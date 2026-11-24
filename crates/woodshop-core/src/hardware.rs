@@ -188,6 +188,7 @@ mod tests {
         ("shelfPin", &["diameter", "length"]),
         ("barrelBolt", &["length", "width", "projection"]),
         ("hasp", &["length", "width", "projection"]),
+        ("toggleLatch", &["length", "width", "projection"]),
         ("block", &["length", "width", "projection"]),
         ("lidStay", &["length", "width", "projection"]),
         ("chestHandle", &["width", "height", "projection"]),

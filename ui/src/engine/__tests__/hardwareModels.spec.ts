@@ -49,6 +49,14 @@ describe('catalog hardware geometry', () => {
         expect(b.max.y - b.min.y).toBeCloseTo(1.5, 2);
     });
 
+    it('draws a toggle latch closed: its full length, the keeper in the last quarter', () => {
+        const b = boundsOf(buildHardwareGeometry(findItem('latch.toggle-3in')!.model));
+        expect(b.min.x).toBeCloseTo(-1.5, 2);
+        expect(b.max.x).toBeCloseTo(1.5, 2);
+        expect(b.max.z).toBeCloseTo(0.54, 2); // the folded lever, inside the projection
+        expect(b.max.y - b.min.y).toBeCloseTo(1.25, 2);
+    });
+
     it('draws a T-hinge as a leaf, a knuckle and a strap tapering across the door', () => {
         const model = findItem('hinge.tee-6in')!.model;
         const b = boundsOf(buildHardwareGeometry(model));

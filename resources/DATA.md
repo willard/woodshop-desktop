@@ -125,7 +125,9 @@ Mending plates and shelf standards.
 - `diameter`: of the hole it fits.
 - `length`: overall; about half goes in the hole.
 
-#### `barrelBolt`, `hasp`, `block`, `lidStay`
+#### `barrelBolt`, `hasp`, `toggleLatch`, `block`, `lidStay`
+A hasp and a toggle latch are drawn closed, across the joint: the latch from the −X end, its
+staple or keeper in the last quarter toward +X, on the other part.
 - `length`: along the item.
 - `width`: across it.
 - `projection`: from the surface.

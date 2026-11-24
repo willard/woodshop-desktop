@@ -10,6 +10,9 @@ All notable changes to Woodshop are listed here. The format follows
 
 - Folding shelf brackets, 10" to 20", in Hardware ▸ Brackets & plates: steel brackets that lock
   out level under a drop-down wing or shelf and fold flat, with a typical load rating for a pair.
+- Toggle latches, 3" and 4", in Hardware ▸ Latches & catches: a draw latch and its keeper, drawn
+  closed across the joint. On a cart's front leg, one holds a folded wing tight so it can't swing
+  out while the cart rolls.
 - Cutouts (format 1.22): an opening or a recess in a part's face, away from its edges, such as
   a saw well in a cart top or a hand hole. Add a cut ▸ Cutout sets its size, centre, depth (empty
   cuts right through) and corner radius. It is cut in the 3D view, drawn on the shop template and

@@ -954,6 +954,34 @@
    }
   },
   {
+   "id": "latch.toggle-3in",
+   "category": "latches",
+   "name": "Toggle latch 3\"",
+   "list": "3\" toggle latches with keepers",
+   "metric": {"name": "Toggle latch 75 mm", "list": "75 mm toggle latches with keepers"},
+   "model": {
+    "shape": "toggleLatch",
+    "length": 3,
+    "width": 1.25,
+    "projection": 0.6
+   },
+   "description": "Draw latch: the lever pulls a wire loop over a hooked keeper and holds the two parts tight. Drawn closed, the latch on one part and its keeper across the joint on the other (about the last quarter of its length). Holds a lid or case shut, or a folded wing against a cart's leg."
+  },
+  {
+   "id": "latch.toggle-4in",
+   "category": "latches",
+   "name": "Toggle latch 4\"",
+   "list": "4\" toggle latches with keepers",
+   "metric": {"name": "Toggle latch 100 mm", "list": "100 mm toggle latches with keepers"},
+   "model": {
+    "shape": "toggleLatch",
+    "length": 4,
+    "width": 1.5,
+    "projection": 0.75
+   },
+   "description": "Heavier draw latch: the lever pulls a wire loop over a hooked keeper and holds the two parts tight. Drawn closed, the latch on one part and its keeper across the joint on the other (about the last quarter of its length). Holds a lid or case shut, or a folded wing against a cart's leg."
+  },
+  {
    "id": "catch.magnetic",
    "category": "latches",
    "name": "Magnetic catch",

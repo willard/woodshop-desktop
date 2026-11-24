@@ -284,6 +284,25 @@ const BUILDERS: Record<string, Builder> = {
         ];
     },
 
+    toggleLatch: (m) => {
+        // Closed, across the joint: the base and its lever folded flat from the -X end, the wire
+        // loop running from the lever's pivot over the hook of the keeper, which sits in the last
+        // quarter (+X), on the other part.
+        const l = num(m, 'length', 3);
+        const w = num(m, 'width', 1.25);
+        const p = num(m, 'projection', 0.6);
+        const wire = (y: number) => cyl(0.04, l * 0.45, 'x', l * 0.175, y, p * 0.4, 8);
+        return [
+            box(l * 0.45, w, PLATE, -l * 0.275, 0, PLATE / 2),
+            box(l * 0.55, w * 0.55, p * 0.3, -l * 0.2, 0, p * 0.75),
+            cyl(p * 0.25, w * 0.8, 'y', -l * 0.05, 0, p * 0.45, 12),
+            wire(w * 0.3),
+            wire(-w * 0.3),
+            box(l * 0.2, w * 0.8, PLATE, l * 0.4, 0, PLATE / 2),
+            box(l * 0.06, w * 0.7, p * 0.5, l * 0.42, 0, p * 0.25),
+        ];
+    },
+
     block: (m) => {
         const p = num(m, 'projection', 0.55);
         return [box(num(m, 'length', 1.8), num(m, 'width', 0.6), p, 0, 0, p / 2)];
