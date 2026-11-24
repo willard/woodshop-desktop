@@ -877,6 +877,19 @@ the owner to check, as computer use of the app is declined.
   published). Designs saved now are spec 1.21, which v0.1.3 cannot open, so 0.1.4 ships the
   gallery, the AR trial and the maker's credit together. Prepared (versions and changelog); done
   once the tag's release is published.
+- **7.19 Folding work surfaces (spec 1.22).** Done (2026-11-24), from the owner's mobile
+  miter-saw cart (design 44): folding shelf brackets (10" to 20", the `foldingBracket` shape);
+  cutouts (`Cutout` op, through or a recess, with a corner radius; DXF `CUT_INSIDE`; a part
+  standing in a through opening is not a collision); and leaves (`Movable::Leaf`: modelled
+  raised, Open folds it down a quarter turn about the hinge edge's lower arris; brackets placed
+  with it, `movable.leaf-support` checks their length and kind). `hinge: "none"` hangs a wing on
+  its brackets alone: no hinge rows, the brackets at the edge's ends, and the pivot at the bottom
+  of the whole leaf (`leafDrop`), so a box wing's aprons fold clear. The view counter-folds the
+  bracket legs (`bracketLegMatrix`), so they stay on the post. Tests: `tests/leaves.rs`, the MCP
+  tools test, `leaves.spec.ts`.
+- **7.20 Release v0.1.5.** Not started. Format 1.22 is unreleased: designs saved by a dev build
+  open only in a dev build until 0.1.5 ships. Bump the versions and date the changelog once
+  0.1.4 is published and the owner says go.
 
 ### 7c. Bigger bets (owner decides first)
 
