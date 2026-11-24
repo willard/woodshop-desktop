@@ -22,6 +22,8 @@ import {
 import { fastenerSegments, type FastenerOp } from './fastenerPlacement';
 import { hardwarePlacements } from './movablePlacement';
 import { buildHardwareGeometry } from './geometry/hardwareModels';
+import { buildPropGeometry } from './geometry/propModels';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { findItem, mountFrame } from '@/hardware/catalog';
 import {
     hingeGeometry,
@@ -228,6 +230,57 @@ export function buildSpecGroup(
     addMovableHardware(spec, meshesById);
     addMountedHardware(spec, meshesById, materialsById);
 
+    return group;
+}
+
+/**
+ * Props (spec 1.22): the things a piece holds but you don't build, such as the totes on a tote
+ * rack, in their own group so nothing that walks the parts (picking, dragging, the exploded view,
+ * hiding, build steps) ever meets them. Each is a group named by its id, standing at its `pos`
+ * (the middle of its bottom) and turned `rot` degrees about the vertical.
+ */
+export function buildPropsGroup(spec: Spec): THREE.Group {
+    const group = new THREE.Group();
+    group.name = 'spec-props';
+    const materials = new Map<string, THREE.MeshStandardMaterial>();
+    const plastic = (color: string): THREE.MeshStandardMaterial => {
+        let material = materials.get(color);
+        if (material === undefined) {
+            material = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0 });
+            materials.set(color, material);
+        }
+        return material;
+    };
+    for (const prop of spec.props ?? []) {
+        const item = findItem(prop.item);
+        if (item?.prop !== true) {
+            continue; // the linter names a prop that isn't one
+        }
+        const geometry = buildPropGeometry(item.model);
+        const holder = new THREE.Group();
+        holder.name = prop.id;
+        holder.userData = { propId: prop.id, itemId: prop.item };
+        const colours: [THREE.BufferGeometry[], string][] = [
+            [geometry.body, prop.color ?? String(item.model.color ?? '#3a3a3c')],
+            [geometry.accent, prop.accent ?? String(item.model.accent ?? '#8e8e93')],
+        ];
+        for (const [pieces, colour] of colours) {
+            if (pieces.length === 0) continue;
+            const merged = mergeGeometries(pieces, false);
+            for (const piece of pieces) piece.dispose();
+            if (merged === null) continue;
+            // Drawn with +Z up; stand it on the floor (+Z to world +Y, its length still along X).
+            merged.rotateX(-Math.PI / 2);
+            const mesh = new THREE.Mesh(merged, plastic(colour));
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            mesh.userData = { propId: prop.id };
+            holder.add(mesh);
+        }
+        holder.position.set(prop.pos[0], prop.pos[1], prop.pos[2]);
+        holder.rotation.y = (prop.rot ?? 0) * DEG2RAD;
+        group.add(holder);
+    }
     return group;
 }
 

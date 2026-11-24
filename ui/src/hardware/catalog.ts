@@ -24,6 +24,8 @@ export interface HardwareItem {
     role?: HardwareRole;
     /** `false` for items that only belong to a door or drawer (drawer slides). */
     placeable?: boolean;
+    /** `true` for a thing shown with a piece but not built (a tote): placed as a prop (spec 1.22). */
+    prop?: boolean;
     description?: string;
     model: HardwareModel;
 }

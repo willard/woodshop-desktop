@@ -39,6 +39,10 @@
   {
    "id": "hooks",
    "name": "Hooks"
+  },
+  {
+   "id": "props",
+   "name": "Things to show (not built)"
   }
  ],
  "items": [
@@ -1104,6 +1108,27 @@
     "width": 0.4,
     "projection": 1.6
    }
+  },
+  {
+   "id": "prop.tote-hdx-27gal",
+   "category": "props",
+   "name": "HDX 27 gal Tough Storage Tote",
+   "list": "HDX 27 gal Tough Storage Totes",
+   "prop": true,
+   "model": {
+    "shape": "tote",
+    "length": 28.5,
+    "width": 19.6,
+    "height": 15.2,
+    "baseLength": 24.5,
+    "baseWidth": 15.5,
+    "rim": 1.5,
+    "lip": 1.5,
+    "lid": 1.25,
+    "color": "#1d1d1f",
+    "accent": "#f2c230"
+   },
+   "description": "102 L. Black base, yellow snap-on lid; 28.5\" × 19.6\" × 15.2\" outside with the lid (Home Depot's listing). The rim stands out about 1 1/2\" from the sides under it (an estimate: measure one), so it hangs between runners about 16 1/2\" to 19 1/2\" apart. Hangs by its rim: the rim's underside is 12.45\" above the bottom, so on a rack's runners set its bottom 12.45\" below their tops. Shown with the piece, never built or counted."
   }
  ]
 }

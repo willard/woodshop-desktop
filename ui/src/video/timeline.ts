@@ -6,6 +6,10 @@
  * then builds the piece step by step, in the order the PDF plan prints, each step's parts flying
  * in to where they belong under a caption saying what to do; and it ends by pulling the piece
  * apart and closing it up again, with a closing card.
+ *
+ * A piece with props (spec 1.22), such as a tote rack's totes, opens with them in place, builds
+ * without them, and once it has closed up again they slide in one after another, so the film ends
+ * on the piece in use.
  */
 import type { AssemblyStep } from '@/cutlist';
 
@@ -59,14 +63,22 @@ export interface FilmPlan {
     steps: FilmStep[];
     /** When the closing explode begins. */
     finale: number;
+    /** How long the closing explode and its hold take, from `finale`. */
+    outro: number;
+    /** When the props start sliding in, or null for a piece with none. */
+    fill: number | null;
 }
+
+/** How long the props take to come in, all of them, and the hold on the piece in use after. */
+export const FILL_SECONDS = 2.2;
+const FILL_HOLD = 1;
 
 /**
  * Lays the steps out over about `seconds`. The opening and closing take a fixed share, the
  * steps split the rest; a design with many steps runs longer rather than rush its captions.
  * Steps that put nothing in place (the hardware) keep their caption.
  */
-export function planFilm(steps: readonly AssemblyStep[], seconds: number): FilmPlan {
+export function planFilm(steps: readonly AssemblyStep[], seconds: number, withProps = false): FilmPlan {
     const intro = Math.min(3, seconds * 0.12);
     const outro = Math.min(4, seconds * 0.15);
     const each = Math.max(MIN_STEP_SECONDS, (seconds - intro - outro) / Math.max(1, steps.length));
@@ -80,7 +92,12 @@ export function planFilm(steps: readonly AssemblyStep[], seconds: number): FilmP
         end: intro + (i + 1) * each,
     }));
     const finale = intro + steps.length * each;
-    return { seconds: finale + outro, intro, steps: filmSteps, finale };
+    if (!withProps) {
+        return { seconds: finale + outro, intro, steps: filmSteps, finale, outro, fill: null };
+    }
+    // The props come in once the piece has closed up again, then it holds on the piece in use.
+    const fill = finale + outro * 0.75;
+    return { seconds: fill + FILL_SECONDS + FILL_HOLD, intro, steps: filmSteps, finale, outro, fill };
 }
 
 export type Caption = { kind: 'title' } | { kind: 'step'; step: FilmStep } | { kind: 'end' };
@@ -93,6 +110,11 @@ export interface FilmPose {
     arrival: Map<string, number>;
     /** The closing pull-apart: 0 assembled, 1 fully exploded. */
     explode: number;
+    /**
+     * How far the props have come in, 0 (none shown) to 1 (all in place); the stage staggers
+     * them across it. They are in place under the title and out while the piece is built.
+     */
+    props: number;
     /** The camera's turn round the piece, in degrees from where it starts. */
     orbit: number;
     /**
@@ -120,14 +142,14 @@ export function poseAt(plan: FilmPlan, t: number): FilmPose {
     const framing =
         t < plan.finale ? easeInOut((t - (plan.intro - 0.6)) / 0.8) : 1 - easeInOut((t - plan.finale) / 0.8);
     if (t < plan.intro) {
-        return { arrival: new Map(), explode: 0, orbit, framing, caption: { kind: 'title' } };
+        return { arrival: new Map(), explode: 0, props: 1, orbit, framing, caption: { kind: 'title' } };
     }
     if (t >= plan.finale) {
         // Out to half exploded and back, then hold on the finished piece.
-        const span = plan.seconds - plan.finale;
-        const x = (t - plan.finale) / Math.max(span * 0.7, 1e-6);
+        const x = (t - plan.finale) / Math.max(plan.outro * 0.7, 1e-6);
         const explode = x >= 1 ? 0 : 0.5 * Math.sin(Math.PI * easeInOut(x));
-        return { arrival: new Map(), explode, orbit, framing, caption: { kind: 'end' } };
+        const props = plan.fill === null ? 0 : Math.min(1, Math.max(0, (t - plan.fill) / FILL_SECONDS));
+        return { arrival: new Map(), explode, props, orbit, framing, caption: { kind: 'end' } };
     }
     const arrival = new Map<string, number>();
     let current = plan.steps[0];
@@ -137,7 +159,7 @@ export function poseAt(plan: FilmPlan, t: number): FilmPose {
         for (const id of step.partIds) arrival.set(id, progress);
         if (t >= step.start) current = step;
     }
-    return { arrival, explode: 0, orbit, framing, caption: { kind: 'step', step: current } };
+    return { arrival, explode: 0, props: 0, orbit, framing, caption: { kind: 'step', step: current } };
 }
 
 /** Frames in the film at `fps`. */

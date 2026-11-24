@@ -49,6 +49,10 @@ pub struct Item {
     /// `false` for items that only make sense on a movable (drawer slides).
     #[serde(default = "yes", skip_serializing_if = "is_true")]
     pub placeable: bool,
+    /// `true` for a thing shown with the piece but not built (a tote): it goes in the spec's
+    /// `props`, never in `hardware`, and is never listed or counted.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub prop: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// `shape` plus that shape's dimensions in inches; the 3D view builds geometry from it.
@@ -193,6 +197,21 @@ mod tests {
         ("lidStay", &["length", "width", "projection"]),
         ("chestHandle", &["width", "height", "projection"]),
         ("hook", &["height", "width", "projection", "double"]),
+        (
+            "tote",
+            &[
+                "length",
+                "width",
+                "height",
+                "baseLength",
+                "baseWidth",
+                "rim",
+                "lip",
+                "lid",
+                "color",
+                "accent",
+            ],
+        ),
     ];
     const FLAGS: &[&str] = &["square", "swivel", "brake", "double"];
 
@@ -213,6 +232,7 @@ mod tests {
                 let ok = match key.as_str() {
                     k if FLAGS.contains(&k) => value.is_boolean(),
                     "mount" => matches!(value.as_str(), Some("side" | "under")),
+                    "color" | "accent" => value.as_str().is_some_and(|c| c.len() == 7 && c.starts_with('#')),
                     _ => value.as_f64().is_some_and(|n| n >= 0.0),
                 };
                 assert!(ok, "{}: {key} = {value}", item.id);
@@ -273,6 +293,10 @@ mod tests {
             assert!(find(id).is_some(), "default {id} exists");
         }
         assert!(!find(DEFAULT_SLIDE).unwrap().placeable);
+        // A thing to show is in the props category, and only there.
+        for item in &c.items {
+            assert_eq!(item.prop, item.category == "props", "{}: prop", item.id);
+        }
         assert_eq!(find("pull.bar-96mm").unwrap().role, Some(Role::Pull));
     }
 }

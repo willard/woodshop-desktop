@@ -161,6 +161,7 @@ pub fn minimal(name: &str, opts: &StarterOptions) -> Spec {
         groups: None,
         movables: None,
         hardware: None,
+        props: None,
         meta: Some(Meta {
             difficulty: Some(Difficulty::Beginner),
             notes: None,

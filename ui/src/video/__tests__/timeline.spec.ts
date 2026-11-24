@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MIN_STEP_SECONDS, easeOutCubic, frameCount, planFilm, poseAt } from '../timeline';
+import { FILL_SECONDS, MIN_STEP_SECONDS, easeOutCubic, frameCount, planFilm, poseAt } from '../timeline';
 import type { AssemblyStep } from '@/cutlist';
 
 const steps: AssemblyStep[] = [
@@ -94,5 +94,27 @@ describe('easeOutCubic', () => {
         expect(easeOutCubic(1)).toBe(1);
         expect(easeOutCubic(0.5)).toBeGreaterThan(0.8);
         expect(easeOutCubic(2)).toBe(1);
+    });
+});
+
+describe('a piece with props', () => {
+    const plan = planFilm(steps, 30, true);
+
+    it('opens with them in place, builds without them, and ends with them sliding in', () => {
+        expect(plan.fill).not.toBeNull();
+        expect(plan.seconds).toBeCloseTo(plan.fill! + FILL_SECONDS + 1);
+        expect(poseAt(plan, 0).props).toBe(1);
+        expect(poseAt(plan, plan.steps[1].start + 0.1).props).toBe(0);
+        // The pull-apart is over before they come in.
+        expect(poseAt(plan, plan.fill! - 0.01).explode).toBeCloseTo(0, 5);
+        expect(poseAt(plan, plan.fill! - 0.01).props).toBe(0);
+        expect(poseAt(plan, plan.fill! + FILL_SECONDS / 2).props).toBeCloseTo(0.5);
+        expect(poseAt(plan, plan.seconds - 0.01).props).toBe(1);
+        expect(poseAt(plan, plan.seconds - 0.01).caption.kind).toBe('end');
+    });
+
+    it('leaves a piece without props as it was', () => {
+        expect(planFilm(steps, 30).fill).toBeNull();
+        expect(planFilm(steps, 30).seconds).toBeCloseTo(30);
     });
 });

@@ -15,6 +15,7 @@ function specWithTop(pos: [number, number, number] = [0, THICKNESS / 2, 0]): Spe
         name: 'Table',
         movables: [],
         hardware: [],
+        props: [],
         groups: [],
         materials: [
             {

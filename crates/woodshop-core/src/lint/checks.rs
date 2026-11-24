@@ -959,6 +959,18 @@ pub(super) fn hardware(spec: &Spec, issues: &mut Vec<LintIssue>) {
             continue;
         };
         let name = match find(&mount.item) {
+            Some(item) if item.prop => {
+                issues.push(LintIssue::part(
+                    Severity::Warn,
+                    "hardware.is-prop",
+                    format!(
+                        "{} on \"{}\" is something to show, not hardware — place it as a prop instead.",
+                        item.name, part.name
+                    ),
+                    &part.id,
+                ));
+                item.name.as_str()
+            }
             Some(item) => {
                 if !item.placeable {
                     issues.push(LintIssue::part(
@@ -1031,6 +1043,41 @@ pub(super) fn hardware(spec: &Spec, issues: &mut Vec<LintIssue>) {
                     movable.anchor_part_id(),
                 ));
             }
+        }
+    }
+}
+
+/// Props (1.22) are only drawn, so nothing about them stops a build: ids must still be unique,
+/// and the item must be a catalog prop for it to be drawn at all.
+pub(super) fn props(spec: &Spec, issues: &mut Vec<LintIssue>) {
+    let mut seen = std::collections::HashSet::new();
+    for prop in spec.props() {
+        let label = prop.name.as_deref().unwrap_or(prop.id.as_str());
+        if !seen.insert(prop.id.as_str()) {
+            issues.push(LintIssue::general(
+                Severity::Error,
+                "prop.duplicate-id",
+                format!("Duplicate prop id \"{}\". Every prop must have a unique id.", prop.id),
+            ));
+        }
+        match crate::hardware::find(&prop.item) {
+            Some(item) if item.prop => {}
+            Some(item) => issues.push(LintIssue::general(
+                Severity::Warn,
+                "prop.not-a-prop",
+                format!(
+                    "\"{label}\" is {}, which is hardware: mount it on a part instead. It isn't drawn as a prop.",
+                    item.name
+                ),
+            )),
+            None => issues.push(LintIssue::general(
+                Severity::Warn,
+                "prop.unknown-item",
+                format!(
+                    "\"{label}\" is \"{}\", which isn't in this version's catalog, so it isn't drawn.",
+                    prop.item
+                ),
+            )),
         }
     }
 }

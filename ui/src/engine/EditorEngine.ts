@@ -11,7 +11,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { Spec, Part, Material, Op, HardwareMount } from '../spec/types';
 import { derivedHoleOps } from '../spec/movables';
-import { buildSpecGroup } from './buildScene';
+import { buildPropsGroup, buildSpecGroup } from './buildScene';
 import { place, type PlacedSize, type SizeCandidate, type SizeGroup } from './sizeLabels';
 import { woodMaterialProvider, createGrainTexture, shadeGrain, type MaterialProvider } from './materials';
 import { computeSnap, clampAnchorToWorkspace, aabbFromPart, type AABB, type Vec3 } from './snapping';
@@ -175,6 +175,9 @@ export class EditorEngine {
     private readonly resizeObserver: ResizeObserver;
 
     private partsGroup: THREE.Group | null = null;
+    /** Props (spec 1.22): shown with the piece, never picked, dragged or exploded as parts. */
+    private propsGroup: THREE.Group | null = null;
+    private propsVisible = true;
     private renderScheduled = false;
     private disposed = false;
 
@@ -188,6 +191,8 @@ export class EditorEngine {
     private pointerDownAt: { x: number; y: number } | null = null;
     /** Called when the user clicks a part (id) or empty space (null). */
     pickHandler: ((partId: string | null, modifiers: PickModifiers) => void) | null = null;
+    /** Called when the user clicks a prop (spec 1.22), such as a tote on a rack. */
+    propPickHandler: ((propId: string) => void) | null = null;
 
     // Drag & snapping.
     snapConfig: SnapConfig = { ...DEFAULT_SNAP_CONFIG };
@@ -539,6 +544,11 @@ export class EditorEngine {
         // Shift-click is additive selection; shift only means "lift" once a drag has actually
         // started (>4px of motion), so the two never collide on a clean tap.
         const additive = event.shiftKey || event.metaKey || event.ctrlKey;
+        const prop = additive ? null : this.propAt(event);
+        if (prop !== null && this.propPickHandler !== null) {
+            this.propPickHandler(prop);
+            return;
+        }
         const hardware = additive ? null : this.hardwareAt(event);
         if (hardware !== null) {
             this.pickHandler?.(hardware.partId, { additive: false, hardwareId: hardware.id });
@@ -1666,6 +1676,9 @@ export class EditorEngine {
             child.userData.baseQuat = [q.x, q.y, q.z, q.w];
         }
         this.scene.add(this.partsGroup);
+        this.propsGroup = buildPropsGroup(spec);
+        this.propsGroup.visible = this.propsVisible;
+        this.scene.add(this.propsGroup);
         this.currentSpec = spec;
         // Hardware casts too (a caster's shadow is what puts it on the floor); fastener marks don't.
         this.partsGroup.traverse((object) => {
@@ -1951,7 +1964,8 @@ export class EditorEngine {
      * software read it. Built from the same parts as glTF.
      */
     async exportMesh(name: string, format: 'stl' | 'obj'): Promise<Uint8Array | string> {
-        const root = this.exportRoot(name);
+        // A mesh file is for printing or modelling the piece itself: the props stay out.
+        const root = this.exportRoot(name, false);
         root.scale.setScalar(25.4);
         if (format === 'stl') root.rotation.x = Math.PI / 2;
         root.updateMatrixWorld(true);
@@ -1965,7 +1979,7 @@ export class EditorEngine {
     }
 
     /** Every part as built, in its assembled pose, without the editor's line work and marks. */
-    private exportRoot(name: string): THREE.Group {
+    private exportRoot(name: string, withProps = true): THREE.Group {
         if (this.partsGroup === null) {
             throw new Error('Nothing to export yet.');
         }
@@ -2005,6 +2019,17 @@ export class EditorEngine {
             copy.name = part?.name ?? child.name;
             copy.userData = { partId: child.name };
             root.add(copy);
+        }
+        if (withProps && this.propsGroup !== null) {
+            const names = new Map(
+                (this.currentSpec?.props ?? []).map((p) => [p.id, p.name ?? findItem(p.item)?.name]),
+            );
+            for (const holder of this.propsGroup.children) {
+                const copy = holder.clone(true);
+                copy.name = names.get(holder.name) ?? holder.name;
+                copy.traverse((object) => (object.userData = {}));
+                root.add(copy);
+            }
         }
         return root;
     }
@@ -2286,6 +2311,40 @@ export class EditorEngine {
         this.scene.remove(this.partsGroup);
         disposeObject(this.partsGroup);
         this.partsGroup = null;
+        if (this.propsGroup !== null) {
+            this.scene.remove(this.propsGroup);
+            disposeObject(this.propsGroup);
+            this.propsGroup = null;
+        }
+    }
+
+    /** Shows or hides the props (spec 1.22), such as the totes on a rack, to see the woodwork. */
+    setPropsVisible(visible: boolean): void {
+        this.propsVisible = visible;
+        if (this.propsGroup !== null) this.propsGroup.visible = visible;
+        this.requestRender();
+    }
+
+    /** The prop under the pointer, unless a part stands in front of it. */
+    private propAt(event: MouseEvent): string | null {
+        if (this.propsGroup === null || !this.propsGroup.visible || this.propsGroup.children.length === 0) {
+            return null;
+        }
+        const rect = this.canvas.getBoundingClientRect();
+        this.pointer.set(
+            ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            -((event.clientY - rect.top) / rect.height) * 2 + 1,
+        );
+        this.raycaster.setFromCamera(this.pointer, this.camera);
+        const prop = this.raycaster.intersectObjects(this.propsGroup.children, true)[0];
+        if (prop === undefined) {
+            return null;
+        }
+        const part = this.raycaster.intersectObjects(this.pickableParts(), false)[0];
+        if (part !== undefined && part.distance < prop.distance - 1e-3) {
+            return null;
+        }
+        return (prop.object.userData.propId as string | undefined) ?? null;
     }
 
     /** Releases all GPU/DOM resources. Safe to call once. */

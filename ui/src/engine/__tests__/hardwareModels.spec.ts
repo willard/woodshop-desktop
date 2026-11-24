@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import * as THREE from 'three';
 import { catalog, findItem } from '@/hardware/catalog';
 import { buildHardwareGeometry, knowsShape } from '@/engine/geometry/hardwareModels';
+import { knowsPropShape } from '@/engine/geometry/propModels';
 import { buildSpecGroup } from '@/engine/buildScene';
 import { parseSpec } from '@/spec';
 import type { Spec } from '@/spec';
@@ -14,6 +15,11 @@ function boundsOf(g: THREE.BufferGeometry): THREE.Box3 {
 describe('catalog hardware geometry', () => {
     it('draws every item: a real shape, sitting on its mounting surface', () => {
         for (const item of catalog().items) {
+            if (item.prop === true) {
+                // Shown, not mounted: drawn by the props' own models.
+                expect(knowsPropShape(item.model.shape), `${item.id}: prop shape`).toBe(true);
+                continue;
+            }
             expect(knowsShape(item.model.shape), `${item.id}: shape ${item.model.shape}`).toBe(true);
             const g = buildHardwareGeometry(item.model);
             const b = boundsOf(g);

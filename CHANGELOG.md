@@ -10,6 +10,16 @@ All notable changes to Woodshop are listed here. The format follows
 
 - Folding shelf brackets, 10" to 20", in Hardware ▸ Brackets & plates: steel brackets that lock
   out level under a drop-down wing or shelf and fold flat, with a typical load rating for a pair.
+- Things to show (format 1.22): what a piece holds but you don't build, such as the totes on a
+  tote rack, so a client sees it in use. Add ▸ Things to show adds one from the catalog (to start
+  with, the HDX 27 gal Tough Storage Tote, black with a yellow lid); Rest it on two parts hangs a
+  tote by its rim on a pair of runners and says whether it fits between them; you can also type
+  where it stands, turn it and recolour the base and lid. Click one in the view to edit it. They
+  show in the 3D view, the 3D plan and the glTF and AR exports, and never in the cut list, the
+  hardware list, the cost, the overall size or the drawings. The assembly video opens with them in
+  place, builds the piece without them, and ends with them sliding in, one after another, so it
+  closes on the piece in use. Agents use `add_prop`,
+  `update_prop` and `delete_prop`.
 - Toggle latches, 3" and 4", in Hardware ▸ Latches & catches: a draw latch and its keeper, drawn
   closed across the joint. On a cart's front leg, one holds a folded wing tight so it can't swing
   out while the cart rolls.

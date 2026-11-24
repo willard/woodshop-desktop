@@ -74,6 +74,9 @@ import {
     AddHardware,
     UpdateHardware,
     RemoveHardware,
+    AddProp,
+    UpdateProp,
+    RemoveProp,
     uniqueHardwareId,
     WORKSPACE_POS_BOUND,
     aabbFromPart,
@@ -133,6 +136,7 @@ import { CutListPanel } from './CutListPanel';
 import { GroupInspector } from './GroupInspector';
 import { MirrorButtons } from './MirrorButtons';
 import { HardwareDialog } from './HardwareDialog';
+import { PropsDialog } from './PropsDialog';
 import { findItem, itemName } from '@/hardware/catalog';
 import { PartInspector } from './PartInspector';
 import { placeAtPoint, Popover } from './Popover';
@@ -287,6 +291,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
         } | null>(null);
         const [toolsOpen, setToolsOpen] = useState(false);
         const [hardwareDialog, setHardwareDialog] = useState<{ partId: string | null } | null>(null);
+        const [propsDialog, setPropsDialog] = useState<{ focus: string | null } | null>(null);
+        const [propsShown, setPropsShown] = useState(true);
         const [selectedHardware, setSelectedHardware] = useState<string | null>(null);
         const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
         const [opError, setOpError] = useState<string | null>(null);
@@ -359,6 +365,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 setSelectedHardware(null);
                 docRef.current.handlePick(id, modifiers);
             };
+            engine.propPickHandler = (id) => setPropsDialog({ focus: id });
             engine.dragCommitHandler = (ids: string[], delta: Vec3) => {
                 docRef.current.execute(new MoveParts(ids, delta));
                 // Record any dado joints the drop seated (annotations, not constraints).
@@ -1833,6 +1840,17 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                                         >
                                             Hardware<span className="text-faint">…</span>
                                         </button>
+                                        <button
+                                            className="hover:bg-fg/[0.07] rounded-md px-2.5 py-2 text-left text-[13px]"
+                                            data-testid="add-props-menu"
+                                            title="Totes and other things the piece holds, shown but not built"
+                                            onClick={() => {
+                                                setPropsDialog({ focus: null });
+                                                close();
+                                            }}
+                                        >
+                                            Things to show<span className="text-faint">…</span>
+                                        </button>
                                     </>
                                 )}
                             </Popover>
@@ -2433,6 +2451,21 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                             placeOp({ kind: 'hardware', item: itemId, rot: 0 });
                         }}
                         onClose={() => setHardwareDialog(null)}
+                    />
+                )}
+                {propsDialog && (
+                    <PropsDialog
+                        spec={spec}
+                        focus={propsDialog.focus}
+                        shown={propsShown}
+                        onShow={(shown) => {
+                            setPropsShown(shown);
+                            engineRef.current?.setPropsVisible(shown);
+                        }}
+                        onAdd={(prop) => doc.execute(new AddProp(prop))}
+                        onUpdate={(id, patch) => doc.execute(new UpdateProp(id, patch))}
+                        onRemove={(id) => doc.execute(new RemoveProp(id))}
+                        onClose={() => setPropsDialog(null)}
                     />
                 )}
                 {toolsOpen && <ToolsOverlay onClose={() => setToolsOpen(false)} />}

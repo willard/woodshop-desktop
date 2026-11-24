@@ -13,6 +13,8 @@ export type Group = NonNullable<Spec['groups']>[number];
 export type Movable = NonNullable<Spec['movables']>[number];
 /** One piece of catalog hardware mounted on a part (spec 1.15). */
 export type HardwareMount = NonNullable<Spec['hardware']>[number];
+/** Something shown with the piece but not built, such as a tote on a tote rack (spec 1.22). */
+export type Prop = NonNullable<Spec['props']>[number];
 /** A side of a part hardware can mount on: a face or an edge, in the local frame. */
 export type Side = HardwareMount['side'];
 export type Op = Part['ops'] extends readonly (infer O)[] | undefined ? O : never;

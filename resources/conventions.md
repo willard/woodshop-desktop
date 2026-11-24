@@ -302,6 +302,20 @@ their stock, and a fully connected assembly with no floating parts.
   finish across a piece unless asked otherwise; `"steel"` in an update clears it. The hardware
   list names the finish, so differently finished pulls are bought as separate rows.
 
+## Props: shown, not built (spec 1.22)
+
+- `props` are things a piece holds or carries that you don't build: the totes on a tote rack. Each
+  is a catalog item from `list_hardware`'s `props` category, placed with `add_prop` at `pos`, the
+  WORLD position of the middle of its bottom (y up), turned `rot` degrees about the vertical (at 0
+  its length runs along world X). `color` and `accent` (`#rrggbb`) recolour it (a tote's base and
+  lid).
+- A prop is drawn in the 3D view and the 3D plan only. It is never in the cut list, the hardware
+  list, the cost, the overall size or the drawings, and the checks don't test whether it fits:
+  work it out from the parts it sits on (`explain_part` gives their world boxes). A prop never goes in `hardware`, nor hardware in `props`.
+- A tote hangs by its rim: put its bottom `height - lid - rim` (the item's description gives it)
+  below the tops of the runners it rests on, centred between them, its length along the runners.
+  One prop per tote.
+
 ## Shelf-pin holes
 
 - Adjustable shelves rest on pins in two columns of holes up each case side. Drill them with

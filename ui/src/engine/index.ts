@@ -115,6 +115,10 @@ export {
     UpdateHardware,
     RemoveHardware,
     uniqueHardwareId,
+    AddProp,
+    UpdateProp,
+    RemoveProp,
+    uniquePropId,
     GroupParts,
     UngroupParts,
     MoveParts,
@@ -143,6 +147,7 @@ export {
     type Command,
     type NewPartOptions,
     type HardwarePatch,
+    type PropPatch,
 } from './commands';
 export {
     PART_KINDS,

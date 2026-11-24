@@ -132,6 +132,17 @@ staple or keeper in the last quarter toward +X, on the other part.
 - `width`: across it.
 - `projection`: from the surface.
 
+#### `tote`
+A storage tote, in the `props` category with `"prop": true`: shown with a piece (on a tote rack)
+but never built, listed or counted. Drawn standing on its bottom, length along X.
+- `length`, `width`: outside, at the rim; `height`: overall, lid on.
+- `baseLength`, `baseWidth`: of the bottom; the sides taper out from it to the rim.
+- `rim`: how deep the band around the top is; the tote hangs on runners by its underside.
+- `lip`: how far the rim stands out from the sides just under it; the gap between runners must
+  be wider than `width - 2 × lip` and narrower than `width`.
+- `lid`: how far the lid stands above the rim.
+- `color`, `accent`: the base's and the lid's colours, as `#rrggbb`.
+
 #### `chestHandle`
 - `width`, `height`: of the back plate.
 - `projection`: of the bail from the surface.

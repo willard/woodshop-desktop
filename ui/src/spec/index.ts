@@ -20,6 +20,7 @@ export type {
     Group,
     Movable,
     HardwareMount,
+    Prop,
     Side,
     Op,
     Axis,

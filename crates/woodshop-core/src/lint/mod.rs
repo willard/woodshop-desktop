@@ -59,6 +59,14 @@ impl LintIssue {
         }
     }
 
+    /// An issue with the design as a whole, pointing at no part or joint.
+    pub(crate) fn general(severity: Severity, code: &str, message: String) -> Self {
+        Self {
+            part_id: None,
+            ..Self::part(severity, code, message, "")
+        }
+    }
+
     pub(crate) fn op(severity: Severity, code: &str, message: String, part_id: &str, op_index: usize) -> Self {
         Self {
             op_index: Some(op_index),
@@ -159,6 +167,7 @@ pub fn lint(spec: &Spec) -> Vec<LintIssue> {
     checks::movables(spec, &mut issues);
     checks::hardware(spec, &mut issues);
     checks::hardware_fit(spec, &mut issues);
+    checks::props(spec, &mut issues);
     checks::lid_stays(spec, &mut issues);
     checks::leaf_supports(spec, &mut issues);
     checks::undermount_recess(spec, &mut issues);

@@ -74,7 +74,9 @@ Hardware: list_hardware browses a catalog of real hardware with true dimensions.
 pull and a drawer's slides and pull are set on the movable (add_movable / update_movable) and placed \
 for you; anything else — a pull on a fixed panel, casters, corner braces, a hasp, a lid stay — is \
 mounted on a side of a part with add_hardware, and moved or removed with update_hardware and \
-delete_hardware. Hardware is counted in the hardware list; it never cuts the part.
+delete_hardware. Hardware is counted in the hardware list; it never cuts the part. Things shown \
+with the piece but not built — the totes on a tote rack — are props (list_hardware category \
+\"props\"): add_prop places one in the world, update_prop and delete_prop change it; never counted.
 
 Precise edits: edit_parts changes SEVERAL parts at once (moves, rotations, resizes) and is validated \
 only at the end, which is the only way to re-orient an existing design — the single-part tools reject \

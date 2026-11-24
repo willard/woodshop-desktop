@@ -36,7 +36,7 @@ fn part(w: &Woodshop, project: i64, id: &str) -> Value {
 
 #[test]
 fn every_tool_has_a_unique_name_and_an_object_schema() {
-    assert_eq!(tools::TOOLS.len(), 40);
+    assert_eq!(tools::TOOLS.len(), 43);
     let mut names: Vec<_> = tools::TOOLS.iter().map(|t| t.name).collect();
     names.sort_unstable();
     names.dedup();
@@ -1286,4 +1286,84 @@ fn a_wing_is_a_leaf_with_hinges_and_folding_brackets() {
     ok(&w, "delete_part", json!({ "project_id": id, "part_id": "p_wing" }));
     let after = ok(&w, "get_design", json!({ "project_id": id }))["spec"]["movables"].clone();
     assert!(after.as_array().is_none_or(Vec::is_empty), "{after}");
+}
+
+#[test]
+fn a_tote_is_placed_moved_and_removed_as_a_prop_and_never_counted() {
+    let w = woodshop();
+    let started = ok(&w, "start_design", json!({ "name": "Rack", "material_type": "lumber" }));
+    let id = started["projectId"].as_i64().unwrap();
+    let base = started["spec"]["parts"][0]["id"].as_str().unwrap().to_owned();
+    let before = ok(&w, "get_cut_list", json!({ "project_id": id }))["hardware"].clone();
+
+    let props = ok(&w, "list_hardware", json!({ "category": "props" }))["items"].clone();
+    assert!(props.to_string().contains("prop.tote-hdx-27gal"), "{props}");
+    assert!(
+        err(
+            &w,
+            "add_hardware",
+            json!({ "project_id": id, "item": "prop.tote-hdx-27gal", "part_id": base })
+        )
+        .contains("add_prop")
+    );
+    assert!(
+        err(
+            &w,
+            "add_prop",
+            json!({ "project_id": id, "item": "hook.coat-single", "pos": [0, 0, 0] })
+        )
+        .contains("add_hardware")
+    );
+    assert!(
+        err(
+            &w,
+            "add_prop",
+            json!({ "project_id": id, "item": "prop.tote-hdx-27gal", "pos": [0, 0, 0], "accent": "yellow" })
+        )
+        .contains("#rrggbb")
+    );
+
+    let placed = ok(
+        &w,
+        "add_prop",
+        json!({ "project_id": id, "item": "prop.tote-hdx-27gal", "pos": [0, 2, 0], "rot": 90, "name": "Tote" }),
+    );
+    assert!(
+        placed["summary"].as_str().unwrap().contains("pr_tote_hdx_27gal"),
+        "{placed}"
+    );
+    ok(
+        &w,
+        "update_prop",
+        json!({ "project_id": id, "prop_id": "pr_tote_hdx_27gal", "pos": [1, 2, 3], "rot": 0, "accent": "#ff0000" }),
+    );
+    let spec = ok(&w, "get_design", json!({ "project_id": id }))["spec"].clone();
+    let prop = &spec["props"][0];
+    assert_eq!(prop["pos"], json!([1, 2, 3]));
+    assert!(prop.get("rot").is_none(), "a zero turn is left out: {prop}");
+    assert_eq!(prop["accent"], "#ff0000");
+    ok(
+        &w,
+        "update_prop",
+        json!({ "project_id": id, "prop_id": "pr_tote_hdx_27gal", "accent": "catalog" }),
+    );
+    let spec = ok(&w, "get_design", json!({ "project_id": id }))["spec"].clone();
+    assert!(spec["props"][0].get("accent").is_none());
+
+    // Never in the hardware list.
+    assert_eq!(ok(&w, "get_cut_list", json!({ "project_id": id }))["hardware"], before);
+
+    ok(
+        &w,
+        "delete_prop",
+        json!({ "project_id": id, "prop_id": "pr_tote_hdx_27gal" }),
+    );
+    assert!(
+        err(
+            &w,
+            "delete_prop",
+            json!({ "project_id": id, "prop_id": "pr_tote_hdx_27gal" })
+        )
+        .contains("No prop")
+    );
 }

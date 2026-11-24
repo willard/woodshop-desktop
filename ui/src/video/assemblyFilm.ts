@@ -12,12 +12,12 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { ArrayBufferTarget, Muxer } from 'mp4-muxer';
 import type { Spec } from '@/spec';
 import { assemblyOrder } from '@/cutlist';
-import { buildSpecGroup } from '@/engine/buildScene';
+import { buildPropsGroup, buildSpecGroup } from '@/engine/buildScene';
 import { createGrainTexture, woodMaterialProvider } from '@/engine/materials';
 import { explodedPositions } from '@/engine/explode';
 import { isSoftwareRenderer } from '@/engine/EditorEngine';
 import { scenePalette, type ThemeName } from '@/engine/theme';
-import { frameCount, planFilm, poseAt, type Caption, type FilmPlan } from './timeline';
+import { easeOutCubic, frameCount, planFilm, poseAt, type Caption, type FilmPlan } from './timeline';
 
 export const FILM_FPS = 30;
 
@@ -77,7 +77,10 @@ export async function renderStepPictures(
         for (const step of steps) {
             for (const id of step.partIds) placed.add(id);
             const arrival = new Map(spec.parts.map((p) => [p.id, placed.has(p.id) ? 1 : 0]));
-            stage.draw({ arrival, explode: 0, orbit: 0, framing: 0 }, { added: new Set(step.partIds) });
+            stage.draw(
+                { arrival, explode: 0, props: 0, orbit: 0, framing: 0 },
+                { added: new Set(step.partIds) },
+            );
             const url = stage.canvas.toDataURL('image/jpeg', 0.85);
             pictures.push(url.slice(url.indexOf(',') + 1));
             // Let the page breathe between pictures.
@@ -96,7 +99,7 @@ export async function renderAssemblyFilm(spec: Spec, options: FilmOptions): Prom
     if (config === null) {
         throw new Error('This computer cannot encode H.264 video here.');
     }
-    const plan = planFilm(assemblyOrder(spec), options.seconds);
+    const plan = planFilm(assemblyOrder(spec), options.seconds, (spec.props ?? []).length > 0);
     const stage = new FilmStage(spec, width, height, options.theme);
     const card = new CaptionCard(width, height, options.theme, options.title, options.subtitle);
 
@@ -193,6 +196,9 @@ class FilmStage {
      */
     private readonly fits: { distance: number; shift: number }[];
     private readonly grain: THREE.Texture | null;
+    /** The props (spec 1.22), such as totes: where each stands, and where it slides in from. */
+    private readonly props: THREE.Group;
+    private readonly propPaths: { holder: THREE.Object3D; home: THREE.Vector3; from: THREE.Vector3 }[] = [];
 
     constructor(spec: Spec, width: number, height: number, theme: ThemeName) {
         const palette = scenePalette(theme);
@@ -232,6 +238,8 @@ class FilmStage {
         this.grain = createGrainTexture();
         this.parts = buildSpecGroup(spec, woodMaterialProvider(this.grain));
         this.scene.add(this.parts);
+        this.props = buildPropsGroup(spec);
+        this.scene.add(this.props);
 
         const box = new THREE.Box3().setFromObject(this.parts);
         this.centre = box.getCenter(new THREE.Vector3());
@@ -288,6 +296,23 @@ class FilmStage {
                 from,
                 exploded: out === undefined ? home.clone() : new THREE.Vector3(...out),
             });
+        }
+
+        // A prop slides in along its length, the way a tote goes onto its runners: toward the
+        // front when it lies front to back, else in from the nearer end. Lowest first, left to right.
+        const holders = [...this.props.children].sort(
+            (a, b) => a.position.y - b.position.y || a.position.x - b.position.x,
+        );
+        for (const holder of holders) {
+            const home = holder.position.clone();
+            const length = new THREE.Box3().setFromObject(holder).getSize(new THREE.Vector3());
+            const along = new THREE.Vector3(1, 0, 0).applyQuaternion(holder.quaternion);
+            const frontToBack = Math.abs(along.z) > Math.abs(along.x);
+            const out = frontToBack
+                ? new THREE.Vector3(0, 0, 1)
+                : new THREE.Vector3(home.x >= this.centre.x ? 1 : -1, 0, 0);
+            const reach = (frontToBack ? length.z : length.x) * 0.9;
+            this.propPaths.push({ holder, home, from: home.clone().addScaledVector(out, reach) });
         }
 
         // Back far enough that the piece stays between the title and the caption all the way round,
@@ -361,7 +386,13 @@ class FilmStage {
      * piece's), with the `added` parts lit in the accent colour: the parts a build step adds.
      */
     draw(
-        pose: { arrival: Map<string, number>; explode: number; orbit: number; framing: number },
+        pose: {
+            arrival: Map<string, number>;
+            explode: number;
+            props: number;
+            orbit: number;
+            framing: number;
+        },
         still?: { added: ReadonlySet<string> },
     ): void {
         if (still !== undefined) this.tint(still.added);
@@ -376,6 +407,15 @@ class FilmStage {
                 child.position.lerpVectors(path.from, path.home, arrived);
             }
         }
+        // Each prop in turn: they overlap, so the last lands as the fill ends.
+        const count = this.propPaths.length;
+        const each = count > 1 ? 0.45 : 1;
+        const gap = count > 1 ? (1 - each) / (count - 1) : 0;
+        this.propPaths.forEach((path, i) => {
+            const arrived = pose.props >= 1 ? 1 : easeOutCubic((pose.props - i * gap) / each);
+            path.holder.visible = arrived > 0;
+            path.holder.position.lerpVectors(path.from, path.home, arrived);
+        });
         const [title, caption, plain] = this.fits;
         const distance =
             still !== undefined
@@ -403,15 +443,16 @@ class FilmStage {
     }
 
     dispose(): void {
-        this.parts.traverse((object) => {
-            const mesh = object as THREE.Mesh;
-            mesh.geometry?.dispose();
-            const material = mesh.material as THREE.Material | THREE.Material[] | undefined;
-            for (const m of Array.isArray(material) ? material : material ? [material] : []) {
-                (m as THREE.MeshStandardMaterial).map?.dispose();
-                m.dispose();
-            }
-        });
+        for (const group of [this.parts, this.props])
+            group.traverse((object) => {
+                const mesh = object as THREE.Mesh;
+                mesh.geometry?.dispose();
+                const material = mesh.material as THREE.Material | THREE.Material[] | undefined;
+                for (const m of Array.isArray(material) ? material : material ? [material] : []) {
+                    (m as THREE.MeshStandardMaterial).map?.dispose();
+                    m.dispose();
+                }
+            });
         this.grain?.dispose();
         this.scene.environment?.dispose();
         this.renderer.dispose();

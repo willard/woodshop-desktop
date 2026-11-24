@@ -23,6 +23,9 @@ pub struct Spec {
     pub movables: Option<Vec<Movable>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hardware: Option<Vec<HardwareMount>>,
+    /// Things shown with the piece but not built (1.22): totes on a rack, a saw on its stand.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub props: Option<Vec<Prop>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub meta: Option<Meta>,
 }
@@ -42,6 +45,10 @@ impl Spec {
 
     pub fn hardware(&self) -> &[HardwareMount] {
         self.hardware.as_deref().unwrap_or_default()
+    }
+
+    pub fn props(&self) -> &[Prop] {
+        self.props.as_deref().unwrap_or_default()
     }
 
     pub fn material(&self, id: &str) -> Option<&Material> {
@@ -903,6 +910,28 @@ pub struct HardwareMount {
     /// The piece's finish (1.16); `None` = plain steel.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub finish: Option<Finish>,
+}
+
+/// Something shown with the piece but not built (1.22): a catalog item in the props category,
+/// placed in the world. It is drawn, and never cut, bought, sized or checked.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Prop {
+    pub id: Id,
+    pub item: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// The middle of its bottom, in world inches (y up).
+    pub pos: [f64; 3],
+    /// Degrees about the vertical; at 0 its length runs along world X.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rot: Option<f64>,
+    /// `#rrggbb` main colour (a tote's base); `None` = the catalog's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+    /// `#rrggbb` second colour (a tote's lid); `None` = the catalog's.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub accent: Option<String>,
 }
 
 /// A metal finish for visible hardware (1.16).

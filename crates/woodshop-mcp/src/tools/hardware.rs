@@ -18,7 +18,8 @@ const Y_HELP: &str = "Inches along the side's second axis. Faces: along the widt
 pub const LIST_HARDWARE: ToolDef = ToolDef {
     name: "list_hardware",
     description: "Browse the hardware catalog: pulls and knobs, hinges, drawer slides, casters, feet, brackets, \
-        shelf hardware, latches, lid stays and handles, hooks. Each item has an id, its real dimensions in inches \
+        shelf hardware, latches, lid stays and handles, hooks, and props (things shown with a piece but not \
+        built, such as storage totes, placed with add_prop). Each item has an id, its real dimensions in inches \
         (`model`), and — for hinges, slides and pulls — the `role` a door or drawer can use it in. Pass `category` \
         or `role` to narrow the list; with neither you get the categories and a count each. Use the ids with \
         add_hardware, and with add_movable / update_movable for a door or drawer's hinge, slide and pull. Read-only.",
@@ -146,6 +147,12 @@ pub const ADD_HARDWARE: ToolDef = ToolDef {
         }
         let item = hardware::find(item_id)
             .ok_or_else(|| format!("No \"{item_id}\" in the hardware catalog. Call list_hardware to see the ids."))?;
+        if item.prop {
+            return Err(format!(
+                "{} is something to show, not hardware: place it with add_prop.",
+                item.name
+            ));
+        }
         if !item.placeable {
             return Err(format!(
                 "{} belong to a drawer, not a part. Declare the drawer with add_movable and pass this id as its `slide`.",
@@ -228,6 +235,12 @@ pub const UPDATE_HARDWARE: ToolDef = ToolDef {
         if let Some(id) = item {
             let found = hardware::find(id)
                 .ok_or_else(|| format!("No \"{id}\" in the hardware catalog. Call list_hardware."))?;
+            if found.prop {
+                return Err(format!(
+                    "{} is something to show, not hardware: place it with add_prop.",
+                    found.name
+                ));
+            }
             if !found.placeable {
                 return Err(format!("{} belong to a drawer, not a part.", found.name));
             }

@@ -92,7 +92,8 @@ export function HardwareDialog(props: {
     const [partId, setPartId] = useState<string>(props.partId ?? props.parts[0]?.id ?? '');
 
     // Slides belong to a drawer, not a part: they are chosen on the drawer itself.
-    const placeable = items.filter((i) => i.placeable !== false);
+    // Props (totes and the like) are shown, not mounted: they have their own dialog.
+    const placeable = items.filter((i) => i.placeable !== false && i.prop !== true);
     const q = query.trim().toLowerCase();
     const shown =
         q === ''

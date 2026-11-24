@@ -162,6 +162,15 @@
             },
             "default": [],
             "description": "Catalog hardware mounted on parts (added in 1.15). Hinges, slides and pulls that belong to a door or drawer are chosen on the movable instead."
+        },
+        "props": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+                "$ref": "#/$defs/prop"
+            },
+            "default": [],
+            "description": "Things shown with the piece but not built (added in 1.22): the totes on a tote rack, a saw on its stand. Drawn in 3D and in the 3D plan; never in the cut list, the hardware list, the cost, the overall size or the checks."
         }
     },
     "$defs": {
@@ -1353,6 +1362,58 @@
             "type": "string",
             "pattern": "^[a-z][a-z0-9.-]{1,59}$",
             "description": "A hardware catalog id, e.g. pull.bar-96mm (see the hardware catalog)."
+        },
+        "prop": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "item",
+                "pos"
+            ],
+            "properties": {
+                "id": {
+                    "$ref": "#/$defs/id"
+                },
+                "item": {
+                    "$ref": "#/$defs/hardwareItemId",
+                    "description": "A catalog item in the props category, e.g. prop.tote-hdx-27gal."
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60,
+                    "description": "What to call it, e.g. Tote, bay 1 upper. Omit for the catalog name."
+                },
+                "pos": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                        "type": "number",
+                        "minimum": -240,
+                        "maximum": 240
+                    },
+                    "description": "World position [x, y, z] in inches of the middle of its bottom; y is up."
+                },
+                "rot": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "default": 0,
+                    "description": "Turn about the vertical, in degrees. At 0 its length runs along world X."
+                },
+                "color": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "description": "Its main colour as #rrggbb (a tote's base). Omit for the catalog colour."
+                },
+                "accent": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "description": "Its second colour as #rrggbb (a tote's lid). Omit for the catalog colour."
+                }
+            }
         },
         "hardwareMount": {
             "type": "object",

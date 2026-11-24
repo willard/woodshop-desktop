@@ -12,6 +12,7 @@ mod edit;
 mod hardware;
 mod joinery;
 mod mirror;
+mod props;
 mod read;
 mod start;
 
@@ -66,6 +67,9 @@ pub static TOOLS: &[ToolDef] = &[
     hardware::ADD_HARDWARE,
     hardware::UPDATE_HARDWARE,
     hardware::DELETE_HARDWARE,
+    props::ADD_PROP,
+    props::UPDATE_PROP,
+    props::DELETE_PROP,
 ];
 
 pub fn find(name: &str) -> Option<&'static ToolDef> {
