@@ -7,14 +7,37 @@
 import { useEffect, useState } from 'react';
 import type { Prop, Spec } from '@/spec';
 import { catalog, findItem, itemName } from '@/hardware/catalog';
-import { besideThePiece, restOn } from '@/spec/props';
+import { besideThePiece, restOn, restingAs } from '@/spec/props';
 import { len, lenValue, parseSignedLen, unitSuffix } from '@/lib/display';
 import { uniqueModelId, uniquePropId, type PropPatch } from '@/engine';
 import type { ImportedModel } from '@/spec';
 import type * as THREE from 'three';
 import { ModelImport } from './ModelImport';
+import type { PropShape } from '@/engine/geometry/propModels';
+import { SHAPE_COLOURS } from '@/engine/geometry/propModels';
 import { Modal } from './Modal';
 import { Field, PrimaryButton, SecondaryButton, Select, TextInput, onEnter } from './form';
+
+/** Shapes to start from, at a size worth starting at: then make them your client's. */
+const MAKE: { name: string; title: string; shape: PropShape }[] = [
+    { name: 'Box', title: 'A closed box or crate', shape: { kind: 'box', l: 16, w: 12, h: 10 } },
+    { name: 'Bin', title: 'An open-topped bin', shape: { kind: 'box', l: 16, w: 11, h: 7, open: true } },
+    {
+        name: 'Can',
+        title: 'A can with a lid, a gallon of paint to start',
+        shape: { kind: 'round', d: 6.6, h: 7.5 },
+    },
+    {
+        name: 'Pail',
+        title: 'An open pail, a 5-gallon bucket to start',
+        shape: { kind: 'round', d: 10.3, top: 11.9, h: 14.5, open: true },
+    },
+    {
+        name: 'Tote',
+        title: 'A storage tote of any size, with a rim and a lid',
+        shape: { kind: 'tote', l: 24, w: 16, h: 12 },
+    },
+];
 
 export function PropsDialog(props: {
     spec: Spec;
@@ -180,6 +203,33 @@ export function PropsDialog(props: {
                     >
                         Import a 3D model (GLB, STL)…
                     </SecondaryButton>
+                    <div>
+                        <div className="text-muted mb-1 text-xs">Or make your own:</div>
+                        <div className="flex flex-wrap gap-1">
+                            {MAKE.map((made) => (
+                                <button
+                                    key={made.name}
+                                    className="border-fg/12 hover:bg-fg/5 rounded-md border px-2 py-1 text-xs"
+                                    data-testid={`prop-make-${made.name.toLowerCase()}`}
+                                    title={made.title}
+                                    onClick={() => {
+                                        const id = uniquePropId(props.spec, made.name.toLowerCase());
+                                        const depth = made.shape.w ?? made.shape.top ?? made.shape.d ?? 12;
+                                        props.onAdd({
+                                            id,
+                                            name: made.name,
+                                            shape: { ...made.shape },
+                                            pos: besideThePiece(props.spec, depth),
+                                            rot: 0,
+                                        });
+                                        setSelected(id);
+                                    }}
+                                >
+                                    {made.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -237,8 +287,9 @@ function PropEditor(props: {
     const [railA, setRailA] = useState('');
     const [railB, setRailB] = useState('');
     const model = (spec.models ?? []).find((m) => m.id === prop.model);
+    const rests = restingAs(spec, prop);
     const resting =
-        railA !== '' && railB !== '' ? restOn(spec, item ?? null, railA, railB, model?.size) : null;
+        railA !== '' && railB !== '' ? restOn(spec, rests.item, railA, railB, rests.footprint) : null;
     const commitPos = () => {
         const next = pos.map((v) => parseSignedLen(v));
         if (next.some((n) => n === null)) {
@@ -248,7 +299,10 @@ function PropEditor(props: {
         props.onUpdate({ pos: next as number[] });
     };
     const axes = ['Across (X)', 'Height (Y)', 'Depth (Z)'];
-    const colour = (key: 'color' | 'accent') => prop[key] ?? String(item?.model[key] ?? '#808080');
+    const shape = prop.shape;
+    const colour = (key: 'color' | 'accent') =>
+        prop[key] ??
+        (shape !== undefined ? SHAPE_COLOURS[shape.kind][key] : String(item?.model[key] ?? '#808080'));
 
     return (
         <div data-testid="prop-editor">
@@ -356,24 +410,29 @@ function PropEditor(props: {
                     {model.license !== undefined && <> ({model.license})</>}. It keeps its own colours.
                 </p>
             )}
+            {shape !== undefined && (
+                <ShapeSize shape={shape} onChange={(next) => props.onUpdate({ shape: next })} />
+            )}
             <div className={`mb-3 flex items-center gap-4 ${model !== undefined ? 'hidden' : ''}`}>
                 {(
                     [
-                        ['color', item?.model.shape === 'tote' ? 'Base' : 'Colour'],
-                        ['accent', item?.model.shape === 'tote' ? 'Lid' : 'Second colour'],
-                    ] as const
-                ).map(([key, label]) => (
-                    <label key={key} className="text-muted flex items-center gap-1.5 text-xs">
-                        <input
-                            type="color"
-                            value={colour(key)}
-                            data-testid={`prop-${key}`}
-                            className="h-7 w-9 cursor-pointer rounded border-0 bg-transparent p-0"
-                            onChange={(e) => props.onUpdate({ [key]: e.target.value })}
-                        />
-                        {label}
-                    </label>
-                ))}
+                        ['color', item?.model.shape === 'tote' || shape?.kind === 'tote' ? 'Base' : 'Colour'],
+                        ['accent', shape?.open === true ? null : 'Lid'],
+                    ] as ['color' | 'accent', string | null][]
+                )
+                    .filter((pair): pair is ['color' | 'accent', string] => pair[1] !== null)
+                    .map(([key, label]) => (
+                        <label key={key} className="text-muted flex items-center gap-1.5 text-xs">
+                            <input
+                                type="color"
+                                value={colour(key)}
+                                data-testid={`prop-${key}`}
+                                className="h-7 w-9 cursor-pointer rounded border-0 bg-transparent p-0"
+                                onChange={(e) => props.onUpdate({ [key]: e.target.value })}
+                            />
+                            {label}
+                        </label>
+                    ))}
                 {(prop.color !== undefined || prop.accent !== undefined) && (
                     <button
                         className="text-accent text-xs hover:underline"
@@ -394,5 +453,92 @@ function PropEditor(props: {
                 </SecondaryButton>
             </div>
         </div>
+    );
+}
+
+/** The sizes of a shape sized by hand, in the display units, each saved as it is left. */
+function ShapeSize({ shape, onChange }: { shape: PropShape; onChange(next: PropShape): void }) {
+    const fields: { key: 'l' | 'w' | 'h' | 'd' | 'top'; label: string; optional?: boolean }[] =
+        shape.kind === 'round'
+            ? [
+                  { key: 'd', label: 'Bottom across' },
+                  { key: 'top', label: 'Top across', optional: true },
+                  { key: 'h', label: 'Height' },
+              ]
+            : [
+                  { key: 'l', label: 'Length' },
+                  { key: 'w', label: 'Width' },
+                  { key: 'h', label: 'Height' },
+              ];
+    return (
+        <div className="mb-2.5" data-testid="prop-shape">
+            <div className="grid grid-cols-3 gap-2">
+                {fields.map((f) => (
+                    <SizeField
+                        key={`${f.key}-${shape[f.key] ?? ''}`}
+                        label={`${f.label} (${unitSuffix()})`}
+                        value={shape[f.key]}
+                        optional={f.optional === true}
+                        testId={`prop-shape-${f.key}`}
+                        onCommit={(v) => {
+                            const next: Partial<PropShape> = { ...shape, [f.key]: v };
+                            if (v === undefined) delete next[f.key];
+                            onChange(next as PropShape);
+                        }}
+                    />
+                ))}
+            </div>
+            {shape.kind !== 'tote' && (
+                <label className="text-muted mt-1.5 flex items-center gap-1.5 text-xs">
+                    <input
+                        type="checkbox"
+                        checked={shape.open === true}
+                        data-testid="prop-shape-open"
+                        onChange={(e) => {
+                            const next: PropShape = { ...shape };
+                            if (e.target.checked) next.open = true;
+                            else delete next.open;
+                            onChange(next);
+                        }}
+                    />
+                    Open at the top
+                </label>
+            )}
+        </div>
+    );
+}
+
+function SizeField(props: {
+    label: string;
+    value: number | undefined;
+    optional: boolean;
+    testId: string;
+    onCommit(value: number | undefined): void;
+}) {
+    const [text, setText] = useState(props.value === undefined ? '' : lenValue(props.value));
+    const commit = () => {
+        if (text.trim() === '' && props.optional) {
+            if (props.value !== undefined) props.onCommit(undefined);
+            return;
+        }
+        const v = parseSignedLen(text);
+        if (v === null || v <= 0 || v > 240) {
+            setText(props.value === undefined ? '' : lenValue(props.value));
+            return;
+        }
+        if (v !== props.value) props.onCommit(v);
+    };
+    return (
+        <Field label={props.label}>
+            <TextInput
+                value={text}
+                inputMode="decimal"
+                placeholder={props.optional ? 'straight' : undefined}
+                data-testid={props.testId}
+                onChange={(e) => setText(e.target.value)}
+                onBlur={commit}
+                onKeyDown={onEnter(commit)}
+            />
+        </Field>
     );
 }

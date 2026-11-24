@@ -1885,3 +1885,27 @@ test('a 3D model is imported from an STL and shown with the piece, never in the 
     await page.getByTestId('cutlist-toggle').click();
     await expect(page.getByTestId('cutlist-hardware')).not.toContainText('Parts bin');
 });
+
+test('your own shape is made, sized and shown, never in the cut list', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('editor-shell').locator('canvas').first()).toBeVisible();
+    await page.getByTestId('add-menu-toggle').click();
+    await page.getByTestId('add-props-menu').click();
+    const dialog = page.getByTestId('props-dialog');
+    await dialog.getByTestId('prop-make-bin').click();
+    await expect(dialog.getByTestId('prop-row')).toHaveText(['Bin']);
+    await expect(dialog.getByTestId('prop-shape-open')).toBeChecked();
+    await expect(dialog.getByTestId('prop-shape-l')).toHaveValue('16');
+
+    await dialog.getByTestId('prop-shape-l').fill('18');
+    await dialog.getByTestId('prop-shape-l').press('Enter');
+    await expect(dialog.getByTestId('prop-shape-l')).toHaveValue('18');
+    await dialog.getByTestId('prop-shape-open').uncheck();
+    await expect(dialog.getByTestId('prop-accent')).toBeVisible(); // a closed box has a lid to colour
+    await dialog.getByTestId('prop-make-pail').click();
+    await expect(dialog.getByTestId('prop-shape-top')).toHaveValue('11 7/8');
+    await dialog.getByTestId('props-done').click();
+    await expect(page.getByTestId('save-state')).toHaveText('Saved');
+    await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('cutlist-hardware')).not.toContainText('Bin');
+});

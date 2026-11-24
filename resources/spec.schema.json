@@ -1385,11 +1385,15 @@
                 },
                 "item": {
                     "$ref": "#/$defs/hardwareItemId",
-                    "description": "A catalog item in the props category, e.g. prop.tote-hdx-27gal. Give this or `model`, not both."
+                    "description": "A catalog item in the props category, e.g. prop.tote-hdx-27gal. Give this, `model` or `shape`: one of them."
                 },
                 "model": {
                     "$ref": "#/$defs/id",
                     "description": "Instead of `item`: the id of one of the design's imported `models` (added in 1.22)."
+                },
+                "shape": {
+                    "$ref": "#/$defs/propShape",
+                    "description": "Instead of `item` or `model`: a shape you size yourself (added in 1.22)."
                 },
                 "name": {
                     "type": "string",
@@ -1561,6 +1565,59 @@
                 }
             },
             "description": "A 3D model imported from a GLB or STL file (added in 1.22), shown as a prop."
+        },
+        "propShape": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "kind",
+                "h"
+            ],
+            "properties": {
+                "kind": {
+                    "enum": [
+                        "box",
+                        "round",
+                        "tote"
+                    ],
+                    "description": "box: a box or crate, closed or open-topped (a bin); round: a can, bucket or pail; tote: a storage tote with a rim and a lid."
+                },
+                "l": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 240,
+                    "description": "Length (along its X), in inches: box and tote."
+                },
+                "w": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 240,
+                    "description": "Width (its depth), in inches: box and tote."
+                },
+                "h": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 240,
+                    "description": "Height, in inches."
+                },
+                "d": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 240,
+                    "description": "Diameter at the bottom, in inches: round."
+                },
+                "top": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 240,
+                    "description": "Diameter at the top, in inches, for a tapered pail: round. Omit for straight sides."
+                },
+                "open": {
+                    "type": "boolean",
+                    "description": "An open top (a bin, an open pail): box and round. Omit for closed."
+                }
+            },
+            "description": "A simple shape you size yourself, shown as a prop (added in 1.22). Its `color` is the body; its `accent` a tote's lid and rim, or a box or round's lid."
         }
     }
 }

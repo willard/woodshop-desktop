@@ -1087,40 +1087,69 @@ pub(super) fn props(spec: &Spec, issues: &mut Vec<LintIssue>) {
                 format!("Duplicate prop id \"{}\". Every prop must have a unique id.", prop.id),
             ));
         }
-        let problem = match (prop.item.as_deref(), prop.model.as_deref()) {
-            (Some(_), Some(_)) => Some((
+        let sources = [prop.item.is_some(), prop.model.is_some(), prop.shape.is_some()]
+            .iter()
+            .filter(|s| **s)
+            .count();
+        let problem = if sources > 1 {
+            Some((
                 Severity::Error,
                 "prop.item-and-model",
-                format!("\"{label}\" names both a catalog item and an imported model. Keep one."),
-            )),
-            (None, None) => Some((
+                format!("\"{label}\" names more than one of a catalog item, an imported model and a shape. Keep one."),
+            ))
+        } else if sources == 0 {
+            Some((
                 Severity::Error,
                 "prop.no-item",
-                format!("\"{label}\" names no catalog item and no imported model, so there is nothing to draw."),
-            )),
-            (None, Some(model)) => (spec.models().iter().all(|m| m.id != model)).then(|| {
+                format!("\"{label}\" names no catalog item, imported model or shape, so there is nothing to draw."),
+            ))
+        } else if let Some(shape) = &prop.shape {
+            use crate::spec::PropShapeKind;
+            let missing: Vec<&str> = match shape.kind {
+                PropShapeKind::Box | PropShapeKind::Tote => [("l", shape.l), ("w", shape.w)]
+                    .iter()
+                    .filter(|(_, v)| v.is_none())
+                    .map(|(k, _)| *k)
+                    .collect(),
+                PropShapeKind::Round => shape.d.is_none().then_some("d").into_iter().collect(),
+            };
+            (!missing.is_empty()).then(|| {
                 (
                     Severity::Warn,
-                    "prop.unknown-model",
-                    format!("\"{label}\" shows the model \"{model}\", which isn't in the design's models, so it isn't drawn."),
-                )
-            }),
-            (Some(id), None) => match crate::hardware::find(id) {
-                Some(item) if item.prop => None,
-                Some(item) => Some((
-                    Severity::Warn,
-                    "prop.not-a-prop",
+                    "prop.shape-size",
                     format!(
-                        "\"{label}\" is {}, which is hardware: mount it on a part instead. It isn't drawn as a prop.",
-                        item.name
+                        "\"{label}\" has no {} for its shape, so it isn't drawn.",
+                        missing.join(" or ")
                     ),
-                )),
-                None => Some((
-                    Severity::Warn,
-                    "prop.unknown-item",
-                    format!("\"{label}\" is \"{id}\", which isn't in this version's catalog, so it isn't drawn."),
-                )),
-            },
+                )
+            })
+        } else {
+            match (prop.item.as_deref(), prop.model.as_deref()) {
+                (None, Some(model)) => (spec.models().iter().all(|m| m.id != model)).then(|| {
+                    (
+                        Severity::Warn,
+                        "prop.unknown-model",
+                        format!("\"{label}\" shows the model \"{model}\", which isn't in the design's models, so it isn't drawn."),
+                    )
+                }),
+                (Some(id), _) => match crate::hardware::find(id) {
+                    Some(item) if item.prop => None,
+                    Some(item) => Some((
+                        Severity::Warn,
+                        "prop.not-a-prop",
+                        format!(
+                            "\"{label}\" is {}, which is hardware: mount it on a part instead. It isn't drawn as a prop.",
+                            item.name
+                        ),
+                    )),
+                    None => Some((
+                        Severity::Warn,
+                        "prop.unknown-item",
+                        format!("\"{label}\" is \"{id}\", which isn't in this version's catalog, so it isn't drawn."),
+                    )),
+                },
+                (None, None) => None,
+            }
         };
         if let Some((severity, code, message)) = problem {
             issues.push(LintIssue::general(severity, code, message));

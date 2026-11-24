@@ -7,7 +7,8 @@ import type { Part, Spec } from './types';
 
 /** A world position, as a prop stores it. */
 type Point = [number, number, number];
-import type { HardwareItem } from '@/hardware/catalog';
+import { findItem, type HardwareItem } from '@/hardware/catalog';
+import { toteModelOf } from '@/engine/geometry/propModels';
 import { aabbFromPart, type AABB } from '@/engine/snapping';
 
 function dim(item: HardwareItem, key: string, fallback: number): number {
@@ -142,4 +143,39 @@ export function restOn(
         problems.push(`The two tops are ${fmt(Math.abs(boxA.max[1] - boxB.max[1]))} apart in height.`);
     }
     return { pos, rot: along === 0 ? 0 : 90, problems };
+}
+
+/**
+ * What `restOn` needs to know about a prop: the catalog item it hangs like (a tote, catalog or
+ * sized by hand), or else the footprint it stands on by its bottom (an imported model, a box, a
+ * can or pail).
+ */
+export function restingAs(
+    spec: Spec,
+    prop: NonNullable<Spec['props']>[number],
+): { item: HardwareItem | null; footprint?: { l: number; w: number } } {
+    const shape = prop.shape;
+    if (shape !== undefined) {
+        if (shape.kind === 'tote') {
+            return {
+                item: {
+                    id: 'shape',
+                    category: 'props',
+                    name: 'Tote',
+                    list: 'totes',
+                    prop: true,
+                    model: toteModelOf(shape),
+                },
+            };
+        }
+        const across = Math.max(shape.d ?? 0, shape.top ?? 0);
+        return {
+            item: null,
+            footprint:
+                shape.kind === 'round' ? { l: across, w: across } : { l: shape.l ?? 0, w: shape.w ?? 0 },
+        };
+    }
+    const model = (spec.models ?? []).find((m) => m.id === prop.model);
+    if (model !== undefined) return { item: null, footprint: { l: model.size.l, w: model.size.w } };
+    return { item: findItem(prop.item) ?? null };
 }

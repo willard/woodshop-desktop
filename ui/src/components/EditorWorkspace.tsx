@@ -368,6 +368,7 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
             };
             engine.propPickHandler = (id) => setPropsDialog({ focus: id });
             engine.modelSource = (hash) => api.getModel(hash);
+            engine.propDragCommitHandler = (id, pos) => docRef.current.execute(new UpdateProp(id, { pos }));
             engine.dragCommitHandler = (ids: string[], delta: Vec3) => {
                 docRef.current.execute(new MoveParts(ids, delta));
                 // Record any dado joints the drop seated (annotations, not constraints).
@@ -1170,7 +1171,11 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                 turnPlacing();
                 return;
             }
-            if (event.key === 'Escape' && engineRef.current?.cancelHardwareDrag() === true) {
+            if (
+                event.key === 'Escape' &&
+                (engineRef.current?.cancelPropDrag() === true ||
+                    engineRef.current?.cancelHardwareDrag() === true)
+            ) {
                 event.preventDefault();
                 return;
             }

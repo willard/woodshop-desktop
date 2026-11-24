@@ -63,6 +63,98 @@ function tote(m: HardwareModel): PropGeometry {
 
 const BUILDERS: Record<string, (m: HardwareModel) => PropGeometry> = { tote };
 
+/** A prop shape sized by hand (spec 1.22). */
+export interface PropShape {
+    kind: 'box' | 'round' | 'tote';
+    l?: number;
+    w?: number;
+    h: number;
+    d?: number;
+    top?: number;
+    open?: boolean;
+}
+
+/** What a hand-sized shape starts out coloured, body and accent, until it is given its own. */
+export const SHAPE_COLOURS: Record<PropShape['kind'], { color: string; accent: string }> = {
+    box: { color: '#b08d57', accent: '#8f7045' },
+    round: { color: '#e4e4e1', accent: '#c9c9c4' },
+    tote: { color: '#3a3f45', accent: '#2f6fb3' },
+};
+
+/** A tote of any size, as a catalog tote's model: the rim, lip and lid in proportion. */
+export function toteModelOf(shape: PropShape): HardwareModel {
+    const l = shape.l ?? 24;
+    const w = shape.w ?? 16;
+    const h = shape.h;
+    return {
+        shape: 'tote',
+        length: l,
+        width: w,
+        height: h,
+        baseLength: l * 0.86,
+        baseWidth: w * 0.8,
+        rim: Math.min(1.5, h * 0.1),
+        lip: Math.min(1.5, w * 0.075),
+        lid: Math.min(1.25, h * 0.08),
+    };
+}
+
+/** A box or crate, closed with a lid, or (open) a bin with walls a little thick. */
+function box(shape: PropShape): PropGeometry {
+    const l = shape.l ?? 12;
+    const w = shape.w ?? 12;
+    const h = shape.h;
+    if (shape.open !== true) {
+        const lid = Math.min(0.5, h * 0.08);
+        return { body: [slab(l, w, h - lid, 0)], accent: [slab(l + 0.1, w + 0.1, lid, h - lid)] };
+    }
+    const t = Math.min(0.25, Math.min(l, w) / 20, h / 4);
+    return {
+        body: [
+            slab(l, w, t, 0),
+            slab(l, t, h, 0).translate(0, (w - t) / 2, 0),
+            slab(l, t, h, 0).translate(0, -(w - t) / 2, 0),
+            slab(t, w - 2 * t, h, 0).translate((l - t) / 2, 0, 0),
+            slab(t, w - 2 * t, h, 0).translate(-(l - t) / 2, 0, 0),
+        ],
+        accent: [],
+    };
+}
+
+/** A can or pail: straight, or wider at the top; closed with a lid, or open. Drawn two-sided. */
+function round(shape: PropShape): PropGeometry {
+    const bottom = (shape.d ?? 10) / 2;
+    const top = (shape.top ?? shape.d ?? 10) / 2;
+    const h = shape.h;
+    const cylinder = (rTop: number, rBottom: number, height: number, z: number, open: boolean) =>
+        new THREE.CylinderGeometry(rTop, rBottom, height, 40, 1, open)
+            .rotateX(Math.PI / 2)
+            .translate(0, 0, z + height / 2);
+    if (shape.open === true) {
+        return {
+            body: [
+                cylinder(top, bottom, h, 0, true),
+                new THREE.CircleGeometry(bottom, 40).translate(0, 0, 0.01),
+                // The rolled rim round the top.
+                new THREE.TorusGeometry(top, Math.min(0.15, top / 20), 8, 40).translate(0, 0, h),
+            ],
+            accent: [],
+        };
+    }
+    const lid = Math.min(0.6, h * 0.06);
+    const under = bottom + ((top - bottom) * (h - lid)) / h;
+    return {
+        body: [cylinder(under, bottom, h - lid, 0, false)],
+        accent: [cylinder(top * 1.02, top * 1.02, lid, h - lid, false)],
+    };
+}
+
+/** The geometry of a hand-sized shape, standing on its bottom like a catalog prop. */
+export function buildShapeGeometry(shape: PropShape): PropGeometry {
+    if (shape.kind === 'tote') return tote(toteModelOf(shape));
+    return shape.kind === 'round' ? round(shape) : box(shape);
+}
+
 export function knowsPropShape(shape: string | undefined): boolean {
     return shape !== undefined && shape in BUILDERS;
 }

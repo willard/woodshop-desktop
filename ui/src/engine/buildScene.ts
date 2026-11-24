@@ -22,7 +22,7 @@ import {
 import { fastenerSegments, type FastenerOp } from './fastenerPlacement';
 import { hardwarePlacements } from './movablePlacement';
 import { buildHardwareGeometry } from './geometry/hardwareModels';
-import { buildPropGeometry } from './geometry/propModels';
+import { SHAPE_COLOURS, buildPropGeometry, buildShapeGeometry } from './geometry/propModels';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { findItem, mountFrame } from '@/hardware/catalog';
 import {
@@ -249,7 +249,13 @@ export function buildPropsGroup(spec: Spec, models?: ReadonlyMap<string, THREE.O
     const plastic = (color: string): THREE.MeshStandardMaterial => {
         let material = materials.get(color);
         if (material === undefined) {
-            material = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0 });
+            // Two-sided, so an open bin or pail shows its inside.
+            material = new THREE.MeshStandardMaterial({
+                color,
+                roughness: 0.55,
+                metalness: 0,
+                side: THREE.DoubleSide,
+            });
             materials.set(color, material);
         }
         return material;
@@ -260,17 +266,31 @@ export function buildPropsGroup(spec: Spec, models?: ReadonlyMap<string, THREE.O
             if (holder !== null) group.add(holder);
             continue;
         }
-        const item = findItem(prop.item);
-        if (item?.prop !== true) {
-            continue; // the linter names a prop that isn't one
+        let geometry: ReturnType<typeof buildPropGeometry>;
+        let colourOf: { color: string; accent: string };
+        if (prop.shape !== undefined) {
+            const { kind, l, w, d } = prop.shape;
+            const sized = kind === 'round' ? d !== undefined : l !== undefined && w !== undefined;
+            if (!sized) continue; // the linter says which size is missing
+            geometry = buildShapeGeometry(prop.shape);
+            colourOf = SHAPE_COLOURS[kind];
+        } else {
+            const item = findItem(prop.item);
+            if (item?.prop !== true) {
+                continue; // the linter names a prop that isn't one
+            }
+            geometry = buildPropGeometry(item.model);
+            colourOf = {
+                color: String(item.model.color ?? '#3a3a3c'),
+                accent: String(item.model.accent ?? '#8e8e93'),
+            };
         }
-        const geometry = buildPropGeometry(item.model);
         const holder = new THREE.Group();
         holder.name = prop.id;
         holder.userData = { propId: prop.id, itemId: prop.item };
         const colours: [THREE.BufferGeometry[], string][] = [
-            [geometry.body, prop.color ?? String(item.model.color ?? '#3a3a3c')],
-            [geometry.accent, prop.accent ?? String(item.model.accent ?? '#8e8e93')],
+            [geometry.body, prop.color ?? colourOf.color],
+            [geometry.accent, prop.accent ?? colourOf.accent],
         ];
         for (const [pieces, colour] of colours) {
             if (pieces.length === 0) continue;

@@ -20,6 +20,15 @@ All notable changes to Woodshop are listed here. The format follows
   place, builds the piece without them, and ends with them sliding in, one after another, so it
   closes on the piece in use. Agents use `add_prop`,
   `update_prop` and `delete_prop`.
+- Drag things to show in the 3D view: a tote, a model or a shape of your own slides with the pointer
+  onto the top of whatever part is under it, or the floor, on the grid (Alt for off it). Hold Shift
+  to keep it at its height, such as a tote hung on its runners; Esc puts it back; each drop is one
+  undo step. A click still opens it in Things to show.
+- Make your own things to show (format 1.22): Things to show ▸ Make your own adds a box, an open
+  bin, a can, a pail or a tote at a usual size (a 5-gallon bucket, a gallon of paint); then type
+  its length, width and height (a can or pail: across at the bottom and the top), open or close
+  its top, and colour it and its lid. A hand-sized tote hangs by its rim like the HDX one. Agents
+  use `add_prop` with `shape`.
 - Import a 3D model to show with a piece (format 1.22): Things to show ▸ Import a 3D model reads a
   GLB or STL file, such as a tool box or a bin from its maker's site. Check its real size (type
   its length if the file's scale is wrong) and stand it up, name it, and say where it is from and

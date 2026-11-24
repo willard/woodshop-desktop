@@ -293,6 +293,7 @@ fn with_model(name: &str, hash: &str) -> Spec {
         id: "pr_box".into(),
         item: None,
         model: Some("m_box".into()),
+        shape: None,
         name: None,
         pos: [0.0, 0.0, 20.0],
         rot: None,

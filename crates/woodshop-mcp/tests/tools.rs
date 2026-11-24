@@ -1331,7 +1331,7 @@ fn a_tote_is_placed_moved_and_removed_as_a_prop_and_never_counted() {
         )
         .contains("No model")
     );
-    assert!(err(&w, "add_prop", json!({ "project_id": id, "pos": [0, 0, 0] })).contains("either"));
+    assert!(err(&w, "add_prop", json!({ "project_id": id, "pos": [0, 0, 0] })).contains("Give one of"));
     let placed = ok(
         &w,
         "add_prop",
@@ -1366,6 +1366,22 @@ fn a_tote_is_placed_moved_and_removed_as_a_prop_and_never_counted() {
         &w,
         "delete_prop",
         json!({ "project_id": id, "prop_id": "pr_tote_hdx_27gal" }),
+    );
+
+    // A shape sized by hand; a bad one is turned down by the schema.
+    let bin = ok(
+        &w,
+        "add_prop",
+        json!({ "project_id": id, "shape": { "kind": "box", "l": 16, "w": 11, "h": 7, "open": true }, "pos": [0, 0, 20] }),
+    );
+    assert!(bin["summary"].as_str().unwrap().contains("Placed Bin"), "{bin}");
+    assert!(
+        !err(
+            &w,
+            "add_prop",
+            json!({ "project_id": id, "shape": { "kind": "crate", "h": 7 }, "pos": [0, 0, 0] })
+        )
+        .is_empty()
     );
     assert!(
         err(

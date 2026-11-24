@@ -72,7 +72,7 @@ export class AddProp implements Command {
 }
 
 /** What can change on a prop; `color`/`accent` set to `undefined` go back to the catalog's. */
-export type PropPatch = Partial<Pick<Prop, 'item' | 'name' | 'pos' | 'rot' | 'color' | 'accent'>>;
+export type PropPatch = Partial<Pick<Prop, 'item' | 'name' | 'pos' | 'rot' | 'color' | 'accent' | 'shape'>>;
 
 export class UpdateProp implements Command {
     readonly label = 'Edit a prop';

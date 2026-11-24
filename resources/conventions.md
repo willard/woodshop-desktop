@@ -317,6 +317,11 @@ their stock, and a fully connected assembly with no floating parts.
   SHA-256 `hash` of its GLB). People import models in the app from GLB or STL files; agents
   cannot import, but can place more of a model the design already has (`add_prop` with `model`).
   A model stands on its bottom, centred, its length along X, like a catalog prop.
+- Or a prop is a `shape` sized by hand, in inches: `{kind: "box", l, w, h, open?}` (a box, or
+  with `open: true` a bin), `{kind: "round", d, h, top?, open?}` (a can, or with `top` the top
+  diameter a tapered pail), `{kind: "tote", l, w, h}` (a storage tote with a rim and lid, in
+  proportion). Use one when the catalog has nothing close: your client's bins, a cooler, a paint
+  can. `color` is the body, `accent` the lid; each kind has its own colours until given some.
 - A tote hangs by its rim: put its bottom `height - lid - rim` (the item's description gives it)
   below the tops of the runners it rests on, centred between them, its length along the runners.
   One prop per tote.

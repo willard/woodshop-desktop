@@ -46,7 +46,8 @@ pub const ADD_PROP: ToolDef = ToolDef {
     name: "add_prop",
     description: "Show something with the piece that is not built: the totes on a tote rack, a saw on its stand. \
         Give a catalog prop `item` (list_hardware, category \"props\"), or a `model` the person imported (the \
-        design's `models`, from get_design), and where it stands in the world. It is \
+        design's `models`, from get_design), or a `shape` you size yourself (a box or open bin, a round can or \
+        pail, a tote), and where it stands in the world. It is \
         drawn in the 3D view and the 3D plan, so a client sees the piece in use, but it is never in the cut list, \
         the hardware list, the cost, the overall size or the design checks. Returns the new prop id.",
     read_only: false,
@@ -56,6 +57,16 @@ pub const ADD_PROP: ToolDef = ToolDef {
                 "project_id": integer(PROJECT_ID),
                 "item": string("The catalog prop id, e.g. \"prop.tote-hdx-27gal\"."),
                 "model": string("Instead of `item`: the id of a model in the design's `models` (imported from a file in the app; agents cannot import)."),
+                "shape": {
+                    "type": "object",
+                    "description": "Instead of `item` or `model`: a shape sized by hand, in inches. {kind: \"box\", l, w, h, open?} for a box or (open: true) a bin; {kind: \"round\", d, h, top?, open?} for a can or (top: the top diameter) a tapered pail; {kind: \"tote\", l, w, h} for a storage tote with a rim and lid. `color` is its body, `accent` its lid.",
+                    "properties": {
+                        "kind": { "type": "string", "enum": ["box", "round", "tote"] },
+                        "l": { "type": "number" }, "w": { "type": "number" }, "h": { "type": "number" },
+                        "d": { "type": "number" }, "top": { "type": "number" }, "open": { "type": "boolean" }
+                    },
+                    "required": ["kind", "h"]
+                },
                 "pos": triple(POS_HELP),
                 "rot": number(ROT_HELP),
                 "name": string("What to call it, e.g. \"Tote, bay 1 upper\". Omit for the catalog name."),
@@ -69,15 +80,18 @@ pub const ADD_PROP: ToolDef = ToolDef {
         let project_id = args.project_id(PROVIDE_PROJECT)?;
         let item_id = args.opt_str("item")?;
         let model_id = args.opt_str("model")?;
-        let item = match (item_id, model_id) {
-            (Some(id), None) => Some(prop_item(id)?),
-            (None, Some(_)) => None,
-            _ => {
-                return Err(
-                    "Give either `item` (a catalog prop) or `model` (one of the design's imported models).".into(),
-                );
-            }
-        };
+        let shape = args.opt_object("shape")?;
+        let given = [item_id.is_some(), model_id.is_some(), shape.is_some()]
+            .iter()
+            .filter(|g| **g)
+            .count();
+        if given != 1 {
+            return Err(
+                "Give one of `item` (a catalog prop), `model` (one of the design's imported models) or `shape` (a box, round or tote you size)."
+                    .into(),
+            );
+        }
+        let item = item_id.map(prop_item).transpose()?;
         let pos = args.vec3("pos", -240.0, 240.0, "pos must be three numbers: [x, y, z].")?;
         let rot = args.opt_num("rot", -180.0, 180.0)?;
         let name = args.opt_str_max("name", 60)?.map(str::trim).filter(|n| !n.is_empty());
@@ -100,7 +114,19 @@ pub const ADD_PROP: ToolDef = ToolDef {
                     json!({ "model": model, "pos": pos }),
                 )
             }
-            (None, None) => unreachable!("checked above"),
+            (None, None) => {
+                let shape = Value::Object(shape.cloned().unwrap_or_default());
+                let kind = shape["kind"].as_str().unwrap_or("shape").to_owned();
+                let label = match kind.as_str() {
+                    "box" if shape["open"] == true => "Bin",
+                    "box" => "Box",
+                    "round" if shape["top"].is_number() => "Pail",
+                    "round" => "Can",
+                    "tote" => "Tote",
+                    _ => "Shape",
+                };
+                (kind, label.to_owned(), json!({ "shape": shape, "pos": pos }))
+            }
         };
         let id = unique_id(&ids(&design.draft, "props"), "pr_", &stem);
         prop["id"] = id.clone().into();

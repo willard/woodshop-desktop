@@ -144,3 +144,33 @@ fn a_prop_shows_a_catalog_item_or_an_imported_model() {
     let heavy = codes(&with_models(json!([imported(30_000_000)]), json!([])));
     assert!(heavy.iter().any(|c| c.starts_with("model.too-large")), "{heavy:?}");
 }
+
+#[test]
+fn a_prop_can_be_a_shape_sized_by_hand() {
+    let shapes = json!([
+        { "id": "pr_bin", "shape": { "kind": "box", "l": 16, "w": 11, "h": 7, "open": true }, "pos": [0, 12.75, 0] },
+        { "id": "pr_pail", "shape": { "kind": "round", "d": 10, "top": 12, "h": 14 }, "pos": [0, 0, 20] },
+        { "id": "pr_tote", "shape": { "kind": "tote", "l": 24, "w": 16, "h": 12 }, "pos": [0, 0, 40] }
+    ]);
+    let fine = shelf(shapes);
+    assert!(
+        codes(&fine).iter().all(|c| !c.starts_with("prop.")),
+        "{:?}",
+        codes(&fine)
+    );
+    assert_eq!(overall_size(&fine), overall_size(&shelf(json!([]))));
+
+    let no_size = codes(&shelf(
+        json!([{ "id": "pr_pail", "shape": { "kind": "round", "h": 14 }, "pos": [0, 0, 0] }]),
+    ));
+    assert!(
+        no_size
+            .iter()
+            .any(|c| c.starts_with("prop.shape-size") && c.contains("no d")),
+        "{no_size:?}"
+    );
+    let two = lint(&shelf(json!([
+        { "id": "pr_x", "item": "prop.tote-hdx-27gal", "shape": { "kind": "box", "l": 1, "w": 1, "h": 1 }, "pos": [0, 0, 0] }
+    ])));
+    assert!(two.iter().any(|i| i.code == "prop.item-and-model" && i.is_error()));
+}

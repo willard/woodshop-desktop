@@ -931,6 +931,9 @@ pub struct Prop {
     /// One of the design's imported `models`, by id.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub model: Option<Id>,
+    /// A shape sized by hand: a box, a round can or pail, a tote.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub shape: Option<PropShape>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The middle of its bottom, in world inches (y up).
@@ -944,6 +947,33 @@ pub struct Prop {
     /// `#rrggbb` second colour (a tote's lid); `None` = the catalog's.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub accent: Option<String>,
+}
+
+/// A prop shape sized by hand (1.22). Which sizes count depends on `kind`: `l`, `w`, `h` for a box
+/// or a tote; `d`, `h` and an optional `top` for a round can or pail.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PropShape {
+    pub kind: PropShapeKind,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub l: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub w: Option<f64>,
+    pub h: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub d: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub top: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open: Option<bool>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum PropShapeKind {
+    Box,
+    Round,
+    Tote,
 }
 
 /// A 3D model imported from a GLB or STL file (1.22), for props to show. The GLB itself is kept

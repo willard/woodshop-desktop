@@ -211,6 +211,19 @@ export class EditorEngine {
     private armedDragId: string | null = null;
     /** Mounted hardware pressed in edit mode; becomes a drag once the pointer moves. */
     private armedHardware: { id: string; partId: string } | null = null;
+    /** A prop pressed on, before the pointer has moved far enough to drag it. */
+    private armedProp: string | null = null;
+    private propDrag: {
+        id: string;
+        holder: THREE.Object3D;
+        origin: THREE.Vector3;
+        /** Where on the prop it was grabbed, from its bottom middle, while held level (Shift). */
+        grab: { x: number; z: number } | null;
+        startY: number;
+        moved: boolean;
+    } | null = null;
+    /** Called on a prop's drop with where its bottom middle now stands (spec 1.22). */
+    propDragCommitHandler: ((id: string, pos: [number, number, number]) => void) | null = null;
     private hardwareDrag: HardwareDragState | null = null;
     /** Called on drop with the piece's new `(x, y)`; the app turns this into UpdateHardware. */
     hardwareDragCommitHandler: ((id: string, pos: { x: number; y: number }) => void) | null = null;
@@ -433,6 +446,17 @@ export class EditorEngine {
             return;
         }
 
+        // A prop (a tote, a model) in front of the parts is grabbed before them.
+        this.armedProp =
+            this.mode === 'edit' && this.placement === null && !this.measuring && event.button === 0
+                ? this.propAt(event)
+                : null;
+        if (this.armedProp !== null) {
+            this.armedDragId = null;
+            this.controls.enabled = false;
+            return;
+        }
+
         if (
             this.mode === 'edit' &&
             id !== null &&
@@ -452,6 +476,8 @@ export class EditorEngine {
     private cancelDrag(): void {
         this.armedDragId = null;
         this.armedHardware = null;
+        this.armedProp = null;
+        this.clearPropDrag(true);
         this.clearHardwareDrag(true);
         if (this.drag !== null) {
             this.clearDrag();
@@ -480,6 +506,17 @@ export class EditorEngine {
         }
         if (this.hardwareDrag !== null) {
             this.updateHardwareDrag(event);
+            return;
+        }
+        if (this.propDrag !== null) {
+            this.updatePropDrag(event);
+            return;
+        }
+        if (this.armedProp !== null && this.pointerDownAt !== null) {
+            if (Math.hypot(event.clientX - this.pointerDownAt.x, event.clientY - this.pointerDownAt.y) > 4) {
+                this.startPropDrag(this.armedProp, event);
+                this.armedProp = null;
+            }
             return;
         }
         if (this.armedHardware !== null && this.pointerDownAt !== null) {
@@ -518,9 +555,14 @@ export class EditorEngine {
             this.endHardwareDrag();
             return;
         }
+        if (this.propDrag !== null) {
+            this.endPropDrag();
+            return;
+        }
 
         this.armedDragId = null;
         this.armedHardware = null;
+        this.armedProp = null;
         if (this.suppressTap) {
             this.suppressTap = false;
             return; // a long-press already handled this gesture
@@ -964,6 +1006,113 @@ export class EditorEngine {
         }
         this.clearGuides();
         this.drag = null;
+        this.requestRender();
+    }
+
+    // --- dragging props (spec 1.22) ---
+
+    /** Abandons a prop drag, putting it back where it was. Returns whether one was on. */
+    cancelPropDrag(): boolean {
+        if (this.propDrag === null) return false;
+        this.clearPropDrag(true);
+        return true;
+    }
+
+    private startPropDrag(id: string, event: PointerEvent): void {
+        const holder = this.propsGroup?.getObjectByName(id);
+        if (holder === undefined) {
+            this.controls.enabled = true;
+            return;
+        }
+        this.propDrag = {
+            id,
+            holder,
+            origin: holder.position.clone(),
+            grab: null,
+            startY: holder.position.y,
+            moved: false,
+        };
+        this.updatePropDrag(event);
+    }
+
+    /**
+     * Slides the prop with the pointer: onto the top of whatever part is under it, or the floor.
+     * Shift keeps it at the height it started at (a tote hung on runners); Alt leaves the grid.
+     */
+    private updatePropDrag(event: PointerEvent): void {
+        const drag = this.propDrag;
+        if (drag === null) return;
+        let height = drag.startY;
+        let hit: THREE.Vector3 | null;
+        if (event.shiftKey) {
+            hit = this.raycastPlane(event, this.horizontalPlane(drag.startY));
+        } else {
+            const rect = this.canvas.getBoundingClientRect();
+            this.pointer.set(
+                ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                -((event.clientY - rect.top) / rect.height) * 2 + 1,
+            );
+            this.raycaster.setFromCamera(this.pointer, this.camera);
+            // Only the nearest part counts, and only where its face looks up: a side or an
+            // underside in front is not somewhere to stand it.
+            const nearest = this.raycaster.intersectObjects(this.pickableParts(), false)[0];
+            const top =
+                nearest?.face !== undefined &&
+                nearest.face !== null &&
+                nearest.face.normal.clone().transformDirection(nearest.object.matrixWorld).y > 0.7
+                    ? nearest
+                    : undefined;
+            if (top !== undefined) {
+                hit = top.point.clone();
+                height = top.point.y;
+            } else {
+                hit = this.raycastPlane(event, this.horizontalPlane(0));
+                height = 0;
+            }
+        }
+        if (hit === null) return;
+        // Held level (Shift), it keeps its place under the pointer from where it was grabbed. Set
+        // on a surface, its middle goes where the pointer is: a grab point measured on one surface
+        // means nothing on another.
+        if (drag.grab === null && event.shiftKey) {
+            drag.grab = { x: hit.x - drag.origin.x, z: hit.z - drag.origin.z };
+        }
+        const grab = event.shiftKey && drag.grab !== null ? drag.grab : { x: 0, z: 0 };
+        let x = hit.x - grab.x;
+        let z = hit.z - grab.z;
+        const grid = event.altKey || !this.snapConfig.gridSnap ? 0 : this.snapConfig.gridSize;
+        if (grid > 0) {
+            x = Math.round(x / grid) * grid;
+            z = Math.round(z / grid) * grid;
+        }
+        drag.holder.position.set(x, height, z);
+        drag.moved = true;
+        this.requestRender();
+    }
+
+    private endPropDrag(): void {
+        const drag = this.propDrag;
+        if (drag === null) return;
+        const at = drag.holder.position;
+        const moved = drag.moved && at.distanceTo(drag.origin) > 1e-6;
+        let committed = false;
+        try {
+            if (moved && this.propDragCommitHandler !== null) {
+                const round = (n: number) => Math.round(n * 1000) / 1000;
+                this.propDragCommitHandler(drag.id, [round(at.x), round(at.y), round(at.z)]);
+                committed = true;
+            }
+        } finally {
+            this.clearPropDrag(!committed);
+        }
+    }
+
+    private clearPropDrag(restore: boolean): void {
+        const drag = this.propDrag;
+        if (drag === null) return;
+        this.propDrag = null;
+        if (restore) drag.holder.position.copy(drag.origin);
+        this.controls.enabled = true;
         this.requestRender();
     }
 
@@ -1654,6 +1803,8 @@ export class EditorEngine {
      */
     loadSpec(spec: Spec, options: { frame?: boolean } = {}): void {
         // The dragged piece is about to be rebuilt; a drag can't outlive it.
+        this.propDrag = null;
+        this.armedProp = null;
         if (this.hardwareDrag !== null) {
             this.hardwareDrag = null;
             this.clearGuides();

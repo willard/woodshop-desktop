@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import * as THREE from 'three';
 import { findItem } from '@/hardware/catalog';
-import { buildPropGeometry } from '@/engine/geometry/propModels';
+import { buildPropGeometry, buildShapeGeometry } from '@/engine/geometry/propModels';
 import { buildPropsGroup } from '@/engine/buildScene';
 import { AddProp, RemoveProp, UpdateProp, uniquePropId } from '@/engine';
-import { hangHeight, restOn } from '@/spec/props';
+import { hangHeight, restOn, restingAs } from '@/spec/props';
 import { parseSpec } from '@/spec';
 import type { Spec } from '@/spec';
 
@@ -123,5 +123,73 @@ describe('resting an imported model', () => {
         expect(restOn(rack(), null, 'p_left', 'p_right', { l: 34, w: 18 })!.problems.join(' ')).toMatch(
             /carry it/,
         );
+    });
+});
+
+describe('shapes made by hand', () => {
+    it('draws each at the size typed in, standing on its bottom', () => {
+        const size = (g: { body: THREE.BufferGeometry[]; accent: THREE.BufferGeometry[] }) =>
+            bounds([...g.body, ...g.accent]).getSize(new THREE.Vector3());
+        const box = size(buildShapeGeometry({ kind: 'box', l: 16, w: 12, h: 10 }));
+        expect([box.x, box.y, box.z].map((n) => Math.round(n * 10) / 10)).toEqual([16.1, 12.1, 10]);
+        const bin = buildShapeGeometry({ kind: 'box', l: 16, w: 11, h: 7, open: true });
+        expect(bin.accent).toEqual([]); // no lid
+        expect(bounds(bin.body).max.z).toBeCloseTo(7, 5);
+        const pail = bounds(
+            buildShapeGeometry({ kind: 'round', d: 10.3, top: 11.9, h: 14.5, open: true }).body,
+        );
+        expect(pail.min.z).toBeCloseTo(0, 2);
+        expect(pail.max.x - pail.min.x).toBeGreaterThan(11.9); // the rolled rim round the top
+        const tote = size(buildShapeGeometry({ kind: 'tote', l: 24, w: 16, h: 12 }));
+        expect(tote.x).toBeCloseTo(24, 3);
+        expect(tote.z).toBeCloseTo(12, 3);
+    });
+
+    it('rests a hand-sized tote by its rim, and a bin by its bottom', () => {
+        const spec = rack();
+        const tote = restingAs(spec, {
+            id: 'pr',
+            shape: { kind: 'tote', l: 28, w: 19, h: 14 },
+            pos: [0, 0, 0],
+            rot: 0,
+        });
+        expect(tote.item).not.toBeNull();
+        expect(hangHeight(tote.item)).toBeGreaterThan(10);
+        expect(restOn(spec, tote.item, 'p_left', 'p_right', tote.footprint)!.problems).toEqual([]);
+        const bin = restingAs(spec, {
+            id: 'pr',
+            shape: { kind: 'box', l: 16, w: 11, h: 7, open: true },
+            pos: [0, 0, 0],
+            rot: 0,
+        });
+        expect(bin.item).toBeNull();
+        expect(restOn(spec, bin.item, 'p_left', 'p_right', bin.footprint)!.problems.join(' ')).toMatch(
+            /drops through/,
+        );
+    });
+
+    it("is drawn in its own colours, the kind's until given some", () => {
+        const spec: Spec = {
+            ...rack(),
+            props: [
+                { id: 'pr_pail', shape: { kind: 'round', d: 10, h: 14 }, pos: [0, 0, 30], rot: 0 },
+                {
+                    id: 'pr_box',
+                    shape: { kind: 'box', l: 10, w: 10, h: 10 },
+                    pos: [0, 0, 50],
+                    rot: 0,
+                    color: '#123456',
+                },
+                { id: 'pr_half', shape: { kind: 'round', h: 14 }, pos: [0, 0, 70], rot: 0 },
+            ],
+        };
+        const group = buildPropsGroup(spec);
+        const colour = (id: string) =>
+            (
+                (group.getObjectByName(id)!.children[0] as THREE.Mesh).material as THREE.MeshStandardMaterial
+            ).color.getHexString();
+        expect(colour('pr_pail')).toBe('e4e4e1');
+        expect(colour('pr_box')).toBe('123456');
+        expect(group.getObjectByName('pr_half')).toBeUndefined(); // no size: not drawn
     });
 });
