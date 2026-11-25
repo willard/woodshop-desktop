@@ -94,6 +94,14 @@ test('an exported plan opens from a file and works offline', async ({ page }, in
     await expect(page.getByTestId('cutlist-progress')).toContainText(/^\d+ of \d+ pieces cut/);
     await page.reload();
     await expect(page.getByTestId('cutlist-cut-tick').first()).toBeChecked();
+    // A piece on the layouts ticks off too, counted on its sheet.
+    const uncut = page.getByTestId('cutlist-piece').and(page.locator(':not([data-cut])')).first();
+    const label = await uncut.getAttribute('aria-label');
+    await uncut.click();
+    await expect(page.getByRole('button', { name: `${label}, cut` }).first()).toHaveAttribute(
+        'data-cut',
+        'true',
+    );
 
     // Theme and the 3D controls.
     await page.getByTestId('viewer-theme').click();

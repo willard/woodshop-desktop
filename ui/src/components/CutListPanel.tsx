@@ -5,7 +5,7 @@
  */
 import { ChevronDown, ChevronRight, Eye, EyeOff, X } from 'lucide-react';
 import { BuildStepsEditor, stepsFrom, type BuildStep } from './BuildStepsEditor';
-import { useMemo, useState, type MouseEvent } from 'react';
+import { useCallback, useMemo, useState, type MouseEvent } from 'react';
 import {
     assemblyOrder,
     joinery,
@@ -24,11 +24,18 @@ import { plural } from '@/app/format';
 import { saveHardwarePrice, useHardwarePrices } from '@/cutlist/prices';
 import { useOffcuts } from '@/cutlist/offcuts';
 import { TRIM_OPTIONS, saveTrim, useTrim, type TrimKey } from '@/cutlist/trim';
-import { boardLength, boardSizes, boughtBoards } from '@/cutlist/boards';
-import { clearFinishLabel, coatingLabel, type SawCut } from '@/cutlist/types';
+import { clearFinishLabel, coatingLabel } from '@/cutlist/types';
 import { OnHandSection } from './OnHandSection';
 import { BoardPrice, BoardStock, stockLabel } from './BoardPrice';
-import { useCutProgress } from '@/cutlist/progress';
+import { isPieceCut, piecesCutOf, useCutProgress } from '@/cutlist/progress';
+import {
+    CutChecklist,
+    CutLayouts,
+    PrintCutList,
+    SectionHeading,
+    boardWord,
+    type PieceTicks,
+} from './CutLayouts';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -66,11 +73,6 @@ const kindLabel = (kind: CutListSection['kind']): string =>
 function adviceText(a: StockSuggestion): string {
     const { neededSize: n, suggestedSize: p, currentSize: c } = a;
     return `These parts fit within ${sizeOf(n.l, n.w)}, so a ${sizeOf(p.l, p.w)} panel would do — the ${sizeOf(c.l, c.w)} sheet is ${Math.round(a.wastePercent)}% offcut.`;
-}
-
-/** What one length of stock is called: a board of lumber, a stick of dowel. */
-function boardWord(spec: Spec, materialId: string): string {
-    return spec.materials.find((m) => m.id === materialId)?.type === 'round' ? 'stick' : 'board';
 }
 
 function stockLine(section: CutListSection, spec: Spec): string {
@@ -147,10 +149,24 @@ export function CutListPanel(props: CutListPanelProps) {
     /** Drawing the numbered saw cuts over the sheet layouts. */
     const [cutOrder, setCutOrder] = useState(false);
     const progress = useCutProgress(props.progressKey ?? '');
+    const { cut: cutIds, toggle: togglePiece } = progress;
     const tracking = props.progressKey !== undefined;
-    const done = tracking ? progress.cut : undefined;
     const pieces = cutList.parts.reduce((n, r) => n + r.qty, 0);
-    const piecesCut = cutList.parts.reduce((n, r) => n + (progress.cut.has(r.partId) ? r.qty : 0), 0);
+    const piecesCut = cutList.parts.reduce((n, r) => n + piecesCutOf(progress.cut, r.partId, r.qty), 0);
+    const ticks = useMemo<PieceTicks | undefined>(() => {
+        if (!tracking) return undefined;
+        const qty = new Map(cutList.parts.map((r) => [r.partId, r.qty]));
+        return {
+            isCut: (partId, copy) => isPieceCut(cutIds, partId, copy),
+            toggle: (partId, copy) => togglePiece(partId, copy, qty.get(partId) ?? 1),
+        };
+    }, [tracking, cutList, cutIds, togglePiece]);
+    /** The sheets and boards drawn, or the same pieces as a list to tick. */
+    const [layoutView, setLayoutView] = useState<'layouts' | 'checklist'>('layouts');
+    /** Counts the prints asked for, so another click prints again even if the last never said it was done. */
+    const [printing, setPrinting] = useState(0);
+    const donePrinting = useCallback(() => setPrinting(0), []);
+    const hasLayouts = cutList.sheets.length + cutList.lumber.length > 0;
     const fasteners = cutList.hardware.filter((row) => FASTENER_KINDS.has(row.kind));
     const fittings = cutList.hardware.filter((row) => !FASTENER_KINDS.has(row.kind));
 
@@ -346,7 +362,10 @@ export function CutListPanel(props: CutListPanelProps) {
                             const open = expanded.has(group.key);
                             const sel = groupSelected(group);
                             const ids = group.members.map((m) => m.partId);
-                            const cutCount = ids.filter((id) => progress.cut.has(id)).length;
+                            const cutOf = (m: (typeof group.members)[number]) =>
+                                piecesCutOf(progress.cut, m.partId, m.qty);
+                            const cutCount = group.members.filter((m) => cutOf(m) === m.qty).length;
+                            const someCut = group.members.some((m) => cutOf(m) > 0);
                             const groupCut = tracking && cutCount === ids.length;
                             return (
                                 <div key={group.key} className="flex flex-col gap-px">
@@ -363,7 +382,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                                     data-testid="cutlist-cut-tick"
                                                     checked={groupCut}
                                                     ref={(el) => {
-                                                        if (el) el.indeterminate = cutCount > 0 && !groupCut;
+                                                        if (el) el.indeterminate = someCut && !groupCut;
                                                     }}
                                                     onChange={(e) => progress.set(ids, e.target.checked)}
                                                 />
@@ -453,7 +472,7 @@ export function CutListPanel(props: CutListPanelProps) {
                                                     }
                                                 >
                                                     <span
-                                                        className={`min-w-0 truncate text-[12px] ${hidden || progress.cut.has(member.partId) ? 'text-faint line-through' : 'text-fg/70'}`}
+                                                        className={`min-w-0 truncate text-[12px] ${hidden || piecesCutOf(progress.cut, member.partId, member.qty) === member.qty ? 'text-faint line-through' : 'text-fg/70'}`}
                                                     >
                                                         {member.name}
                                                     </span>
@@ -494,95 +513,73 @@ export function CutListPanel(props: CutListPanelProps) {
                 </div>
             ))}
 
-            {(cutList.sheets.some((plan) => (plan.cuts ?? []).length > 0) ||
-                cutList.lumber.some((plan) => (plan.sawCuts ?? []).length > 0)) && (
-                <label className="text-fg/75 mb-3 flex cursor-pointer items-center gap-2 text-[13px]">
-                    <input
-                        checked={cutOrder}
-                        type="checkbox"
-                        data-testid="cutlist-cut-order"
-                        className="accent-accent"
-                        onChange={(e) => setCutOrder(e.target.checked)}
-                    />
-                    Show the cut order and fence settings
-                </label>
+            {hasLayouts && (
+                <div className="mb-2.5 flex items-center gap-2" data-print="hide">
+                    <div
+                        className="border-fg/10 flex rounded-lg border p-0.5 text-xs"
+                        role="group"
+                        aria-label="Show the cuts as"
+                    >
+                        {(['layouts', 'checklist'] as const).map((view) => (
+                            <button
+                                key={view}
+                                className={`rounded-md px-2.5 py-1 pointer-coarse:px-3.5 pointer-coarse:py-2 ${
+                                    layoutView === view
+                                        ? 'bg-fg/10 text-fg-strong'
+                                        : 'text-muted hover:text-fg-strong'
+                                }`}
+                                aria-pressed={layoutView === view}
+                                data-testid={`cutlist-view-${view}`}
+                                onClick={() => setLayoutView(view)}
+                            >
+                                {view === 'layouts' ? 'Layouts' : 'Checklist'}
+                            </button>
+                        ))}
+                    </div>
+                    <button
+                        className="text-accent ml-auto text-xs font-semibold hover:underline"
+                        data-testid="cutlist-print"
+                        title="Print the sheet and board layouts and the checklist, without the rest of the plan"
+                        onClick={() => setPrinting((n) => n + 1)}
+                    >
+                        Print cut list
+                    </button>
+                </div>
             )}
-            {cutList.sheets.map((plan) => (
-                <div key={plan.materialId} className="mb-4">
-                    <SectionHeading>
-                        {plan.materialName}: {plural(plan.sheetCount, 'sheet')}
-                        {(plan.offcuts ?? []).length > 0 &&
-                            ` + ${plural(plan.offcuts!.length, 'piece')} on hand`}
-                        , {pct(plan.waste)} offcut
-                    </SectionHeading>
-                    <div className="space-y-3">
-                        {Array.from({ length: plan.sheetCount }, (_, n) => (
-                            <div key={n}>
-                                <SheetDiagram plan={plan} sheet={n} cutOrder={cutOrder} done={done} />
-                                {cutOrder && <CutSteps cuts={plan.cuts} sheet={n} trim={plan.trim} />}
-                            </div>
-                        ))}
-                        {(plan.offcuts ?? []).map((o, i) => (
-                            <div key={o.id} data-testid="cutlist-on-hand-sheet">
-                                <p className="text-muted mb-1 text-xs">
-                                    On hand, {len(o.l)} × {len(o.w ?? 0)}
-                                </p>
-                                <SheetDiagram
-                                    plan={plan}
-                                    sheet={plan.sheetCount + i}
-                                    size={{ l: o.l, w: o.w ?? 0 }}
-                                    cutOrder={cutOrder}
-                                    done={done}
-                                />
-                                {cutOrder && <CutSteps cuts={plan.cuts} sheet={plan.sheetCount + i} />}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
+            {tracking && layoutView === 'layouts' && hasLayouts && (
+                <p className="text-faint mb-2 text-xs" data-print="hide">
+                    Click a piece once it is cut; click again to undo.
+                </p>
+            )}
 
-            {cutList.lumber.map((plan) => (
-                <div key={plan.materialId} className="mb-4" data-testid="cutlist-boards">
-                    <SectionHeading>
-                        {plan.materialName}: {plural(plan.stickCount, boardWord(spec, plan.materialId))}
-                        {boughtBoards(plan).length > 1
-                            ? ` (${boardSizes(plan, len)})`
-                            : ` of ${len(plan.stockLength)}`}
-                        {(plan.offcuts ?? []).length > 0 &&
-                            ` + ${plural(plan.offcuts!.length, 'piece')} on hand`}
-                        , {pct(plan.waste)} offcut
-                    </SectionHeading>
-                    <div className="space-y-1.5">
-                        {Array.from({ length: plan.stickCount }, (_, n) => (
-                            <div key={n}>
-                                <BoardDiagram
-                                    plan={plan}
-                                    board={n}
-                                    parts={cutList.parts}
-                                    length={boardLength(plan, n)}
-                                    cutOrder={cutOrder}
-                                    done={done}
-                                />
-                                {cutOrder && <CutSteps cuts={plan.sawCuts} sheet={n} trim={plan.trim} ends />}
-                            </div>
-                        ))}
-                        {(plan.offcuts ?? []).map((o, i) => (
-                            <div key={o.id} data-testid="cutlist-on-hand-board">
-                                <p className="text-muted mb-1 text-xs">On hand, {len(o.l)}</p>
-                                <BoardDiagram
-                                    plan={plan}
-                                    board={plan.stickCount + i}
-                                    parts={cutList.parts}
-                                    length={o.l}
-                                    cutOrder={cutOrder}
-                                    done={done}
-                                />
-                                {cutOrder && <CutSteps cuts={plan.sawCuts} sheet={plan.stickCount + i} />}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
+            {layoutView === 'layouts' &&
+                (cutList.sheets.some((plan) => (plan.cuts ?? []).length > 0) ||
+                    cutList.lumber.some((plan) => (plan.sawCuts ?? []).length > 0)) && (
+                    <label className="text-fg/75 mb-3 flex cursor-pointer items-center gap-2 text-[13px]">
+                        <input
+                            checked={cutOrder}
+                            type="checkbox"
+                            data-testid="cutlist-cut-order"
+                            className="accent-accent"
+                            onChange={(e) => setCutOrder(e.target.checked)}
+                        />
+                        Show the cut order and fence settings
+                    </label>
+                )}
+            {layoutView === 'layouts' ? (
+                <CutLayouts cutList={cutList} spec={spec} cutOrder={cutOrder} ticks={ticks} />
+            ) : (
+                <CutChecklist cutList={cutList} spec={spec} ticks={ticks} />
+            )}
+            {printing > 0 && (
+                <PrintCutList
+                    key={printing}
+                    cutList={cutList}
+                    spec={spec}
+                    ticks={ticks}
+                    onDone={donePrinting}
+                />
+            )}
 
             {cutList.hardware.length > 0 && (
                 <div className="mb-4" data-testid="cutlist-hardware">
@@ -978,137 +975,6 @@ export function CutListPanel(props: CutListPanelProps) {
     );
 }
 
-/** One physical sheet with its placed parts (SVG origin is top-left, so y flips). */
-export function SheetDiagram({
-    plan,
-    sheet,
-    size = plan.sheetSize,
-    cutOrder = false,
-    done,
-}: {
-    plan: CutList['sheets'][number];
-    sheet: number;
-    /** A piece on hand's own size; a bought sheet is the plan's. */
-    size?: { l: number; w: number };
-    /** Draw the saw cuts, numbered in the order to make them. */
-    cutOrder?: boolean;
-    /** Parts ticked off as cut, drawn faded. */
-    done?: ReadonlySet<string>;
-}) {
-    // A piece on hand is drawn to the same scale as a full sheet, against the left edge.
-    const scale = Math.max(size.l / plan.sheetSize.l, 0.0001);
-    // Number markers are sized to the full sheet so they read the same on every diagram.
-    const r = Math.min(plan.sheetSize.l, plan.sheetSize.w) * 0.03;
-    return (
-        <svg
-            viewBox={`-1 -1 ${size.l + 2} ${size.w + 2}`}
-            style={size === plan.sheetSize ? undefined : { width: `${Math.min(scale, 1) * 100}%` }}
-            className="bg-surface-2 border-fg/10 w-full rounded-lg border"
-            preserveAspectRatio="xMidYMid meet"
-            data-testid="cutlist-sheet"
-        >
-            <rect width={size.l} height={size.w} fill="#16171b" stroke="#3a3d44" strokeWidth="0.3" />
-            {sheet < plan.sheetCount && (plan.trim ?? 0) > 0 && (
-                <rect
-                    x={plan.trim}
-                    y={plan.trim}
-                    width={size.l - 2 * (plan.trim ?? 0)}
-                    height={size.w - 2 * (plan.trim ?? 0)}
-                    fill="none"
-                    stroke="#71717a"
-                    strokeWidth="0.3"
-                    strokeDasharray="1 1"
-                    data-testid="cutlist-sheet-trim"
-                >
-                    <title>Trimmed edges: {len(plan.trim ?? 0)} off each</title>
-                </rect>
-            )}
-            {(plan.leftovers ?? [])
-                .filter((left) => left.sheet === sheet)
-                .map((left) => (
-                    <rect
-                        key={`left-${left.x}-${left.y}`}
-                        x={left.x}
-                        y={size.w - left.y - (left.w ?? 0)}
-                        width={left.l}
-                        height={left.w ?? 0}
-                        fill="none"
-                        stroke="#a3a3a3"
-                        strokeWidth="0.3"
-                        strokeDasharray="1.5 1"
-                        data-testid="cutlist-leftover"
-                    >
-                        <title>
-                            Leftover worth keeping: {len(left.l)} × {len(left.w ?? 0)}
-                        </title>
-                    </rect>
-                ))}
-            {plan.placements
-                .filter((p) => p.sheet === sheet)
-                .map((p) => {
-                    const y = size.w - p.y - p.h;
-                    return (
-                        <g key={`${p.partId}-${p.x}-${p.y}`}>
-                            <rect
-                                x={p.x}
-                                y={y}
-                                width={p.w}
-                                height={p.h}
-                                fill="#b98a55"
-                                fillOpacity={done?.has(p.partId) ? 0.3 : 0.85}
-                                stroke="#78350f"
-                                strokeWidth="0.25"
-                            />
-                            <text
-                                x={p.x + p.w / 2}
-                                y={y + p.h / 2}
-                                fill="#1c1917"
-                                fontSize={Math.min(p.w, p.h) * 0.22}
-                                textAnchor="middle"
-                                dominantBaseline="central"
-                            >
-                                {p.name}
-                            </text>
-                        </g>
-                    );
-                })}
-            {cutOrder &&
-                (plan.cuts ?? [])
-                    .filter((c) => c.sheet === sheet)
-                    .map((c) => {
-                        // A rip runs along the length at y; a crosscut runs up from y at x.
-                        const [x1, y1] = [c.x, size.w - c.y];
-                        const [x2, y2] = c.rip ? [c.x + c.l, y1] : [x1, y1 - c.l];
-                        const [cx, cy] = c.rip ? [x1 + r * 1.3, y1] : [x1, y1 - r * 1.3];
-                        return (
-                            <g key={`cut-${c.n}`} data-testid="cutlist-saw-cut">
-                                <title>
-                                    Cut {c.n}: {c.rip ? 'rip' : 'crosscut'} {len(c.off)} off, {len(c.l)} long
-                                </title>
-                                <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#ef4444" strokeWidth="0.4" />
-                                <circle cx={cx} cy={cy} r={r} fill="#ef4444" />
-                                <text
-                                    x={cx}
-                                    y={cy}
-                                    fill="#fff"
-                                    fontSize={r * 1.2}
-                                    fontWeight="600"
-                                    textAnchor="middle"
-                                    dominantBaseline="central"
-                                >
-                                    {c.n}
-                                </text>
-                            </g>
-                        );
-                    })}
-        </svg>
-    );
-}
-
-/**
- * One sheet's or board's saw cuts in order, each with where the fence or stop goes: the width or
- * length of the piece it takes off.
- */
 /** "Trim sheet edges" or "Trim board ends": one of the trim settings, saved as it changes. */
 function TrimSelect({
     setting,
@@ -1139,176 +1005,6 @@ function TrimSelect({
                 ))}
             </select>
         </label>
-    );
-}
-
-function CutSteps({
-    cuts: all,
-    sheet,
-    trim = 0,
-    ends = false,
-}: {
-    cuts: SawCut[] | undefined;
-    sheet: number;
-    /** Trimmed off first: off each edge of a sheet, or each end of a board (`ends`). */
-    trim?: number;
-    ends?: boolean;
-}) {
-    const cuts = (all ?? []).filter((c) => c.sheet === sheet);
-    if (cuts.length === 0) return null;
-    return (
-        <ol
-            className="text-muted mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs"
-            data-testid="cutlist-cut-steps"
-        >
-            {trim > 0 && (
-                <li>
-                    Trim {len(trim)} off each {ends ? 'end' : 'edge'}, then:
-                </li>
-            )}
-            {cuts.map((c) => (
-                <li key={c.n}>
-                    <span className="font-semibold text-red-400">{c.n}</span> {c.rip ? 'Rip' : 'Crosscut'}{' '}
-                    {len(c.off)}
-                </li>
-            ))}
-        </ol>
-    );
-}
-
-/**
- * One board with its cuts, drawn to the plan's stock length. Boards are long and thin, so this is
- * a bar of fixed height rather than a drawing to scale across the board; ripped pieces sit in
- * lanes across it.
- */
-export function BoardDiagram({
-    plan,
-    board,
-    parts,
-    length = plan.stockLength,
-    cutOrder = false,
-    done,
-}: {
-    plan: CutList['lumber'][number];
-    board: number;
-    parts: CutList['parts'];
-    /** A piece on hand's own length; a bought board is the plan's. */
-    length?: number;
-    /** Draw the saw cuts, numbered in the order to make them. */
-    cutOrder?: boolean;
-    /** Parts ticked off as cut, drawn faded. */
-    done?: ReadonlySet<string>;
-}) {
-    const width = (id: string) => parts.find((r) => r.partId === id)?.width ?? 0;
-    const cuts = plan.cuts.filter((c) => c.stick === board);
-    const across = plan.stockWidth ?? Math.max(...plan.cuts.map((c) => width(c.partId)), 1);
-    const ripped = cuts.some((c) => (c.y ?? 0) > 0);
-    const at = (v: number, of: number) => `${(v / of) * 100}%`;
-    return (
-        <div
-            className="bg-surface-2 border-fg/10 relative overflow-hidden rounded border"
-            style={{
-                height: ripped ? 52 : 28,
-                width:
-                    length === plan.stockLength
-                        ? undefined
-                        : at(Math.min(length, plan.stockLength), plan.stockLength),
-            }}
-            data-testid="cutlist-board"
-        >
-            {board < plan.stickCount &&
-                (plan.trim ?? 0) > 0 &&
-                [plan.trim ?? 0, length - (plan.trim ?? 0)].map((x) => (
-                    <div
-                        key={x}
-                        className="absolute inset-y-0 border-l border-dashed border-neutral-500"
-                        style={{ left: at(x, length) }}
-                        title={`Trimmed end: ${len(plan.trim ?? 0)} off`}
-                        data-testid="cutlist-board-trim"
-                    />
-                ))}
-            {(plan.leftovers ?? [])
-                .filter((left) => left.sheet === board)
-                .map((left) => (
-                    <div
-                        key={`left-${left.x}`}
-                        className="absolute inset-y-0.5 rounded-sm border border-dashed border-neutral-400"
-                        style={{ left: at(left.x, length), width: at(left.l, length) }}
-                        title={`Leftover worth keeping: ${len(left.l)}`}
-                        data-testid="cutlist-leftover"
-                    />
-                ))}
-            {cuts.map((c) => {
-                const y = c.y ?? 0;
-                // Across the board, a piece of full width fills the bar.
-                const w = ripped ? width(c.partId) : across;
-                return (
-                    <div
-                        key={`${c.partId}-${c.x}-${y}`}
-                        className="absolute truncate rounded-sm border border-amber-900 px-1 text-xs leading-none text-stone-900"
-                        style={{
-                            left: at(c.x, length),
-                            width: at(c.length, length),
-                            bottom: at(y, across),
-                            height: at(Math.min(w, across), across),
-                            background: 'rgb(185 138 85 / 0.85)',
-                            opacity: done?.has(c.partId) ? 0.35 : 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                        }}
-                        title={`${c.name}, ${len(c.length)}`}
-                    >
-                        {c.name}
-                    </div>
-                );
-            })}
-            {cutOrder &&
-                (plan.sawCuts ?? [])
-                    // Unripped, the bar is not to scale across: crosscuts span it, rips are only listed.
-                    .filter((c) => c.sheet === board && (ripped || !c.rip))
-                    .map((c) => {
-                        const line = c.rip
-                            ? {
-                                  left: at(c.x, length),
-                                  width: at(c.l, length),
-                                  bottom: at(c.y, across),
-                                  height: 2,
-                              }
-                            : {
-                                  left: at(c.x, length),
-                                  width: 2,
-                                  bottom: ripped ? at(c.y, across) : 0,
-                                  height: ripped ? at(c.l, across) : '100%',
-                              };
-                        // A rip's number sits a quarter along it, a crosscut's halfway up.
-                        const badge = c.rip
-                            ? {
-                                  left: `calc(${at(c.x + c.l / 4, length)} - 7px)`,
-                                  bottom: `calc(${at(c.y, across)} - 6px)`,
-                              }
-                            : {
-                                  left: `calc(${at(c.x, length)} - 6px)`,
-                                  bottom: ripped
-                                      ? `calc(${at(c.y + c.l / 2, across)} - 7px)`
-                                      : 'calc(50% - 7px)',
-                              };
-                        return (
-                            <div
-                                key={`saw-${c.n}`}
-                                data-testid="cutlist-saw-cut"
-                                title={`Cut ${c.n}: ${c.rip ? 'rip' : 'crosscut'} ${len(c.off)} off, ${len(c.l)} long`}
-                            >
-                                <div className="absolute bg-red-500" style={line} />
-                                <div
-                                    className="absolute flex size-3.5 items-center justify-center rounded-full bg-red-500 text-[9px] leading-none font-semibold text-white"
-                                    style={badge}
-                                >
-                                    {c.n}
-                                </div>
-                            </div>
-                        );
-                    })}
-        </div>
     );
 }
 
@@ -1395,10 +1091,6 @@ function HardwareLine({
 
 /** Screws, pocket screws and dowels: bought by the box, so they fold into one line. */
 const FASTENER_KINDS = new Set(['pocketScrew', 'woodScrew', 'dowel']);
-
-function SectionHeading({ children }: { children: React.ReactNode }) {
-    return <h3 className="text-muted mb-2 text-xs font-semibold tracking-wider uppercase">{children}</h3>;
-}
 
 /** A fraction input that commits on blur/Enter and snaps back when the value is rejected. */
 function FractionCell({

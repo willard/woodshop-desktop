@@ -983,8 +983,14 @@ spec change and nothing leaks into a shared `.woodshop` file or the gallery. Res
     page's own `localStorage`, as it runs offline).
   - Done when: the nightstand steps through at phone size with what to gather on each step; the
     PDF prints the same lists; ticks survive a restart; an e2e test.
-- **8.2 Tick off the cuts.** Not started. The cut list's rows already tick off
-  (`useCutProgress`, `cutlist-cut-tick`); what is missing is on the layouts. On the board and sheet layouts in `CutListPanel` and
+- **8.2 Tick off the cuts.** Done (2026-11-25). The diagrams moved to `CutLayouts.tsx`, which
+  also has `CutChecklist` and `PrintCutList` (a portal printed alone: `html[data-printing]` in
+  `app.css`). A tick is a part id (every piece cut) or `partId#copy` for one piece, copies
+  numbered in plan order (`copyNumbers`), so a reflow keeps the count right and the tick on the
+  part; `useCutProgress().toggle` folds the pieces into the part id once all are cut. Tested in
+  `progress.spec.ts` and the e2e "pieces tick off…" (kerf change, reload, checklist, print media).
+  The plan as written: the cut list's rows already ticked off
+  (`useCutProgress`, `cutlist-cut-tick`); what was missing was on the layouts. On the board and sheet layouts in `CutListPanel` and
   the 3D plan: click a piece when it is cut (again to undo), with "3 of 17 cut" per board or sheet
   and the offcuts labelled with their size. Also a plain checklist view of the same pieces, and
   Print cut list (the layouts and checklist alone, without the rest of the plan). Done when: the

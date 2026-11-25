@@ -1952,3 +1952,62 @@ test('your own shape is made, sized and shown, never in the cut list', async ({ 
     await page.getByTestId('cutlist-toggle').click();
     await expect(page.getByTestId('cutlist-hardware')).not.toContainText('Bin');
 });
+
+test('pieces tick off on the layouts and the checklist, and the cut list prints alone', async ({ page }) => {
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+    const cutlist = page.getByTestId('cutlist');
+    if (!(await cutlist.isVisible())) await page.getByTestId('cutlist-toggle').click();
+    const firstSheet = page.getByTestId('cutlist-sheet-count').first();
+    await expect(firstSheet).toHaveText(/^Sheet 1 · 0 of \d+ cut$/);
+    // The leftovers say how big they are.
+    await expect(page.getByTestId('cutlist-leftover-size').first()).toHaveText(/^[\d /]+" × [\d /]+"$/);
+
+    // A click ticks a piece off; it fades and counts.
+    const piece = page.getByTestId('cutlist-sheet').first().getByTestId('cutlist-piece').first();
+    await piece.click();
+    await expect(piece).toHaveAttribute('data-cut', 'true');
+    await expect(firstSheet).toHaveText(/^Sheet 1 · 1 of \d+ cut$/);
+    await expect(page.getByTestId('cutlist-progress')).toContainText('1 of 6 pieces cut');
+
+    // A different kerf lays the sheets out again; the tick stays on the same part.
+    const label = await piece.getAttribute('aria-label');
+    await page.getByTestId('kerf-select').selectOption({ index: 3 });
+    await expect(page.getByTestId('cutlist-piece').and(page.locator('[data-cut="true"]'))).toHaveAttribute(
+        'aria-label',
+        label!,
+    );
+
+    // And after a restart.
+    await page.reload();
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+    if (!(await cutlist.isVisible())) await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('cutlist-progress')).toContainText('1 of 6 pieces cut');
+
+    // The same pieces as a checklist: the one cut is ticked, and ticking another counts it.
+    await page.getByTestId('cutlist-view-checklist').click();
+    const ticks = page.getByTestId('cutlist-checklist-tick');
+    await expect(ticks).toHaveCount(6);
+    await expect(ticks.and(page.locator(':checked'))).toHaveCount(1);
+    await ticks.and(page.locator(':not(:checked)')).first().check();
+    await expect(page.getByTestId('cutlist-progress')).toContainText('2 of 6 pieces cut');
+    await page.getByTestId('cutlist-view-layouts').click();
+    await expect(page.getByTestId('cutlist-piece').and(page.locator('[data-cut="true"]'))).toHaveCount(2);
+
+    // Print cut list prints the layouts and the checklist, and nothing else of the page.
+    await page.evaluate(() => {
+        window.print = () => {
+            (window as unknown as { printed: number }).printed = 1;
+        };
+    });
+    await page.getByTestId('cutlist-print').click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { printed?: number }).printed)).toBe(1);
+    await page.emulateMedia({ media: 'print' });
+    const printed = page.getByTestId('cutlist-printout');
+    await expect(printed).toBeVisible();
+    await expect(printed.getByTestId('cutlist-sheet').first()).toBeVisible();
+    await expect(printed.getByTestId('cutlist-checklist')).toBeVisible();
+    await expect(page.locator('#root')).toBeHidden();
+    await page.emulateMedia({ media: 'screen' });
+    await expect(printed).toBeHidden();
+});

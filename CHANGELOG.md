@@ -8,6 +8,11 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Tick off the cuts on the layouts: click a piece on a sheet or board layout once it is cut
+  (again to undo), and each sheet and board says how many of its pieces are cut. The leftovers
+  are labelled with their sizes. A Checklist view lists the same pieces to tick, sheet by sheet,
+  and Print cut list prints the layouts and the checklist alone. Ticks stay on the same pieces
+  when the layout changes, and are remembered on this device for each design.
 - Build mode, step by step: each build step (Build in the 3D plan, Show on a step in the cut list)
   now lists what you need for it, the pieces with their sizes and the screws and hardware it
   uses, and where it matters a check to make before you move on (the diagonals before the back
