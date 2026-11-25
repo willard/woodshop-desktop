@@ -166,3 +166,100 @@ export function poseAt(plan: FilmPlan, t: number): FilmPose {
 export function frameCount(plan: FilmPlan, fps: number): number {
     return Math.max(1, Math.round(plan.seconds * fps));
 }
+
+/**
+ * What the video shows. `build` is the assembly film above. `swatches` holds the finished piece
+ * still, from the three-quarter view, and repaints it every second or so in one colour after
+ * another, the way a maker shows a client the colours it comes in. Props keep their own colours.
+ */
+export interface FilmPreset {
+    id: 'build' | 'swatches';
+    label: string;
+    about: string;
+}
+
+export const FILM_PRESETS: readonly FilmPreset[] = [
+    {
+        id: 'build',
+        label: 'Build it, step by step',
+        about: 'The piece built step by step, in the order the plan gives, with a caption for each step.',
+    },
+    {
+        id: 'swatches',
+        label: 'Colour swatches',
+        about: 'The finished piece standing still, painted a new colour about every second. The colours are picked at random each time.',
+    },
+];
+
+/** How long each colour holds in the swatches film, and how long it takes to change. */
+export const SWATCH_SECONDS = 1.1;
+export const SWATCH_BLEND = 0.12;
+
+/** How many colours fit in about `seconds`; never fewer than four. */
+export function swatchCount(seconds: number): number {
+    return Math.max(4, Math.round(seconds / SWATCH_SECONDS));
+}
+
+/** `#rrggbb` from hue (degrees), saturation and lightness (0 to 1). */
+function hsl(h: number, s: number, l: number): string {
+    const k = (n: number) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const channel = (n: number) =>
+        Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))))
+            .toString(16)
+            .padStart(2, '0');
+    return `#${channel(0)}${channel(8)}${channel(4)}`;
+}
+
+interface Paint {
+    h: number;
+    s: number;
+    l: number;
+}
+
+/**
+ * One random paint: mostly a colour a furniture paint comes in (muted, not neon), now and then a
+ * near-black, a warm white or a greige, the neutrals a client asks for most.
+ */
+function randomPaint(random: () => number): Paint {
+    const between = (lo: number, hi: number) => lo + (hi - lo) * random();
+    const roll = random();
+    if (roll < 0.1) return { h: between(20, 50), s: between(0.03, 0.1), l: between(0.1, 0.16) };
+    if (roll < 0.2) return { h: between(35, 55), s: between(0.3, 0.6), l: between(0.9, 0.95) };
+    if (roll < 0.28) return { h: between(30, 60), s: between(0.08, 0.16), l: between(0.72, 0.8) };
+    return { h: between(0, 360), s: between(0.22, 0.48), l: between(0.24, 0.5) };
+}
+
+/** Whether two paints read as different colours at a glance. */
+function distinct(a: Paint, b: Paint): boolean {
+    const hue = Math.min(Math.abs(a.h - b.h), 360 - Math.abs(a.h - b.h));
+    return Math.abs(a.l - b.l) > 0.18 || (hue > 45 && Math.min(a.s, b.s) > 0.2);
+}
+
+/**
+ * `count` random paints as `#rrggbb`, each clearly different from the one before it and from the
+ * one two before, so the film never seems to repeat a colour.
+ */
+export function randomPaints(count: number, random: () => number = Math.random): string[] {
+    const paints: Paint[] = [];
+    while (paints.length < count) {
+        let next = randomPaint(random);
+        for (let tries = 0; tries < 40; tries++) {
+            const recent = paints.slice(-2);
+            if (recent.every((p) => distinct(p, next))) break;
+            next = randomPaint(random);
+        }
+        paints.push(next);
+    }
+    return paints.map((p) => hsl(p.h, p.s, p.l));
+}
+
+/** Which paint shows at `t` seconds: `from` blending to `to` by `mix` (0 to 1) as it changes. */
+export function paintAt(paints: readonly string[], t: number): { from: string; to: string; mix: number } {
+    const index = Math.min(paints.length - 1, Math.max(0, Math.floor(t / SWATCH_SECONDS)));
+    const into = t - index * SWATCH_SECONDS;
+    const from = paints[Math.max(0, index - 1)];
+    const to = paints[index];
+    const mix = index === 0 ? 1 : Math.min(1, into / SWATCH_BLEND);
+    return { from, to, mix };
+}

@@ -8,6 +8,12 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Video presets: the video dialog (Video in the cut list) now asks what to show. Build it, step by
+  step is the assembly video as before; Colour swatches holds the finished piece still and paints
+  it a new colour about every second, the way a maker shows a client the colours it comes in.
+  The colours are picked at random each time, mostly muted paint colours with now and then a
+  black, a warm white or a greige; things to show keep their own colours. The ⋯ menu entry is now
+  Export video (MP4).
 - Folding shelf brackets, 10" to 20", in Hardware ▸ Brackets & plates: steel brackets that lock
   out level under a drop-down wing or shelf and fold flat, with a typical load rating for a pair.
 - Things to show (format 1.22): what a piece holds but you don't build, such as the totes on a

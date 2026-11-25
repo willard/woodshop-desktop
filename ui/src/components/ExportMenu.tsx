@@ -230,7 +230,7 @@ export function ExportMenuItems(
         close(): void;
         /** Opens the labels dialog (where to start on the sheet); without it, labels print from the first. */
         onLabels?: () => void;
-        /** Opens the assembly video dialog. */
+        /** Opens the video dialog. */
         onVideo?: () => void;
     },
 ) {
@@ -269,7 +269,7 @@ export function ExportMenuItems(
                     title="The piece built step by step with captions, as an MP4 to post"
                     onClick={run(async () => props.onVideo?.())}
                 >
-                    Export assembly video (MP4)…
+                    Export video (MP4)…
                 </button>
             )}
             <button
@@ -393,7 +393,7 @@ export function LabelsExport(props: ExportTarget & { onClose(): void }) {
     );
 }
 
-/** The assembly video dialog for the open project: choose shape and length, render, save. */
+/** The video dialog for the open project: choose the preset, shape and length, render, save. */
 export function VideoExport(props: ExportTarget & { onClose(): void }) {
     const toast = useToast();
     return (
@@ -419,7 +419,7 @@ export function VideoExport(props: ExportTarget & { onClose(): void }) {
                         loadModel: (hash) => api.getModel(hash),
                     });
                     await api.writeBinaryFile(path, bytes);
-                    toast.success('Assembly video saved.');
+                    toast.success('Video saved.');
                     props.onClose();
                 } catch (e) {
                     if (e instanceof DOMException && e.name === 'AbortError') return;

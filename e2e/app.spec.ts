@@ -883,13 +883,39 @@ test('the assembly video renders as an MP4 to post', async ({ page }) => {
     }
     await make.click();
     await expect(dialog).toBeHidden({ timeout: 120_000 });
-    await expect(page.getByText('Assembly video saved.')).toBeVisible();
+    await expect(page.getByText('Video saved.')).toBeVisible();
     const file = await page.evaluate(
         () => (window as unknown as { __binary: { size: number; head: number[] } }).__binary,
     );
     // An MP4 opens with its "ftyp" box.
     expect(String.fromCharCode(...file.head.slice(4, 8))).toBe('ftyp');
     expect(file.size).toBeGreaterThan(100_000);
+});
+
+test('the colour swatches video holds the piece still and repaints it', async ({ page }) => {
+    test.setTimeout(150_000);
+    await page.goto('/#/projects/1');
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-export-video').click();
+    const dialog = page.getByTestId('video-dialog');
+    await page.getByTestId('video-preset').selectOption('swatches');
+    await expect(page.getByTestId('video-about')).toContainText('painted a new colour');
+    await page.getByTestId('video-shape').selectOption('square');
+    await page.getByTestId('video-length').selectOption('short');
+    const make = page.getByTestId('video-make');
+    await expect(async () => {
+        const unsupported = await page.getByTestId('video-unsupported').isVisible();
+        expect(unsupported || (await make.isEnabled())).toBe(true);
+    }).toPass();
+    test.skip(await page.getByTestId('video-unsupported').isVisible(), 'This browser cannot encode H.264.');
+    await make.click();
+    await expect(dialog).toBeHidden({ timeout: 120_000 });
+    await expect(page.getByText('Video saved.')).toBeVisible();
+    const file = await page.evaluate(
+        () => (window as unknown as { __binary: { size: number; head: number[] } }).__binary,
+    );
+    expect(String.fromCharCode(...file.head.slice(4, 8))).toBe('ftyp');
+    expect(file.size).toBeGreaterThan(50_000);
 });
 
 test('the 3D view steps through the build, one step at a time', async ({ page }) => {

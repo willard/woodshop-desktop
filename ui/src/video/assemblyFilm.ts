@@ -18,7 +18,20 @@ import { explodedPositions } from '@/engine/explode';
 import { loadKeptModel } from '@/engine/importedModels';
 import { isSoftwareRenderer } from '@/engine/EditorEngine';
 import { scenePalette, type ThemeName } from '@/engine/theme';
-import { easeOutCubic, frameCount, planFilm, poseAt, type Caption, type FilmPlan } from './timeline';
+import { lookOf } from '@/engine/materials';
+import {
+    SWATCH_SECONDS,
+    easeOutCubic,
+    frameCount,
+    paintAt,
+    planFilm,
+    poseAt,
+    randomPaints,
+    swatchCount,
+    type Caption,
+    type FilmPlan,
+    type FilmPreset,
+} from './timeline';
 
 export const FILM_FPS = 30;
 
@@ -27,6 +40,10 @@ export interface FilmOptions {
     height: number;
     seconds: number;
     theme: ThemeName;
+    /** What the film shows; the assembly when not given. */
+    preset?: FilmPreset['id'];
+    /** The swatches film's colours, `#rrggbb`; random when not given. */
+    paints?: readonly string[];
     /** The design's name, on the opening and closing cards. */
     title: string;
     /** Under the title: the overall size. */
@@ -102,10 +119,33 @@ export async function renderAssemblyFilm(spec: Spec, options: FilmOptions): Prom
     if (config === null) {
         throw new Error('This computer cannot encode H.264 video here.');
     }
-    const plan = planFilm(assemblyOrder(spec), options.seconds, (spec.props ?? []).length > 0);
     const models = await loadModels(spec, options.loadModel);
     const stage = new FilmStage(spec, width, height, options.theme, models);
     const card = new CaptionCard(width, height, options.theme, options.title, options.subtitle);
+
+    let frames: number;
+    let drawFrame: (t: number) => HTMLCanvasElement;
+    if (options.preset === 'swatches') {
+        // The finished piece, still, in one paint after another; no captions.
+        const paints = options.paints ?? randomPaints(swatchCount(options.seconds));
+        const whole = { arrival: new Map<string, number>(), explode: 0, props: 1, orbit: 0, framing: 0 };
+        frames = Math.max(1, Math.round(paints.length * SWATCH_SECONDS * FILM_FPS));
+        drawFrame = (t) => {
+            const { from, to, mix } = paintAt(paints, t);
+            stage.paint(new THREE.Color(from).lerp(new THREE.Color(to), mix));
+            stage.draw(whole, {});
+            return stage.canvas;
+        };
+    } else {
+        const plan = planFilm(assemblyOrder(spec), options.seconds, (spec.props ?? []).length > 0);
+        frames = frameCount(plan, FILM_FPS);
+        drawFrame = (t) => {
+            const pose = poseAt(plan, t);
+            stage.draw(pose);
+            card.compose(stage.canvas, pose.caption, t, plan);
+            return card.canvas;
+        };
+    }
 
     const target = new ArrayBufferTarget();
     const muxer = new Muxer({
@@ -123,15 +163,10 @@ export async function renderAssemblyFilm(spec: Spec, options: FilmOptions): Prom
     encoder.configure(config);
 
     try {
-        const frames = frameCount(plan, FILM_FPS);
         for (let i = 0; i < frames; i++) {
             if (options.signal?.aborted === true) throw new DOMException('Cancelled', 'AbortError');
             if (failure !== null) throw failure;
-            const t = i / FILM_FPS;
-            const pose = poseAt(plan, t);
-            stage.draw(pose);
-            card.compose(stage.canvas, pose.caption, t, plan);
-            const frame = new VideoFrame(card.canvas, {
+            const frame = new VideoFrame(drawFrame(i / FILM_FPS), {
                 timestamp: Math.round((i * 1_000_000) / FILM_FPS),
                 duration: Math.round(1_000_000 / FILM_FPS),
             });
@@ -222,6 +257,9 @@ class FilmStage {
     /** The props (spec 1.22), such as totes: where each stands, and where it slides in from. */
     private readonly props: THREE.Group;
     private readonly propPaths: { holder: THREE.Object3D; home: THREE.Vector3; from: THREE.Vector3 }[] = [];
+    /** The parts' own materials that take paint: wood, stained or painted, not glass or metal. */
+    private readonly paintable: THREE.MeshStandardMaterial[] = [];
+    private painted = false;
 
     constructor(
         spec: Spec,
@@ -267,6 +305,19 @@ class FilmStage {
         this.grain = createGrainTexture();
         this.parts = buildSpecGroup(spec, woodMaterialProvider(this.grain));
         this.scene.add(this.parts);
+        const lookOfPart = new Map(
+            spec.parts.map((p) => {
+                const material = spec.materials.find((m) => m.id === p.materialId);
+                return [p.id, material === undefined ? 'wood' : lookOf(material)];
+            }),
+        );
+        for (const child of this.parts.children) {
+            const material = (child as THREE.Mesh).material;
+            const look = lookOfPart.get(child.name);
+            if (material instanceof THREE.MeshStandardMaterial && look !== 'glass' && look !== 'metal') {
+                this.paintable.push(material);
+            }
+        }
         this.props = buildPropsGroup(spec, models);
         this.scene.add(this.props);
 
@@ -411,8 +462,9 @@ class FilmStage {
     }
 
     /**
-     * Draws a frame. `still` draws a picture instead (no captions, so the whole frame is the
-     * piece's), with the `added` parts lit in the accent colour: the parts a build step adds.
+     * Draws a frame. `still` frames it for no captions, so the whole frame is the piece's: a
+     * picture, or a swatches frame. Its `added` parts are lit in the accent colour: the parts a
+     * build step adds.
      */
     draw(
         pose: {
@@ -422,9 +474,9 @@ class FilmStage {
             orbit: number;
             framing: number;
         },
-        still?: { added: ReadonlySet<string> },
+        still?: { added?: ReadonlySet<string> },
     ): void {
-        if (still !== undefined) this.tint(still.added);
+        if (still?.added !== undefined) this.tint(still.added);
         for (const child of this.parts.children) {
             const path = this.paths.get(child.name);
             if (path === undefined) continue;
@@ -459,6 +511,21 @@ class FilmStage {
         const { width, height } = this.canvas;
         this.camera.setViewOffset(width, height, 0, (shift * height) / 2, width, height);
         this.renderer.render(this.scene, this.camera);
+    }
+
+    /** Paints every part that takes paint in `colour`: flat, no grain, a satin sheen. */
+    paint(colour: THREE.Color): void {
+        for (const material of this.paintable) {
+            if (!this.painted) {
+                material.map?.dispose();
+                material.map = null;
+                material.roughness = 0.5;
+                material.metalness = 0;
+                material.needsUpdate = true;
+            }
+            material.color.copy(colour);
+        }
+        this.painted = true;
     }
 
     /** Lights the given parts' own wood (not their hardware) in the accent colour; clears the rest. */

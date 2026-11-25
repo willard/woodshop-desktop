@@ -1,5 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { FILL_SECONDS, MIN_STEP_SECONDS, easeOutCubic, frameCount, planFilm, poseAt } from '../timeline';
+import {
+    FILL_SECONDS,
+    MIN_STEP_SECONDS,
+    SWATCH_BLEND,
+    SWATCH_SECONDS,
+    easeOutCubic,
+    frameCount,
+    paintAt,
+    planFilm,
+    poseAt,
+    randomPaints,
+    swatchCount,
+} from '../timeline';
 import type { AssemblyStep } from '@/cutlist';
 
 const steps: AssemblyStep[] = [
@@ -116,5 +128,45 @@ describe('a piece with props', () => {
     it('leaves a piece without props as it was', () => {
         expect(planFilm(steps, 30).fill).toBeNull();
         expect(planFilm(steps, 30).seconds).toBeCloseTo(30);
+    });
+});
+
+describe('the colour swatches film', () => {
+    /** A repeatable stand-in for Math.random. */
+    function seeded(seed: number): () => number {
+        let s = seed;
+        return () => {
+            s = (s * 1664525 + 1013904223) % 4294967296;
+            return s / 4294967296;
+        };
+    }
+
+    it('fits about one colour a second, never fewer than four', () => {
+        expect(swatchCount(15)).toBe(14);
+        expect(swatchCount(30)).toBe(27);
+        expect(swatchCount(2)).toBe(4);
+    });
+
+    it('picks colours at random, each clearly unlike the one before', () => {
+        const paints = randomPaints(40, seeded(7));
+        expect(paints).toHaveLength(40);
+        for (const p of paints) expect(p).toMatch(/^#[0-9a-f]{6}$/);
+        for (let i = 1; i < paints.length; i++) expect(paints[i]).not.toBe(paints[i - 1]);
+        expect(new Set(paints).size).toBeGreaterThan(30);
+        // Another run, another set.
+        expect(randomPaints(10, seeded(8))).not.toEqual(randomPaints(10, seeded(7)));
+    });
+
+    it('holds each colour, then changes quickly to the next', () => {
+        const paints = ['#111111', '#222222', '#333333'];
+        expect(paintAt(paints, 0)).toEqual({ from: '#111111', to: '#111111', mix: 1 });
+        expect(paintAt(paints, SWATCH_SECONDS + SWATCH_BLEND / 2)).toMatchObject({
+            from: '#111111',
+            to: '#222222',
+        });
+        expect(paintAt(paints, SWATCH_SECONDS + SWATCH_BLEND / 2).mix).toBeCloseTo(0.5);
+        expect(paintAt(paints, SWATCH_SECONDS * 1.5)).toEqual({ from: '#111111', to: '#222222', mix: 1 });
+        // Past the end it stays on the last.
+        expect(paintAt(paints, 99).to).toBe('#333333');
     });
 });

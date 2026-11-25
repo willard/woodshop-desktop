@@ -4,7 +4,7 @@
  * loaded only when this opens, so the editor does not carry the encoder.
  */
 import { useEffect, useRef, useState } from 'react';
-import { FILM_LENGTHS, FILM_SHAPES } from '@/video/timeline';
+import { FILM_LENGTHS, FILM_PRESETS, FILM_SHAPES, type FilmPreset } from '@/video/timeline';
 import type { ThemeName } from '@/engine/theme';
 import { activeTheme } from '@/lib/theme';
 import { Modal } from './Modal';
@@ -15,6 +15,7 @@ export interface VideoChoice {
     height: number;
     seconds: number;
     theme: ThemeName;
+    preset: FilmPreset['id'];
 }
 
 export function VideoDialog({
@@ -25,6 +26,7 @@ export function VideoDialog({
     onMake: (choice: VideoChoice, onProgress: (done: number) => void, signal: AbortSignal) => Promise<void>;
     onClose: () => void;
 }) {
+    const [preset, setPreset] = useState<FilmPreset['id']>('build');
     const [shape, setShape] = useState<string>('tall');
     const [length, setLength] = useState<string>('standard');
     const [theme, setTheme] = useState<ThemeName>(activeTheme());
@@ -58,6 +60,7 @@ export function VideoDialog({
                     height: chosen.height,
                     seconds: FILM_LENGTHS.find((l) => l.id === length)!.seconds,
                     theme,
+                    preset,
                 },
                 setProgress,
                 controller.signal,
@@ -71,12 +74,25 @@ export function VideoDialog({
     const busy = progress !== null;
     return (
         <Modal onClose={() => (busy ? abort.current?.abort() : onClose())} testId="video-dialog">
-            <h2 className="mb-1 text-[15px] font-semibold">Assembly video</h2>
-            <p className="text-muted mb-3 text-[13px]">
-                The piece built step by step, in the order the plan gives, with a caption for each step: an
-                MP4 ready to post.
+            <h2 className="mb-1 text-[15px] font-semibold">Video</h2>
+            <p className="text-muted mb-3 text-[13px]" data-testid="video-about">
+                {FILM_PRESETS.find((p) => p.id === preset)!.about} An MP4 ready to post.
             </p>
             <div className="mb-4 grid gap-2">
+                <Field label="Preset">
+                    <Select
+                        value={preset}
+                        disabled={busy}
+                        data-testid="video-preset"
+                        onChange={(e) => setPreset(e.target.value as FilmPreset['id'])}
+                    >
+                        {FILM_PRESETS.map((p) => (
+                            <option key={p.id} value={p.id}>
+                                {p.label}
+                            </option>
+                        ))}
+                    </Select>
+                </Field>
                 <Field label="Shape">
                     <Select
                         value={shape}
