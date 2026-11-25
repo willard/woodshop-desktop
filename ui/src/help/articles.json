@@ -292,6 +292,64 @@
         ]
     },
     {
+        "slug": "things-to-show",
+        "title": "Showing what it holds",
+        "icon": "📦",
+        "summary": "Totes on a rack, paint cans on a shelf: things shown with a piece so a client sees it in use, never built or bought.",
+        "blocks": [
+            {
+                "type": "p",
+                "text": "A piece can show the things it is made to hold, such as storage totes on a garage rack. They appear in the 3D view, the build video, the 3D plan and the 3D exports (glTF and AR), so a client sees the piece in use. They are never in the cut list, the cost, the hardware list or the overall size, and STL and OBJ exports leave them out."
+            },
+            {
+                "type": "h",
+                "text": "Add something"
+            },
+            {
+                "type": "ol",
+                "items": [
+                    "Open Add ▸ Things to show… in the editor toolbar.",
+                    "Pick a ready-made item, such as the HDX 27 gallon tote, and choose Add. It lands beside the piece.",
+                    "Or under Or make your own, choose Box, Bin, Pail, Can or Tote, then type its size. A bin or pail can be open at the top; a box, can or tote has a lid in a colour of its own.",
+                    "Or choose Import a 3D model (GLB, STL)… to bring in a file of the real thing (see below)."
+                ]
+            },
+            {
+                "type": "h",
+                "text": "Put it in place"
+            },
+            {
+                "type": "p",
+                "text": "Drag it in the 3D view. It sits on the top of whatever part is under the pointer, or on the floor, and snaps to the grid. Hold Shift to keep its height while you drag, hold Alt (Option on a Mac) to drag without snapping, and press Esc to put it back. Undo takes back the whole drag."
+            },
+            {
+                "type": "p",
+                "text": "For a tote on a rack, pick the two runners under Rest it on two parts and choose Rest: Woodshop hangs it by its rim between them and says whether it fits, or what is wrong (too wide, or it drops through). You can also type its position, which is the middle of its bottom, and turn it a quarter turn at a time. Click it in the 3D view to open it in the list."
+            },
+            {
+                "type": "h",
+                "text": "Import a 3D model"
+            },
+            {
+                "type": "p",
+                "text": "Woodshop imports GLB (binary glTF) and STL files. A GLB must hold everything in one file: one that points at textures beside it, or that is compressed with Draco, is refused with a note on how to export it again."
+            },
+            {
+                "type": "ul",
+                "items": [
+                    "Check the size it shows against the real thing: files often have the wrong scale. Say which unit the file is in, or type the length it should be.",
+                    "Choose Stand it up until its top is up, and Turn to face it the right way. STL files are usually Z up, and Woodshop starts them stood up.",
+                    "An STL has no colours, so pick one. A GLB keeps its own.",
+                    "Say where it came from and its licence. The 3D plan you send carries the model and credits it, so use one you may share."
+                ]
+            },
+            {
+                "type": "note",
+                "text": "An imported model is kept inside your library, so backups include it, and inside the .woodshop file when you share the design. A model can be 12 MB at most once imported; one with a great many triangles makes the view and the video slow."
+            }
+        ]
+    },
+    {
         "slug": "design-checks",
         "title": "Design checks",
         "icon": "✅",

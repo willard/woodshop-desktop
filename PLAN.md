@@ -887,6 +887,16 @@ the owner to check, as computer use of the app is declined.
   of the whole leaf (`leafDrop`), so a box wing's aprons fold clear. The view counter-folds the
   bracket legs (`bracketLegMatrix`), so they stay on the post. Tests: `tests/leaves.rs`, the MCP
   tools test, `leaves.spec.ts`.
+- **7.21 Things to show with a piece (spec 1.22).** Done (2026-11-24), from the owner's garage
+  tote rack (design 12): props, shown in the 3D view, the build video, the 3D plan and the glTF and
+  USDZ exports, never in the cut list, cost, hardware list or size (STL and OBJ leave them out).
+  A prop is a catalog item (`prop.tote-hdx-27gal`, category "props"), an imported model, or a
+  shape of its own (`box`, `round`, `tote`). Imports take GLB and STL, sized and stood up on
+  import and kept as one GLB in the library database (`models` table, 12 MB each) and in the
+  `.woodshop` archive; a GLB that reaches outside itself or needs Draco is refused. A tote rests
+  on two runners by its rim, with a fit check. Props drag in the view onto the up-facing part face
+  under the pointer, or the floor. Help article "Showing what it holds". Not yet checked in the
+  real app window: importing a file through `put_model` and `get_model`.
 - **7.20 Release v0.1.5.** Not started. Format 1.22 is unreleased: designs saved by a dev build
   open only in a dev build until 0.1.5 ships. Bump the versions and date the changelog once
   0.1.4 is published and the owner says go.
