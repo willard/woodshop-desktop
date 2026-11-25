@@ -302,6 +302,11 @@
                 "text": "A piece can show the things it is made to hold, such as storage totes on a garage rack. They appear in the 3D view, the build video, the 3D plan and the 3D exports (glTF and AR), so a client sees the piece in use. They are never in the cut list, the cost, the hardware list or the overall size, and STL and OBJ exports leave them out."
             },
             {
+                "type": "img",
+                "src": "props",
+                "alt": "A gallon paint can made with Things to show, standing on the sample nightstand's top. The overall size beside it is still the nightstand's own."
+            },
+            {
                 "type": "h",
                 "text": "Add something"
             },

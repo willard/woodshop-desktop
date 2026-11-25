@@ -78,7 +78,7 @@ async function openSample(page: Page, theme: Theme): Promise<void> {
     }, theme);
     await page.reload();
     await page.getByTestId('open-sample').click();
-    await expect(page.getByTestId('parts-count')).toHaveText('20 parts');
+    await expect(page.getByTestId('parts-count')).toHaveText('17 parts');
     await page.keyboard.press('Escape'); // the tour
     await expect(page.getByTestId('tour')).toHaveCount(0);
     await page.waitForTimeout(2000); // holes cut, frames settled
@@ -145,6 +145,23 @@ const SHOTS: Record<string, (page: Page, theme: Theme) => Promise<Buffer>> = {
             panel?.setAttribute('data-shot', 'panel');
         });
         return around(page, ['[data-shot="panel"]'], 0);
+    },
+
+    props: async (page) => {
+        // A gallon of paint, made with Things to show, standing on the nightstand's top.
+        await page.getByTestId('add-menu-toggle').click();
+        await page.getByTestId('add-props-menu').click();
+        await page.getByTestId('prop-make-can').click();
+        // The top is 24" × 16", centred on x = 0 and z = 0, its surface at y = 26.
+        for (const [i, v] of ['5', '26', '-2'].entries()) {
+            const input = page.getByTestId(`prop-pos-${i}`);
+            await input.fill(v);
+            await input.press('Enter');
+        }
+        await page.keyboard.press('Escape');
+        await expect(page.getByTestId('props-dialog')).toHaveCount(0);
+        await page.waitForTimeout(800);
+        return page.screenshot();
     },
 
     versions: async (page) => {
