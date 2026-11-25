@@ -13,7 +13,7 @@ use typst::text::{Font, FontBook};
 use typst::utils::LazyHash;
 use typst::{Library, LibraryExt, World};
 use typst_layout::PagedDocument;
-use woodshop_core::assembly::assembly_order;
+use woodshop_core::assembly::assembly_order_in;
 use woodshop_core::cutlist::grouping::{SectionKind, StockUnit};
 
 use woodshop_core::cutlist::{
@@ -447,11 +447,19 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
         hardware_priced: cut_list.hardware.iter().any(|h| h.cost.is_some()),
         drilling: drilling_notes(input.spec, units),
         joinery: joinery(input.spec, units),
-        assembly: assembly_order(input.spec)
+        assembly: assembly_order_in(input.spec, units)
             .into_iter()
             .enumerate()
             .map(|(i, step)| StepView {
                 picture: (i < input.step_pictures.len()).then(|| step_picture_path(i, &input.step_pictures[i])),
+                gather: step
+                    .pieces
+                    .iter()
+                    .map(|p| format!("{} × {} ({})", p.qty, p.name, p.size))
+                    .chain(step.hardware.iter().map(|h| format!("{} × {}", h.qty, h.description)))
+                    .collect::<Vec<_>>()
+                    .join(" · "),
+                check: step.check,
                 heading: step.heading,
                 lines: step.lines,
             })
@@ -563,6 +571,10 @@ static FONTS: LazyLock<Fonts> = LazyLock::new(|| {
 struct StepView {
     heading: String,
     lines: Vec<String>,
+    /// What to have to hand: the step's pieces, then its hardware.
+    gather: String,
+    /// A check before the next step.
+    check: Option<String>,
     picture: Option<String>,
 }
 
@@ -903,7 +915,7 @@ mod tests {
     fn each_assembly_step_carries_its_picture_and_the_design_its_build_notes() {
         let raw = include_str!("../../../resources/templates/bookshelf.json");
         let spec = spec::parse(serde_json::from_str(raw).unwrap()).unwrap();
-        let steps = assembly_order(&spec).len();
+        let steps = assembly_order_in(&spec, Units::Fraction).len();
         let input = PlanInput {
             title: "Bookshelf",
             spec: &spec,

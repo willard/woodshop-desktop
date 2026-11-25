@@ -59,17 +59,23 @@ export function stockAdvice(cutList: CutList, spec: Spec): StockSuggestion[] {
     return wasm.stockAdvice(cutList, spec) as StockSuggestion[];
 }
 
-/** One step of putting the piece together: a heading and a line per part or piece of hardware. */
+/** One step of putting the piece together: a heading and a line per part or piece of hardware,
+ * with what to have to hand for it and a check before the next step. */
 export interface AssemblyStep {
     heading: string;
     lines: string[];
     /** The parts this step puts in place; empty for the hardware step. */
     partIds: string[];
+    /** The cut pieces it puts in place, alike pieces counted together. */
+    pieces: { name: string; size: string; qty: number }[];
+    /** The screws it drives and the hardware it fits, worded as the shopping list. */
+    hardware: { qty: number; description: string }[];
+    check?: string;
 }
 
-/** The order to assemble the design, the same steps the PDF plan prints. */
-export function assemblyOrder(spec: Spec): AssemblyStep[] {
-    return wasm.assemblyOrder(spec) as AssemblyStep[];
+/** The order to assemble the design, the same steps the PDF plan prints, sized in `units`. */
+export function assemblyOrder(spec: Spec, units = getUnits()): AssemblyStep[] {
+    return wasm.assemblyOrder(spec, units) as AssemblyStep[];
 }
 
 /** One tool setting (a dado stack, bit or blade angle) and every cut made at it. */

@@ -10,10 +10,13 @@ use std::collections::HashSet;
 
 use serde::Serialize;
 
+use crate::cutlist::hardware::{Source, hardware_where};
 use crate::geometry::{Aabb, TOUCH_TOL, local_axes_world, separation, world_aabb};
 use crate::spec::{Joint, JointType, Movable, Op, Part, Spec};
+use crate::units::{Units, format_length, format_length_value};
 
-/// One step of the assembly: a heading and a line per part (or per piece of hardware).
+/// One step of the assembly: a heading and a line per part (or per piece of hardware), with
+/// what to have to hand for it and, where there is one, a check before moving on.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct AssemblyStep {
     pub heading: String,
@@ -22,6 +25,48 @@ pub struct AssemblyStep {
     /// the hardware step, which fits items to parts already standing.
     #[serde(rename = "partIds")]
     pub part_ids: Vec<String>,
+    /// The cut pieces this step puts in place, alike pieces counted together.
+    pub pieces: Vec<StepPiece>,
+    /// The hardware this step drives or fits: the screws of the joints it makes, the hinges and
+    /// slides of what it hangs, the items the hardware step fits.
+    pub hardware: Vec<StepHardware>,
+    /// A check to make before the next step, when the step has one worth making.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub check: Option<String>,
+}
+
+/// Pieces of one name and size, as the cut list has them.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct StepPiece {
+    pub name: String,
+    /// Length × width × thickness: `30" × 11 1/4" × 3/4"`, `762 × 286 × 19 mm`.
+    pub size: String,
+    pub qty: u32,
+}
+
+/// Hardware for a step, worded as the shopping list words it.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct StepHardware {
+    pub qty: u32,
+    pub description: String,
+}
+
+impl AssemblyStep {
+    fn new(heading: String, lines: Vec<String>, part_ids: Vec<String>) -> Self {
+        Self {
+            heading,
+            lines,
+            part_ids,
+            pieces: Vec::new(),
+            hardware: Vec::new(),
+            check: None,
+        }
+    }
+
+    fn checked(mut self, check: &str) -> Self {
+        self.check = Some(check.to_owned());
+        self
+    }
 }
 
 struct Node<'a> {
@@ -173,8 +218,87 @@ fn is_back(node: &Node, all: &Aabb, structure: usize) -> bool {
         && span(&node.aabb, 1) >= 0.6 * span(all, 1)
 }
 
-/// The steps, in order. Empty for a design with no parts.
+/// The steps, in order, sized in inches. Empty for a design with no parts.
 pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
+    assembly_order_in(spec, Units::Fraction)
+}
+
+/// [`assembly_order`], with the pieces' sizes and the hardware worded in `units`.
+pub fn assembly_order_in(spec: &Spec, units: Units) -> Vec<AssemblyStep> {
+    let mut steps = steps_of(spec);
+    gather(spec, units, &mut steps);
+    steps
+}
+
+/// `30" × 11 1/4" × 3/4"`, or `762 × 286 × 19 mm`.
+fn piece_size(l: f64, w: f64, t: f64, units: Units) -> String {
+    match units {
+        Units::Metric => format!(
+            "{} × {} × {} mm",
+            format_length_value(l, units),
+            format_length_value(w, units),
+            format_length_value(t, units)
+        ),
+        _ => format!(
+            "{} × {} × {}",
+            format_length(l, units),
+            format_length(w, units),
+            format_length(t, units)
+        ),
+    }
+}
+
+/// Fills in each step's pieces and hardware. A joint's screws are driven in the step that puts
+/// the later of its two parts in place; a fastener op no joint names, in its own part's step; a
+/// movable's hinges and slides where it is hung; mounted items in the hardware step.
+fn gather(spec: &Spec, units: Units, steps: &mut [AssemblyStep]) {
+    let step_of = |id: &str| steps.iter().position(|s| s.part_ids.iter().any(|p| p == id));
+    let fitting = steps.iter().rposition(|s| s.part_ids.is_empty());
+    let both = |a: &str, b: &str| step_of(a).zip(step_of(b)).map(|(x, y)| x.max(y));
+    let joints = spec.joints();
+    let place = |source: Source| -> Option<usize> {
+        match source {
+            Source::Op { part, index } => joints
+                .iter()
+                .find(|j| j.host_part_id == part && j.op_ref == Some(index))
+                .map_or_else(|| step_of(part), |j| both(&j.host_part_id, &j.insert_part_id)),
+            Source::Joint(j) => joints.get(j).and_then(|j| both(&j.host_part_id, &j.insert_part_id)),
+            Source::Movable(m) => spec.movables().get(m).and_then(|m| step_of(m.anchor_part_id())),
+            Source::Mount(i) => fitting.or_else(|| spec.hardware().get(i).and_then(|h| step_of(&h.part_id))),
+        }
+    };
+    let found: Vec<(Vec<StepPiece>, Vec<StepHardware>)> = (0..steps.len())
+        .map(|i| {
+            let mut pieces: Vec<StepPiece> = Vec::new();
+            for part in steps[i].part_ids.iter().filter_map(|id| spec.part(id)) {
+                let size = piece_size(part.size.l, part.size.w, spec.thickness_of(part).unwrap_or(0.0), units);
+                match pieces.iter_mut().find(|p| p.name == part.name && p.size == size) {
+                    Some(p) => p.qty += part.qty(),
+                    None => pieces.push(StepPiece {
+                        name: part.name.clone(),
+                        size,
+                        qty: part.qty(),
+                    }),
+                }
+            }
+            let hardware = hardware_where(spec, units, &|s| place(s) == Some(i))
+                .into_iter()
+                .map(|row| StepHardware {
+                    qty: row.qty,
+                    description: row.description,
+                })
+                .collect();
+            (pieces, hardware)
+        })
+        .collect();
+    for (step, (pieces, hardware)) in steps.iter_mut().zip(found) {
+        step.pieces = pieces;
+        step.hardware = hardware;
+    }
+}
+
+/// The steps without what to gather for them.
+fn steps_of(spec: &Spec) -> Vec<AssemblyStep> {
     let moving: HashSet<&str> = spec
         .movables()
         .iter()
@@ -262,11 +386,16 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
         }
         left.retain(|n| !batch.iter().any(|b| b.index == n.index));
         let part_ids = batch.iter().map(|n| n.part.id.to_string()).collect();
-        steps.push(AssemblyStep {
-            heading,
-            lines,
-            part_ids,
-        });
+        let mut step = AssemblyStep::new(heading, lines, part_ids);
+        // Legs and posts standing on the floor together: alike, so they should match.
+        let floor = (all.min[1] * 100.0).round() as i64;
+        if batch.len() >= 2 && low(next) == floor && batch.iter().all(|n| local_axes_world(n.part)[0][1].abs() > 0.9) {
+            step.check = Some(format!(
+                "Stand the {} side by side before you fasten anything to them: they should be one length.",
+                batch.len()
+            ));
+        }
+        steps.push(step);
     }
 
     if !backs.is_empty() {
@@ -276,11 +405,14 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
             lines.push(line(spec, n, &placed));
             placed.push(n);
         }
-        steps.push(AssemblyStep {
-            heading: format!("Close in the back with {}", and_list(&names)),
-            lines,
-            part_ids: backs.iter().map(|n| n.part.id.to_string()).collect(),
-        });
+        steps.push(
+            AssemblyStep::new(
+                format!("Close in the back with {}", and_list(&names)),
+                lines,
+                backs.iter().map(|n| n.part.id.to_string()).collect(),
+            )
+            .checked("Before you fasten the back, measure across the case's diagonals: when they match, it is square."),
+        );
     }
 
     for movable in spec.movables() {
@@ -302,11 +434,14 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
                 }
                 lines.retain(|l| members.iter().all(|n| *l != n.part.name));
                 lines.push("Fit it on its slides.".into());
-                steps.push(AssemblyStep {
-                    heading: format!("Build {}", name.unwrap_or_else(|| "the drawer".into())),
-                    lines,
-                    part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
-                });
+                steps.push(
+                    AssemblyStep::new(
+                        format!("Build {}", name.unwrap_or_else(|| "the drawer".into())),
+                        lines,
+                        members.iter().map(|n| n.part.id.to_string()).collect(),
+                    )
+                    .checked("Slide it in and out: it should run smoothly, with an even gap round the front."),
+                );
             }
             Movable::Leaf { .. } => {
                 let mut lines = Vec::new();
@@ -320,11 +455,16 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
                 } else {
                     "Hinge it to the piece, raise it level, and screw the folding brackets under it.".into()
                 });
-                steps.push(AssemblyStep {
-                    heading: format!("Hang {}", name.unwrap_or_else(|| "the leaf".into())),
-                    lines,
-                    part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
-                });
+                steps.push(
+                    AssemblyStep::new(
+                        format!("Hang {}", name.unwrap_or_else(|| "the leaf".into())),
+                        lines,
+                        members.iter().map(|n| n.part.id.to_string()).collect(),
+                    )
+                    .checked(
+                        "Raise it and lock it up: it should sit level with the top, and fold down without catching.",
+                    ),
+                );
             }
             Movable::Door { .. } => {
                 let mut lines = Vec::new();
@@ -332,11 +472,14 @@ pub fn assembly_order(spec: &Spec) -> Vec<AssemblyStep> {
                     lines.push(line(spec, n, &members[..i]));
                 }
                 lines.push("Hang it on its hinges.".into());
-                steps.push(AssemblyStep {
-                    heading: format!("Hang {}", name.unwrap_or_else(|| "the door".into())),
-                    lines,
-                    part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
-                });
+                steps.push(
+                    AssemblyStep::new(
+                        format!("Hang {}", name.unwrap_or_else(|| "the door".into())),
+                        lines,
+                        members.iter().map(|n| n.part.id.to_string()).collect(),
+                    )
+                    .checked("Swing it shut: the gap round it should be even, and it should close without rubbing."),
+                );
             }
         }
     }
@@ -358,19 +501,21 @@ fn hardware_step(spec: &Spec) -> Option<AssemblyStep> {
             None => fitted.push((item.to_owned(), part.to_owned(), 1)),
         }
     }
-    (!fitted.is_empty()).then(|| AssemblyStep {
-        part_ids: Vec::new(),
-        heading: "Fit the hardware".into(),
-        lines: fitted
-            .into_iter()
-            .map(|(item, part, n)| {
-                if n > 1 {
-                    format!("{n} × {item} on {part}.")
-                } else {
-                    format!("{item} on {part}.")
-                }
-            })
-            .collect(),
+    (!fitted.is_empty()).then(|| {
+        AssemblyStep::new(
+            "Fit the hardware".into(),
+            fitted
+                .into_iter()
+                .map(|(item, part, n)| {
+                    if n > 1 {
+                        format!("{n} × {item} on {part}.")
+                    } else {
+                        format!("{item} on {part}.")
+                    }
+                })
+                .collect(),
+            Vec::new(),
+        )
     })
 }
 
@@ -396,11 +541,11 @@ fn your_steps(spec: &Spec, nodes: &[Node], custom: &[crate::spec::BuildStep]) ->
                 }
                 placed.push(n);
             }
-            AssemblyStep {
-                heading: step.heading.clone(),
+            AssemblyStep::new(
+                step.heading.clone(),
                 lines,
-                part_ids: members.iter().map(|n| n.part.id.to_string()).collect(),
-            }
+                members.iter().map(|n| n.part.id.to_string()).collect(),
+            )
         })
         .collect()
 }
@@ -506,6 +651,55 @@ mod tests {
         assert_eq!(steps[0].lines[1], "Left Side: 2 pocket screws from Bottom.");
         // A part that no longer exists is dropped.
         assert_eq!(steps[1].part_ids.len(), 4);
+    }
+
+    #[test]
+    fn the_steps_hardware_adds_up_to_the_hardware_list() {
+        let dir = format!("{}/../../resources/templates", env!("CARGO_MANIFEST_DIR"));
+        for entry in std::fs::read_dir(dir).unwrap() {
+            let path = entry.unwrap().path();
+            let name = path.file_stem().unwrap().to_str().unwrap().to_owned();
+            let spec = template(&name);
+            for units in [Units::Fraction, Units::Metric] {
+                let steps = assembly_order_in(&spec, units);
+                let mut by_step: Vec<(String, u32)> = Vec::new();
+                for h in steps.iter().flat_map(|s| &s.hardware) {
+                    match by_step.iter_mut().find(|(d, _)| *d == h.description) {
+                        Some(e) => e.1 += h.qty,
+                        None => by_step.push((h.description.clone(), h.qty)),
+                    }
+                }
+                let mut list: Vec<(String, u32)> = crate::cutlist::hardware::compute_hardware_in(&spec, units)
+                    .into_iter()
+                    .filter(|r| r.kind != crate::cutlist::types::HardwareKind::EdgeBanding)
+                    .map(|r| (r.description, r.qty))
+                    .collect();
+                by_step.sort();
+                list.sort();
+                assert_eq!(by_step, list, "{name}");
+                // Every copy of every part is gathered once.
+                let pieces: u32 = steps.iter().flat_map(|s| &s.pieces).map(|p| p.qty).sum();
+                let parts: u32 = spec.parts.iter().map(Part::qty).sum();
+                assert_eq!(pieces, parts, "{name}");
+            }
+        }
+    }
+
+    #[test]
+    fn a_step_says_what_to_gather_and_what_to_check() {
+        let steps = assembly_order(&template("bookshelf"));
+        let sides = &steps[1];
+        assert_eq!(sides.pieces.len(), 2);
+        assert!(sides.pieces[0].size.ends_with(" × 3/4\""), "{:?}", sides.pieces);
+        assert!(
+            sides.hardware.iter().any(|h| h.description.contains("pocket screws")),
+            "{:?}",
+            sides.hardware
+        );
+        let back = steps.last().unwrap();
+        assert!(back.check.as_deref().unwrap().contains("diagonals"));
+        let metric = assembly_order_in(&template("bookshelf"), Units::Metric);
+        assert!(metric[1].pieces[0].size.ends_with(" mm"), "{:?}", metric[1].pieces);
     }
 
     #[test]

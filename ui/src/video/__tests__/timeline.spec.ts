@@ -15,14 +15,22 @@ import {
 import type { AssemblyStep } from '@/cutlist';
 
 const steps: AssemblyStep[] = [
-    { heading: 'Start with Bottom', lines: [], partIds: ['p_bottom'] },
+    { heading: 'Start with Bottom', lines: [], partIds: ['p_bottom'], pieces: [], hardware: [] },
     {
         heading: 'Add Left Side and Right Side',
         lines: ['Left Side: 2 pocket screws from Bottom.'],
         partIds: ['p_l', 'p_r'],
+        pieces: [],
+        hardware: [],
     },
-    { heading: 'Add Top', lines: ['Top: against Left Side (no joint recorded).'], partIds: ['p_top'] },
-    { heading: 'Fit the hardware', lines: ['Pull on Top.'], partIds: [] },
+    {
+        heading: 'Add Top',
+        lines: ['Top: against Left Side (no joint recorded).'],
+        partIds: ['p_top'],
+        pieces: [],
+        hardware: [],
+    },
+    { heading: 'Fit the hardware', lines: ['Pull on Top.'], partIds: [], pieces: [], hardware: [] },
 ];
 
 describe('planFilm', () => {
@@ -46,6 +54,8 @@ describe('planFilm', () => {
             heading: `Add ${i}`,
             lines: [],
             partIds: [`p_${i}`],
+            pieces: [],
+            hardware: [],
         }));
         const plan = planFilm(many, 15);
         expect(plan.steps[0].end - plan.steps[0].start).toBeCloseTo(MIN_STEP_SECONDS);

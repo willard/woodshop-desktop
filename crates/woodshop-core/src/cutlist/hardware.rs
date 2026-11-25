@@ -170,13 +170,38 @@ pub fn compute_hardware(spec: &Spec) -> Vec<HardwareRow> {
 
 /// [`compute_hardware`], worded in the buyer's units.
 pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
+    let mut rows = hardware_where(spec, units, &|_| true);
+    rows.extend(edge_banding(spec, units));
+    rows
+}
+
+/// What a hardware row is counted from, so a caller can keep only some of it (an assembly step
+/// lists only the metal it drives). Indices are into the spec's own lists.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Source<'a> {
+    /// A fastener op: the part and the op's index in its ops.
+    Op { part: &'a str, index: usize },
+    /// A joint with no fastener op behind it (its metal is estimated).
+    Joint(usize),
+    /// A movable's hinges, slides, brackets and pull.
+    Movable(usize),
+    /// A catalog item mounted on a part.
+    Mount(usize),
+}
+
+/// The hardware counted from the sources `keep` accepts, merged and in shop order. No edge
+/// banding: that goes on before anything is put together.
+pub fn hardware_where(spec: &Spec, units: Units, keep: &dyn Fn(Source) -> bool) -> Vec<HardwareRow> {
     let words = Words::new(units);
     let thickness_of = |p: &Part| spec.thickness_of(p).unwrap_or(0.0);
     let mut rows: Vec<Sized> = Vec::new();
 
     for part in &spec.parts {
         let qty = part.qty();
-        for op in part.ops() {
+        for (index, op) in part.ops().iter().enumerate() {
+            if !keep(Source::Op { part: &part.id, index }) {
+                continue;
+            }
             match op {
                 Op::PocketHoles(o) => {
                     let mate = mate_of(spec, part, JointType::PocketScrew);
@@ -227,11 +252,11 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
     }
 
     // Joints with no fastener op behind them: estimated, flagged, superseded once ops are placed.
-    for joint in spec.joints() {
+    for (index, joint) in spec.joints().iter().enumerate() {
         let (Some(host), Some(insert)) = (spec.part(&joint.host_part_id), spec.part(&joint.insert_part_id)) else {
             continue;
         };
-        if !needs_metal(joint.kind) {
+        if !needs_metal(joint.kind) || !keep(Source::Joint(index)) {
             continue; // dado, rabbet and butt need no metal of their own
         }
         if host.ops().iter().any(|op| backed_by(joint.kind, op)) {
@@ -285,10 +310,13 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
 
     // Movables: hinges, slides and knobs. `part.qty` is deliberately ignored — a movable names
     // specific part ids, one door or drawer each.
-    for movable in spec.movables() {
+    for (index, movable) in spec.movables().iter().enumerate() {
         let Some(anchor) = spec.part(movable.anchor_part_id()) else {
             continue;
         };
+        if !keep(Source::Movable(index)) {
+            continue;
+        }
         // A finish names itself on the hinges and the pull, and keeps them on rows of their own.
         let finish = movable.finish();
         let finished = |key: String, desc: String| match finish {
@@ -411,7 +439,10 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
 
     // Catalog hardware mounted on parts (1.15), counted per item. An unknown id still gets a row
     // so nothing bought is silently dropped.
-    for mount in spec.hardware() {
+    for (index, mount) in spec.hardware().iter().enumerate() {
+        if !keep(Source::Mount(index)) {
+            continue;
+        }
         let (kind, description) = match hardware::find(&mount.item) {
             Some(item) => (
                 match item.role {
@@ -467,7 +498,6 @@ pub fn compute_hardware_in(spec: &Spec, units: Units) -> Vec<HardwareRow> {
             .cmp(&b.kind)
             .then_with(|| locale_compare(&a.description, &b.description))
     });
-    merged.extend(edge_banding(spec, units));
     merged
 }
 

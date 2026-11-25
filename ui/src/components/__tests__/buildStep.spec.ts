@@ -3,10 +3,16 @@ import { hiddenAtStep } from '../BuildStepBar';
 
 describe('hiddenAtStep', () => {
     const steps = [
-        { heading: 'Start with Bottom', lines: [], partIds: ['bottom'] },
-        { heading: 'Add Left Side and Right Side', lines: [], partIds: ['left', 'right'] },
-        { heading: 'Add Top', lines: [], partIds: ['top'] },
-        { heading: 'Fit the hardware', lines: [], partIds: [] },
+        { heading: 'Start with Bottom', lines: [], partIds: ['bottom'], pieces: [], hardware: [] },
+        {
+            heading: 'Add Left Side and Right Side',
+            lines: [],
+            partIds: ['left', 'right'],
+            pieces: [],
+            hardware: [],
+        },
+        { heading: 'Add Top', lines: [], partIds: ['top'], pieces: [], hardware: [] },
+        { heading: 'Fit the hardware', lines: [], partIds: [], pieces: [], hardware: [] },
     ];
     const parts = ['bottom', 'left', 'right', 'top'];
 

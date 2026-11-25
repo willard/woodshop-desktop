@@ -271,9 +271,17 @@
   #v(2pt)
   #let words(step) = [
     *#step.heading*
+    #if step.gather != "" [
+      #v(-4pt)
+      #text(size: 8.5pt, fill: muted)[You need: #step.gather]
+    ]
     #if step.lines.len() > 0 [
       #v(-4pt)
       #list(marker: text(fill: muted, "–"), ..step.lines.map(line => text(size: 9pt, line)))
+    ]
+    #if step.check != none [
+      #v(-4pt)
+      #text(size: 9pt)[*Check:* #step.check]
     ]
   ]
   #enum(

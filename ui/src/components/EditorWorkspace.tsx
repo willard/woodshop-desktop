@@ -150,6 +150,7 @@ import { getUnits, len, useUnits } from '@/lib/display';
 import { plural } from '@/app/format';
 import { DrawingOverlay, type DrawingView } from './DrawingOverlay';
 import { BuildStepBar, hiddenAtStep } from './BuildStepBar';
+import { useBuildProgress } from '@/cutlist/progress';
 import { SizeLabels } from './SizeLabels';
 import { sizeGroups, type PlacedSize } from '@/engine/sizeLabels';
 import { assemblyOrder } from '@/cutlist';
@@ -464,7 +465,8 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
 
         // --- Stepping through the build: the engine hides what is not built yet. The user's own
         // hidden parts stay in `hiddenIds` and come back when the build view ends. ---
-        const buildSteps = useMemo(() => assemblyOrder(spec), [spec]);
+        const buildSteps = useMemo(() => assemblyOrder(spec, units), [spec, units]);
+        const buildProgress = useBuildProgress(props.projectId ?? '');
         const shownStep = buildStep === null ? null : Math.min(buildStep, buildSteps.length - 1);
         const buildActive = shownStep !== null && shownStep >= 0;
         const userHidden = useRef(hiddenIds);
@@ -2094,7 +2096,12 @@ export const EditorWorkspace = forwardRef<EditorWorkspaceHandle, EditorWorkspace
                             </div>
 
                             {buildActive && (
-                                <BuildStepBar steps={buildSteps} index={shownStep} onStep={setBuildStep} />
+                                <BuildStepBar
+                                    steps={buildSteps}
+                                    index={shownStep}
+                                    onStep={setBuildStep}
+                                    progress={props.projectId === undefined ? undefined : buildProgress}
+                                />
                             )}
 
                             {drawing !== null && spec.parts.length > 0 && (

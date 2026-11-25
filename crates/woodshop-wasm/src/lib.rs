@@ -325,11 +325,12 @@ pub fn stock_advice(cut_list: JsValue, spec: JsValue) -> JsResult<JsValue> {
     to_js(&cutlist::stock_advice(&cut_list, &spec_from_js(spec)?))
 }
 
-/// The order to put the design together, as printed on the PDF plan:
-/// `[{ heading, lines: string[] }]`.
+/// The order to put the design together, as printed on the PDF plan: `[{ heading, lines,
+/// partIds, pieces, hardware, check? }]`, sized in `units` (inches when left out).
 #[wasm_bindgen(js_name = assemblyOrder)]
-pub fn assembly_order(spec: JsValue) -> JsResult<JsValue> {
-    to_js(&woodshop_core::assembly::assembly_order(&spec_from_js(spec)?))
+pub fn assembly_order(spec: JsValue, units: Option<String>) -> JsResult<JsValue> {
+    let units = units_of(units.as_deref().unwrap_or("fraction"));
+    to_js(&woodshop_core::assembly::assembly_order_in(&spec_from_js(spec)?, units))
 }
 
 /// Each joint a part takes part in, in the assembly steps' words: `string[]`.

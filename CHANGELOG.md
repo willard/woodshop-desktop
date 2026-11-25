@@ -8,6 +8,13 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Build mode, step by step: each build step (Build in the 3D plan, Show on a step in the cut list)
+  now lists what you need for it, the pieces with their sizes and the screws and hardware it
+  uses, and where it matters a check to make before you move on (the diagonals before the back
+  goes on, the legs one length, a drawer that runs smoothly). Tick a step off with Done, next step;
+  the steps done are remembered on this device for each design, and Start over clears them. The
+  PDF plan prints the same list and check under each step, and agents read them in the cut list's
+  assembly order.
 - Video presets: the video dialog (Video in the cut list) now asks what to show. Build it, step by
   step is the assembly video as before; Colour swatches holds the finished piece still and paints
   it a new colour about every second, the way a maker shows a client the colours it comes in.

@@ -932,8 +932,25 @@ test('the 3D view steps through the build, one step at a time', async ({ page })
     const bar = page.getByTestId('build-step-bar');
     await expect(bar.getByTestId('build-step-count')).toHaveText(`Step 2 of ${await steps.count()}`);
     await expect(bar.getByTestId('build-step-heading')).toHaveText(second);
+    // What to have to hand: the step's pieces with their sizes.
+    await expect(bar.getByTestId('build-step-gather')).toContainText(/\d+ ×/);
     await page.getByTestId('build-step-prev').click();
     await expect(bar.getByTestId('build-step-count')).toHaveText(/^Step 1 of /);
+
+    // Ticked off as done, it moves on, and is remembered.
+    await bar.getByTestId('build-step-mark').click();
+    await expect(bar.getByTestId('build-step-count')).toHaveText(/^Step 2 of /);
+    const chips = bar.getByTestId('build-step-chip');
+    await expect(chips.first()).toHaveText('✓');
+    await expect(bar.getByTestId('build-step-done-count')).toHaveText('1 done');
+    await page.reload();
+    await page.getByTestId('cutlist-toggle').click();
+    await page.getByTestId('cutlist-assembly-toggle').click();
+    await steps.first().getByTestId('assembly-step-show').click();
+    await expect(bar.getByTestId('build-step-mark')).toHaveText('✓ Done');
+    await bar.getByTestId('build-step-reset').click();
+    await expect(bar.getByTestId('build-step-mark')).not.toHaveText('✓ Done');
+    await expect(chips.first()).toHaveText('1');
     await page.getByTestId('build-step-done').click();
     await expect(bar).toHaveCount(0);
 });

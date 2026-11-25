@@ -4,6 +4,7 @@ import { KeepAwake } from './KeepAwake';
 import { CutListPanel } from '@/components/CutListPanel';
 import { BuildStepBar, hiddenAtStep } from '@/components/BuildStepBar';
 import { assemblyOrder } from '@/cutlist';
+import { useBuildProgress } from '@/cutlist/progress';
 import type { ThemeName } from '@/engine/theme';
 import { ViewerCanvas, type ViewerCanvasHandle } from './ViewerCanvas';
 import { PartDetail } from './PartDetail';
@@ -18,7 +19,8 @@ export function ViewerApp({ payload, arHref }: { payload: ExportPayload; arHref?
     const viewer = useRef<ViewerCanvasHandle>(null);
     /** Stepping through the build on a tablet: the step shown, or null for the whole piece. */
     const [buildStep, setBuildStep] = useState<number | null>(null);
-    const steps = useMemo(() => assemblyOrder(payload.spec), [payload.spec]);
+    const steps = useMemo(() => assemblyOrder(payload.spec, payload.units), [payload.spec, payload.units]);
+    const buildProgress = useBuildProgress(`viewer:${payload.spec.name}`);
     // While building, the parts not yet built hide and the step's new parts are outlined.
     const shownHidden = useMemo(
         () =>
@@ -122,7 +124,12 @@ export function ViewerApp({ payload, arHref }: { payload: ExportPayload; arHref?
                         models={payload.models}
                     />
                     {buildStep !== null && (
-                        <BuildStepBar steps={steps} index={buildStep} onStep={setBuildStep} />
+                        <BuildStepBar
+                            steps={steps}
+                            index={buildStep}
+                            onStep={setBuildStep}
+                            progress={buildProgress}
+                        />
                     )}
                 </div>
                 <div

@@ -955,13 +955,22 @@ cut list with board and sheet layouts, cost from a price list, the shopping list
 prices and add-to-cart (prices go stale, US stores only, and it would need a server), and a
 newsletter. Start with 8a in order; 8b waits on the owner (see "Owner decisions still open").
 
-Progress (steps done, pieces cut, things owned) is the user's, not the design's: keep it in the
-library database keyed by project id, not in the spec, so no spec change and nothing leaks into a
-shared `.woodshop` file or the gallery. Reset clears it.
+Progress (steps done, pieces cut, things owned) is the user's, not the design's: keep it on the
+device per design, as the cut list's ticks already are (`ui/src/cutlist/progress.ts`,
+`localStorage` keyed by project id, or `viewer:<name>` in the 3D plan), not in the spec, so no
+spec change and nothing leaks into a shared `.woodshop` file or the gallery. Reset clears it.
 
 ### 8a. In the shop
 
-- **8.1 Build mode, step by step.** Not started. The viewer's `BuildStepBar` steps through the
+- **8.1 Build mode, step by step.** Done (2026-11-25). `AssemblyStep` carries `pieces`
+  (name, size in the display units, qty), `hardware` (from `hardware_where`, the hardware list
+  split by `Source`: a joint's screws in the step that places its later part, an unjoined fastener
+  op in its part's step, a movable's in its step, mounted items in the hardware step) and `check`
+  (legs standing on the floor together, the back, drawers, doors, leaves); WASM
+  `assemblyOrder(spec, units)`, `assembly_order_in`. `BuildStepBar` shows You need, the check, step
+  chips and Done, next step, with `useBuildProgress`; the PDF prints You need and Check. Tests:
+  the steps' hardware adds up to the hardware list for every template, in both units; e2e in the
+  editor and the 3D plan. The original notes follow. The viewer's `BuildStepBar` steps through the
   parts; make each step a page someone can work from on a phone or tablet:
   - Gather for this step: the cut pieces (name, size, count) and the hardware it uses, from the
     step's `partIds` and the fasteners the assembly order already counts. Core: add
@@ -974,7 +983,8 @@ shared `.woodshop` file or the gallery. Reset clears it.
     page's own `localStorage`, as it runs offline).
   - Done when: the nightstand steps through at phone size with what to gather on each step; the
     PDF prints the same lists; ticks survive a restart; an e2e test.
-- **8.2 Tick off the cuts.** Not started. On the board and sheet layouts in `CutListPanel` and
+- **8.2 Tick off the cuts.** Not started. The cut list's rows already tick off
+  (`useCutProgress`, `cutlist-cut-tick`); what is missing is on the layouts. On the board and sheet layouts in `CutListPanel` and
   the 3D plan: click a piece when it is cut (again to undo), with "3 of 17 cut" per board or sheet
   and the offcuts labelled with their size. Also a plain checklist view of the same pieces, and
   Print cut list (the layouts and checklist alone, without the rest of the plan). Done when: the

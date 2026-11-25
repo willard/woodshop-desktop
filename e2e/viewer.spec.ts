@@ -112,8 +112,10 @@ test('an exported plan opens from a file and works offline', async ({ page }, in
     const bar = page.getByTestId('build-step-bar');
     await expect(bar.getByTestId('build-step-count')).toHaveText(/^Step 1 of \d+$/);
     await expect(page.getByTestId('build-step-prev')).toBeDisabled();
-    await page.getByTestId('build-step-next').click();
+    await expect(bar.getByTestId('build-step-gather')).toContainText(/\d+ ×/);
+    await bar.getByTestId('build-step-mark').click();
     await expect(bar.getByTestId('build-step-count')).toHaveText(/^Step 2 of /);
+    await expect(bar.getByTestId('build-step-chip').first()).toHaveText('✓');
     await page.getByTestId('build-step-done').click();
     await expect(bar).toHaveCount(0);
 
