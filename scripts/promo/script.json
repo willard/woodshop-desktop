@@ -1,0 +1,61 @@
+{
+    "about": "The promo video, shot by shot. `source` is a recorded scene (a folder in out/) or a film (film-build, film-swatches); `from` and `seconds` cut it, `speed` plays it faster. `crop` is the part of a recorded scene to show, [x, y, width, height] in the app's CSS pixels (1000 × 900), scaled to the video's width under the caption. `title` is the caption, with *stars* round the words in amber; `at: bottom` puts it low, clear of a film's piece; `inset` sets a film smaller, under the caption.",
+    "width": 1080,
+    "height": 1920,
+    "fade": 0.3,
+    "shots": [
+        {
+            "source": "film-swatches",
+            "from": 0.2,
+            "seconds": 3.4,
+            "title": "Plan your next build *before you cut a board*",
+            "at": "bottom"
+        },
+        {
+            "source": "templates",
+            "from": 0.3,
+            "seconds": 4.2,
+            "title": "Start from *30+ free plans*",
+            "crop": [0, 40, 660, 880]
+        },
+        {
+            "source": "editor",
+            "from": 0.2,
+            "seconds": 5,
+            "title": "Change anything *in 3D*",
+            "crop": [0, 60, 640, 840]
+        },
+        {
+            "source": "checks",
+            "from": 0.2,
+            "seconds": 4.6,
+            "title": "It tells you if it *can really be built*",
+            "crop": [0, 60, 640, 840]
+        },
+        {
+            "source": "cutlist",
+            "from": 0.4,
+            "seconds": 4.6,
+            "title": "Get the *cut list* and *sheet layout*",
+            "crop": [630, 60, 370, 490]
+        },
+        {
+            "source": "film-build",
+            "from": 2.2,
+            "seconds": 5.4,
+            "speed": 4,
+            "inset": true,
+            "title": "Step-by-step *assembly*, ready to share"
+        },
+        { "source": "end", "seconds": 4 }
+    ],
+    "end": {
+        "name": "Woodshop",
+        "lines": [
+            "Furniture design for woodworkers",
+            "*Free & open source* · Mac, Windows, Linux",
+            "No account. Works offline."
+        ],
+        "link": "github.com/willard/woodshop-desktop"
+    }
+}

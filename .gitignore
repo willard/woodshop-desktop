@@ -15,3 +15,6 @@ playwright-report/
 .idea/
 src-tauri/gen/schemas/
 ui/public/third-party-notices.txt
+
+# The promo video's recordings and output (npm run promo)
+scripts/promo/out/

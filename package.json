@@ -22,6 +22,7 @@
     "notices": "node scripts/notices.mjs",
     "thumbnails": "playwright test -c scripts/thumbnails/playwright.config.ts",
     "help-shots": "playwright test -c scripts/help-shots/playwright.config.ts",
+    "promo": "playwright test -c scripts/promo/playwright.config.ts && node scripts/promo/compose.mjs",
     "site": "node scripts/site/build.mjs"
   },
   "dependencies": {
