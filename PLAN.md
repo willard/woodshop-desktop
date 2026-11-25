@@ -944,6 +944,81 @@ the owner to check, as computer use of the app is declined.
     passed through WASM and MCP (agents may stay in English).
   Then translate. Large, and touches nearly every file.
 
+## Phase 8: Gaps against Build Plans
+
+From a comparison on 2026-11-25 with Build Plans (buildplans.diy: a free website of 16 fixed
+plans, each resizable by length, depth and height within set ranges). It is not a design tool,
+but it serves the person in the shop far better than we do: what to buy, what to cut, what to do
+next, ticked off as they go. Already covered, so not listed: 3D drawings of each step (7.2), a
+cut list with board and sheet layouts, cost from a price list, the shopping list across designs
+(`ShoppingPage`), inch and mm, a step-by-step build video (7.22). Left out on purpose: live store
+prices and add-to-cart (prices go stale, US stores only, and it would need a server), and a
+newsletter. Start with 8a in order; 8b waits on the owner (see "Owner decisions still open").
+
+Progress (steps done, pieces cut, things owned) is the user's, not the design's: keep it in the
+library database keyed by project id, not in the spec, so no spec change and nothing leaks into a
+shared `.woodshop` file or the gallery. Reset clears it.
+
+### 8a. In the shop
+
+- **8.1 Build mode, step by step.** Not started. The viewer's `BuildStepBar` steps through the
+  parts; make each step a page someone can work from on a phone or tablet:
+  - Gather for this step: the cut pieces (name, size, count) and the hardware it uses, from the
+    step's `partIds` and the fasteners the assembly order already counts. Core: add
+    `pieces` and `hardware` to `AssemblyStep`, so the PDF, the MCP cut list and the UI agree.
+  - The step's own lines (as now), and a "Check before you move on" line where the core can say
+    one (square a carcase: diagonals equal; legs one height; a drawer slides before the front
+    goes on), from the step's joints and parts.
+  - Mark done, then next; done steps ticked in the step list, kept per design (see above).
+  - In the editor's plan, the viewer and the exported 3D plan (the plan keeps its ticks in the
+    page's own `localStorage`, as it runs offline).
+  - Done when: the nightstand steps through at phone size with what to gather on each step; the
+    PDF prints the same lists; ticks survive a restart; an e2e test.
+- **8.2 Tick off the cuts.** Not started. On the board and sheet layouts in `CutListPanel` and
+  the 3D plan: click a piece when it is cut (again to undo), with "3 of 17 cut" per board or sheet
+  and the offcuts labelled with their size. Also a plain checklist view of the same pieces, and
+  Print cut list (the layouts and checklist alone, without the rest of the plan). Done when: the
+  ticks survive a restart and a reflow of the layout keeps them on the same pieces (key by part id
+  and copy, not by position); an e2e test.
+- **8.3 Tools for the build.** Not started. Core: `tools(spec)` lists the tools a design needs,
+  from its ops and joinery setups (`joinery.rs`) and its materials: a saw for the crosscuts, a
+  table or track saw for sheet rips, a drill and the bit sizes from holes, a router and bits for
+  dados and roundovers, a dado stack, clamps by the widest glue-up, a pocket-hole jig. Each is
+  required or nice to have ("a miter saw makes the crosscuts easier"), with what it is for. Shown
+  on the template card, in the cut list beside the shopping list, on the PDF, and in the MCP cut
+  list. Done when: every template lists tools that a Rust test checks against its ops (a dado
+  means a router or dado stack, a hole means a drill and that bit).
+- **8.4 Have it / need it.** Not started, after 8.3. In the shopping list and on the shopping
+  page, tick what you already have (boards, sheets, a box of screws, each tool), with "13 to get"
+  and a Print list of only what is left to buy. Kept per design, and the shopping page adds up
+  only what is still needed across the designs ticked. Done when: an e2e test; the CSV export
+  follows the ticks.
+- **8.5 What it takes, on the template card.** Not started, after 8.3. Each template card and
+  plan header says, from the design: the hours of assembly (a rough sum per step: per part, per
+  fastener, per glue-up, kept in one table in the core), the kinds of cut ("straight cuts" or
+  "dados, curves") and joint ("screwed joints", "pocket holes", "mortise and tenon"), and the tool
+  count. Filter templates by them ("no router", "one weekend"). Done when: the numbers are within
+  reason for the nightstand and workbench, checked by the owner; a unit test of the sum.
+
+### 8b. Bigger bets (owner decides first)
+
+- **8.6 Resize a template.** Build Plans' core idea: three sliders and the whole plan follows.
+  Quick build (7.4) does it for four plain kinds; a template is fixed JSON. Two ways:
+  - Stretch planes: a template names its stretch planes (`meta.resize`, spec 1.23: for each of
+    width, depth and height, a plane and a range), and a part crossing a plane grows while a part
+    past it moves; ops past the plane move with their end. Works for most boxes and tables
+    without code per template; breaks on angled or curved parts that cross a plane, which the
+    linter then flags.
+  - A generator per template in the core, as quick build: exact, but code for each one.
+  Try stretch planes first on the bookcase and the workbench-style templates. The UI is a
+  Resize panel on the template page (width, depth, height and the allowed range, with a live
+  view and the cut list and cost following), and the result is an ordinary design. Done when: the
+  chosen templates lint clean across a grid of sizes (a property test, as quick build's).
+- **8.7 A web page per template.** Build Plans is found through search ("2x4 workbench plans");
+  a desktop app is not. A static site, built in CI from the templates: each template's picture,
+  sizes, cut list, tools and the 3D plan page we already export, with Download Woodshop. Hosting
+  (GitHub Pages) and the domain are the owner's call.
+
 ---
 
 ## Owner decisions still open
@@ -960,6 +1035,8 @@ Ask before starting the phase that needs them. Do not guess.
 | Hosted crash reporting (Sentry) or GitHub issues only | Phase 3 |
 | Plans from known makers: who, and under what licence | Phase 7.14 |
 | Translation: whether to take on French (touches nearly every file) | Phase 7.15 |
+| Resizable templates: stretch planes (spec 1.23) or a generator per template | Phase 8.6 |
+| A website of template pages: whether, where it is hosted, and the domain | Phase 8.7 |
 
 Decided: repository `willard/woodshop-desktop`, public (2026-11-12); updater key
 password-protected, backed up by the owner (2026-11-12); design gallery in a GitHub Discussions
