@@ -996,7 +996,12 @@ spec change and nothing leaks into a shared `.woodshop` file or the gallery. Res
   Print cut list (the layouts and checklist alone, without the rest of the plan). Done when: the
   ticks survive a restart and a reflow of the layout keeps them on the same pieces (key by part id
   and copy, not by position); an e2e test.
-- **8.3 Tools for the build.** Not started. Core: `tools(spec)` lists the tools a design needs,
+- **8.3 Tools for the build.** Done (2026-11-25). `woodshop-core::tools` (`tools(spec, units)`,
+  `card_tools` for the template card without the tape measure and clamps every build has); wasm
+  `tools` and `cardTools`; `TemplateSummary.tools`; a Tools section (folded) in `CutListPanel`
+  before Joinery; a Tools table after Hardware on the PDF; `tools` in the MCP `get_cut_list`, in
+  `summary` too. Tested: every template against its ops and materials (`tools.rs`), the MCP
+  test, and the e2e "a template says what tools it needs…". The plan as written: Core: `tools(spec)` lists the tools a design needs,
   from its ops and joinery setups (`joinery.rs`) and its materials: a saw for the crosscuts, a
   table or track saw for sheet rips, a drill and the bit sizes from holes, a router and bits for
   dados and roundovers, a dado stack, clamps by the widest glue-up, a pocket-hole jig. Each is

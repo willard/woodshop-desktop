@@ -1191,7 +1191,10 @@ fn hardware_comes_off_a_part_in_one_call_and_goes_with_a_replaced_part() {
     let short = ok(&w, "get_cut_list", json!({ "project_id": id, "detail": "summary" }));
     let mut keys: Vec<&str> = short.as_object().unwrap().keys().map(String::as_str).collect();
     keys.sort_unstable();
-    assert_eq!(keys, ["hardware", "more", "name", "projectId", "sections", "totals"]);
+    assert_eq!(
+        keys,
+        ["hardware", "more", "name", "projectId", "sections", "tools", "totals"]
+    );
     assert!(err(&w, "get_cut_list", json!({ "project_id": id, "detail": "brief" })).contains("summary"));
 }
 
@@ -1391,4 +1394,22 @@ fn a_tote_is_placed_moved_and_removed_as_a_prop_and_never_counted() {
         )
         .contains("No prop")
     );
+}
+
+#[test]
+fn the_cut_list_names_the_tools_for_the_build() {
+    let w = woodshop();
+    let started = ok(&w, "start_from_template", json!({ "template": "record-stand-dado" }));
+    let id = started["projectId"].as_i64().unwrap();
+    for detail in ["full", "summary"] {
+        let list = ok(&w, "get_cut_list", json!({ "project_id": id, "detail": detail }));
+        let tools = list["tools"].as_array().unwrap();
+        let dado = tools.iter().find(|t| t["name"] == "Router or dado stack").unwrap();
+        assert_eq!(dado["required"], true);
+        assert!(dado["detail"].as_str().unwrap().contains("wide"), "{dado}");
+        assert!(
+            tools.iter().any(|t| t["required"] == false),
+            "{detail}: no nice-to-have"
+        );
+    }
 }

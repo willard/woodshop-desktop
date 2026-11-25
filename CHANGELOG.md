@@ -8,6 +8,11 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Tools for the build: each design lists the tools it needs, from its materials and its cuts
+  (a track or table saw for the sheets, a router or dado stack for the dados, a drill and the
+  bit sizes for the holes, a pocket-hole jig, clamps long enough for the piece), each needed or
+  nice to have and what it is for. On the template cards, under Tools in the cut list, on the PDF
+  plan, and for agents in the cut list.
 - Tick off the cuts on the layouts: click a piece on a sheet or board layout once it is cut
   (again to undo), and each sheet and board says how many of its pieces are cut. The leftovers
   are labelled with their sizes. A Checklist view lists the same pieces to tick, sheet by sheet,

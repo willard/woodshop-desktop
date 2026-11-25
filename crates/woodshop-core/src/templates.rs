@@ -41,6 +41,8 @@ pub struct TemplateSummary {
     /// What to buy, from the cut list at the default kerf.
     pub sheet_count: usize,
     pub board_feet: f64,
+    /// The tools it needs beyond the tape measure and clamps every build has, by name.
+    pub tools: Vec<String>,
 }
 
 /// Every template, sorted by name.
@@ -69,6 +71,7 @@ pub fn all() -> Vec<TemplateSummary> {
                 overall: overall_size(&spec),
                 sheet_count: totals.sheet_count,
                 board_feet: totals.board_feet,
+                tools: crate::tools::card_tools(&spec),
             })
         })
         .collect();

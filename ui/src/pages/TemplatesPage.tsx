@@ -139,6 +139,11 @@ function TemplateCard({
                 <p className="text-faint mt-auto pt-2 text-xs" data-testid="template-facts">
                     {facts.join(' · ')}
                 </p>
+                {t.tools.length > 0 && (
+                    <p className="text-faint text-xs leading-snug" data-testid="template-tools">
+                        <span className="text-muted">Tools:</span> {t.tools.join(', ')}
+                    </p>
+                )}
                 <span
                     aria-hidden="true"
                     className={`border-fg/12 text-fg/75 mt-2 self-start rounded-md border px-2.5 py-1 text-xs ${busy ? 'opacity-60' : ''}`}

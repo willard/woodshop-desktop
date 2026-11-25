@@ -2011,3 +2011,24 @@ test('pieces tick off on the layouts and the checklist, and the cut list prints 
     await page.emulateMedia({ media: 'screen' });
     await expect(printed).toBeHidden();
 });
+
+test('a template says what tools it needs, and so does its cut list', async ({ page }) => {
+    await page.goto('/#/templates');
+    const card = page
+        .getByTestId('template-card')
+        .filter({ has: page.getByRole('heading', { name: 'Kitchen Cart', exact: true }) });
+    await expect(card.getByTestId('template-tools')).toContainText('Tools: Track saw or table saw');
+    await expect(card.getByTestId('template-tools')).toContainText('Pocket-hole jig');
+    await card.getByTestId('use-template').click();
+    await page.getByTestId('cutlist-toggle').click();
+    const tools = page.getByTestId('cutlist-tools');
+    await expect(tools).toContainText(/Tools\(\d+ needed, \d+ nice to have\)/);
+    await page.getByTestId('cutlist-tools-toggle').click();
+    await expect(page.getByTestId('cutlist-tool').first()).toContainText('Tape measure and square');
+    await expect(page.getByTestId('cutlist-tool').filter({ hasText: 'Miter saw' })).toContainText(
+        'nice to have',
+    );
+    await expect(page.getByTestId('cutlist-tool').filter({ hasText: 'Clamps' })).toContainText(
+        /at least \d+" long/,
+    );
+});

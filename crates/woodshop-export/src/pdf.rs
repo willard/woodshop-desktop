@@ -24,6 +24,7 @@ use woodshop_core::geometry::overall_size;
 use woodshop_core::joinery::{Joinery, joinery};
 use woodshop_core::movables::derived_borings;
 use woodshop_core::spec::{AppearanceKind, Edge, MaterialType, Movable, Spec};
+use woodshop_core::tools::{Tool, tools};
 use woodshop_core::units::{Units, format_finish, format_length, format_length_value, format_weight};
 
 use crate::ExportError;
@@ -88,6 +89,8 @@ struct PlanView {
     hardware_priced: bool,
     /// Holes the hardware needs that are on no part's op list: hinge cups.
     drilling: Vec<String>,
+    /// The tools the build needs, required ones first.
+    tools: Vec<Tool>,
     /// Each tool setting the joinery needs and each part's joinery, in shop words.
     joinery: Joinery,
     sheets: Vec<SheetView>,
@@ -446,6 +449,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
             .collect(),
         hardware_priced: cut_list.hardware.iter().any(|h| h.cost.is_some()),
         drilling: drilling_notes(input.spec, units),
+        tools: tools(input.spec, units),
         joinery: joinery(input.spec, units),
         assembly: assembly_order_in(input.spec, units)
             .into_iter()

@@ -339,6 +339,18 @@ pub fn part_joints(spec: JsValue, part_id: &str) -> JsResult<JsValue> {
     to_js(&woodshop_core::assembly::part_joints(&spec_from_js(spec)?, part_id))
 }
 
+/// The tools the design needs, required ones first: `[{ name, required, usedFor, detail? }]`.
+#[wasm_bindgen(js_name = tools)]
+pub fn tools(spec: JsValue, units: &str) -> JsResult<JsValue> {
+    to_js(&woodshop_core::tools::tools(&spec_from_js(spec)?, units_of(units)))
+}
+
+/// The required tools named on a template card: all but the tape measure and clamps.
+#[wasm_bindgen(js_name = cardTools)]
+pub fn card_tools(spec: JsValue) -> JsResult<JsValue> {
+    to_js(&woodshop_core::tools::card_tools(&spec_from_js(spec)?))
+}
+
 /// The design's joinery in shop words, as printed on the PDF plan: `{ setups, parts }`.
 #[wasm_bindgen(js_name = joinery)]
 pub fn joinery(spec: JsValue, units: &str) -> JsResult<JsValue> {

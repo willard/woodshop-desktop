@@ -119,6 +119,8 @@ export interface TemplateSummary {
     overall: { width: number; depth: number; height: number } | null;
     sheetCount: number;
     boardFeet: number;
+    /** The tools it needs beyond the tape measure and clamps every build has. */
+    tools: string[];
 }
 
 export type Author = 'user' | 'mcp';

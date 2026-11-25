@@ -17,4 +17,5 @@ pub mod quickbuild;
 pub mod spec;
 #[cfg(feature = "validate")]
 pub mod templates;
+pub mod tools;
 pub mod units;

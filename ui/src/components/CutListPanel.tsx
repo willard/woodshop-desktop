@@ -9,6 +9,7 @@ import { useCallback, useMemo, useState, type MouseEvent } from 'react';
 import {
     assemblyOrder,
     joinery,
+    tools,
     computeCutList,
     groupCutList,
     stockAdvice,
@@ -143,6 +144,8 @@ export function CutListPanel(props: CutListPanelProps) {
     const [editingSteps, setEditingSteps] = useState(false);
     const work = useMemo(() => joinery(spec, units), [spec, units]);
     const [joineryOpen, setJoineryOpen] = useState(false);
+    const toolList = useMemo(() => tools(spec, units), [spec, units]);
+    const [toolsOpen, setToolsOpen] = useState(false);
     const overall = useMemo(() => overallSize(spec), [spec]);
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
     const [fastenersOpen, setFastenersOpen] = useState(false);
@@ -726,6 +729,50 @@ export function CutListPanel(props: CutListPanelProps) {
                                 </li>
                             ))}
                         </ol>
+                    )}
+                </div>
+            )}
+
+            {toolList.length > 0 && (
+                <div className="mb-4" data-testid="cutlist-tools">
+                    <button
+                        className="mb-2 flex w-full items-center text-left"
+                        aria-expanded={toolsOpen}
+                        onClick={() => setToolsOpen(!toolsOpen)}
+                        data-testid="cutlist-tools-toggle"
+                    >
+                        {toolsOpen ? (
+                            <ChevronDown size={13} aria-hidden="true" className="text-faint mr-1" />
+                        ) : (
+                            <ChevronRight size={13} aria-hidden="true" className="text-faint mr-1" />
+                        )}
+                        <span className="text-muted text-xs font-semibold tracking-wider uppercase">
+                            Tools
+                        </span>
+                        <span className="text-faint ml-1 text-xs">
+                            ({toolList.filter((t) => t.required).length} needed
+                            {toolList.some((t) => !t.required) &&
+                                `, ${toolList.filter((t) => !t.required).length} nice to have`}
+                            )
+                        </span>
+                    </button>
+                    {toolsOpen && (
+                        <ul className="bg-surface-2 space-y-1.5 rounded-lg px-3 py-2">
+                            {toolList.map((t) => (
+                                <li key={t.name} data-testid="cutlist-tool">
+                                    <span className={t.required ? 'font-medium' : 'text-fg/80'}>
+                                        {t.name}
+                                    </span>
+                                    {!t.required && (
+                                        <span className="text-faint text-xs"> · nice to have</span>
+                                    )}
+                                    <div className="text-fg/70 text-xs">
+                                        {t.usedFor}
+                                        {t.detail && <span className="text-faint"> · {t.detail}</span>}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
                     )}
                 </div>
             )}

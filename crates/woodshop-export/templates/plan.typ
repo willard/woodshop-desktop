@@ -124,6 +124,22 @@
   }
 ]
 
+#if data.tools.len() > 0 [
+  == Tools
+  #table(
+    columns: (4%, 34%, 62%),
+    stroke: (_, y) => (bottom: 0.5pt + faint),
+    inset: (x: 3pt, y: 4pt),
+    align: (center, left, left),
+    table.header([], label("Tool"), label("For")),
+    ..data.tools.map(t => (
+      if t.required { "☐" } else { text(fill: muted, "☐") },
+      [#if t.required [*#t.name*] else [#t.name #text(size: 7.5pt, fill: muted)[(nice to have)]]],
+      [#text(size: 9pt, t.usedFor) #if "detail" in t [ \ #text(size: 8pt, fill: muted, t.detail)]],
+    )).flatten(),
+  )
+]
+
 #if data.joinery.setups.len() > 0 or data.joinery.parts.len() > 0 [
   == Joinery and shaping
   #if data.joinery.setups.len() > 0 [

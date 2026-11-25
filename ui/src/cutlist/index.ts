@@ -101,3 +101,19 @@ export interface Joinery {
 export function joinery(spec: Spec, units = getUnits()): Joinery {
     return wasm.joinery(spec, units) as Joinery;
 }
+
+/** One tool for the build (`woodshop-core::tools`). */
+export interface Tool {
+    name: string;
+    /** False for one that makes the work easier but can be done without. */
+    required: boolean;
+    /** What it is for. */
+    usedFor: string;
+    /** The bits, blades or sizes it needs. */
+    detail?: string;
+}
+
+/** The tools a design needs, required ones first. */
+export function tools(spec: Spec, units = getUnits()): Tool[] {
+    return wasm.tools(spec, units) as Tool[];
+}
