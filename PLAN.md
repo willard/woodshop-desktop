@@ -897,6 +897,13 @@ the owner to check, as computer use of the app is declined.
   on two runners by its rim, with a fit check. Props drag in the view onto the up-facing part face
   under the pointer, or the floor. Help article "Showing what it holds". Not yet checked in the
   real app window: importing a file through `put_model` and `get_model`.
+- **7.22 Video presets.** Done (2026-11-25), from the owner's screen recording: the video dialog
+  picks a preset (`FILM_PRESETS` in `ui/src/video/timeline.ts`). Build it, step by step is the
+  assembly film as before. Colour swatches holds the whole piece still and repaints it every
+  1.1 s (`SWATCH_SECONDS`, a 0.12 s blend) with `randomPaints`: muted paints, now and then a
+  near-black, warm white or greige, each unlike the two before. `FilmStage.paint` drops the grain
+  map on the parts that are not glass or metal; props keep theirs. Length sets the number of
+  colours (`swatchCount`). Tests: timeline unit tests, an e2e render of a swatches video.
 - **7.20 Release v0.1.5.** Not started. Format 1.22 is unreleased: designs saved by a dev build
   open only in a dev build until 0.1.5 ships. Bump the versions and date the changelog once
   0.1.4 is published and the owner says go.
