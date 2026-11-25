@@ -75,6 +75,9 @@ author and edit parts, materials, ops, joints, doors, drawers and hardware. Ever
 validated against the schema and the buildability linter, and the previous draft is saved as a
 version (marked "AI agent"), so it can always be undone from the Versions panel.
 
+[skills/](skills/README.md) has ready-made instructions for agents: designing a piece through
+the MCP server, and making a 3D model of a real object to show with it.
+
 ## How it's built
 
 | Concern | Choice | Why |
