@@ -15,6 +15,30 @@ const DIFFICULTY_COLOR: Record<string, string> = {
     advanced: 'text-danger-fg',
 };
 
+/** How long a template may take, for the filter: up to `max` hours. */
+const TIMES = [
+    { key: 'any', label: 'Any time', max: Infinity },
+    { key: 'afternoon', label: 'An afternoon', max: 4 },
+    { key: 'day', label: 'A day', max: 8 },
+    { key: 'weekend', label: 'A weekend', max: 16 },
+] as const;
+type TimeKey = (typeof TIMES)[number]['key'];
+
+/** "About 9 hours", "About 1 hour". */
+export function aboutHours(hours: number): string {
+    return `About ${hours === 1 ? '1 hour' : `${hours} hours`}`;
+}
+
+/** The templates the filters leave: within the time, and without a router when asked. */
+export function filterTemplates(
+    templates: readonly TemplateSummary[],
+    time: TimeKey,
+    noRouter: boolean,
+): TemplateSummary[] {
+    const max = TIMES.find((t) => t.key === time)?.max ?? Infinity;
+    return templates.filter((t) => t.effort.hours <= max && !(noRouter && t.effort.needsRouter));
+}
+
 /** The painted theme, re-rendering on a change, so each picture matches the page around it. */
 function useActiveTheme() {
     return useSyncExternalStore(onThemeChange, activeTheme);
@@ -26,6 +50,11 @@ export function TemplatesPage() {
     const toast = useToast();
     const templates = useQuery({ queryKey: ['templates'], queryFn: api.listTemplates, staleTime: Infinity });
     const [using, setUsing] = useState<string | null>(null);
+    const [time, setTime] = useState<TimeKey>('any');
+    const [noRouter, setNoRouter] = useState(false);
+    const all = templates.data ?? [];
+    const shown = filterTemplates(all, time, noRouter);
+    const filtering = time !== 'any' || noRouter;
 
     async function startFromTemplate(id: string, name: string): Promise<void> {
         setUsing(id);
@@ -53,8 +82,60 @@ export function TemplatesPage() {
                     ← Your projects
                 </Link>
             </div>
+            <div
+                className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm"
+                data-testid="template-filters"
+            >
+                <div
+                    role="group"
+                    aria-label="Time to build"
+                    className="border-fg/12 flex rounded-lg border p-0.5"
+                >
+                    {TIMES.map((t) => (
+                        <button
+                            key={t.key}
+                            aria-pressed={time === t.key}
+                            className={`rounded-md px-2.5 py-1 text-xs ${time === t.key ? 'bg-fg/10 text-fg font-medium' : 'text-muted hover:text-fg'}`}
+                            title={t.max === Infinity ? undefined : `Up to ${t.max} hours in the shop`}
+                            onClick={() => setTime(t.key)}
+                            data-testid={`template-filter-${t.key}`}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+                <label className="text-muted flex cursor-pointer items-center gap-1.5 text-xs">
+                    <input
+                        type="checkbox"
+                        className="accent-accent"
+                        checked={noRouter}
+                        onChange={(e) => setNoRouter(e.target.checked)}
+                        data-testid="template-filter-no-router"
+                    />
+                    No router
+                </label>
+                {filtering && (
+                    <span className="text-faint text-xs" data-testid="template-filter-count">
+                        {shown.length} of {plural(all.length, 'template')}
+                    </span>
+                )}
+            </div>
+            {filtering && shown.length === 0 && (
+                <p className="text-muted text-sm" data-testid="template-filter-none">
+                    No template fits.{' '}
+                    <button
+                        className="text-accent hover:underline"
+                        onClick={() => {
+                            setTime('any');
+                            setNoRouter(false);
+                        }}
+                    >
+                        Show them all
+                    </button>
+                </p>
+            )}
             <ul className="grid [grid-template-columns:repeat(auto-fill,minmax(280px,1fr))] gap-4">
-                {(templates.data ?? []).map((t) => (
+                {shown.map((t) => (
                     <TemplateCard
                         key={t.id}
                         template={t}
@@ -139,9 +220,23 @@ function TemplateCard({
                 <p className="text-faint mt-auto pt-2 text-xs" data-testid="template-facts">
                     {facts.join(' · ')}
                 </p>
+                {t.effort.hours > 0 && (
+                    <p
+                        className="text-faint text-xs leading-snug"
+                        data-testid="template-takes"
+                        title="Rough time in the shop with the tools set up, not counting the finish"
+                    >
+                        <span className="text-muted">{aboutHours(t.effort.hours)}</span> ·{' '}
+                        {[t.effort.cuts.join(', '), t.effort.joints.join(', ')].filter(Boolean).join(' · ')}
+                    </p>
+                )}
                 {t.tools.length > 0 && (
                     <p className="text-faint text-xs leading-snug" data-testid="template-tools">
-                        <span className="text-muted">Tools:</span> {t.tools.join(', ')}
+                        <span className="text-muted">{plural(t.effort.toolCount, 'tool')}:</span>{' '}
+                        {t.tools.join(', ')}
+                        {t.effort.toolCount - t.tools.length >= 2
+                            ? ', plus a tape measure and clamps'
+                            : ', plus a tape measure'}
                     </p>
                 )}
                 <span

@@ -75,6 +75,8 @@ struct PlanView {
     credit_url: Option<String>,
     overall: Option<String>,
     part_count: usize,
+    /// "About 9 hours in the shop · straight cuts · screwed joints · 7 tools", or none.
+    takes: Option<String>,
     has_thumbnail: bool,
     /// Front, side and top drawings with sizes are served as `/front.svg` and so on.
     has_drawings: bool,
@@ -408,6 +410,7 @@ fn plan_view(input: &PlanInput<'_>, cut_list: &CutList) -> PlanView {
         date: input.date.to_owned(),
         overall,
         part_count: input.spec.parts.len(),
+        takes: Some(woodshop_core::effort::effort(input.spec).line()).filter(|l| !l.is_empty()),
         has_thumbnail: input.thumbnail.is_some(),
         has_drawings: !input.spec.parts.is_empty(),
         finish: finish_line(&cut_list.totals, units),
@@ -978,6 +981,13 @@ mod tests {
         let view = plan_view(&input(&spec), &cut_list(&spec));
         assert_eq!(view.credit.as_deref(), Some("Plan by Jo Maker (CC BY 4.0)"));
         assert_eq!(view.credit_url.as_deref(), Some("https://jo.example/plans"));
+        // What it takes, under the title too.
+        let takes = view.takes.as_deref().unwrap();
+        assert!(
+            takes.starts_with("About ") && takes.contains(" in the shop · straight cuts"),
+            "{takes}"
+        );
+        assert!(takes.ends_with(" tools"), "{takes}");
         assert!(render_plan_pdf(&input(&spec)).unwrap().starts_with(b"%PDF-"));
     }
 

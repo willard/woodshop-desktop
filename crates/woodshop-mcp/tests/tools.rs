@@ -1193,7 +1193,16 @@ fn hardware_comes_off_a_part_in_one_call_and_goes_with_a_replaced_part() {
     keys.sort_unstable();
     assert_eq!(
         keys,
-        ["hardware", "more", "name", "projectId", "sections", "tools", "totals"]
+        [
+            "hardware",
+            "more",
+            "name",
+            "projectId",
+            "sections",
+            "takes",
+            "tools",
+            "totals"
+        ]
     );
     assert!(err(&w, "get_cut_list", json!({ "project_id": id, "detail": "brief" })).contains("summary"));
 }
@@ -1410,6 +1419,13 @@ fn the_cut_list_names_the_tools_for_the_build() {
         assert!(
             tools.iter().any(|t| t["required"] == false),
             "{detail}: no nice-to-have"
+        );
+        let takes = &list["takes"];
+        assert!(takes["hours"].as_f64().unwrap() > 0.0, "{detail}: {takes}");
+        assert_eq!(takes["needsRouter"], true);
+        assert!(
+            takes["cuts"].as_array().unwrap().iter().any(|c| c == "dados"),
+            "{takes}"
         );
     }
 }

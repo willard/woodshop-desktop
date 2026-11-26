@@ -43,6 +43,8 @@ pub struct TemplateSummary {
     pub board_feet: f64,
     /// The tools it needs beyond the tape measure and clamps every build has, by name.
     pub tools: Vec<String>,
+    /// What it takes: hours, kinds of cut and joint, the tool count.
+    pub effort: crate::effort::Effort,
 }
 
 /// Every template, sorted by name.
@@ -72,6 +74,7 @@ pub fn all() -> Vec<TemplateSummary> {
                 sheet_count: totals.sheet_count,
                 board_feet: totals.board_feet,
                 tools: crate::tools::card_tools(&spec),
+                effort: crate::effort::effort(&spec),
             })
         })
         .collect();

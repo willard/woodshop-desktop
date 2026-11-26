@@ -2017,7 +2017,7 @@ test('a template says what tools it needs, and so does its cut list', async ({ p
     const card = page
         .getByTestId('template-card')
         .filter({ has: page.getByRole('heading', { name: 'Kitchen Cart', exact: true }) });
-    await expect(card.getByTestId('template-tools')).toContainText('Tools: Track saw or table saw');
+    await expect(card.getByTestId('template-tools')).toContainText(/\d+ tools: Track saw or table saw/);
     await expect(card.getByTestId('template-tools')).toContainText('Pocket-hole jig');
     await card.getByTestId('use-template').click();
     await page.getByTestId('cutlist-toggle').click();
@@ -2031,6 +2031,45 @@ test('a template says what tools it needs, and so does its cut list', async ({ p
     await expect(page.getByTestId('cutlist-tool').filter({ hasText: 'Clamps' })).toContainText(
         /at least \d+" long/,
     );
+});
+
+test('a template card says what it takes, and the templates filter by time and router', async ({ page }) => {
+    await page.goto('/#/templates');
+    const cards = page.getByTestId('template-card');
+    await expect(cards.first()).toBeVisible();
+    const total = await cards.count();
+    const stand = cards.filter({
+        has: page.getByRole('heading', { name: 'Record Stand 38" (Dado Build)', exact: true }),
+    });
+    await expect(stand.getByTestId('template-takes')).toContainText(
+        /^About [\d.]+ hours · straight cuts, dados/,
+    );
+    await expect(stand.getByTestId('template-takes')).toContainText('dado joints');
+
+    // No router: the dadoed stand goes, the screwed one stays.
+    await page.getByTestId('template-filter-no-router').check();
+    await expect(stand).toHaveCount(0);
+    await expect(
+        cards.filter({ has: page.getByRole('heading', { name: 'Workbench', exact: true }) }),
+    ).toHaveCount(1);
+    await expect(page.getByTestId('template-filter-count')).toHaveText(
+        new RegExp(`^\\d+ of ${total} templates$`),
+    );
+
+    // An afternoon: every card left says four hours or less.
+    await page.getByTestId('template-filter-afternoon').click();
+    await expect(page.getByTestId('template-filter-afternoon')).toHaveAttribute('aria-pressed', 'true');
+    const hours = await page
+        .getByTestId('template-takes')
+        .evaluateAll((els) => els.map((e) => Number(/About ([\d.]+) hour/.exec(e.textContent ?? '')?.[1])));
+    expect(hours.length).toBeGreaterThan(0);
+    expect(hours.length).toBeLessThan(total);
+    expect(hours.every((h) => h <= 4)).toBe(true);
+
+    await page.getByTestId('template-filter-any').click();
+    await page.getByTestId('template-filter-no-router').uncheck();
+    await expect(cards).toHaveCount(total);
+    await expect(page.getByTestId('template-filter-count')).toHaveCount(0);
 });
 
 test('what you already have comes off the shopping list, in the design and on the shopping page', async ({

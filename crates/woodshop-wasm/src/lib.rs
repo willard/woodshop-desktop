@@ -357,6 +357,12 @@ pub fn card_tools(spec: JsValue) -> JsResult<JsValue> {
     to_js(&woodshop_core::tools::card_tools(&spec_from_js(spec)?))
 }
 
+/// What the build takes: `{ hours, cuts, joints, toolCount, needsRouter }`.
+#[wasm_bindgen(js_name = effort)]
+pub fn effort(spec: JsValue) -> JsResult<JsValue> {
+    to_js(&woodshop_core::effort::effort(&spec_from_js(spec)?))
+}
+
 /// The design's joinery in shop words, as printed on the PDF plan: `{ setups, parts }`.
 #[wasm_bindgen(js_name = joinery)]
 pub fn joinery(spec: JsValue, units: &str) -> JsResult<JsValue> {

@@ -8,6 +8,10 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- What it takes: each template card says roughly how many hours it takes in the shop, the kinds
+  of cut ("straight cuts, dados") and joint ("screwed joints, pocket holes") and how many tools,
+  and the templates filter by time (an afternoon, a day, a weekend) and by no router. The same
+  line heads the PDF plan, and agents get it in the cut list.
 - Have it, need it: tick what you already have (a material, a box of screws, a tool) in a
   design's new Shopping list in the cut list or on the Shopping list page, and it comes off the
   list, with a count of what is left to get and Print list to print only that. The shopping page

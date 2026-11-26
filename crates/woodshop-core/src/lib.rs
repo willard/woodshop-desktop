@@ -7,6 +7,7 @@
 
 pub mod assembly;
 pub mod cutlist;
+pub mod effort;
 pub mod fasteners;
 pub mod geometry;
 pub mod hardware;

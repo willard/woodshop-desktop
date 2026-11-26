@@ -35,6 +35,10 @@
       #v(2pt)
       #text(fill: muted)[Overall #data.overall (W × D × H) · #data.partCount parts]
     ]
+    #if data.takes != none [
+      #v(2pt)
+      #text(fill: muted, data.takes)
+    ]
   ],
   if data.hasThumbnail { image("/thumb.png", width: 1.9in) },
 )

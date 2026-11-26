@@ -121,6 +121,21 @@ export interface TemplateSummary {
     boardFeet: number;
     /** The tools it needs beyond the tape measure and clamps every build has. */
     tools: string[];
+    /** What it takes to build. */
+    effort: Effort;
+}
+
+/** What a build takes (the core's `effort`): rough hours in the shop, not counting the finish. */
+export interface Effort {
+    /** To the half hour; zero for nothing to build. */
+    hours: number;
+    /** "straight cuts", "dados", "curves"… */
+    cuts: string[];
+    /** "screwed joints", "pocket holes"… */
+    joints: string[];
+    /** The required tools, the tape measure and clamps included. */
+    toolCount: number;
+    needsRouter: boolean;
 }
 
 export type Author = 'user' | 'mcp';

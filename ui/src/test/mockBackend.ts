@@ -53,6 +53,7 @@ export function installMockBackend(): void {
                 sheetCount: totals.sheetCount,
                 boardFeet: totals.boardFeet,
                 tools: wasm.cardTools(spec) as string[],
+                effort: wasm.effort(spec) as TemplateSummary['effort'],
                 spec,
             };
         })

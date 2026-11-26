@@ -190,14 +190,15 @@ pub const GET_CUT_LIST: ToolDef = ToolDef {
         cut beyond the blanks) lists the tool `setups` to make, each with its cut count and parts, then \
         each part's dados, grooves, rabbets, holes, miters, notches, curves and eased edges in shop \
         words. `tools` lists the tools the build needs, required ones first, each with what it is for \
-        and the bits or sizes it takes (`required: false` is nice to have). Costs use the user's hardware \
+        and the bits or sizes it takes (`required: false` is nice to have). `takes` is what the build takes: rough `hours` in the shop \
+        (not the finish), the kinds of `cuts` and `joints`, the required `toolCount` and `needsRouter`. Costs use the user's hardware \
         prices, and pieces are cut first from the stock the user has on hand: a plan's `offcuts` lists \
         the pieces it uses, and a placement or cut whose sheet or stick index is at or past \
         `sheetCount`/`stickCount` is on one of them (not bought). A sheet plan's `trim` is what the user \
         trims off each edge of a bought sheet first, and a lumber plan's what comes off each end of a \
         bought board: parts and cuts sit inside. Matches \
         what the app shows. The full list is long: pass `detail: \"summary\"` for the totals, the \
-        `sections` (what to cut and buy), the `hardware` and the `tools` alone. Read-only.",
+        `sections` (what to cut and buy), the `hardware`, the `tools` and `takes` alone. Read-only.",
     read_only: true,
     schema: || {
         object(
@@ -280,8 +281,9 @@ fn get_cut_list(w: &Woodshop, args: &Args) -> Outcome {
     }
     payload["sections"] = json!(group_cut_list(&built));
     payload["tools"] = json!(tools(spec, Units::Fraction));
+    payload["takes"] = json!(woodshop_core::effort::effort(spec));
     if summary {
-        let keep = ["projectId", "name", "totals", "sections", "hardware", "tools"];
+        let keep = ["projectId", "name", "totals", "sections", "hardware", "tools", "takes"];
         if let Some(fields) = payload.as_object_mut() {
             fields.retain(|key, _| keep.contains(&key.as_str()));
         }

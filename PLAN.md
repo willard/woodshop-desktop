@@ -1023,7 +1023,17 @@ spec change and nothing leaks into a shared `.woodshop` file or the gallery. Res
   and a Print list of only what is left to buy. Kept per design, and the shopping page adds up
   only what is still needed across the designs ticked. Done when: an e2e test; the CSV export
   follows the ticks.
-- **8.5 What it takes, on the template card.** Not started, after 8.3. Each template card and
+- **8.5 What it takes, on the template card.** Done (2026-11-25), the hours for the owner to
+  check. `crates/woodshop-core/src/effort.rs`: `effort(spec)` gives `hours` (to the half hour),
+  `cuts`, `joints`, `toolCount` and `needsRouter`; the minutes are one table, `MINUTES` (a part
+  cut 8, sanded 5, a dado 10, a screw 1, a dowel 3, a hinge 12, a slide 15, an assembly step 20,
+  …), not counting the finish. The nightstand comes to 9 hours, the workbench to 4, the dresser
+  to 11.5, from 2.5 (the step stool) to 19 (the bench planter). `TemplateSummary.effort`; wasm `effort`; the card's "About 9
+  hours · straight cuts · screwed joints, pocket holes" and "7 tools: …"; filters Any time / An
+  afternoon (4 h) / A day (8 h) / A weekend (16 h) and No router; the same line under the PDF's
+  title (`Effort::line`); `takes` in the MCP `get_cut_list`. Tested: the sum, every template in
+  range, the nightstand and workbench, the PDF and MCP, and the e2e "a template card says what it
+  takes…". The plan as written: Each template card and
   plan header says, from the design: the hours of assembly (a rough sum per step: per part, per
   fastener, per glue-up, kept in one table in the core), the kinds of cut ("straight cuts" or
   "dados, curves") and joint ("screwed joints", "pocket holes", "mortise and tenon"), and the tool
