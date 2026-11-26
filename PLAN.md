@@ -1009,7 +1009,16 @@ spec change and nothing leaks into a shared `.woodshop` file or the gallery. Res
   on the template card, in the cut list beside the shopping list, on the PDF, and in the MCP cut
   list. Done when: every template lists tools that a Rust test checks against its ops (a dado
   means a router or dado stack, a hole means a drill and that bit).
-- **8.4 Have it / need it.** Not started, after 8.3. In the shopping list and on the shopping
+- **8.4 Have it / need it.** Done (2026-11-25). Ticks in `cutlist/have.ts` (localStorage
+  `woodshop.have.<project id>`: `m:<material id>` and `h:<hardware key>`; tools by name under
+  `woodshop.have.tools`, once for every design, since a tool you own serves them all, a change
+  from "kept per design" below). The cut list's Shopping list (`ShoppingChecklist.tsx`, with the
+  count and Print list); the shopping page ticks each line, lists Already have, the tools of every
+  design chosen, "N to get" and Print list. The core's `shopping_list_having` leaves what each
+  design has off the packing, totals and savings, and gives `sources` (which designs' items make
+  each line) and `had`. Printing alone moved to `PrintPortal.tsx`. The CSV is what is left to get,
+  tools included. Tested in `tests/shopping.rs` and the e2e "what you already have…". The plan as
+  written: In the shopping list and on the shopping
   page, tick what you already have (boards, sheets, a box of screws, each tool), with "13 to get"
   and a Print list of only what is left to buy. Kept per design, and the shopping page adds up
   only what is still needed across the designs ticked. Done when: an e2e test; the CSV export

@@ -2032,3 +2032,69 @@ test('a template says what tools it needs, and so does its cut list', async ({ p
         /at least \d+" long/,
     );
 });
+
+test('what you already have comes off the shopping list, in the design and on the shopping page', async ({
+    page,
+}) => {
+    await page.goto('/#/projects/1');
+    await expect(page.getByTestId('parts-count')).toHaveText('6 parts');
+    if (!(await page.getByTestId('cutlist').isVisible())) await page.getByTestId('cutlist-toggle').click();
+    const count = page.getByTestId('cutlist-shopping-count');
+    await expect(count).toHaveText(/^\((\d+) to get\)$/);
+    const before = Number((await count.textContent())!.match(/\d+/)![0]);
+
+    // Tick the screws and a tool in the design's own list.
+    await page.getByTestId('cutlist-shopping-toggle').click();
+    await page.getByLabel('Have #8 × 1" wood screws').check();
+    await page.getByLabel('Have Drill/driver').check();
+    await expect(count).toHaveText(`(${before - 2} to get)`);
+
+    // The shopping page leaves them off, and lists them as had.
+    await page.goto('/#/shopping');
+    await page.getByTestId('shopping-design').first().check();
+    await expect(page.getByTestId('shopping-to-get')).toHaveText(`${before - 2} to get.`);
+    await expect(page.getByTestId('shopping-row').filter({ hasText: 'wood screws' })).toHaveCount(0);
+    await expect(page.getByTestId('shopping-had')).toContainText('24 × #8 × 1" wood screws');
+    await expect(page.getByLabel('Have Drill/driver')).toBeChecked();
+
+    // Ticked here, the plywood is had in the design too; the CSV is what is left to get.
+    await page
+        .getByTestId('shopping-row')
+        .filter({ hasText: 'Baltic Birch 18mm' })
+        .getByTestId('shopping-have')
+        .click();
+    await expect(page.getByTestId('shopping-to-get')).toHaveText(`${before - 3} to get.`);
+    await expect(page.getByTestId('shopping-summary')).toContainText('no wood to buy');
+    await page.getByTestId('shopping-csv').click();
+    await expect(page.getByText('Shopping list saved.')).toBeVisible();
+    const csv = await page.evaluate(
+        () =>
+            (window as unknown as { __written: Record<string, string> }).__written[
+                '/mock/exports/Shopping list.csv'
+            ],
+    );
+    expect(csv).not.toContain('Baltic Birch');
+    expect(csv).not.toContain('wood screws');
+    expect(csv).not.toContain('Drill/driver');
+    expect(csv).toMatch(/pocket screws",?12,/);
+    expect(csv).toContain('Pocket-hole jig');
+
+    // Print list prints only what is left.
+    await page.evaluate(() => {
+        window.print = () => {};
+    });
+    await page.getByTestId('shopping-print').click();
+    const printout = page.getByTestId('shopping-printout');
+    await page.emulateMedia({ media: 'print' });
+    await expect(printout).toBeVisible();
+    await expect(printout).toContainText('pocket screws');
+    await expect(printout).not.toContainText('Baltic Birch');
+    await page.emulateMedia({ media: 'screen' });
+
+    // Unticked under Already have, it is back on the list, and in the design.
+    await page.getByLabel('Have Baltic Birch 18mm').uncheck();
+    await expect(page.getByTestId('shopping-row').filter({ hasText: 'Baltic Birch 18mm' })).toHaveCount(1);
+    await page.goto('/#/projects/1');
+    if (!(await page.getByTestId('cutlist').isVisible())) await page.getByTestId('cutlist-toggle').click();
+    await expect(page.getByTestId('cutlist-shopping-count')).toHaveText(`(${before - 2} to get)`);
+});

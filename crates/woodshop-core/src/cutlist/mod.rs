@@ -14,7 +14,7 @@ pub mod weight;
 
 pub use grouping::{CutListSection, group_cut_list};
 pub use hardware::{compute_hardware, compute_hardware_in};
-pub use shopping::{ShoppingList, shopping_list};
+pub use shopping::{DesignItem, HadLine, Have, ShoppingList, ShoppingSource, shopping_list, shopping_list_having};
 pub use stock_advice::{StockSuggestion, stock_advice};
 pub use types::*;
 

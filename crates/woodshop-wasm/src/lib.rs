@@ -264,9 +264,10 @@ pub fn compute_cut_list(spec: JsValue, config: JsValue) -> JsResult<JsValue> {
     to_js(&cutlist::compute_cut_list(&spec_from_js(spec)?, config))
 }
 
-/// One shopping list for several designs (specs already parsed by [`parse_spec`]).
+/// One shopping list for several designs (specs already parsed by [`parse_spec`]); `have`, when
+/// given, is what each design already has (`[{ materials, hardware }]`), left off the list.
 #[wasm_bindgen(js_name = shoppingList)]
-pub fn shopping_list(specs: JsValue, config: JsValue) -> JsResult<JsValue> {
+pub fn shopping_list(specs: JsValue, config: JsValue, have: JsValue) -> JsResult<JsValue> {
     let config: CutListConfig = if config.is_undefined() || config.is_null() {
         CutListConfig::default()
     } else {
@@ -274,7 +275,12 @@ pub fn shopping_list(specs: JsValue, config: JsValue) -> JsResult<JsValue> {
     };
     let specs: Vec<Spec> = from_js(specs)?;
     let refs: Vec<&Spec> = specs.iter().collect();
-    to_js(&cutlist::shopping_list(&refs, &config))
+    let have: Vec<cutlist::Have> = if have.is_undefined() || have.is_null() {
+        Vec::new()
+    } else {
+        from_js(have)?
+    };
+    to_js(&cutlist::shopping_list_having(&refs, &config, &have))
 }
 
 #[wasm_bindgen(js_name = groupCutList)]

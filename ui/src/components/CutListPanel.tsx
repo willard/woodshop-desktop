@@ -37,6 +37,7 @@ import {
     boardWord,
     type PieceTicks,
 } from './CutLayouts';
+import { ShoppingChecklist, shoppingItems } from './ShoppingChecklist';
 
 export interface CutListPanelProps {
     spec: Spec;
@@ -731,6 +732,13 @@ export function CutListPanel(props: CutListPanelProps) {
                         </ol>
                     )}
                 </div>
+            )}
+
+            {tracking && (
+                <ShoppingChecklist
+                    title={`${spec.name}: shopping list`}
+                    items={shoppingItems(cutList, toolList, props.progressKey!)}
+                />
             )}
 
             {toolList.length > 0 && (

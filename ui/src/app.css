@@ -239,23 +239,23 @@ body {
 }
 
 /*
-    Print cut list (`PrintCutList`): while it is printing, the page prints the layouts and the
-    checklist alone, on white; on screen the copy drawn for the printer never shows.
+    Printing one thing alone (`PrintPortal`: the cut list, a shopping list): while it prints, the
+    page prints that alone, on white; on screen the copy drawn for the printer never shows.
 */
-.cutlist-print {
+.print-portal {
     display: none;
 }
 @media print {
-    html[data-printing='cutlist'] body > :not(.cutlist-print) {
+    html[data-printing] body > :not(.print-portal) {
         display: none !important;
     }
-    html[data-printing='cutlist'],
-    html[data-printing='cutlist'] body {
+    html[data-printing],
+    html[data-printing] body {
         background: #ffffff !important;
         height: auto !important;
         overflow: visible !important;
     }
-    html[data-printing='cutlist'] .cutlist-print {
+    html[data-printing] .print-portal {
         display: block;
         --surface-2: #f7f6f3;
         --fg: #000000;

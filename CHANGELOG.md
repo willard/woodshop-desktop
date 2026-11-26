@@ -8,6 +8,11 @@ All notable changes to Woodshop are listed here. The format follows
 
 ### Added
 
+- Have it, need it: tick what you already have (a material, a box of screws, a tool) in a
+  design's new Shopping list in the cut list or on the Shopping list page, and it comes off the
+  list, with a count of what is left to get and Print list to print only that. The shopping page
+  adds up only what the designs still need, the CSV follows, and a tool you have counts for every
+  design.
 - Tools for the build: each design lists the tools it needs, from its materials and its cuts
   (a track or table saw for the sheets, a router or dado stack for the dados, a drill and the
   bit sizes for the holes, a pocket-hole jig, clamps long enough for the piece), each needed or

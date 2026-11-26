@@ -4,8 +4,8 @@
  * tick off as they are cut (a click, again to undo), with a count per sheet or board; the same
  * pieces read as a plain checklist, and the layouts and checklist print on their own.
  */
-import { useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useMemo } from 'react';
+import { PrintPortal } from './PrintPortal';
 import type { CutList, SawCut } from '@/cutlist/types';
 import type { Spec } from '@/spec';
 import { len } from '@/lib/display';
@@ -314,8 +314,7 @@ export function CutChecklist({ cutList, spec, ticks }: { cutList: CutList; spec:
 }
 
 /**
- * The layouts and the checklist alone, printed: drawn into the page while printing and hidden
- * everywhere else, with the rest of the page hidden from the printer (`app.css`).
+ * The layouts and the checklist alone, printed.
  */
 export function PrintCutList({
     cutList,
@@ -328,35 +327,9 @@ export function PrintCutList({
     ticks?: PieceTicks;
     onDone: () => void;
 }) {
-    const [root] = useState(() => {
-        const el = document.createElement('div');
-        el.className = 'cutlist-print';
-        el.dataset.testid = 'cutlist-printout';
-        return el;
-    });
     const paperTicks = useMemo(() => ticks && { isCut: ticks.isCut }, [ticks]);
-    useEffect(() => {
-        const html = document.documentElement;
-        document.body.append(root);
-        html.dataset.printing = 'cutlist';
-        let printed = false;
-        const done = () => {
-            if (printed) return;
-            printed = true;
-            onDone();
-        };
-        window.addEventListener('afterprint', done);
-        // After the portal has drawn.
-        const timer = window.setTimeout(() => window.print(), 50);
-        return () => {
-            window.clearTimeout(timer);
-            window.removeEventListener('afterprint', done);
-            delete html.dataset.printing;
-            root.remove();
-        };
-    }, [root, onDone]);
-    return createPortal(
-        <div className="p-2 text-sm text-black">
+    return (
+        <PrintPortal testId="cutlist-printout" onDone={onDone}>
             <h1 className="mb-1 text-lg font-semibold">{spec.name}: cut list</h1>
             <p className="mb-4 text-xs text-neutral-600">
                 {plural(
@@ -370,8 +343,7 @@ export function PrintCutList({
                 <SectionHeading>Checklist</SectionHeading>
                 <CutChecklist cutList={cutList} spec={spec} ticks={paperTicks} />
             </div>
-        </div>,
-        root,
+        </PrintPortal>
     );
 }
 

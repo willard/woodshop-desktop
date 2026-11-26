@@ -86,3 +86,54 @@ fn different_stock_is_never_merged() {
         2 * (once.sheets.len() + once.lumber.len())
     );
 }
+
+#[test]
+fn what_a_design_already_has_is_left_off_and_listed_as_had() {
+    use woodshop_core::cutlist::{Have, shopping_list_having};
+    let a = template("nightstand");
+    let b = template("side-table");
+    let config = CutListConfig::default();
+    let full = list(&[&a, &b], &config);
+    // Every line to buy says which designs' items make it up.
+    for plan in &full.sheets {
+        assert!(
+            full.sources.iter().any(|s| s.key == plan.material_id),
+            "{}",
+            plan.material_name
+        );
+    }
+    for row in &full.hardware {
+        assert!(full.sources.iter().any(|s| s.key == row.key), "{}", row.description);
+    }
+    assert!(full.had.is_empty());
+
+    // The nightstand has its first sheet material and its first hardware already.
+    let sheet = full.sheets[0].material_id.clone();
+    let source = full.sources.iter().find(|s| s.key == sheet).unwrap();
+    let mine = source.designs.iter().find(|d| d.design == 0).unwrap();
+    let material = mine.item.strip_prefix("m:").unwrap().to_owned();
+    let screw = compute_cut_list(&a, config.clone()).hardware[0].clone();
+    let have = [
+        Have {
+            materials: vec![material],
+            hardware: vec![screw.key.clone()],
+        },
+        Have::default(),
+    ];
+    let left = shopping_list_having(&[&a, &b], &config, &have);
+    assert!(left.totals.sheet_count <= full.totals.sheet_count);
+    assert!(left.totals.board_feet < full.totals.board_feet);
+    let qty =
+        |l: &woodshop_core::cutlist::ShoppingList| l.hardware.iter().find(|h| h.key == screw.key).map_or(0, |h| h.qty);
+    assert_eq!(qty(&left), qty(&full) - screw.qty);
+    assert!(left.had.iter().any(|h| h.qty.is_none()), "{:?}", left.had);
+    assert!(
+        left.had
+            .iter()
+            .any(|h| h.qty == Some(screw.qty) && h.label == screw.description)
+    );
+    // Nothing had, nothing changed.
+    let same = shopping_list_having(&[&a, &b], &config, &[Have::default(), Have::default()]);
+    assert_eq!(same.totals.sheet_count, full.totals.sheet_count);
+    assert_eq!(same.separate_sheets, full.separate_sheets);
+}

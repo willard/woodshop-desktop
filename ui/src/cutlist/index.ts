@@ -10,7 +10,13 @@ import type { Spec } from '../spec/types';
 import { getHardwarePrices } from './prices';
 import { getOffcuts } from './offcuts';
 import { getTrim } from './trim';
-import { DEFAULT_CUTLIST_CONFIG, type CutList, type CutListConfig, type ShoppingList } from './types';
+import {
+    DEFAULT_CUTLIST_CONFIG,
+    type CutList,
+    type CutListConfig,
+    type Have,
+    type ShoppingList,
+} from './types';
 
 export * from './types';
 export * from './grouping';
@@ -29,15 +35,24 @@ export function computeCutList(spec: Spec, config: CutListConfig = DEFAULT_CUTLI
 }
 
 /** One list to buy for several designs: shared material packed together, hardware added up. */
-export function shoppingList(specs: Spec[], config: CutListConfig = DEFAULT_CUTLIST_CONFIG): ShoppingList {
-    return wasm.shoppingList(specs, {
-        units: getUnits(),
-        hardwarePrices: getHardwarePrices(),
-        offcuts: getOffcuts(),
-        sheetTrim: getTrim('sheetTrim'),
-        boardTrim: getTrim('boardTrim'),
-        ...config,
-    }) as ShoppingList;
+export function shoppingList(
+    specs: Spec[],
+    config: CutListConfig = DEFAULT_CUTLIST_CONFIG,
+    /** What each design already has, left off the list. */
+    have?: Have[],
+): ShoppingList {
+    return wasm.shoppingList(
+        specs,
+        {
+            units: getUnits(),
+            hardwarePrices: getHardwarePrices(),
+            offcuts: getOffcuts(),
+            sheetTrim: getTrim('sheetTrim'),
+            boardTrim: getTrim('boardTrim'),
+            ...config,
+        },
+        have,
+    ) as ShoppingList;
 }
 
 /** Smaller panel to buy when a single sheet is mostly offcut (advisory only). */

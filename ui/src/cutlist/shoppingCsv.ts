@@ -6,10 +6,12 @@ import { finishArea, len } from '@/lib/display';
 import { boardSizes } from './boards';
 import { row } from './csv';
 import { clearFinishLabel, coatingLabel, type ShoppingList } from './types';
+import type { Tool } from './index';
 
 const cash = (n: number | null | undefined): string => (n == null ? '' : n.toFixed(2));
 
-export function shoppingCsv(list: ShoppingList, designs: string[]): string {
+/** What is still to get: `list` is made without what the designs have, and `tools` the ones to get. */
+export function shoppingCsv(list: ShoppingList, designs: string[], tools: readonly Tool[] = []): string {
     const lines = [row(['Shopping list for', designs.join('; ')]), '', row(['Item', 'Qty', 'Size', 'Cost'])];
     for (const p of list.sheets) {
         lines.push(
@@ -32,6 +34,9 @@ export function shoppingCsv(list: ShoppingList, designs: string[]): string {
     }
     if (list.totals.finishArea > 0) {
         lines.push(row([clearFinishLabel(list.totals), '', finishArea(list.totals.finishArea), '']));
+    }
+    for (const t of tools) {
+        lines.push(row([t.required ? t.name : `${t.name} (nice to have)`, '', t.detail ?? '', '']));
     }
     if (list.totals.estimatedCost != null) {
         lines.push(row(['Total', '', '', cash(list.totals.estimatedCost)]));

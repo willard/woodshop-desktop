@@ -242,4 +242,32 @@ export interface ShoppingList {
     /** What the designs would need bought one at a time. */
     separateSheets: number;
     separateBoards: number;
+    /** Where each line to buy comes from: a plan's `materialId` or a hardware row's `key`. */
+    sources: ShoppingSource[];
+    /** What the designs already have, left off the list. */
+    had: HadLine[];
+}
+
+/** One design's own item: `m:<material id>` or `h:<hardware key>`; `design` its index in the list. */
+export interface DesignItem {
+    design: number;
+    item: string;
+}
+
+export interface ShoppingSource {
+    key: string;
+    designs: DesignItem[];
+}
+
+/** Something the designs already have: a material, or hardware with how many. */
+export interface HadLine {
+    label: string;
+    qty?: number;
+    designs: DesignItem[];
+}
+
+/** What one design already has: its materials by id, its hardware by key. */
+export interface Have {
+    materials: string[];
+    hardware: string[];
 }
